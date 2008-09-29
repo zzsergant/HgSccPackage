@@ -46,15 +46,15 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
         // The cookie for project document events
         private uint _tpdTrackProjectDocumentsCookie;
         // The list of controlled projects hierarchies
-        private Hashtable _controlledProjects = new Hashtable();
+		private Dictionary<IVsHierarchy, SccProviderStorage> _controlledProjects = new Dictionary<IVsHierarchy, SccProviderStorage>();
         // The list of controlled and offline projects hierarchies
-        private Hashtable _offlineProjects = new Hashtable();
+		private HashSet<IVsHierarchy> _offlineProjects = new HashSet<IVsHierarchy>();
         // Variable tracking whether the currently loading solution is controlled (during solution load or merge)
         private string _loadingControlledSolutionLocation = "";
         // The location of the currently controlled solution
         private string _solutionLocation;
         // The list of files approved for in-memory edit
-        private Hashtable _approvedForInMemoryEdit = new Hashtable();
+		private HashSet<string> _approvedForInMemoryEdit = new HashSet<string>();
 
         #region SccProvider Service initialization/unitialization
 
@@ -428,7 +428,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                 nodes.Add(vsItem);
 
                 // Also, solution folders won't call RegisterSccProject, so we have to enumerate them and register them with scc once the solution is controlled
-                Hashtable enumSolFolders = _sccProvider.GetSolutionFoldersEnum();
+                var enumSolFolders = _sccProvider.GetSolutionFoldersEnum();
                 foreach (IVsHierarchy pHier in enumSolFolders.Keys)
                 {
                     // Register this solution folder using the same location as the solution
@@ -461,7 +461,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
         {
             // Since we registered the solution with source control from OnAfterOpenSolution, it would be nice to unregister it, too, when it gets closed.
             // Also, unregister the solution folders
-            Hashtable enumSolFolders = _sccProvider.GetSolutionFoldersEnum();
+            var enumSolFolders = _sccProvider.GetSolutionFoldersEnum();
             foreach (IVsHierarchy pHier in enumSolFolders.Keys)
             {
                 IVsSccProject2 pSccProject = (IVsSccProject2)pHier;
@@ -595,7 +595,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                     else
                     {
                         // If the IDE asks about a file that was already approved for in-memory edit, allow the edit without asking the user again
-                        if (_approvedForInMemoryEdit.ContainsKey(rgpszMkDocuments[iFile].ToLower()))
+                        if (_approvedForInMemoryEdit.Contains(rgpszMkDocuments[iFile].ToLower()))
                         {
                             fEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
                             fMoreInfo = (uint)(tagVSQueryEditResultFlags.QER_InMemoryEdit);
@@ -640,7 +640,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                                             // Add the file to the list of files approved for edit, so if the IDE asks again about this file, we'll allow the edit without asking the user again
                                             // UNDONE: Currently, a file gets removed from _approvedForInMemoryEdit list only when the solution is closed. Consider intercepting the 
                                             // IVsRunningDocTableEvents.OnAfterSave/OnAfterSaveAll interface and removing the file from the approved list after it gets saved once.
-                                            _approvedForInMemoryEdit[rgpszMkDocuments[iFile].ToLower()] = true;
+                                            _approvedForInMemoryEdit.Add(rgpszMkDocuments[iFile].ToLower());
                                         }
                                         else
                                         {
@@ -1113,7 +1113,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                 pHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
             }
 
-            return _offlineProjects.ContainsKey(pHier);
+            return _offlineProjects.Contains(pHier);
         }
 
         /// <summary>
@@ -1128,20 +1128,20 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                 pHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
             }
 
-            if (_offlineProjects.ContainsKey(pHier))
+            if (_offlineProjects.Contains(pHier))
             {
                 _offlineProjects.Remove(pHier);
             }
             else
             {
-                _offlineProjects[pHier] = true;
+                _offlineProjects.Add(pHier);
             }
         }
 
         /// <summary>
         /// Adds the specified projects and solution to source control
         /// </summary>
-        public void AddProjectsToSourceControl(ref Hashtable hashUncontrolledProjects, bool addSolutionToSourceControl)
+        public void AddProjectsToSourceControl(Hashtable hashUncontrolledProjects, bool addSolutionToSourceControl)
         {
             // A real source control provider will ask the user for a location where the projects will be controlled
             // From the user input it should create up to 4 strings that will pass them to the projects to persist, 

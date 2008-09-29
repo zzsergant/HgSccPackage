@@ -31,12 +31,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
     {
         private static string _storageExtension = ".storage";
         private string _projectFile = null;
-        private Hashtable _controlledFiles = null;
+        private HashSet<string>_controlledFiles;
 
         public SccProviderStorage(string projectFile)
         {
             _projectFile = projectFile.ToLower();
-            _controlledFiles = new Hashtable();
+            _controlledFiles = new HashSet<string>();
 
             // Read the storage file if it already exist
             ReadStorageFile();
@@ -53,7 +53,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             {
                 string storageFile = _projectFile + _storageExtension;
                 objWriter = new StreamWriter(storageFile, false, System.Text.Encoding.Unicode);
-                foreach (string strFile in _controlledFiles.Keys)
+                foreach (string strFile in _controlledFiles)
                 {
                     objWriter.Write(strFile);
                     objWriter.Write("\r\n");
@@ -86,7 +86,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                     {
                         strLine.Trim();
 
-                        _controlledFiles[strLine.ToLower()] = null;
+                        _controlledFiles.Add(strLine.ToLower());
                     }
                 }
                 finally
@@ -108,7 +108,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             // Add the files to a hastable so we can easily check later which files are controlled
             foreach (string file in files)
             {
-                _controlledFiles[file.ToLower()] = null;
+                _controlledFiles.Add(file.ToLower());
             }
 
             // And save the storage file
@@ -133,10 +133,10 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             strNewName = strNewName.ToLower();
 
             // Rename the file in the storage if it was controlled
-            if (_controlledFiles.ContainsKey(strOldName))
+            if (_controlledFiles.Contains(strOldName))
             {
                 _controlledFiles.Remove(strOldName);
-                _controlledFiles[strNewName] = null;
+                _controlledFiles.Add(strNewName);
             }
 
             // Save the storage file to reflect changes
@@ -156,7 +156,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
         /// </summary>
         public SourceControlStatus GetFileStatus(string filename)
         {
-            if (!_controlledFiles.ContainsKey(filename.ToLower()))
+            if (!_controlledFiles.Contains(filename.ToLower()))
             {
                 return SourceControlStatus.scsUncontrolled;
             }
