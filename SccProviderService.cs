@@ -46,15 +46,15 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
         // The cookie for project document events
         private uint _tpdTrackProjectDocumentsCookie;
         // The list of controlled projects hierarchies
-		private Dictionary<IVsHierarchy, SccProviderStorage> _controlledProjects = new Dictionary<IVsHierarchy, SccProviderStorage>();
+		private readonly Dictionary<IVsHierarchy, SccProviderStorage> _controlledProjects = new Dictionary<IVsHierarchy, SccProviderStorage>();
         // The list of controlled and offline projects hierarchies
-		private HashSet<IVsHierarchy> _offlineProjects = new HashSet<IVsHierarchy>();
+		private readonly HashSet<IVsHierarchy> _offlineProjects = new HashSet<IVsHierarchy>();
         // Variable tracking whether the currently loading solution is controlled (during solution load or merge)
         private string _loadingControlledSolutionLocation = "";
         // The location of the currently controlled solution
         private string _solutionLocation;
         // The list of files approved for in-memory edit
-		private HashSet<string> _approvedForInMemoryEdit = new HashSet<string>();
+		private readonly HashSet<string> _approvedForInMemoryEdit = new HashSet<string>();
 
         #region SccProvider Service initialization/unitialization
 
@@ -64,12 +64,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             _sccProvider = sccProvider;
 
             // Subscribe to solution events
-            IVsSolution sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+            var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
             sol.AdviseSolutionEvents(this, out _vsSolutionEventsCookie);
             Debug.Assert(VSConstants.VSCOOKIE_NIL != _vsSolutionEventsCookie);
 
             // Subscribe to project documents
-            IVsTrackProjectDocuments2 tpdService = (IVsTrackProjectDocuments2)_sccProvider.GetService(typeof(SVsTrackProjectDocuments));
+            var tpdService = (IVsTrackProjectDocuments2)_sccProvider.GetService(typeof(SVsTrackProjectDocuments));
             tpdService.AdviseTrackProjectDocumentsEvents(this, out _tpdTrackProjectDocumentsCookie);
             Debug.Assert(VSConstants.VSCOOKIE_NIL != _tpdTrackProjectDocumentsCookie);
         }
@@ -79,7 +79,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             // Unregister from receiving solution events
             if (VSConstants.VSCOOKIE_NIL != _vsSolutionEventsCookie)
             {
-                IVsSolution sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+                var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
                 sol.UnadviseSolutionEvents(_vsSolutionEventsCookie);
                 _vsSolutionEventsCookie = VSConstants.VSCOOKIE_NIL;
             }
@@ -87,7 +87,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             // Unregister from receiving project documents
             if (VSConstants.VSCOOKIE_NIL != _tpdTrackProjectDocumentsCookie)
             {
-                IVsTrackProjectDocuments2 tpdService = (IVsTrackProjectDocuments2)_sccProvider.GetService(typeof(SVsTrackProjectDocuments));
+                var tpdService = (IVsTrackProjectDocuments2)_sccProvider.GetService(typeof(SVsTrackProjectDocuments));
                 tpdService.UnadviseTrackProjectDocumentsEvents(_tpdTrackProjectDocumentsCookie);
                 _tpdTrackProjectDocumentsCookie = VSConstants.VSCOOKIE_NIL;
             }
@@ -262,9 +262,9 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                 // Manual registration with source control of the solution, from OnAfterOpenSolution
                 Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Solution {0} is registering with source control - {1}, {2}, {3}, {4}", _sccProvider.GetSolutionFileName(), pszSccProjectName, pszSccAuxPath, pszSccLocalPath, pszProvider));
 
-                IVsHierarchy solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
+                var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
                 string solutionFile = _sccProvider.GetSolutionFileName();
-                SccProviderStorage storage = new SccProviderStorage(solutionFile);
+                var storage = new SccProviderStorage(solutionFile);
                 _controlledProjects[solHier] = storage;
             }
             else
@@ -272,8 +272,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                 Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Project {0} is registering with source control - {1}, {2}, {3}, {4}", _sccProvider.GetProjectFileName(pscp2Project), pszSccProjectName, pszSccAuxPath, pszSccLocalPath, pszProvider));
 
                 // Add the project to the list of controlled projects
-                IVsHierarchy hierProject = (IVsHierarchy)pscp2Project;
-                SccProviderStorage storage = new SccProviderStorage(_sccProvider.GetProjectFileName(pscp2Project));
+                var hierProject = (IVsHierarchy)pscp2Project;
+                var storage = new SccProviderStorage(_sccProvider.GetProjectFileName(pscp2Project));
                 _controlledProjects[hierProject] = storage;
             }
 
@@ -305,10 +305,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                 _controlledProjects.Remove(hierProject);
                 return VSConstants.S_OK;
             }
-            else
-            {
-                return VSConstants.S_FALSE;
-            }
+        	
+			return VSConstants.S_FALSE;
         }
 
         #endregion
@@ -386,11 +384,11 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             // If a solution folder is added to the solution after the solution is added to scc, we need to controll that folder
             if (_sccProvider.IsSolutionFolderProject(pHierarchy) && (fAdded == 1))
             {
-                IVsHierarchy solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
+                var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
                 if (IsProjectControlled(solHier))
                 {
                     // Register this solution folder using the same location as the solution
-                    IVsSccProject2 pSccProject = (IVsSccProject2)pHierarchy;
+                    var pSccProject = (IVsSccProject2)pHierarchy;
                     RegisterSccProject(pSccProject, _solutionLocation, "", "", _sccProvider.ProviderName);
 
                     // We'll also need to refresh the solution folders glyphs to reflect the controlled state
@@ -432,7 +430,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                 foreach (IVsHierarchy pHier in enumSolFolders)
                 {
                     // Register this solution folder using the same location as the solution
-                    IVsSccProject2 pSccProject = (IVsSccProject2)pHier;
+                    var pSccProject = (IVsSccProject2)pHier;
                     RegisterSccProject(pSccProject, _loadingControlledSolutionLocation, "", "", _sccProvider.ProviderName);
 
                     vsItem.itemid = VSConstants.VSITEMID_ROOT;
@@ -464,7 +462,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             var enumSolFolders = _sccProvider.GetSolutionFoldersEnum();
             foreach (IVsHierarchy pHier in enumSolFolders)
             {
-                IVsSccProject2 pSccProject = (IVsSccProject2)pHier;
+                var pSccProject = (IVsSccProject2)pHier;
                 UnregisterSccProject(pSccProject);
             }
 
@@ -846,8 +844,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             // Start by iterating through all projects calling this function
             for (int iProject = 0; iProject < cProjects; iProject++)
             {
-                IVsSccProject2 sccProject = rgpProjects[iProject] as IVsSccProject2;
-                IVsHierarchy pHier = rgpProjects[iProject] as IVsHierarchy;
+                var sccProject = rgpProjects[iProject] as IVsSccProject2;
+                var pHier = rgpProjects[iProject] as IVsHierarchy;
 
                 // If the project is not controllable, or is not controlled, skip it
                 if (sccProject == null || !IsProjectControlled(pHier))
@@ -902,8 +900,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
             try
             {
-                IVsSccProject2 sccProject = pProject as IVsSccProject2;
-                IVsHierarchy pHier = pProject as IVsHierarchy;
+                var sccProject = pProject as IVsSccProject2;
+                var pHier = pProject as IVsHierarchy;
                 string projectName = null;
                 if (sccProject == null)
                 {
@@ -924,7 +922,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                 {
                     for (int iFile = 0; iFile < cFiles; iFile++)
                     {
-                        SccProviderStorage storage = _controlledProjects[pHier] as SccProviderStorage;
+                        var storage = _controlledProjects[pHier];
                         if (storage != null)
                         {
                             SourceControlStatus status = storage.GetFileStatus(rgpszMkDocuments[iFile]);
@@ -1006,9 +1004,10 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             // Start by iterating through all projects calling this function
             for (int iProject = 0; iProject < cProjects; iProject++)
             {
-                IVsSccProject2 sccProject = rgpProjects[iProject] as IVsSccProject2;
-                IVsHierarchy pHier = rgpProjects[iProject] as IVsHierarchy;
+                var sccProject = rgpProjects[iProject] as IVsSccProject2;
+                var pHier = rgpProjects[iProject] as IVsHierarchy;
                 string projectName = null;
+
                 if (sccProject == null)
                 {
                     // This is the solution calling
@@ -1037,7 +1036,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                 // Now that we know which files belong to this project, iterate the project files
                 for (int iFile = iProjectFilesStart; iFile < iNextProjecFilesStart; iFile++)
                 {
-                    SccProviderStorage storage = _controlledProjects[pHier] as SccProviderStorage;
+                    var storage = _controlledProjects[pHier];
                     if (storage != null)
                     {
                         storage.RenameFileInStorage(rgszMkOldNames[iFile], rgszMkNewNames[iFile]);
@@ -1149,7 +1148,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             // could use the 4 binding strings to identify the correct database location of the project files.
             foreach (IVsHierarchy pHier in hashUncontrolledProjects.Keys)
             {
-                IVsSccProject2 sccProject2 = (IVsSccProject2)pHier;
+                var sccProject2 = (IVsSccProject2)pHier;
                 sccProject2.SetSccLocation("<Project Location In Database>", "<Source Control Database>", "<Local Binding Root of Project>", _sccProvider.ProviderName);
 
                 // Add the newly controlled projects now to the list of controlled projects in this solution
@@ -1159,22 +1158,22 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             // Also, if the solution was selected to be added to scc, write in the solution properties the controlled status
             if (addSolutionToSourceControl)
             {
-                IVsHierarchy solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
+                var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
                 _controlledProjects[solHier] = null;
                 _sccProvider.SolutionHasDirtyProps = true;
             }
 
             // Now save all the modified files
-            IVsSolution sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+            var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
             sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
             // Add now the solution and project files to the source control database
             // which in our case means creating a text file containing the list of controlled files
             foreach (IVsHierarchy pHier in hashUncontrolledProjects.Keys)
             {
-                IVsSccProject2 sccProject2 = (IVsSccProject2)pHier;
-                IList<string> files = _sccProvider.GetProjectFiles(sccProject2);
-                SccProviderStorage storage = new SccProviderStorage(_sccProvider.GetProjectFileName(sccProject2));
+                var sccProject2 = (IVsSccProject2)pHier;
+                var files = _sccProvider.GetProjectFiles(sccProject2);
+                var storage = new SccProviderStorage(_sccProvider.GetProjectFileName(sccProject2));
                 storage.AddFilesToStorage(files);
                 _controlledProjects[pHier] = storage;
             }
@@ -1182,17 +1181,17 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             // If adding solution to source control, create a storage for the solution, too
             if (addSolutionToSourceControl)
             {
-                IVsHierarchy solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
-                IList<string> files = new List<string>();
+                var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
+                var files = new List<string>();
                 string solutionFile = _sccProvider.GetSolutionFileName();
                 files.Add(solutionFile);
-                SccProviderStorage storage = new SccProviderStorage(solutionFile);
+                var storage = new SccProviderStorage(solutionFile);
                 storage.AddFilesToStorage(files);
                 _controlledProjects[solHier] = storage;
             }
 
             // For all the projects added to source control, refresh their source control glyphs
-            IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
+            var nodes = new List<VSITEMSELECTION>();
             foreach (IVsHierarchy pHier in hashUncontrolledProjects.Keys)
             {
                 VSITEMSELECTION vsItem;
@@ -1242,13 +1241,14 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
         /// </summary>
         public void AddFileToSourceControl(string file)
         {
-            IList<string> filesToAdd = new List<string>();
+            var filesToAdd = new List<string>();
             filesToAdd.Add(file);
-            // Get all controlled projects containing this file
-            IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(file);
+            
+			// Get all controlled projects containing this file
+            var nodes = GetControlledProjectsContainingFile(file);
             foreach (VSITEMSELECTION vsItem in nodes)
             {
-                SccProviderStorage storage = _controlledProjects[vsItem.pHier] as SccProviderStorage;
+                var storage = _controlledProjects[vsItem.pHier];
                 if (storage != null)
                 {
                     storage.AddFilesToStorage(filesToAdd);
@@ -1263,7 +1263,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
         {
             // Before checking in files, make sure all in-memory edits have been commited to disk 
             // by forcing a save of the solution. Ideally, only the files to be checked in should be saved...
-            IVsSolution sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+            var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
             if (sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0) != VSConstants.S_OK)
             {
                 // If saving the files failed, don't continue with the checkin
@@ -1313,7 +1313,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
             foreach (IVsHierarchy pHier in _controlledProjects.Keys)
             {
-                IVsHierarchy solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
+                var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
                 if (solHier == pHier)
                 {
                     // This is the solution
@@ -1327,7 +1327,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
                 }
                 else
                 {
-                    IVsProject2 pProject = pHier as IVsProject2;
+                    var pProject = pHier as IVsProject2;
                     // See if the file is member of this project
                     // Caveat: the IsDocumentInProject function is expensive for certain project types, 
                     // you may want to limit its usage by creating your own maps of file2project or folder2project

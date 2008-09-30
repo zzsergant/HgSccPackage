@@ -87,7 +87,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		// Whether the solution was just added to source control and the provider needs to saved source control properties in the solution file when the solution is saved
 		private bool _solutionHasDirtyProps = false;
 		// The guid of solution folders
-		private Guid guidSolutionFolderProject = new Guid(0x2150e333, 0x8fdc, 0x42a3,
+		private readonly Guid guidSolutionFolderProject = new Guid(0x2150e333, 0x8fdc, 0x42a3,
 		                                                  0x94, 0x74, 0x1a, 0x39,
 		                                                  0x56, 0xd4, 0x6d, 0xe8);
 
@@ -134,35 +134,35 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				// ToolWindow Command
 				CommandID cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 				                              CommandId.icmdViewToolWindow);
-				MenuCommand menuCmd =
-					new MenuCommand(new EventHandler(Exec_icmdViewToolWindow), cmd);
+				MenuCommand menuCmd = new MenuCommand(Exec_icmdViewToolWindow, cmd);
 				mcs.AddCommand(menuCmd);
 
 				// ToolWindow's ToolBar Command
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 				                    CommandId.icmdToolWindowToolbarCommand);
-				menuCmd =
-					new MenuCommand(new EventHandler(Exec_icmdToolWindowToolbarCommand), cmd);
+				menuCmd = new MenuCommand(Exec_icmdToolWindowToolbarCommand, cmd);
 				mcs.AddCommand(menuCmd);
 
 				// Source control menu commmads
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 				                    CommandId.icmdAddToSourceControl);
-				menuCmd = new MenuCommand(new EventHandler(Exec_icmdAddToSourceControl),
-				                          cmd);
+				menuCmd = new MenuCommand(Exec_icmdAddToSourceControl, cmd);
 				mcs.AddCommand(menuCmd);
 
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdCheckin);
-				menuCmd = new MenuCommand(new EventHandler(Exec_icmdCheckin), cmd);
+				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
+					CommandId.icmdCheckin);
+
+				menuCmd = new MenuCommand(Exec_icmdCheckin, cmd);
 				mcs.AddCommand(menuCmd);
 
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdCheckout);
-				menuCmd = new MenuCommand(new EventHandler(Exec_icmdCheckout), cmd);
+				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
+					CommandId.icmdCheckout);
+				menuCmd = new MenuCommand(Exec_icmdCheckout, cmd);
 				mcs.AddCommand(menuCmd);
 
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 				                    CommandId.icmdUseSccOffline);
-				menuCmd = new MenuCommand(new EventHandler(Exec_icmdUseSccOffline), cmd);
+				menuCmd = new MenuCommand(Exec_icmdUseSccOffline, cmd);
 				mcs.AddCommand(menuCmd);
 			}
 
@@ -370,9 +370,9 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			// This way, we can write a map of information about projects with one call 
 			// (each element in the map needs to be serializable though)
 			// The alternative is to write binary data in any byte format you'd like using pOptionsStream.Write
-			DataStreamFromComStream pStream =
-				new DataStreamFromComStream(pOptionsStream);
-			BinaryFormatter formatter = new BinaryFormatter();
+			
+			var pStream = new DataStreamFromComStream(pOptionsStream);
+			var formatter = new BinaryFormatter();
 			formatter.Serialize(pStream, hashProjectsUserData);
 
 			return VSConstants.S_OK;
@@ -401,12 +401,11 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			// A good source control provider may need to persist this data until OnAfterOpenSolution or OnAfterMergeSolution is called
 
 			// The easiest way to read/write the data of interest is by using a binary formatter class
-			DataStreamFromComStream pStream =
-				new DataStreamFromComStream(pOptionsStream);
+			var pStream = new DataStreamFromComStream(pOptionsStream);
 			Hashtable hashProjectsUserData = new Hashtable();
 			if (pStream.Length > 0)
 			{
-				BinaryFormatter formatter = new BinaryFormatter();
+				var formatter = new BinaryFormatter();
 				hashProjectsUserData = formatter.Deserialize(pStream) as Hashtable;
 			}
 
@@ -442,12 +441,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// <param name="pCmdText">Used to dynamically change the command text</param>
 		/// <returns>HRESULT</returns>
 		public int QueryStatus(ref Guid guidCmdGroup, uint cCmds, OLECMD[] prgCmds,
-		                       System.IntPtr pCmdText)
+		                       IntPtr pCmdText)
 		{
 			Debug.Assert(cCmds == 1, "Multiple commands");
 			Debug.Assert(prgCmds != null, "NULL argument");
 
-			if ((prgCmds == null))
+			if (prgCmds == null)
 				return VSConstants.E_INVALIDARG;
 
 			// Filter out commands that are not defined by this package
@@ -456,7 +455,6 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				return
 					(int)
 					(Microsoft.VisualStudio.OLE.Interop.Constants.OLECMDERR_E_NOTSUPPORTED);
-				;
 			}
 
 			OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED;
@@ -884,7 +882,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				throw new InvalidOperationException();
 			}
 
-			List<VSITEMSELECTION> selectedNodes = new List<VSITEMSELECTION>();
+			var selectedNodes = new List<VSITEMSELECTION>();
 			IntPtr hierarchyPtr = IntPtr.Zero;
 			IntPtr selectionContainer = IntPtr.Zero;
 			try
@@ -1019,7 +1017,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			// now look in the rest of selection and accumulate scc files
 			foreach (VSITEMSELECTION vsItemSel in selectedNodes)
 			{
-				IVsSccProject2 pscp2 = vsItemSel.pHier as IVsSccProject2;
+				var pscp2 = vsItemSel.pHier as IVsSccProject2;
 				if (pscp2 == null)
 				{
 					// solution case
@@ -1043,7 +1041,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// </summary>
 		public IList<string> GetNodeFiles(IVsHierarchy hier, uint itemid)
 		{
-			IVsSccProject2 pscp2 = hier as IVsSccProject2;
+			var pscp2 = hier as IVsSccProject2;
 			return GetNodeFiles(pscp2, itemid);
 		}
 
@@ -1120,7 +1118,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		{
 			foreach (VSITEMSELECTION vsItemSel in selectedNodes)
 			{
-				IVsSccProject2 sccProject2 = vsItemSel.pHier as IVsSccProject2;
+				var sccProject2 = vsItemSel.pHier as IVsSccProject2;
 				if (vsItemSel.itemid == VSConstants.VSITEMID_ROOT)
 				{
 					if (sccProject2 == null)
@@ -1182,18 +1180,18 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// </summary>
 		public string GetSolutionFileName()
 		{
-			IVsSolution sol = (IVsSolution) GetService(typeof (SVsSolution));
-			string solutionDirectory, solutionFile, solutionUserOptions;
-			if (
-				sol.GetSolutionInfo(out solutionDirectory, out solutionFile,
+			var sol = (IVsSolution) GetService(typeof (SVsSolution));
+			string solutionDirectory;
+			string solutionFile;
+			string solutionUserOptions;
+			
+			if (sol.GetSolutionInfo(out solutionDirectory, out solutionFile,
 				                    out solutionUserOptions) == VSConstants.S_OK)
 			{
 				return solutionFile;
 			}
-			else
-			{
-				return null;
-			}
+			
+			return null;
 		}
 
 		/// <summary>
@@ -1205,32 +1203,30 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			// Your provider may consider returning the solution file as the project name for the solution, if it has to persist some properties in the "project file"
 			// UNDONE: What to return for web projects? They return a folder name, not a filename! Consider returning a pseudo-project filename instead of folder.
 
-			IVsHierarchy hierProject = (IVsHierarchy) pscp2Project;
-			IVsProject project = (IVsProject) pscp2Project;
+			var hierProject = (IVsHierarchy) pscp2Project;
+			var project = (IVsProject) pscp2Project;
 
 			// Attempt to get first the filename controlled by the root node 
 			IList<string> sccFiles = GetNodeFiles(pscp2Project,
 			                                      VSConstants.VSITEMID_ROOT);
-			if (sccFiles.Count > 0 && sccFiles[0] != null && sccFiles[0].Length > 0)
+			if (sccFiles.Count > 0 && !string.IsNullOrEmpty(sccFiles[0]))
 			{
 				return sccFiles[0];
 			}
 
 			// If that failed, attempt to get a name from the IVsProject interface
 			string bstrMKDocument;
-			if (project.GetMkDocument(VSConstants.VSITEMID_ROOT, out bstrMKDocument) ==
-			    VSConstants.S_OK &&
-			    bstrMKDocument != null && bstrMKDocument.Length > 0)
+			if (	project.GetMkDocument(VSConstants.VSITEMID_ROOT, out bstrMKDocument) == VSConstants.S_OK
+				&&	!string.IsNullOrEmpty(bstrMKDocument))
 			{
 				return bstrMKDocument;
 			}
 
 			// If that failes, attempt to get the filename from the solution
-			IVsSolution sol = (IVsSolution) GetService(typeof (SVsSolution));
+			var sol = (IVsSolution) GetService(typeof (SVsSolution));
 			string uniqueName;
-			if (sol.GetUniqueNameOfProject(hierProject, out uniqueName) ==
-			    VSConstants.S_OK &&
-			    uniqueName != null && uniqueName.Length > 0)
+			if (	sol.GetUniqueNameOfProject(hierProject, out uniqueName) == VSConstants.S_OK
+				&&	!string.IsNullOrEmpty(uniqueName))
 			{
 				// uniqueName may be a full-path or may be relative to the solution's folder
 				if (uniqueName.Length > 2 && uniqueName[1] == ':')
@@ -1291,10 +1287,10 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// </summary>
 		private IList<uint> GetProjectItems(IVsHierarchy pHier, uint startItemid)
 		{
-			List<uint> projectNodes = new List<uint>();
+			var projectNodes = new List<uint>();
 
 			// The method does a breadth-first traversal of the project's hierarchy tree
-			Queue<uint> nodesToWalk = new Queue<uint>();
+			var nodesToWalk = new Queue<uint>();
 			nodesToWalk.Enqueue(startItemid);
 
 			while (nodesToWalk.Count > 0)
@@ -1377,9 +1373,9 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		public IList<string> GetProjectFiles(IVsSccProject2 pscp2Project,
 		                                     uint startItemId)
 		{
-			IList<string> projectFiles = new List<string>();
-			IVsHierarchy hierProject = (IVsHierarchy) pscp2Project;
-			IList<uint> projectItems = GetProjectItems(hierProject, startItemId);
+			var projectFiles = new List<string>();
+			var hierProject = (IVsHierarchy) pscp2Project;
+			var projectItems = GetProjectItems(hierProject, startItemId);
 
 			foreach (uint itemid in projectItems)
 			{
@@ -1398,7 +1394,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// </summary>
 		public bool InCommandLineMode()
 		{
-			IVsShell shell = (IVsShell) GetService(typeof (SVsShell));
+			var shell = (IVsShell) GetService(typeof (SVsShell));
 			object pvar;
 			if (
 				shell.GetProperty((int) __VSSPROPID.VSSPROPID_IsInCommandLineMode,
@@ -1416,7 +1412,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// </summary>
 		public bool IsSolutionFolderProject(IVsHierarchy pHier)
 		{
-			IPersistFileFormat pFileFormat = pHier as IPersistFileFormat;
+			var pFileFormat = pHier as IPersistFileFormat;
 			if (pFileFormat != null)
 			{
 				Guid guidClassID;
@@ -1437,7 +1433,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		{
 			var mapHierarchies = new HashSet<IVsHierarchy>();
 
-			IVsSolution sol = (IVsSolution) GetService(typeof (SVsSolution));
+			var sol = (IVsSolution) GetService(typeof (SVsSolution));
 			Guid rguidEnumOnlyThisType = guidSolutionFolderProject;
 			IEnumHierarchies ppenum = null;
 			ErrorHandler.ThrowOnFailure(
