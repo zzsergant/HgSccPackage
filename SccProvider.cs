@@ -1433,9 +1433,9 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// <summary>
 		/// Returns a list of solution folders projects in the solution
 		/// </summary>
-		public Dictionary<IVsHierarchy, bool> GetSolutionFoldersEnum()
+		public HashSet<IVsHierarchy> GetSolutionFoldersEnum()
 		{
-			var mapHierarchies = new Dictionary<IVsHierarchy, bool>();
+			var mapHierarchies = new HashSet<IVsHierarchy>();
 
 			IVsSolution sol = (IVsSolution) GetService(typeof (SVsSolution));
 			Guid rguidEnumOnlyThisType = guidSolutionFolderProject;
@@ -1449,7 +1449,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			while (ppenum.Next(1, rgelt, out pceltFetched) == VSConstants.S_OK &&
 			       pceltFetched == 1)
 			{
-				mapHierarchies[rgelt[0]] = true;
+				mapHierarchies.Add(rgelt[0]);
 			}
 
 			return mapHierarchies;

@@ -429,7 +429,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
                 // Also, solution folders won't call RegisterSccProject, so we have to enumerate them and register them with scc once the solution is controlled
                 var enumSolFolders = _sccProvider.GetSolutionFoldersEnum();
-                foreach (IVsHierarchy pHier in enumSolFolders.Keys)
+                foreach (IVsHierarchy pHier in enumSolFolders)
                 {
                     // Register this solution folder using the same location as the solution
                     IVsSccProject2 pSccProject = (IVsSccProject2)pHier;
@@ -462,7 +462,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
             // Since we registered the solution with source control from OnAfterOpenSolution, it would be nice to unregister it, too, when it gets closed.
             // Also, unregister the solution folders
             var enumSolFolders = _sccProvider.GetSolutionFoldersEnum();
-            foreach (IVsHierarchy pHier in enumSolFolders.Keys)
+            foreach (IVsHierarchy pHier in enumSolFolders)
             {
                 IVsSccProject2 pSccProject = (IVsSccProject2)pHier;
                 UnregisterSccProject(pSccProject);
