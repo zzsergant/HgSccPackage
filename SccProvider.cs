@@ -34,13 +34,19 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 	// Register the package to have information displayed in Help/About dialog box
 	[MsVsShell.InstalledProductRegistration(false, "#100", "#101", "1.0.0.0",
 		IconResourceID = CommandId.iiconProductIcon)]
-	// Declare that resources for the package are to be found in the managed assembly resources, and not in a satellite dll
+	// Declare that resources for the package are to be found in the managed assembly
+	// resources, and not in a satellite dll
 	[MsVsShell.PackageRegistration(UseManagedResourcesOnly = true)]
-	// Register the resource ID of the CTMENU section (generated from compiling the VSCT file), so the IDE will know how to merge this package's menus with the rest of the IDE when "devenv /setup" is run
-	// The menu resource ID needs to match the ResourceName number defined in the csproj project file in the VSCTCompile section
-	// Everytime the version number changes VS will automatically update the menus on startup; if the version doesn't change, you will need to run manually "devenv /setup /rootsuffix:Exp" to see VSCT changes reflected in IDE
+	// Register the resource ID of the CTMENU section (generated from compiling the VSCT file),
+	// so the IDE will know how to merge this package's menus with the rest of the IDE when
+	// "devenv /setup" is run.
+	// The menu resource ID needs to match the ResourceName number defined in the csproj project
+	// file in the VSCTCompile section. Everytime the version number changes VS will automatically
+	// update the menus on startup; if the version doesn't change, you will need to run manually
+	// "devenv /setup /rootsuffix:Exp" to see VSCT changes reflected in IDE
 	[MsVsShell.ProvideMenuResource(1000, 1)]
-	// Register a sample options page visible as Tools/Options/SourceControl/SampleOptionsPage when the provider is active
+	// Register a sample options page visible as Tools/Options/SourceControl/SampleOptionsPage
+	// when the provider is active
 	[MsVsShell.ProvideOptionPageAttribute(typeof (SccProviderOptions),
 		"Source Control", "Sample Options Page", 106, 107, false)]
 	[ProvideToolsOptionsPageVisibility("Source Control", "Sample Options Page",
@@ -52,9 +58,9 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 	// Register the source control provider's service (implementing IVsScciProvider interface)
 	[MsVsShell.ProvideService(typeof (SccProviderService),
 		ServiceName = "Source Control Sample Provider Service")]
-	// Register the source control provider to be visible in Tools/Options/SourceControl/Plugin dropdown selector
-	[ProvideSourceControlProvider("Managed Source Control Sample Provider",
-		"#100")]
+	// Register the source control provider to be visible in Tools/Options/SourceControl/Plugin
+	// dropdown selector
+	[ProvideSourceControlProvider("Managed Source Control Sample Provider", "#100")]
 	// Pre-load the package when the command UI context is asserted (the provider will be automatically loaded after restarting the shell if it was active last time the shell was shutdown)
 	[MsVsShell.ProvideAutoLoad("B0BAC05D-0000-41D1-A6C3-704E6C1A3DE2")]
 	// Register the key used for persisting solution properties, so the IDE will know to load the source control package when opening a controlled solution containing properties written by this package
@@ -62,8 +68,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 	// Declare the package guid
 	[Guid("B0BAC05D-2000-41D1-A6C3-704E6C1A3DE2")]
 	public sealed class SccProvider : MsVsShell.Package,
-	                                  IOleCommandTarget,
-	                                  IVsPersistSolutionProps
+									  IOleCommandTarget,
+									  IVsPersistSolutionProps
 		// We'll write properties in the solution file to track when solution is controlled; the interface needs to be implemented by the package object
 	{
 		// The service provider implemented by the package
@@ -88,14 +94,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		private bool _solutionHasDirtyProps = false;
 		// The guid of solution folders
 		private readonly Guid guidSolutionFolderProject = new Guid(0x2150e333, 0x8fdc, 0x42a3,
-		                                                  0x94, 0x74, 0x1a, 0x39,
-		                                                  0x56, 0xd4, 0x6d, 0xe8);
+														  0x94, 0x74, 0x1a, 0x39,
+														  0x56, 0xd4, 0x6d, 0xe8);
 
 		public SccProvider()
 		{
-			Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture,
-			                              "Entering constructor for: {0}",
-			                              this.ToString()));
+			Misc.Log("Entering constructor for: {0}", this.ToString());
 
 			// The provider implements the IVsPersistSolutionProps interface which is derived from IVsPersistSolutionOpts,
 			// The base class MsVsShell.Package also implements IVsPersistSolutionOpts, so we're overriding its functionality
@@ -115,15 +119,13 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 		protected override void Initialize()
 		{
-			Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture,
-			                              "Entering Initialize() of: {0}",
-			                              this.ToString()));
+			Misc.Log("Entering Initialize() of: {0}", this.ToString());
 			base.Initialize();
 
 			// Proffer the source control service implemented by the provider
 			sccService = new SccProviderService(this);
 			((IServiceContainer) this).AddService(typeof (SccProviderService),
-			                                      sccService, true);
+												  sccService, true);
 
 			// Add our command handlers for menu (commands must exist in the .vsct file)
 			MsVsShell.OleMenuCommandService mcs =
@@ -133,19 +135,19 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			{
 				// ToolWindow Command
 				CommandID cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-				                              CommandId.icmdViewToolWindow);
+											  CommandId.icmdViewToolWindow);
 				MenuCommand menuCmd = new MenuCommand(Exec_icmdViewToolWindow, cmd);
 				mcs.AddCommand(menuCmd);
 
 				// ToolWindow's ToolBar Command
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-				                    CommandId.icmdToolWindowToolbarCommand);
+									CommandId.icmdToolWindowToolbarCommand);
 				menuCmd = new MenuCommand(Exec_icmdToolWindowToolbarCommand, cmd);
 				mcs.AddCommand(menuCmd);
 
 				// Source control menu commmads
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-				                    CommandId.icmdAddToSourceControl);
+									CommandId.icmdAddToSourceControl);
 				menuCmd = new MenuCommand(Exec_icmdAddToSourceControl, cmd);
 				mcs.AddCommand(menuCmd);
 
@@ -161,7 +163,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				mcs.AddCommand(menuCmd);
 
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-				                    CommandId.icmdUseSccOffline);
+									CommandId.icmdUseSccOffline);
 				menuCmd = new MenuCommand(Exec_icmdUseSccOffline, cmd);
 				mcs.AddCommand(menuCmd);
 			}
@@ -175,8 +177,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 		protected override void Dispose(bool disposing)
 		{
-			Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture,
-			                              "Entering Dispose() of: {0}", this.ToString()));
+			Misc.Log("Entering Dispose() of: {0}", this.ToString());
 
 			sccService.Dispose();
 
@@ -204,16 +205,16 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		#region IVsPersistSolutionProps interface functions
 
 		public int OnProjectLoadFailure([InAttribute] IVsHierarchy pStubHierarchy,
-		                                [InAttribute] string pszProjectName,
-		                                [InAttribute] string pszProjectMk,
-		                                [InAttribute] string pszKey)
+										[InAttribute] string pszProjectName,
+										[InAttribute] string pszProjectMk,
+										[InAttribute] string pszKey)
 		{
 			return VSConstants.S_OK;
 		}
 
 		public int QuerySaveSolutionProps([InAttribute] IVsHierarchy pHierarchy,
-		                                  [OutAttribute] VSQUERYSAVESLNPROPS[]
-		                                  	pqsspSave)
+										  [OutAttribute] VSQUERYSAVESLNPROPS[]
+											pqsspSave)
 		{
 			// This function is called by the IDE to determine if something needs to be saved in the solution.
 			// If the package returns that it has dirty properties, the shell will callback on SaveSolutionProps
@@ -241,8 +242,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		}
 
 		public int SaveSolutionProps([InAttribute] IVsHierarchy pHierarchy,
-		                             [InAttribute] IVsSolutionPersistence
-		                             	pPersistence)
+									 [InAttribute] IVsSolutionPersistence
+										pPersistence)
 		{
 			// This function gets called by the shell after determining the package has dirty props.
 			// The package will pass in the key under which it wants to save its properties, 
@@ -253,7 +254,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			// This could help if the source control package needs to persist information like projects translation tables, that should be read from the suo file
 			// and should be available by the time projects are opened and the shell start calling IVsSccEnlistmentPathTranslation functions.
 			pPersistence.SavePackageSolutionProps(1, null, this,
-			                                      _strSolutionPersistanceKey);
+												  _strSolutionPersistanceKey);
 
 			// Once we saved our props, the solution is not dirty anymore
 			SolutionHasDirtyProps = false;
@@ -262,8 +263,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		}
 
 		public int WriteSolutionProps([InAttribute] IVsHierarchy pHierarchy,
-		                              [InAttribute] string pszKey,
-		                              [InAttribute] IPropertyBag pPropBag)
+									  [InAttribute] string pszKey,
+									  [InAttribute] IPropertyBag pPropBag)
 		{
 			// The package will only save one property in the solution, to indicate that solution is controlled
 
@@ -283,11 +284,11 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		}
 
 		public int ReadSolutionProps([InAttribute] IVsHierarchy pHierarchy,
-		                             [InAttribute] string pszProjectName,
-		                             [InAttribute] string pszProjectMk,
-		                             [InAttribute] string pszKey,
-		                             [InAttribute] int fPreLoad,
-		                             [InAttribute] IPropertyBag pPropBag)
+									 [InAttribute] string pszProjectName,
+									 [InAttribute] string pszProjectMk,
+									 [InAttribute] string pszKey,
+									 [InAttribute] int fPreLoad,
+									 [InAttribute] IPropertyBag pPropBag)
 		{
 			// This function gets called by the shell when a solution controlled by this provider is opened in IDE.
 			// The shell encounters the _strSolutionPersistanceKey section in the solution, and based based on 
@@ -334,12 +335,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		}
 
 		public int WriteUserOptions([InAttribute] IStream pOptionsStream,
-		                            [InAttribute] string pszKey)
+									[InAttribute] string pszKey)
 		{
 			// This function gets called by the shell to let the package write user options under the specified key.
 			// The key was declared in SaveUserOptions(), when the shell started saving the suo file.
 			Debug.Assert(pszKey.CompareTo(_strSolutionUserOptionsKey) == 0,
-			             "The shell called to read an key that doesn't belong to this package");
+						 "The shell called to read an key that doesn't belong to this package");
 
 			Hashtable hashProjectsUserData = new Hashtable();
 			IVsSolution solution = (IVsSolution) GetService(typeof (SVsSolution));
@@ -353,13 +354,13 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			foreach (IVsHierarchy pHier in hash)
 			{
 				if (sccService.IsProjectControlled(pHier) &&
-				    sccService.IsProjectOffline(pHier))
+					sccService.IsProjectOffline(pHier))
 				{
 					// The information we'll persist in the suo file needs to be usable if the solution is moved in a diffrent location
 					// therefore we'll store project names as known by the solution (mostly relativized to the solution's folder)
 					string projUniqueName;
 					if (solution.GetUniqueNameOfProject(pHier, out projUniqueName) ==
-					    VSConstants.S_OK)
+						VSConstants.S_OK)
 					{
 						hashProjectsUserData[projUniqueName] = true;
 					}
@@ -393,7 +394,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		}
 
 		public int ReadUserOptions([InAttribute] IStream pOptionsStream,
-		                           [InAttribute] string pszKey)
+								   [InAttribute] string pszKey)
 		{
 			// This function is called by the shell if the _strSolutionUserOptionsKey section declared
 			// in LoadUserOptions() as being written by this package has been found in the suo file. 
@@ -415,8 +416,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				// If this project is recognizable as part of the solution
 				IVsHierarchy pHier = null;
 				if (solution.GetProjectOfUniqueName(projUniqueName, out pHier) ==
-				    VSConstants.S_OK &&
-				    pHier != null)
+					VSConstants.S_OK &&
+					pHier != null)
 				{
 					sccService.ToggleOfflineStatus(pHier);
 				}
@@ -441,7 +442,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// <param name="pCmdText">Used to dynamically change the command text</param>
 		/// <returns>HRESULT</returns>
 		public int QueryStatus(ref Guid guidCmdGroup, uint cCmds, OLECMD[] prgCmds,
-		                       IntPtr pCmdText)
+							   IntPtr pCmdText)
 		{
 			Debug.Assert(cCmds == 1, "Multiple commands");
 			Debug.Assert(prgCmds != null, "NULL argument");
@@ -630,13 +631,13 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 			// For mixed selection, or if nothing is selected, disable the command
 			if (selectedOnline && selectedOffline ||
-			    !selectedOnline && !selectedOffline)
+				!selectedOnline && !selectedOffline)
 			{
 				return OLECMDF.OLECMDF_SUPPORTED;
 			}
 
 			return OLECMDF.OLECMDF_ENABLED |
-			       (selectedOffline ? OLECMDF.OLECMDF_LATCHED : OLECMDF.OLECMDF_ENABLED);
+				   (selectedOffline ? OLECMDF.OLECMDF_LATCHED : OLECMDF.OLECMDF_ENABLED);
 		}
 
 		#endregion
@@ -721,7 +722,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			}
 
 			sccService.AddProjectsToSourceControl(hashUncontrolledProjects,
-			                                      isSolutionSelected);
+												  isSolutionSelected);
 		}
 
 		private void Exec_icmdUseSccOffline(object sender, EventArgs e)
@@ -806,12 +807,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			IEnumHierarchies ppenum = null;
 			ErrorHandler.ThrowOnFailure(
 				sol.GetProjectEnum((uint) __VSENUMPROJFLAGS.EPF_LOADEDINSOLUTION,
-				                   ref rguidEnumOnlyThisType, out ppenum));
+								   ref rguidEnumOnlyThisType, out ppenum));
 
 			IVsHierarchy[] rgelt = new IVsHierarchy[1];
 			uint pceltFetched = 0;
 			while (ppenum.Next(1, rgelt, out pceltFetched) == VSConstants.S_OK
-			       && pceltFetched == 1
+				   && pceltFetched == 1
 				)
 			{
 				IVsSccProject2 sccProject2 = rgelt[0] as IVsSccProject2;
@@ -847,7 +848,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			foreach (VSITEMSELECTION vsItemSel in sel)
 			{
 				if (vsItemSel.pHier == null
-				    || (vsItemSel.pHier as IVsSolution) != null
+					|| (vsItemSel.pHier as IVsSolution) != null
 					)
 				{
 					solutionSelected = true;
@@ -876,7 +877,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			IVsMonitorSelection monitorSelection =
 				this.GetService(typeof (IVsMonitorSelection)) as IVsMonitorSelection;
 			Debug.Assert(monitorSelection != null,
-			             "Could not get the IVsMonitorSelection object from the services exposed by this project");
+						 "Could not get the IVsMonitorSelection object from the services exposed by this project");
 			if (monitorSelection == null)
 			{
 				throw new InvalidOperationException();
@@ -893,8 +894,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				IVsMultiItemSelect multiItemSelect = null;
 				ErrorHandler.ThrowOnFailure(
 					monitorSelection.GetCurrentSelection(out hierarchyPtr, out itemid,
-					                                     out multiItemSelect,
-					                                     out selectionContainer));
+														 out multiItemSelect,
+														 out selectionContainer));
 
 				if (itemid != VSConstants.VSITEMID_SELECTION)
 				{
@@ -932,7 +933,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 						int isSingleHierarchyInt;
 						ErrorHandler.ThrowOnFailure(
 							multiItemSelect.GetSelectionInfo(out numberOfSelectedItems,
-							                                 out isSingleHierarchyInt));
+															 out isSingleHierarchyInt));
 						bool isSingleHierarchy = (isSingleHierarchyInt != 0);
 
 						// Now loop all selected items and add them to the list 
@@ -942,8 +943,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 							VSITEMSELECTION[] vsItemSelections =
 								new VSITEMSELECTION[numberOfSelectedItems];
 							ErrorHandler.ThrowOnFailure(multiItemSelect.GetSelectedItems(0,
-							                                                             numberOfSelectedItems,
-							                                                             vsItemSelections));
+																						 numberOfSelectedItems,
+																						 vsItemSelections));
 							foreach (VSITEMSELECTION vsItemSelection in vsItemSelections)
 							{
 								selectedNodes.Add(vsItemSelection);
@@ -1139,8 +1140,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 						// Set the solution's glyph directly in the hierarchy
 						IVsHierarchy solHier = (IVsHierarchy) GetService(typeof (SVsSolution));
 						solHier.SetProperty(VSConstants.VSITEMID_ROOT,
-						                    (int) __VSHPROPID.VSHPROPID_StateIconIndex,
-						                    rgsiGlyphs[0]);
+											(int) __VSHPROPID.VSHPROPID_StateIconIndex,
+											rgsiGlyphs[0]);
 					}
 					else
 					{
@@ -1168,7 +1169,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 						uint[] rguiAffectedNodes = new uint[1];
 						rguiAffectedNodes[0] = vsItemSel.itemid;
 						sccProject2.SccGlyphChanged(1, rguiAffectedNodes, rgsiGlyphs,
-						                            rgdwSccStatus);
+													rgdwSccStatus);
 					}
 				}
 			}
@@ -1186,7 +1187,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			string solutionUserOptions;
 			
 			if (sol.GetSolutionInfo(out solutionDirectory, out solutionFile,
-				                    out solutionUserOptions) == VSConstants.S_OK)
+									out solutionUserOptions) == VSConstants.S_OK)
 			{
 				return solutionFile;
 			}
@@ -1208,7 +1209,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 			// Attempt to get first the filename controlled by the root node 
 			IList<string> sccFiles = GetNodeFiles(pscp2Project,
-			                                      VSConstants.VSITEMID_ROOT);
+												  VSConstants.VSITEMID_ROOT);
 			if (sccFiles.Count > 0 && !string.IsNullOrEmpty(sccFiles[0]))
 			{
 				return sccFiles[0];
@@ -1238,7 +1239,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				string solutionDirectory, solutionFile, solutionUserOptions;
 				if (
 					sol.GetSolutionInfo(out solutionDirectory, out solutionFile,
-					                    out solutionUserOptions) == VSConstants.S_OK)
+										out solutionUserOptions) == VSConstants.S_OK)
 				{
 					uniqueName = solutionDirectory + "\\" + uniqueName;
 
@@ -1267,9 +1268,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				pHier.GetProperty(itemid, (int) __VSHPROPID.VSHPROPID_Name, out property) ==
 				VSConstants.S_OK)
 			{
-				Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture,
-				                              "Walking hierarchy node: {0}",
-				                              (string) property));
+				Misc.Log("Walking hierarchy node: {0}", (string) property);
 			}
 		}
 
@@ -1303,7 +1302,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				object property = null;
 				if (
 					pHier.GetProperty(node, (int) __VSHPROPID.VSHPROPID_FirstChild,
-					                  out property) == VSConstants.S_OK)
+									  out property) == VSConstants.S_OK)
 				{
 					uint childnode = (uint) (int) property;
 					if (childnode == VSConstants.VSITEMID_NIL)
@@ -1315,10 +1314,10 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 					if (
 						(pHier.GetProperty(childnode, (int) __VSHPROPID.VSHPROPID_Expandable,
-						                   out property) == VSConstants.S_OK &&
+										   out property) == VSConstants.S_OK &&
 						 (int) property != 0) ||
 						(pHier.GetProperty(childnode, (int) __VSHPROPID2.VSHPROPID_Container,
-						                   out property) == VSConstants.S_OK && (bool) property))
+										   out property) == VSConstants.S_OK && (bool) property))
 					{
 						nodesToWalk.Enqueue(childnode);
 					}
@@ -1329,7 +1328,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 					while (
 						pHier.GetProperty(childnode, (int) __VSHPROPID.VSHPROPID_NextSibling,
-						                  out property) == VSConstants.S_OK)
+										  out property) == VSConstants.S_OK)
 					{
 						childnode = (uint) (int) property;
 						if (childnode == VSConstants.VSITEMID_NIL)
@@ -1341,10 +1340,10 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 						if (
 							(pHier.GetProperty(childnode, (int) __VSHPROPID.VSHPROPID_Expandable,
-							                   out property) == VSConstants.S_OK &&
+											   out property) == VSConstants.S_OK &&
 							 (int) property != 0) ||
 							(pHier.GetProperty(childnode, (int) __VSHPROPID2.VSHPROPID_Container,
-							                   out property) == VSConstants.S_OK && (bool) property))
+											   out property) == VSConstants.S_OK && (bool) property))
 						{
 							nodesToWalk.Enqueue(childnode);
 						}
@@ -1371,7 +1370,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// Gets the list of source controllable files in the specified project
 		/// </summary>
 		public IList<string> GetProjectFiles(IVsSccProject2 pscp2Project,
-		                                     uint startItemId)
+											 uint startItemId)
 		{
 			var projectFiles = new List<string>();
 			var hierProject = (IVsHierarchy) pscp2Project;
@@ -1398,7 +1397,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			object pvar;
 			if (
 				shell.GetProperty((int) __VSSPROPID.VSSPROPID_IsInCommandLineMode,
-				                  out pvar) == VSConstants.S_OK &&
+								  out pvar) == VSConstants.S_OK &&
 				(bool) pvar)
 			{
 				return true;
@@ -1417,7 +1416,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			{
 				Guid guidClassID;
 				if (pFileFormat.GetClassID(out guidClassID) == VSConstants.S_OK &&
-				    guidClassID.CompareTo(guidSolutionFolderProject) == 0)
+					guidClassID.CompareTo(guidSolutionFolderProject) == 0)
 				{
 					return true;
 				}
@@ -1438,12 +1437,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			IEnumHierarchies ppenum = null;
 			ErrorHandler.ThrowOnFailure(
 				sol.GetProjectEnum((uint) __VSENUMPROJFLAGS.EPF_LOADEDINSOLUTION,
-				                   ref rguidEnumOnlyThisType, out ppenum));
+								   ref rguidEnumOnlyThisType, out ppenum));
 
 			IVsHierarchy[] rgelt = new IVsHierarchy[1];
 			uint pceltFetched = 0;
 			while (ppenum.Next(1, rgelt, out pceltFetched) == VSConstants.S_OK &&
-			       pceltFetched == 1)
+				   pceltFetched == 1)
 			{
 				mapHierarchies.Add(rgelt[0]);
 			}

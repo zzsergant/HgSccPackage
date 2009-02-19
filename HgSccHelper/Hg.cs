@@ -305,6 +305,7 @@ namespace HgSccHelper
 				if (proc.ExitCode != 0)
 					return false;
 
+/*
 				foreach (var f in files)
 				{
 					string path = Path.Combine(work_dir, f);
@@ -318,6 +319,7 @@ namespace HgSccHelper
 						}
 					}
 				}
+*/
 
 				return true;
 			}
@@ -326,6 +328,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool Checkout(string work_dir, string[] files)
 		{
+/*
 			DateTime now = DateTime.Now;
 			foreach (var f in files)
 			{
@@ -339,6 +342,7 @@ namespace HgSccHelper
 
 				File.SetLastWriteTime(path, now);
 			}
+*/
 
 			return true;
 		}
@@ -366,6 +370,7 @@ namespace HgSccHelper
 //				return true;
 			}
 
+/*
 			foreach (var f in files)
 			{
 				string path = Path.Combine(work_dir, f);
@@ -376,6 +381,7 @@ namespace HgSccHelper
 					File.SetAttributes(path, attr);
 				}
 			}
+*/
 
 			return true;
 		}
@@ -679,12 +685,14 @@ namespace HgSccHelper
 				if (!File.Exists(real_path))
 					return false;
 
+/*
 				FileAttributes attr = File.GetAttributes(real_path);
 				if ((attr & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
 				{
 					attr &= ~FileAttributes.ReadOnly;
 					File.SetAttributes(real_path, attr);
 				}
+*/
 			}
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))

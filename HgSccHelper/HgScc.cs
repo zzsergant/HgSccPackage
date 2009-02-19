@@ -16,13 +16,12 @@ namespace HgSccHelper
 	//-----------------------------------------------------------------------------
 	public class HgScc : IDisposable
 	{
-		public string LocalProjectPath { get; private set; }
 		public string WorkingDir { get; private set; }
-		private Hg hg;
+		private readonly Hg hg;
 
-		private Queue<HgFileInfo> event_queue;
-		private Dictionary<string, HgFileStatus> track_ide_changes;
-		private Dictionary<string, FackedCheckoutInfo> facked_checkout;
+		private readonly Queue<HgFileInfo> event_queue;
+		private readonly Dictionary<string, HgFileStatus> track_ide_changes;
+		private readonly Dictionary<string, FackedCheckoutInfo> facked_checkout;
 
 		//-----------------------------------------------------------------------------
 		public HgScc()
@@ -55,117 +54,10 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors Initialize(IntPtr hwnd, string caller_name,
-			ref string scc_name,
-			out SccCaps scc_caps, ref string aux_path_label,
-			out int checkout_comment_length, out int comment_length)
-		{
-//			MessageBox.Show(caller_name);
-
-			scc_name = "HgSccProvider";
-			aux_path_label = String.Empty;
-
-			scc_caps = SccCaps.None;
-			scc_caps |= SccCaps.Remove;
-			scc_caps |= SccCaps.QueryInfo;
-			scc_caps |= SccCaps.GetProjPath;
-			scc_caps |= SccCaps.CommentCheckIn;
-			scc_caps |= SccCaps.CommentAdd;
-			scc_caps |= SccCaps.GetNoUI;
-			scc_caps |= SccCaps.Reentrant;
-			scc_caps |= SccCaps.SccFile;
-			scc_caps |= SccCaps.Rename;
-			scc_caps |= SccCaps.GetEvents;
-			scc_caps |= SccCaps.MultiCheckOut;
-			scc_caps |= SccCaps.GetCommandOptions;
-
-
-			scc_caps |= SccCaps.Diff;
-			scc_caps |= SccCaps.History;
-
-			checkout_comment_length = 1023;
-			comment_length = 1023;
-
-			return SccErrors.Ok;
-		}
-
-		//-----------------------------------------------------------------------------
-		private bool MakeAuxProjPath(out string aux_proj_path)
-		{
-			aux_proj_path = Path.GetFullPath(LocalProjectPath);
-			if (!GetRelativePath(LocalProjectPath, out aux_proj_path))
-				return false;
-
-			if (aux_proj_path.Length == 0)
-				aux_proj_path = ".";
-
-			aux_proj_path = "HgScc#" + aux_proj_path.ToLower().Replace(' ', '_');
-			return true;
-		}
-
-		//-----------------------------------------------------------------------------
-		public SccErrors GetProjPath(IntPtr hwnd,
-			ref string user,
-			ref string proj_name, 
-			ref string local_proj_path,
-			ref string aux_proj_path,
-			bool allow_change_path,
-			ref bool bnew)
-		{
-			if (local_proj_path.Length == 0)
-			{
-				MessageBox.Show("Opening project from source control is not supported yet...", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				return SccErrors.OpNotSupported;
-			}
-
-			string root = hg.Root(local_proj_path);
-			bool is_root_exist = root.Length > 0;
-
-			proj_name = Path.GetFileNameWithoutExtension(local_proj_path).ToLower();
-
-			if (bnew)
-			{
-				// The user may create a new project
-				if (!is_root_exist)
-				{
-					bnew = true;
-					return SccErrors.Ok;
-				}
-				else
-				{
-					bnew = false;
-				}
-			}
-			else
-			{
-				// The user may not create a new project
-				if (!is_root_exist)
-					return SccErrors.NonSpecificError;
-			}
-
-			WorkingDir = root.ToLower();
-			LocalProjectPath = local_proj_path.ToLower();
-
-			if (!MakeAuxProjPath(out aux_proj_path))
-				return SccErrors.NonSpecificError;
-
-			return SccErrors.Ok;
-		}
-
-		//-----------------------------------------------------------------------------
-		public SccErrors OpenProject(IntPtr hwnd,
-			ref string user,
-			ref string proj_name,
-			string local_proj_path,
-			ref string aux_proj_path,
-			string comment,
-//			LPTEXTOUTPROC lpTextOutProc,
-			SccOpenProjectFlags flags)
+		public SccErrors OpenProject(string local_proj_path, SccOpenProjectFlags flags)
 		{
 			string root = hg.Root(local_proj_path);
 			bool is_root_exist = root.Length > 0;
-
-			proj_name = Path.GetFileNameWithoutExtension(local_proj_path).ToLower();
 
 			if (!is_root_exist)
 			{
@@ -186,18 +78,15 @@ namespace HgSccHelper
 			}
 
 			WorkingDir = root.ToLower();
-			LocalProjectPath = local_proj_path.ToLower();
 
-			if (!MakeAuxProjPath(out aux_proj_path))
-				return SccErrors.NonSpecificError;
-
-//			FixFakedCheckout();
 			return SccErrors.Ok;
 		}
 
 		//-----------------------------------------------------------------------------
 		private void FixFakedCheckout()
 		{
+			return;
+
 			var dict = new Dictionary<string, HgFileStatus>();
 			var hg_files = hg.Manifest(WorkingDir);
 
@@ -249,12 +138,11 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public SccErrors CloseProject()
 		{
-			LocalProjectPath = string.Empty;
 			return SccErrors.Ok;
 		}
 
 		//-----------------------------------------------------------------------------
-		private SccStatus ToSccStatus(HgFileStatus status)
+		private static SccStatus ToSccStatus(HgFileStatus status)
 		{
 			SccStatus scc = SccStatus.None;
 			switch (status)
@@ -319,7 +207,6 @@ namespace HgSccHelper
 		private Dictionary<string, HgFileInfo> QueryInfoFullDict()
 		{
 			var dict = new Dictionary<string, HgFileInfo>();
-
 			var hg_files = hg.Manifest(WorkingDir);
 
 			foreach (var file_status in hg.Status(WorkingDir))
@@ -336,9 +223,11 @@ namespace HgSccHelper
 					HgFileStatus status = HgFileStatus.Tracked;
 
 					// Checking read-only flag to figure if is was checked out
+/*
 					FileAttributes attr = File.GetAttributes(Path.Combine(WorkingDir, file));
 					if ((attr & FileAttributes.ReadOnly) != FileAttributes.ReadOnly)
 						status = HgFileStatus.Modified;
+*/
 
 					dict.Add(f, new HgFileInfo { File = f, Status = status } );
 				}
@@ -348,7 +237,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors QueryInfo(SccFileInfo [] files)
+		internal SccErrors QueryInfo(HgFileInfo[] files)
 		{
 			// TODO: Check if project is opened
 			var hg_files = hg.Manifest(WorkingDir);
@@ -357,14 +246,6 @@ namespace HgSccHelper
 			foreach (var file_status in hg.Status(WorkingDir))
 			{
 				string file = file_status.File.ToLower();
-/*
-				if (	file_status.Status != HgFileStatus.NotTracked
-					&&	file_status.Status != HgFileStatus.Ignored)
-				{
-					Logger.WriteLine(String.Format("Status File: {0}, Status: {1}", file, file_status.Status));
-				}
-*/
-
 				dict.Add(file, file_status.Status);
 			}
 
@@ -373,7 +254,7 @@ namespace HgSccHelper
 				string f = file.ToLower().Replace('/', '\\');
 				if (!dict.ContainsKey(f))
 				{
-//					Logger.WriteLine(String.Format("Manifest File: {0}", f));
+					//					Logger.WriteLine(String.Format("Manifest File: {0}", f));
 					dict.Add(f, HgFileStatus.Tracked);
 				}
 			}
@@ -385,38 +266,26 @@ namespace HgSccHelper
 				queue_dict.Add(item.File, item.Status);
 			}
 
-			foreach(var info in files)
+			foreach (var info in files)
 			{
 				HgFileStatus status = HgFileStatus.NotTracked;
 				string file;
-				if (	GetRelativePath(info.File, out file)
-					&&	dict.TryGetValue(file.ToLower(), out status))
+				if (GetRelativePath(info.File, out file)
+					&& dict.TryGetValue(file.ToLower(), out status))
 				{
 					if (status == HgFileStatus.Tracked)
 					{
-						// Checking read-only flag to figure if is was checked out
-						FileAttributes attr = File.GetAttributes(info.File);
-						if ((attr & FileAttributes.ReadOnly) != FileAttributes.ReadOnly)
+						FackedCheckoutInfo cache;
+						if (facked_checkout.TryGetValue(file.ToLower(), out cache))
 						{
-							FackedCheckoutInfo cache;
-							if (facked_checkout.TryGetValue(file.ToLower(), out cache))
-							{
-								status = HgFileStatus.Modified;
-							}
-							else
-							{
-								Logger.WriteLine(String.Format("FixingRO: {0}", file));
-								File.SetAttributes(info.File, attr | FileAttributes.ReadOnly);
-							}
-		
-//							status = HgFileStatus.Modified;
+							status = HgFileStatus.Modified;
 						}
 					}
 
-					info.Status = ToSccStatus(status);
+					info.Status = status;
 				}
 				else
-					info.Status = ToSccStatus(HgFileStatus.NotTracked);
+					info.Status = HgFileStatus.NotTracked;
 
 				if (dict.ContainsKey(file))
 					dict.Remove(file);
@@ -430,17 +299,43 @@ namespace HgSccHelper
 			return SccErrors.Ok;
 		}
 
+
+		//-----------------------------------------------------------------------------
+		public SccErrors QueryInfo(SccFileInfo [] files)
+		{
+			var lst = new HgFileInfo[files.Length];
+			for (int i = 0; i < files.Length; ++i)
+				lst[i] = new HgFileInfo { File = files[i].File };
+
+			SccErrors error = QueryInfo(lst);
+
+			for (int i = 0; i < files.Length; ++i)
+				files[i].Status = ToSccStatus(lst[i].Status);
+
+			return error;
+		}
+
 		//-----------------------------------------------------------------------------
 		public SccErrors Add(IntPtr hwnd, SccAddFile[] files, string comment)
+		{
+			var lst = new List<string>();
+			foreach (var f in files)
+				lst.Add(f.File);
+
+			return Add(hwnd, lst.ToArray());
+		}
+
+		//-----------------------------------------------------------------------------
+		public SccErrors Add(IntPtr hwnd, string[] files)
 		{
 			// TODO: Check if project is opened
 			var add_files = new List<string>();
 			int count = 0;
-			
-			for(int i = 0; i < files.Length; ++i)
+
+			for (int i = 0; i < files.Length; ++i)
 			{
 				string f;
-				if (!GetRelativePath(files[i].File, out f))
+				if (!GetRelativePath(files[i], out f))
 					return SccErrors.InvalidFilePath;
 
 				add_files.Add(f);
@@ -477,7 +372,7 @@ namespace HgSccHelper
 			}
 			return SccErrors.Ok;
 		}
-
+		
 		//-----------------------------------------------------------------------------
 		private SccErrors CommitInternal(IntPtr hwnd, string[] files, string comment)
 		{
@@ -692,52 +587,6 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors CheckInOld(IntPtr hwnd, string[] files, string comment)
-		{
-			// TODO: Check if project is opened
-			var checkin_files = new List<string>();
-			int count = 0;
-
-			for (int i = 0; i < files.Length; ++i)
-			{
-				string f;
-				if (!GetRelativePath(files[i], out f))
-					return SccErrors.InvalidFilePath;
-
-				checkin_files.Add(f);
-				count += f.Length;
-
-				if (count > 30000)
-				{
-					if (!hg.Commit(WorkingDir, checkin_files.ToArray(), comment))
-						return SccErrors.OpNotPerformed;
-
-					checkin_files.Clear();
-					count = 0;
-				}
-			}
-
-			if (checkin_files.Count > 0)
-			{
-				if (!hg.Commit(WorkingDir, checkin_files.ToArray(), comment))
-					return SccErrors.OpNotPerformed;
-			}
-
-			foreach (var file in files)
-			{
-				FileAttributes attr = File.GetAttributes(file);
-				if ((attr & FileAttributes.ReadOnly) != FileAttributes.ReadOnly)
-				{
-					attr |= FileAttributes.ReadOnly;
-					File.SetAttributes(file, attr);
-				}
-			}
-
-			return SccErrors.Ok;
-		}
-
-
-		//-----------------------------------------------------------------------------
 		public SccErrors Checkout(IntPtr hwnd, string[] files, string comment)
 		{
 			var local_files = new List<string>();
@@ -910,13 +759,6 @@ namespace HgSccHelper
 
 			if (!hg.Rename(WorkingDir, f, new_f))
 				return SccErrors.NonSpecificError;
-
-			FileAttributes attr = File.GetAttributes(new_file);
-			if ((attr & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
-			{
-				attr &= ~FileAttributes.ReadOnly;
-				File.SetAttributes(new_file, attr);
-			}
 
 			string lower_f = f.ToLower();
 			string lower_new_f = new_f.ToLower();

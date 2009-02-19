@@ -5,7 +5,7 @@ using System;
 namespace HgSccHelper
 {
 	//-----------------------------------------------------------------------------
-	enum HgFileStatus
+	internal enum HgFileStatus
 	{
 		Tracked,
 		Modified,
@@ -18,7 +18,7 @@ namespace HgSccHelper
 	}
 
 	//-----------------------------------------------------------------------------
-	class HgFileInfo
+	internal class HgFileInfo
 	{
 		public string File { get; set; }
 		public string CopiedFrom { get; set; }

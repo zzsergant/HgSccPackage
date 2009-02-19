@@ -91,6 +91,7 @@
     </Compile>
     <Compile Include="HgSccHelper\SccDefines.cs" />
     <Compile Include="HgSccHelper\Util.cs" />
+    <Compile Include="Misc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProvideSolutionProps.cs" />
     <Compile Include="SccProvider.cs" />

@@ -17,189 +17,182 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using HgSccHelper;
 
 namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 {
-    // This class defines basic source control status values
-    public enum SourceControlStatus {
-        scsUncontrolled = 0,
-        scsCheckedIn,
-        scsCheckedOut
-    };
+	// This class defines basic source control status values
+	public enum SourceControlStatus
+	{
+		scsUncontrolled = 0,
+		scsCheckedIn,
+		scsCheckedOut
+	};
 
-    public class SccProviderStorage
-    {
-        private static string _storageExtension = ".storage";
-        private string _projectFile = null;
-        private HashSet<string>_controlledFiles;
+	public class SourceControlInfo
+	{
+		public string File { get; set; }
+		public SourceControlStatus Status { get; set; }
+	};
 
-        public SccProviderStorage(string projectFile)
-        {
-            _projectFile = projectFile.ToLower();
-            _controlledFiles = new HashSet<string>();
+	public class SccProviderStorage
+	{
+		private  HgScc hgscc;
 
-            // Read the storage file if it already exist
-            ReadStorageFile();
-        }
+		public SccProviderStorage()
+		{
+			hgscc = new HgScc();
+		}
 
-        /// <summary>
-        /// Saves the list of the "controlled" files in a file with the same name as the project but with an extra ".storage" extension
-        /// </summary>
-        private void WriteStorageFile()
-        {
-            StreamWriter objWriter = null;
+		public bool IsValid
+		{
+			get
+			{
+				return !String.IsNullOrEmpty(hgscc.WorkingDir); 
+			}
+		}
 
-            try
-            {
-                string storageFile = _projectFile + _storageExtension;
-                objWriter = new StreamWriter(storageFile, false, System.Text.Encoding.Unicode);
-                foreach (string strFile in _controlledFiles)
-                {
-                    objWriter.Write(strFile);
-                    objWriter.Write("\r\n");
-                }
-            }
-            finally
-            {
-                if (objWriter != null)
-                {
-                    objWriter.Close();
-                }
-            }
-        }
+		public SccErrors Init(string projectFile)
+		{
+			var work_dir = Path.GetDirectoryName(projectFile);
+			Misc.Log("SccProviderStorage: {0}", work_dir);
+			return hgscc.OpenProject(work_dir, SccOpenProjectFlags.CreateIfNew);
+		}
 
-        /// <summary>
-        /// Reads the list of "controlled" files in the current project.
-        /// </summary>
-        public void ReadStorageFile()
-        {
-            string storageFile = _projectFile + _storageExtension;
-            if (File.Exists(storageFile))
-            {
-                StreamReader objReader = null;
+		public void Close()
+		{
+			hgscc = new HgScc();
+		}
 
-                try
-                {
-                    objReader = new StreamReader(storageFile, System.Text.Encoding.Unicode, false);
-                    String strLine;
-                    while ((strLine = objReader.ReadLine()) != null)
-                    {
-                        strLine.Trim();
+		/// <summary>
+		/// Adds files to source control by adding them to the list of "controlled" files in the current project
+		/// and changing their attributes to reflect the "checked in" status.
+		/// </summary>
+		public SccErrors AddFilesToStorage(IList<string> files)
+		{
+			Misc.Log("AddFilesToStorage");
+			var lst = new List<SccAddFile>();
+			foreach (var f in files)
+			{
+				lst.Add(new SccAddFile{ File = f, Flags = SccAddFlags.FileTypeAuto });
+				Misc.Log("adding: {0}", f);
+			}
 
-                        _controlledFiles.Add(strLine.ToLower());
-                    }
-                }
-                finally
-                {
-                    if (objReader != null)
-                    {
-                        objReader.Close();
-                    }
-                }
-            }
-        }
+			return hgscc.Add(IntPtr.Zero, lst.ToArray(), "Adding files");
+		}
 
-        /// <summary>
-        /// Adds files to source control by adding them to the list of "controlled" files in the current project
-        /// and changing their attributes to reflect the "checked in" status.
-        /// </summary>
-        public void AddFilesToStorage(IList<string> files)
-        {
-            // Add the files to a hastable so we can easily check later which files are controlled
-            foreach (string file in files)
-            {
-                _controlledFiles.Add(file.ToLower());
-            }
+		/// <summary>
+		/// Renames a "controlled" file. If the project file is being renamed, rename the whole storage file
+		/// </summary>
+		public SccErrors RenameFileInStorage(string strOldName, string strNewName)
+		{
+			return hgscc.Rename(IntPtr.Zero, strOldName, strNewName);
+		}
 
-            // And save the storage file
-            WriteStorageFile();
+		private static SourceControlStatus FromHgStatus(HgFileStatus status)
+		{
+			switch (status)
+			{
+				case HgFileStatus.Added:
+					return SourceControlStatus.scsCheckedOut;
+				case HgFileStatus.Clean:
+					return SourceControlStatus.scsUncontrolled;
+				case HgFileStatus.Deleted:
+					return SourceControlStatus.scsUncontrolled;
+				case HgFileStatus.Ignored:
+					return SourceControlStatus.scsUncontrolled;
+				case HgFileStatus.Modified:
+					return SourceControlStatus.scsCheckedOut;
+				case HgFileStatus.NotTracked:
+					return SourceControlStatus.scsUncontrolled;
+				case HgFileStatus.Removed:
+					return SourceControlStatus.scsUncontrolled;
+				case HgFileStatus.Tracked:
+					return SourceControlStatus.scsCheckedIn;
+			}
 
-            // Adding the files to the store also makes the local files read only
-            foreach (string file in files)
-            {
-                if (File.Exists(file))
-                {
-                    File.SetAttributes(file, FileAttributes.ReadOnly);
-                }
-            }
-        }
+			return SourceControlStatus.scsUncontrolled;
+		}
 
-        /// <summary>
-        /// Renames a "controlled" file. If the project file is being renamed, rename the whole storage file
-        /// </summary>
-        public void RenameFileInStorage(string strOldName, string strNewName)
-        {
-            strOldName = strOldName.ToLower();
-            strNewName = strNewName.ToLower();
+		private static HgFileStatus ToHgStatus(SourceControlStatus status)
+		{
+			switch (status)
+			{
+				case SourceControlStatus.scsCheckedIn:
+					return HgFileStatus.Tracked;
+				case SourceControlStatus.scsCheckedOut:
+					return HgFileStatus.Modified;
+				case SourceControlStatus.scsUncontrolled:
+					return HgFileStatus.NotTracked;
+			}
 
-            // Rename the file in the storage if it was controlled
-            if (_controlledFiles.Contains(strOldName))
-            {
-                _controlledFiles.Remove(strOldName);
-                _controlledFiles.Add(strNewName);
-            }
+			return HgFileStatus.NotTracked;
+		}
 
-            // Save the storage file to reflect changes
-            WriteStorageFile();
+		public SccErrors GetStatusForFiles(SourceControlInfo[] files)
+		{
+			if (!IsValid)
+				return SccErrors.UnknownError;
 
-            // If the project file itself is being renamed, we have to rename the storage file itself
-            if (_projectFile.CompareTo(strOldName) == 0)
-            {
-                string _storageOldFile = strOldName + _storageExtension;
-                string _storageNewFile = strNewName + _storageExtension;
-                File.Move(_storageOldFile, _storageNewFile);
-            }
-        }
+			var lst = new HgFileInfo[files.Length];
+			for (int i = 0; i < lst.Length; ++i)
+			{
+				lst[i] = new HgFileInfo {File = files[i].File, Status = ToHgStatus(files[i].Status)};
+			}
 
-        /// <summary>
-        /// Returns a source control status inferred from the file's attributes on local disk
-        /// </summary>
-        public SourceControlStatus GetFileStatus(string filename)
-        {
-            if (!_controlledFiles.Contains(filename.ToLower()))
-            {
-                return SourceControlStatus.scsUncontrolled;
-            }
+			SccErrors error = hgscc.QueryInfo(lst);
 
-            // Once we know it's controlled, look at the attribute to see if it's "checked out" or not
-            if (!File.Exists(filename))
-            {
-                // Consider a non-existent file checked in
-                return SourceControlStatus.scsCheckedIn;
-            }
-            else
-            {
-                if ((File.GetAttributes(filename) & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
-                {
-                    return SourceControlStatus.scsCheckedIn;
-                }
-                else
-                {
-                    return SourceControlStatus.scsCheckedOut;
-                }
-            }
-        }
+			for (int i = 0; i < lst.Length; ++i)
+			{
+				files[i].Status = FromHgStatus(lst[i].Status);
+			}
 
-        /// <summary>
-        /// Checkin a file to store by making the file on disk read only
-        /// </summary>
-        public void CheckinFile(string filename)
-        {
-            if (File.Exists(filename))
-            {
-                File.SetAttributes(filename, FileAttributes.ReadOnly);
-            }
-        }
+			return error;
+		}
 
-        /// <summary>
-        /// Checkout a file from store by making the file on disk writable
-        /// </summary>
-        public void CheckoutFile(string filename)
-        {
-            if (File.Exists(filename))
-            {
-                File.SetAttributes(filename, FileAttributes.Normal);
-            }
-        }
-    }
+		public SccErrors CheckInFiles(string[] files)
+		{
+			return hgscc.CheckIn(IntPtr.Zero, files, "");
+		}
+
+		public SccErrors CheckOutFiles(string[] files)
+		{
+			return hgscc.Checkout(IntPtr.Zero, files, "");
+		}
+		
+		/// <summary>
+		/// Returns a source control status inferred from the file's attributes on local disk
+		/// </summary>
+		public SourceControlStatus GetFileStatus(string filename)
+		{
+			Misc.Log("GetFileStatus: {0}", filename);
+
+			var info = new SourceControlInfo { File = filename };
+			var lst = new SourceControlInfo[]{ info };
+
+			GetStatusForFiles(lst);
+
+			return lst[0].Status;
+		}
+
+		/// <summary>
+		/// Checkin a file to store by making the file on disk read only
+		/// </summary>
+		public void CheckinFile(string filename)
+		{
+			Misc.Log("Checkin file: {0}", filename);
+			var files = new string[] { filename };
+			CheckInFiles(files);
+		}
+
+		/// <summary>
+		/// Checkout a file from store by making the file on disk writable
+		/// </summary>
+		public void CheckoutFile(string filename)
+		{
+			Misc.Log("Checkout file: {0}", filename);
+			var files = new string[] {filename};
+			CheckOutFiles(files);
+		}
+	}
 }
