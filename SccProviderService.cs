@@ -1299,6 +1299,19 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			}
 		}
 
+		public void ViewHistory(string file)
+		{
+			if (storage != null)
+			{
+				SourceControlStatus status = storage.GetFileStatus(file);
+				if (status != SourceControlStatus.scsUncontrolled)
+				{
+					storage.ViewHistory(file);
+					return;
+				}
+			}
+		}
+
 		/// <summary>
 		/// Returns a list of controlled projects containing the specified file
 		/// </summary>

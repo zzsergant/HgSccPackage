@@ -31,6 +31,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
         public const int icmdViewToolWindow             = 0x103;
         public const int icmdToolWindowToolbarCommand   = 0x104;
         public const int icmdUseSccOffline              = 0x105;
+		public const int icmdViewHistory					= 0x106;
 
         // Define the list of icons (use decimal numbers here, to match the resource IDs)
         public const int iiconProductIcon               = 400;

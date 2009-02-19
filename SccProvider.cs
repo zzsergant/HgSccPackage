@@ -131,11 +131,13 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			MsVsShell.OleMenuCommandService mcs =
 				GetService(typeof (IMenuCommandService)) as
 				MsVsShell.OleMenuCommandService;
+
 			if (mcs != null)
 			{
 				// ToolWindow Command
 				CommandID cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 											  CommandId.icmdViewToolWindow);
+
 				MenuCommand menuCmd = new MenuCommand(Exec_icmdViewToolWindow, cmd);
 				mcs.AddCommand(menuCmd);
 
@@ -160,6 +162,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 					CommandId.icmdCheckout);
 				menuCmd = new MenuCommand(Exec_icmdCheckout, cmd);
+				mcs.AddCommand(menuCmd);
+
+				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
+					CommandId.icmdViewHistory);
+
+				menuCmd = new MenuCommand(Exec_icmdViewHistory, cmd);
 				mcs.AddCommand(menuCmd);
 
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
@@ -485,6 +493,10 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 					cmdf |= QueryStatus_icmdCheckout();
 					break;
 
+				case CommandId.icmdViewHistory:
+					cmdf |= QueryStatus_icmdHistory();
+					break;
+
 				case CommandId.icmdUseSccOffline:
 					cmdf |= QueryStatus_icmdUseSccOffline();
 					break;
@@ -553,6 +565,25 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				{
 					return OLECMDF.OLECMDF_ENABLED;
 				}
+			}
+
+			return OLECMDF.OLECMDF_SUPPORTED;
+		}
+
+		private OLECMDF QueryStatus_icmdHistory()
+		{
+			if (!IsThereASolution())
+			{
+				return OLECMDF.OLECMDF_INVISIBLE;
+			}
+
+			IList<string> files = GetSelectedFilesInControlledProjects();
+			if (files.Count != 1)
+				return OLECMDF.OLECMDF_INVISIBLE;
+
+			if (sccService.GetFileStatus(files[0]) != SourceControlStatus.scsUncontrolled)
+			{
+				return OLECMDF.OLECMDF_ENABLED;
 			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
@@ -692,6 +723,23 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 			// now refresh the selected nodes' glyphs
 			RefreshNodesGlyphs(selectedNodes);
+		}
+
+		private void Exec_icmdViewHistory(object sender, EventArgs e)
+		{
+			if (!IsThereASolution())
+			{
+				return;
+			}
+
+			IList<VSITEMSELECTION> selectedNodes = null;
+			IList<string> files =
+				GetSelectedFilesInControlledProjects(out selectedNodes);
+
+			if (files.Count == 1)
+			{
+				 sccService.ViewHistory(files[0]);
+			}
 		}
 
 		private void Exec_icmdAddToSourceControl(object sender, EventArgs e)

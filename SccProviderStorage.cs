@@ -185,6 +185,14 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			CheckInFiles(files);
 		}
 
+		public void ViewHistory(string filename)
+		{
+			if (!IsValid)
+				return;
+
+			hgscc.History(IntPtr.Zero, filename);
+		}
+
 		/// <summary>
 		/// Checkout a file from store by making the file on disk writable
 		/// </summary>

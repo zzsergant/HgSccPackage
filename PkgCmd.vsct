@@ -114,6 +114,17 @@
           <CommandName>Checkin (SccProvider)</CommandName>
         </Strings>
       </Button>
+      <Button guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000" type="Button">
+        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+        <!--<Icon guid="guidSccProviderImages" id="iconCheckin"/>-->
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <Strings>
+          <ButtonText>View History</ButtonText>
+          <MenuText>View History</MenuText>
+          <CommandName>View History (SccProvider)</CommandName>
+        </Strings>
+      </Button>
       <Button guid="guidSccProviderCmdSet" id="icmdUseSccOffline" priority="0x0000" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
@@ -166,6 +177,15 @@
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCheckin" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+    </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdUseSccOffline" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
     </CommandPlacement>
@@ -191,6 +211,7 @@
       <IDSymbol name="icmdViewToolWindow" value="0x103"/>
       <IDSymbol name="icmdToolWindowToolbarCommand" value="0x104"/>
       <IDSymbol name="icmdUseSccOffline" value="0x105"/>
+      <IDSymbol name="icmdViewHistory" value="0x106"/>
 
       <IDSymbol name="imnuFileSourceControlMenu" value="0x200"/>
       <IDSymbol name="imnuToolWindowToolbarMenu" value="0x201"/>
