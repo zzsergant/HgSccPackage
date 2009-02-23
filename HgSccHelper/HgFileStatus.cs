@@ -40,6 +40,9 @@ namespace HgSccHelper
 					continue;
 
 				char mod = str[0];
+				if (str[1] != ' ')
+					continue;
+
 				string file_path = str.Substring(2);
 
 				HgFileInfo info = new HgFileInfo();
@@ -53,6 +56,7 @@ namespace HgSccHelper
 					case '?': info.Status = HgFileStatus.NotTracked; break;
 					case '!': info.Status = HgFileStatus.Deleted; break;
 					case 'C': info.Status = HgFileStatus.Clean; break;
+					case 'I': info.Status = HgFileStatus.Ignored; break;
 					case ' ':
 						{
 							if (prev != null && prev.Status == HgFileStatus.Added)

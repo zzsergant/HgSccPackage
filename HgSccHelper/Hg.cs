@@ -233,7 +233,8 @@ namespace HgSccHelper
 		{
 			var args = new StringBuilder();
 			args.Append("status");
-			args.Append(" -amrdC");
+//			args.Append(" -amrdC");
+			args.Append(" -amrdcC");
 			if (path.Length > 0)
 				args.Append(" " + path.Quote());
 
@@ -348,7 +349,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public bool UnCheckOut(string work_dir, string[] files)
+		public bool Revert(string work_dir, string[] files)
 		{
 			bool no_backups = true;
 			StringBuilder args = new StringBuilder();
@@ -366,22 +367,7 @@ namespace HgSccHelper
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)
 					return false;
-
-//				return true;
 			}
-
-/*
-			foreach (var f in files)
-			{
-				string path = Path.Combine(work_dir, f);
-				FileAttributes attr = File.GetAttributes(path);
-				if ((attr | FileAttributes.ReadOnly) != FileAttributes.ReadOnly)
-				{
-					attr |= FileAttributes.ReadOnly;
-					File.SetAttributes(path, attr);
-				}
-			}
-*/
 
 			return true;
 		}

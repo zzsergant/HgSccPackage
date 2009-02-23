@@ -685,6 +685,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			IList<VSITEMSELECTION> selectedNodes = null;
 			IList<string> files =
 				GetSelectedFilesInControlledProjects(out selectedNodes);
+
+			// FIXME: Batch
 			foreach (string file in files)
 			{
 				SourceControlStatus status = sccService.GetFileStatus(file);
@@ -712,6 +714,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			IList<VSITEMSELECTION> selectedNodes = null;
 			IList<string> files =
 				GetSelectedFilesInControlledProjects(out selectedNodes);
+
+			// FIXME: Batch
 			foreach (string file in files)
 			{
 				SourceControlStatus status = sccService.GetFileStatus(file);
@@ -1223,6 +1227,71 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			}
 		}
 
+/*
+		public void RefreshNodesGlyphsFromStatus(IList<VSITEMSELECTION> selectedNodes, SourceControlStatus status)
+		{
+			uint[] sccStatus = new[]{ sccService.SourceStatusToSccStatus(status)};
+			VsStateIcon[] sccIcon = new VsStateIcon[1];
+			sccService.GetSccGlyphFromStatus(sccStatus[0], sccIcon);
+
+			foreach (VSITEMSELECTION vsItemSel in selectedNodes)
+			{
+				var sccProject2 = vsItemSel.pHier as IVsSccProject2;
+				if (vsItemSel.itemid == VSConstants.VSITEMID_ROOT)
+				{
+					if (sccProject2 == null)
+					{
+						// Note: The solution's hierarchy does not implement IVsSccProject2, IVsSccProject interfaces
+						// It may be a pain to treat the solution as special case everywhere; a possible workaround is 
+						// to implement a solution-wrapper class, that will implement IVsSccProject2, IVsSccProject and
+						// IVsHierarhcy interfaces, and that could be used in provider's code wherever a solution is needed.
+						// This approach could unify the treatment of solution and projects in the provider's code.
+
+						// Until then, solution is treated as special case
+						string[] rgpszFullPaths = new string[1];
+						rgpszFullPaths[0] = GetSolutionFileName();
+
+						// Set the solution's glyph directly in the hierarchy
+						IVsHierarchy solHier = (IVsHierarchy)GetService(typeof(SVsSolution));
+						solHier.SetProperty(VSConstants.VSITEMID_ROOT,
+											(int)__VSHPROPID.VSHPROPID_StateIconIndex,
+											sccIcon[0]);
+					}
+					else
+					{
+						// Refresh all the glyphs in the project; the project will call back GetSccGlyphs() 
+						// with the files for each node that will need new glyph
+//						sccProject2.SccGlyphChanged(0, null, null, null);
+						uint[] rguiAffectedNodes = new uint[1];
+						rguiAffectedNodes[0] = vsItemSel.itemid;
+
+						sccProject2.SccGlyphChanged(1, rguiAffectedNodes, sccIcon, sccStatus);
+					}
+				}
+				else
+				{
+					// It may be easier/faster to simply refresh all the nodes in the project, 
+					// and let the project call back on GetSccGlyphs, but just for the sake of the demo, 
+					// let's refresh ourselves only one node at a time
+
+					vsItemSel.pHier.SetProperty(vsItemSel.itemid, (int)__VSHPROPID.VSHPROPID_StateIconIndex, sccIcon[0]);
+					IList<string> sccFiles = GetNodeFiles(sccProject2, vsItemSel.itemid);
+
+					// We'll use for the node glyph just the Master file's status (ignoring special files of the node)
+					if (sccFiles.Count > 0)
+					{
+						string[] rgpszFullPaths = new string[1];
+						rgpszFullPaths[0] = sccFiles[0];
+
+						uint[] rguiAffectedNodes = new uint[1];
+						rguiAffectedNodes[0] = vsItemSel.itemid;
+						sccProject2.SccGlyphChanged(1, rguiAffectedNodes, sccIcon,
+													sccStatus);
+					}
+				}
+			}
+		}
+*/
 
 		/// <summary>
 		/// Returns the filename of the solution

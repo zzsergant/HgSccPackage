@@ -21,7 +21,6 @@ namespace HgSccHelper
 
 		private readonly Queue<HgFileInfo> event_queue;
 		private readonly Dictionary<string, HgFileStatus> track_ide_changes;
-		private readonly Dictionary<string, FackedCheckoutInfo> facked_checkout;
 
 		//-----------------------------------------------------------------------------
 		public HgScc()
@@ -29,7 +28,6 @@ namespace HgSccHelper
 			hg = new Hg();
 			event_queue = new Queue<HgFileInfo>();
 			track_ide_changes = new Dictionary<string, HgFileStatus>();
-			facked_checkout = new Dictionary<string, FackedCheckoutInfo>();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -148,7 +146,7 @@ namespace HgSccHelper
 			switch (status)
 			{
 				case HgFileStatus.Added: scc |= SccStatus.Controlled | SccStatus.CheckedOut | SccStatus.OutByUser | SccStatus.Modified; break;
-//				case HgFileStatus.Clean:
+				case HgFileStatus.Clean: scc |= SccStatus.Controlled; break;
 				case HgFileStatus.Deleted: scc |= SccStatus.Controlled | SccStatus.Deleted; break;
 				case HgFileStatus.Ignored: scc |= SccStatus.NotControlled; break;
 				case HgFileStatus.Modified: scc |= SccStatus.Controlled | SccStatus.CheckedOut | SccStatus.OutByUser | SccStatus.Modified; break;
@@ -207,13 +205,14 @@ namespace HgSccHelper
 		private Dictionary<string, HgFileInfo> QueryInfoFullDict()
 		{
 			var dict = new Dictionary<string, HgFileInfo>();
-			var hg_files = hg.Manifest(WorkingDir);
+//			var hg_files = hg.Manifest(WorkingDir);
 
 			foreach (var file_status in hg.Status(WorkingDir))
 			{
 				dict.Add(file_status.File, file_status);
 			}
 
+/*
 			foreach (var file in hg_files)
 			{
 				string f = file.Replace('/', '\\');
@@ -221,17 +220,10 @@ namespace HgSccHelper
 				{
 //					Logger.WriteLine(String.Format("Manifest File: {0}", f));
 					HgFileStatus status = HgFileStatus.Tracked;
-
-					// Checking read-only flag to figure if is was checked out
-/*
-					FileAttributes attr = File.GetAttributes(Path.Combine(WorkingDir, file));
-					if ((attr & FileAttributes.ReadOnly) != FileAttributes.ReadOnly)
-						status = HgFileStatus.Modified;
-*/
-
 					dict.Add(f, new HgFileInfo { File = f, Status = status } );
 				}
 			}
+*/
 
 			return dict;
 		}
@@ -240,7 +232,7 @@ namespace HgSccHelper
 		internal SccErrors QueryInfo(HgFileInfo[] files)
 		{
 			// TODO: Check if project is opened
-			var hg_files = hg.Manifest(WorkingDir);
+//			var hg_files = hg.Manifest(WorkingDir);
 			var dict = new Dictionary<string, HgFileStatus>();
 
 			foreach (var file_status in hg.Status(WorkingDir))
@@ -249,6 +241,7 @@ namespace HgSccHelper
 				dict.Add(file, file_status.Status);
 			}
 
+/*
 			foreach (var file in hg_files)
 			{
 				string f = file.ToLower().Replace('/', '\\');
@@ -258,6 +251,7 @@ namespace HgSccHelper
 					dict.Add(f, HgFileStatus.Tracked);
 				}
 			}
+*/
 
 			var queue_dict = new Dictionary<string, HgFileStatus>();
 			while (event_queue.Count > 0)
@@ -273,19 +267,12 @@ namespace HgSccHelper
 				if (GetRelativePath(info.File, out file)
 					&& dict.TryGetValue(file.ToLower(), out status))
 				{
-					if (status == HgFileStatus.Tracked)
-					{
-						FackedCheckoutInfo cache;
-						if (facked_checkout.TryGetValue(file.ToLower(), out cache))
-						{
-							status = HgFileStatus.Modified;
-						}
-					}
-
 					info.Status = status;
 				}
 				else
+				{
 					info.Status = HgFileStatus.NotTracked;
+				}
 
 				if (dict.ContainsKey(file))
 					dict.Remove(file);
@@ -466,9 +453,6 @@ namespace HgSccHelper
 						{
 							string lower_f = f.ToLower();
 							track_ide_changes.Remove(lower_f);
-
-							Logger.WriteLine(String.Format("RemoveFakedCO: {0}", lower_f));
-							facked_checkout.Remove(lower_f);
 						}
 					}
 
@@ -597,20 +581,6 @@ namespace HgSccHelper
 					return SccErrors.InvalidFilePath;
 
 				local_files.Add(local_f);
-
-				FackedCheckoutInfo cache;
-				if (facked_checkout.TryGetValue(local_f.ToLower(), out cache))
-				{
-				}
-				else
-				{
-					cache = new FackedCheckoutInfo();
-					cache.File = local_f;
-
-					// TODO: Ensure file exists
-					Logger.WriteLine(String.Format("AddFakedCO: {0}", local_f.ToLower()));
-					facked_checkout.Add(local_f.ToLower(), cache);
-				}
 			}
 
 			if (!hg.Checkout(WorkingDir, local_files.ToArray()))
@@ -620,7 +590,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors UnCheckOut(IntPtr hwnd, string[] files)
+		public SccErrors Revert(IntPtr hwnd, string[] files)
 		{
 			var local_files = new List<string>();
 			foreach (var f in files)
@@ -630,12 +600,9 @@ namespace HgSccHelper
 					return SccErrors.InvalidFilePath;
 
 				local_files.Add(local_f);
-				
-				Logger.WriteLine(String.Format("RemoveFakedCO: {0}", local_f.ToLower()));
-				facked_checkout.Remove(local_f.ToLower());
 			}
 
-			if (!hg.UnCheckOut(WorkingDir, local_files.ToArray()))
+			if (!hg.Revert(WorkingDir, local_files.ToArray()))
 				return SccErrors.NonSpecificError;
 
 			foreach (var f in local_files)

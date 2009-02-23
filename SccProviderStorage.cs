@@ -37,11 +37,13 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 	public class SccProviderStorage
 	{
-		private  HgScc hgscc;
+		private HgScc hgscc;
+		private Dictionary<string, HgFileInfo> cache;
 
 		public SccProviderStorage()
 		{
 			hgscc = new HgScc();
+			cache = new Dictionary<string, HgFileInfo>();
 		}
 
 		public bool IsValid
@@ -62,6 +64,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		public void Close()
 		{
 			hgscc = new HgScc();
+			cache.Clear();
 		}
 
 		/// <summary>
@@ -78,7 +81,11 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				Misc.Log("adding: {0}", f);
 			}
 
-			return hgscc.Add(IntPtr.Zero, lst.ToArray(), "Adding files");
+			var err = hgscc.Add(IntPtr.Zero, lst.ToArray(), "Adding files");
+			if (err == SccErrors.Ok)
+				UpdateCache(files);
+
+			return err;
 		}
 
 		/// <summary>
@@ -86,7 +93,11 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// </summary>
 		public SccErrors RenameFileInStorage(string strOldName, string strNewName)
 		{
-			return hgscc.Rename(IntPtr.Zero, strOldName, strNewName);
+			var err = hgscc.Rename(IntPtr.Zero, strOldName, strNewName);
+			if (err == SccErrors.Ok)
+				UpdateCache(new[]{strOldName, strNewName});
+
+			return err;
 		}
 
 		private static SourceControlStatus FromHgStatus(HgFileStatus status)
@@ -96,7 +107,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				case HgFileStatus.Added:
 					return SourceControlStatus.scsCheckedOut;
 				case HgFileStatus.Clean:
-					return SourceControlStatus.scsUncontrolled;
+					return SourceControlStatus.scsCheckedIn;
 				case HgFileStatus.Deleted:
 					return SourceControlStatus.scsUncontrolled;
 				case HgFileStatus.Ignored:
@@ -134,30 +145,79 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			if (!IsValid)
 				return SccErrors.UnknownError;
 
-			var lst = new HgFileInfo[files.Length];
-			for (int i = 0; i < lst.Length; ++i)
+			var not_in_cache = new List<string>();
+
+			foreach (var file in files)
 			{
-				lst[i] = new HgFileInfo {File = files[i].File, Status = ToHgStatus(files[i].Status)};
+				if (!cache.ContainsKey(file.File.ToLower()))
+					not_in_cache.Add(file.File);
 			}
 
-			SccErrors error = hgscc.QueryInfo(lst);
-
-			for (int i = 0; i < lst.Length; ++i)
+			if (not_in_cache.Count != 0)
 			{
-				files[i].Status = FromHgStatus(lst[i].Status);
+				UpdateCache(not_in_cache);
 			}
 
-			return error;
+			foreach (var file in files)
+			{
+				HgFileInfo info;
+				if (cache.TryGetValue(file.File.ToLower(), out info))
+				{
+					file.Status = FromHgStatus(info.Status);
+				}
+			}
+
+			return SccErrors.Ok;
+		}
+
+		public SccErrors GetStatusForFiles(string[] files, SourceControlStatus[] statuses)
+		{
+			if (!IsValid)
+				return SccErrors.UnknownError;
+
+			var not_in_cache = new List<string>();
+
+			foreach (var file in files)
+			{
+				if (!cache.ContainsKey(file.ToLower()))
+					not_in_cache.Add(file);
+			}
+
+			if (not_in_cache.Count != 0)
+			{
+				UpdateCache(not_in_cache);
+			}
+
+			for (int i = 0; i < files.Length; ++i)
+			{
+				HgFileInfo info;
+				if (cache.TryGetValue(files[i].ToLower(), out info))
+				{
+					statuses[i] = FromHgStatus(info.Status);
+				}
+			}
+
+			return SccErrors.Ok;
 		}
 
 		public SccErrors CheckInFiles(string[] files)
 		{
-			return hgscc.CheckIn(IntPtr.Zero, files, "");
+			var error = hgscc.CheckIn(IntPtr.Zero, files, "");
+			if (error == SccErrors.Ok)
+			{
+				UpdateCache(files);
+			}
+			return error;
 		}
 
 		public SccErrors CheckOutFiles(string[] files)
 		{
-			return hgscc.Checkout(IntPtr.Zero, files, "");
+			var error = hgscc.Checkout(IntPtr.Zero, files, "");
+			if (error == SccErrors.Ok)
+			{
+				UpdateCache(files);
+			}
+			return error;
 		}
 		
 		/// <summary>
@@ -201,6 +261,34 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			Misc.Log("Checkout file: {0}", filename);
 			var files = new string[] {filename};
 			CheckOutFiles(files);
+		}
+
+		private void UpdateCache(IEnumerable<string> files)
+		{
+			var lst = new List<HgFileInfo>();
+			foreach (var f in files)
+			{
+				var info = new HgFileInfo {File = f, Status = HgFileStatus.NotTracked};
+				lst.Add(info);
+			}
+			
+			var info_lst = lst.ToArray();
+
+			SccErrors error = hgscc.QueryInfo(info_lst);
+			if (error == SccErrors.Ok)
+			{
+				foreach (var info in info_lst)
+				{
+					cache[info.File.ToLower()] = info;
+				}
+			}
+		}
+
+		public void SetCacheStatus(string file, SourceControlStatus status)
+		{
+			HgFileInfo info;
+			if (cache.TryGetValue(file.ToLower(), out info))
+				info.Status = ToHgStatus(status);
 		}
 	}
 }

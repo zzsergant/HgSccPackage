@@ -245,6 +245,21 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return VSConstants.S_OK;
 		}
 
+		public uint SourceStatusToSccStatus(SourceControlStatus status)
+		{
+			switch (status)
+			{
+				case SourceControlStatus.scsCheckedIn:
+					return (uint) __SccStatus.SCC_STATUS_CONTROLLED;
+				case SourceControlStatus.scsCheckedOut:
+					return (uint) __SccStatus.SCC_STATUS_CHECKEDOUT;
+				case SourceControlStatus.scsUncontrolled:
+					return (uint) __SccStatus.SCC_STATUS_NOTCONTROLLED;
+			}
+
+			return (uint)__SccStatus.SCC_STATUS_NOTCONTROLLED;
+		}
+
 		/// <summary>
 		/// One of the most important methods in a source control provider, is called by projects that are under source control when they are first opened to register project settings
 		/// </summary>
@@ -544,6 +559,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 		public int OnAfterSaveUnreloadableFile([InAttribute] string pszMkDocument, [InAttribute] uint rgf, [InAttribute] VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
 		{
+			Misc.Log("OnAfterSaveUnreloadableFile: {0}", pszMkDocument);
 			return VSConstants.S_OK;
 		}
 
@@ -576,6 +592,9 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 			try 
 			{
+				SourceControlStatus[] statuses = new SourceControlStatus[rgpszMkDocuments.Length];
+				GetStatusForFiles(rgpszMkDocuments, statuses);
+
 				//Iterate through all the files
 				for (int iFile = 0; iFile < cFiles; iFile++)
 				{
@@ -586,7 +605,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 					// Because of the way we calculate the status, it is not possible to have a 
 					// checked in file that is writtable on disk, or a checked out file that is read-only on disk
 					// A source control provider would need to deal with those situations, too
-					SourceControlStatus status = GetFileStatus(rgpszMkDocuments[iFile]);
+//					SourceControlStatus status = GetFileStatus(rgpszMkDocuments[iFile]);
+					SourceControlStatus status = statuses[iFile];
 					bool fileExists = File.Exists(rgpszMkDocuments[iFile]);
 					bool isFileReadOnly = false;
 					if (fileExists)
@@ -618,6 +638,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 									}
 									else
 									{
+/*
 										DlgQueryEditCheckedInFile dlgAskCheckout = new DlgQueryEditCheckedInFile(rgpszMkDocuments[iFile]);
 										if ((rgfQueryEdit & (uint)tagVSQueryEditFlags.QEF_SilentMode) != 0)
 										{
@@ -654,7 +675,9 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 											fEditVerdict = (uint)tagVSQueryEditResult.QER_NoEdit_UserCanceled;
 											fMoreInfo = (uint)(tagVSQueryEditResultFlags.QER_ReadOnlyUnderScc | tagVSQueryEditResultFlags.QER_CheckoutCanceledOrFailed);
 										}
-
+*/
+										fEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
+										fMoreInfo = (uint)tagVSQueryEditResultFlags.QER_MaybeCheckedout;
 									}
 									break;
 								case SourceControlStatus.scsCheckedOut: // fall through
@@ -753,6 +776,10 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// </summary>
 		public int QuerySaveFiles([InAttribute] uint rgfQuerySave, [InAttribute] int cFiles, [InAttribute] string[] rgpszMkDocuments, [InAttribute] uint[] rgrgf, [InAttribute] VSQEQS_FILE_ATTRIBUTE_DATA[] rgFileInfo, out uint pdwQSResult)
 		{
+//			IVsRunningDocumentTable rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(IVsRunningDocumentTable));
+
+			var checkout_files = new List<string>();
+
 			// Initialize output variables
 			// It's a bit unfortunate that we have to return only one set of flags for all the files involved in the operation
 			// The last file will win setting this flag
@@ -767,9 +794,13 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 			try 
 			{
+				SourceControlStatus[] statuses = new SourceControlStatus[rgpszMkDocuments.Length];
+				GetStatusForFiles(rgpszMkDocuments, statuses);
+
 				for (int iFile = 0; iFile < cFiles; iFile++)
 				{
-					SourceControlStatus status = GetFileStatus(rgpszMkDocuments[iFile]);
+//					SourceControlStatus status = GetFileStatus(rgpszMkDocuments[iFile]);
+					SourceControlStatus status = statuses[iFile];
 					bool fileExists = File.Exists(rgpszMkDocuments[iFile]);
 					bool isFileReadOnly = false;
 					if (fileExists)
@@ -779,6 +810,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 					switch (status)
 					{
+/*
 						case SourceControlStatus.scsCheckedIn:
 							DlgQuerySaveCheckedInFile dlgAskCheckout = new DlgQuerySaveCheckedInFile(rgpszMkDocuments[iFile]);
 							if ((rgfQuerySave & (uint)tagVSQuerySaveFlags.QSF_SilentMode) != 0)
@@ -811,7 +843,22 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 							}
 
 							break;
-						case SourceControlStatus.scsCheckedOut: // fall through
+*/
+						case SourceControlStatus.scsCheckedIn:
+							{
+								if (fileExists && isFileReadOnly)
+								{
+									// Make the file writable and allow the save
+									File.SetAttributes(rgpszMkDocuments[iFile], FileAttributes.Normal);
+								}
+								// TODO: Add dirty file to checkout_files
+//								rdt.GetDocumentInfo()
+								checkout_files.Add(rgpszMkDocuments[iFile]);
+								// Allow the save now 
+								pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
+								break;
+							}
+						case SourceControlStatus.scsCheckedOut:	 // fall through
 						case SourceControlStatus.scsUncontrolled:
 							if (fileExists && isFileReadOnly)
 							{
@@ -829,7 +876,18 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				// If an exception was caught, do not allow the save
 				pdwQSResult = (uint)tagVSQuerySaveResult.QSR_NoSave_Cancel;
 			}
-	 
+
+			foreach (var file in checkout_files)
+			{
+				storage.SetCacheStatus(file, SourceControlStatus.scsCheckedOut);
+			}
+
+			IList<VSITEMSELECTION> lst = this.GetControlledProjectsContainingFiles(checkout_files);
+			if (lst.Count != 0)
+			{
+				_sccProvider.RefreshNodesGlyphs(lst);
+			}
+
 			return VSConstants.S_OK;
 		}
 
@@ -1237,6 +1295,11 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return storage.GetFileStatus(filename);
 		}
 
+		public void GetStatusForFiles(string[] files, SourceControlStatus[] statuses)
+		{
+			storage.GetStatusForFiles(files, statuses);
+		}
+
 		/// <summary>
 		/// Adds the specified file to source control; the file must be part of a controlled project
 		/// </summary>
@@ -1274,12 +1337,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 			if (storage != null)
 			{
-				SourceControlStatus status = storage.GetFileStatus(file);
-				if (status != SourceControlStatus.scsUncontrolled)
-				{
-					storage.CheckinFile(file);
-					return;
-				}
+				storage.CheckinFile(file);
 			}
 		}
 
@@ -1288,6 +1346,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// </summary>
 		public void CheckoutFile(string file)
 		{
+			// FIXME: Убрать это все вообще
 			if (storage != null)
 			{
 				SourceControlStatus status = storage.GetFileStatus(file);
@@ -1369,6 +1428,24 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			_sccProvider.RefreshNodesGlyphs(nodes);
 		}
 
+		public IList<VSITEMSELECTION> GetControlledProjectsContainingFiles(IEnumerable<string> files)
+		{
+			var nodes = new List<VSITEMSELECTION>();
+			foreach (var f in files)
+			{
+				var found = GetControlledProjectsContainingFile(f);
+				if (found.Count == 1)
+				{
+					nodes.Add(found[0]);
+				}
+				else
+				{
+					Misc.Log("GetCtrlNodes: file = {0}, count = {1}", f, found.Count);
+				}
+			}
+
+			return nodes;
+		}
 		#endregion
 	}
 }
