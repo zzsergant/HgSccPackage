@@ -63,7 +63,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 		public void Close()
 		{
-			hgscc = new HgScc();
+			hgscc.Dispose();
 			cache.Clear();
 		}
 
