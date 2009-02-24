@@ -598,6 +598,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				//Iterate through all the files
 				for (int iFile = 0; iFile < cFiles; iFile++)
 				{
+					Misc.Log("QueryEditFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
 					 
 					uint fEditVerdict = (uint)tagVSQueryEditResult.QER_EditNotOK;
 					uint fMoreInfo = 0;
@@ -799,6 +800,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 				for (int iFile = 0; iFile < cFiles; iFile++)
 				{
+					Misc.Log("QuerySaveFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
 //					SourceControlStatus status = GetFileStatus(rgpszMkDocuments[iFile]);
 					SourceControlStatus status = statuses[iFile];
 					bool fileExists = File.Exists(rgpszMkDocuments[iFile]);
@@ -899,6 +901,10 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 		public int OnQueryAddFiles([InAttribute] IVsProject pProject, [InAttribute] int cFiles, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSQUERYADDFILEFLAGS[] rgFlags, [OutAttribute] VSQUERYADDFILERESULTS[] pSummaryResult, [OutAttribute] VSQUERYADDFILERESULTS[] rgResults)
 		{
+			for (int i = 0; i < cFiles; ++i)
+			{
+				Misc.Log("OnQueryAddFiles: [{0}]: {1}", i, rgpszMkDocuments[i]);
+			}
 			return VSConstants.E_NOTIMPL;
 		}
 
@@ -933,11 +939,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				{
 					// Refresh the solution explorer glyphs for all projects containing this file
 					IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgpszMkDocuments[iFile]);
+					Misc.Log("OnAfterAddFilesEx: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
 					_sccProvider.RefreshNodesGlyphs(nodes);
 				}
 			}
 
-			return VSConstants.E_NOTIMPL;
+			return VSConstants.S_OK;
 		}
 
 		public int OnQueryAddDirectories ([InAttribute] IVsProject pProject, [InAttribute] int cDirectories, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSQUERYADDDIRECTORYFLAGS[] rgFlags, [OutAttribute] VSQUERYADDDIRECTORYRESULTS[] pSummaryResult, [OutAttribute] VSQUERYADDDIRECTORYRESULTS[] rgResults)
@@ -961,6 +968,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			{
 				for (int iFile = 0; iFile < cFiles; iFile++)
 				{
+					Misc.Log("OnQueryRemoveFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
 					rgResults[iFile] = VSQUERYREMOVEFILERESULTS.VSQUERYREMOVEFILERESULTS_RemoveOK;
 				}
 			}
@@ -1045,6 +1053,11 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		public int OnAfterRemoveFiles([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSREMOVEFILEFLAGS[] rgFlags)
 		{
 			// The file deletes are not propagated into the store
+			for (int i = 0; i < 0; ++i)
+			{
+				Misc.Log("OnAfterRemoveFiles: [{0}]: {1}", i, rgpszMkDocuments[i]);
+			}
+			Misc.Log("OnAfterRemoveFiles: FIXME");
 			return VSConstants.E_NOTIMPL;
 		}
 
@@ -1104,7 +1117,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				// Now that we know which files belong to this project, iterate the project files
 				for (int iFile = iProjectFilesStart; iFile < iNextProjecFilesStart; iFile++)
 				{
-//                    var storage = _controlledProjects[pHier];
+					Misc.Log("OnAfterRenameFiles: [{0}]: {1} -> {2}", iFile, rgszMkOldNames[iFile], rgszMkNewNames[iFile]);
+					// var storage = _controlledProjects[pHier];
 					if (storage != null)
 					{
 						storage.RenameFileInStorage(rgszMkOldNames[iFile], rgszMkNewNames[iFile]);
@@ -1115,6 +1129,15 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 						_sccProvider.RefreshNodesGlyphs(nodes);
 					}
 				}
+			}
+
+			// Before checking in files, make sure all in-memory edits have been commited to disk 
+			// by forcing a save of the solution. Ideally, only the files to be checked in should be saved...
+			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+			if (sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0) != VSConstants.S_OK)
+			{
+				// If saving the files failed, don't continue with the checkin
+//				return;
 			}
 
 			return VSConstants.S_OK;
@@ -1305,6 +1328,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// </summary>
 		public void AddFileToSourceControl(string file)
 		{
+			Misc.Log("AddFileToSourceControl: {0}", file);
 			var filesToAdd = new List<string>();
 			filesToAdd.Add(file);
 			

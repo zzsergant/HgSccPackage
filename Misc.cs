@@ -4,24 +4,40 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 {
 	//=========================================================================
 	class Misc
 	{
+		private static readonly string log_path = @"d:\Work\Tests1\log.txt";
+
+		static Misc()
+		{
+			File.Delete(log_path);
+		}
+
 		//-------------------------------------------------------------------------
 		public static void Log(string format, params object[] args)
 		{
-			Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture,
-										  format, args));
+			Write(String.Format(CultureInfo.CurrentUICulture, format, args));
 		}
 
 		//-------------------------------------------------------------------------
 		public static void Log(string format, object arg)
 		{
-			Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture,
+			Write(String.Format(CultureInfo.CurrentUICulture,
 										  format, arg));
+		}
+
+		//-------------------------------------------------------------------------
+		private static void Write(string str)
+		{
+			using (var file = File.AppendText(log_path))
+			{
+				file.WriteLine(str);
+			}
 		}
 	}
 }
