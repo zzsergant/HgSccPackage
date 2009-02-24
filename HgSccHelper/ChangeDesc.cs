@@ -40,10 +40,19 @@ namespace HgSccHelper
 			}
 		}
 
+		private static void RemoveDuplicates(Dictionary<string, FileInfo> dict, List<FileInfo> files)
+		{
+			foreach (var file in files)
+			{
+				dict.Remove(file.Path);
+			}
+		}
+
 		//-----------------------------------------------------------------------------
 		public static List<ChangeDesc> ParseChanges(StreamReader reader)
 		{
 			var list = new List<ChangeDesc>();
+			var modified_files = new Dictionary<string, FileInfo>();
 			ChangeDesc cs = null;
 
 			while (true)
@@ -55,7 +64,17 @@ namespace HgSccHelper
 				if (str.StartsWith("==:"))
 				{
 					if (cs != null)
+					{
+						RemoveDuplicates(modified_files, cs.FilesAdded);
+						RemoveDuplicates(modified_files, cs.FilesRemoved);
+						foreach (var info in modified_files.Values)
+						{
+							cs.FilesModified.Add(info);
+						}
+						
 						list.Add(cs);
+						modified_files.Clear();
+					}
 
 					cs = new ChangeDesc();
 					continue;
@@ -121,7 +140,8 @@ namespace HgSccHelper
 								}
 							case FileStatus.Modified:
 								{
-									cs.FilesModified.Add(new FileInfo { Status = status, Path = f });
+									// cs.FilesModified.Add(new FileInfo { Status = status, Path = f });
+									modified_files.Add(f, new FileInfo { Status = status, Path = f });
 									break;
 								}
 							case FileStatus.Removed:
@@ -136,7 +156,18 @@ namespace HgSccHelper
 			}
 
 			if (cs != null)
+			{
+				// FIXME: Удаляем из списка модифицированных файлов добавленные и удаленные (hg 1.1.1 ??)
+				RemoveDuplicates(modified_files, cs.FilesAdded);
+				RemoveDuplicates(modified_files, cs.FilesRemoved);
+				foreach (var info in modified_files.Values)
+				{
+					cs.FilesModified.Add(info);
+				}
+
 				list.Add(cs);
+				modified_files.Clear();
+			}
 
 			return list;
 		}
