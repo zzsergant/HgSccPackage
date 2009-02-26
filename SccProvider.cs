@@ -687,6 +687,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				GetSelectedFilesInControlledProjects(out selectedNodes);
 
 			// FIXME: Batch
+			sccService.CommitFiles(files);
+/*
 			foreach (string file in files)
 			{
 				SourceControlStatus status = sccService.GetFileStatus(file);
@@ -699,6 +701,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 					sccService.AddFileToSourceControl(file);
 				}
 			}
+*/
 
 			// now refresh the selected nodes' glyphs
 			RefreshNodesGlyphs(selectedNodes);
@@ -711,6 +714,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				return;
 			}
 
+/*
 			IList<VSITEMSELECTION> selectedNodes = null;
 			IList<string> files =
 				GetSelectedFilesInControlledProjects(out selectedNodes);
@@ -727,6 +731,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 			// now refresh the selected nodes' glyphs
 			RefreshNodesGlyphs(selectedNodes);
+*/
 		}
 
 		private void Exec_icmdViewHistory(object sender, EventArgs e)

@@ -71,7 +71,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// Adds files to source control by adding them to the list of "controlled" files in the current project
 		/// and changing their attributes to reflect the "checked in" status.
 		/// </summary>
-		public SccErrors AddFilesToStorage(IList<string> files)
+		public SccErrors AddFilesToStorage(IEnumerable<string> files)
 		{
 			if (!IsValid)
 				return SccErrors.UnknownError;
@@ -86,10 +86,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			var err = hgscc.Add(IntPtr.Zero, lst.ToArray(), "Adding files");
 			if (err == SccErrors.Ok)
 			{
+/*
 				// Т.к. при добавлении файлов может измениться проект,
 				// то сбрасывает кэш
 				ResetCache();
-				// UpdateCache(files);
+*/
+				UpdateCache(files);
 			}
 
 			return err;
@@ -100,6 +102,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		/// </summary>
 		public SccErrors RenameFileInStorage(string strOldName, string strNewName)
 		{
+			// FIXME: RenameFiles!!
 			if (!IsValid)
 				return SccErrors.UnknownError;
 
@@ -108,10 +111,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			var err = hgscc.Rename(IntPtr.Zero, strOldName, strNewName);
 			if (err == SccErrors.Ok)
 			{
+/*
 				// Т.к. при переименовании файлов может измениться проект,
 				// то сбрасываем кэш
 				ResetCache();
-				// UpdateCache(new[]{strOldName, strNewName});
+*/
+				UpdateCache(new[]{strOldName, strNewName});
 			}
 
 			return err;
@@ -220,7 +225,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return SccErrors.Ok;
 		}
 
-		public SccErrors CheckInFiles(string[] files)
+		public SccErrors CheckInFiles(IEnumerable<string> files)
 		{
 			if (!IsValid)
 				return SccErrors.UnknownError;
@@ -239,7 +244,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return error;
 		}
 
-		public SccErrors CheckOutFiles(string[] files)
+		public SccErrors CheckOutFiles(IEnumerable<string> files)
 		{
 			if (!IsValid)
 				return SccErrors.UnknownError;
@@ -252,7 +257,24 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			}
 			return SccErrors.Ok;
 		}
-		
+
+		public SccErrors RemoveFiles(IEnumerable<string> files)
+		{
+			if (!IsValid)
+				return SccErrors.UnknownError;
+
+			var error = hgscc.Remove(IntPtr.Zero, files, "");
+			if (error != SccErrors.Ok)
+				return error;
+
+			foreach (var f in files)
+			{
+				Misc.Log("Remove: {0}", f);
+				SetCacheStatus(f, SourceControlStatus.scsCheckedOut);
+			}
+			return SccErrors.Ok;
+		}
+
 		/// <summary>
 		/// Returns a source control status inferred from the file's attributes on local disk
 		/// </summary>
@@ -290,6 +312,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		{
 			var files = new string[] {filename};
 			CheckOutFiles(files);
+		}
+
+		public void RemoveFile(string filename)
+		{
+			var files = new[] {filename};
+			RemoveFiles(files);
 		}
 
 		private void UpdateCache(IEnumerable<string> files)

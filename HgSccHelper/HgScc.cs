@@ -313,16 +313,16 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors Add(IntPtr hwnd, string[] files)
+		public SccErrors Add(IntPtr hwnd, IEnumerable<string> files)
 		{
 			// TODO: Check if project is opened
 			var add_files = new List<string>();
 			int count = 0;
 
-			for (int i = 0; i < files.Length; ++i)
+			foreach (var file in files)
 			{
 				string f;
-				if (!GetRelativePath(files[i], out f))
+				if (!GetRelativePath(file, out f))
 					return SccErrors.InvalidFilePath;
 
 				add_files.Add(f);
@@ -361,7 +361,7 @@ namespace HgSccHelper
 		}
 		
 		//-----------------------------------------------------------------------------
-		private SccErrors CommitInternal(IntPtr hwnd, string[] files, string comment)
+		private SccErrors CommitInternal(IntPtr hwnd, IEnumerable<string> files, string comment)
 		{
 			var dict = new Dictionary<string, HgFileStatus>();
 			var files_status_dict = QueryInfoFullDict();
@@ -466,7 +466,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private SccErrors CommitInternalOld(IntPtr hwnd, string[] files, string comment)
+		private SccErrors CommitInternalOld(IntPtr hwnd, IEnumerable<string> files, string comment)
 		{
 			var dict = new Dictionary<string, HgFileStatus>();
 			var files_status = hg.Status(WorkingDir);
@@ -532,16 +532,14 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors CheckInInternal(IntPtr hwnd, string[] files, string comment)
+		public SccErrors CheckInInternal(IntPtr hwnd, IEnumerable<string> files, string comment)
 		{
 			// TODO: Check if project is opened
 			var checkin_files = new List<string>();
 			int count = 0;
 
-			for (int i = 0; i < files.Length; ++i)
+			foreach (var f in files)
 			{
-				string f = files[i];
-
 				checkin_files.Add(f);
 				count += f.Length;
 
@@ -565,13 +563,13 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors CheckIn(IntPtr hwnd, string[] files, string comment)
+		public SccErrors CheckIn(IntPtr hwnd, IEnumerable<string> files, string comment)
 		{
 			return CommitInternal(hwnd, files, comment);
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors Checkout(IntPtr hwnd, string[] files, string comment)
+		public SccErrors Checkout(IntPtr hwnd, IEnumerable<string> files, string comment)
 		{
 			var local_files = new List<string>();
 			foreach (var f in files)
@@ -590,7 +588,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors Revert(IntPtr hwnd, string[] files)
+		public SccErrors Revert(IntPtr hwnd, IEnumerable<string> files)
 		{
 			var local_files = new List<string>();
 			foreach (var f in files)
@@ -663,16 +661,16 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors Remove(IntPtr hwnd, string[] files, string comment)
+		public SccErrors Remove(IntPtr hwnd, IEnumerable<string> files, string comment)
 		{
 			// TODO: Check if project is opened
 			var remove_files = new List<string>();
 			int count = 0;
 
-			for (int i = 0; i < files.Length; ++i)
+			foreach (var file in files)
 			{
 				string f;
-				if (!GetRelativePath(files[i], out f))
+				if (!GetRelativePath(file, out f))
 					return SccErrors.InvalidFilePath;
 
 				remove_files.Add(f);
