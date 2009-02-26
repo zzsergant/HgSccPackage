@@ -225,10 +225,13 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return SccErrors.Ok;
 		}
 
-		public SccErrors CheckInFiles(IEnumerable<string> files)
+		public SccErrors CheckInFiles(IEnumerable<string> files, out IEnumerable<string> commited_files)
 		{
 			if (!IsValid)
+			{
+				commited_files = new List<string>();
 				return SccErrors.UnknownError;
+			}
 
 			foreach (var f in files)
 			{
@@ -236,10 +239,10 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			}
 
 
-			var error = hgscc.CheckIn(IntPtr.Zero, files, "");
+			var error = hgscc.CheckIn(IntPtr.Zero, files, "", out commited_files);
 			if (error == SccErrors.Ok)
 			{
-				UpdateCache(files);
+				UpdateCache(commited_files);
 			}
 			return error;
 		}
@@ -286,15 +289,6 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			GetStatusForFiles(lst);
 
 			return lst[0].Status;
-		}
-
-		/// <summary>
-		/// Checkin a file to store by making the file on disk read only
-		/// </summary>
-		public void CheckinFile(string filename)
-		{
-			var files = new string[] { filename };
-			CheckInFiles(files);
 		}
 
 		public void ViewHistory(string filename)

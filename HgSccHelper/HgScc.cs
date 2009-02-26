@@ -81,59 +81,6 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private void FixFakedCheckout()
-		{
-			return;
-
-			var dict = new Dictionary<string, HgFileStatus>();
-			var hg_files = hg.Manifest(WorkingDir);
-
-			foreach (var file_status in hg.Status(WorkingDir))
-			{
-				string file = file_status.File;
-				dict.Add(file, file_status.Status);
-			}
-
-			foreach (var file in hg_files)
-			{
-				string f = file.Replace('/', '\\');
-				if (!dict.ContainsKey(f))
-				{
-//					HgFileStatus status = HgFileStatus.Tracked;
-
-					// Checking read-only flag to figure if is was checked out
-					var file_path = Path.Combine(WorkingDir, f);
-//					Logger.WriteLine(String.Format("WorkDir: {0}, File: {1}, PathComb: {2}", WorkingDir, f, file_path));
-
-					FileAttributes attr = File.GetAttributes(file_path);
-					if ((attr & FileAttributes.ReadOnly) != FileAttributes.ReadOnly)
-					{
-//						status = HgFileStatus.Modified;
-						File.SetAttributes(file_path, attr | FileAttributes.ReadOnly);
-						Logger.WriteLine(String.Format("FixFakedCheckout: {0}", file_path));
-					}
-				}
-			}
-
-/*
-			foreach (var file_status in hg.Status(WorkingDir))
-			{
-				if (file_status.Status == HgFileStatus.Tracked)
-				{
-					var file_path = Path.Combine(WorkingDir, file_status.File);
-					FileAttributes attr = File.GetAttributes(file_path);
-					if ((attr & FileAttributes.ReadOnly) != FileAttributes.ReadOnly)
-					{
-						File.SetAttributes(file_path, attr | FileAttributes.ReadOnly);
-
-						Logger.WriteLine(String.Format("FixFakedCheckout: {0}", file_path));
-					}
-				}
-			}
-*/
-		}
-
-		//-----------------------------------------------------------------------------
 		public SccErrors CloseProject()
 		{
 			return SccErrors.Ok;
@@ -361,10 +308,12 @@ namespace HgSccHelper
 		}
 		
 		//-----------------------------------------------------------------------------
-		private SccErrors CommitInternal(IntPtr hwnd, IEnumerable<string> files, string comment)
+		private SccErrors CommitInternal(IntPtr hwnd, IEnumerable<string> files, string comment, out IEnumerable<string> commited_files)
 		{
 			var dict = new Dictionary<string, HgFileStatus>();
 			var files_status_dict = QueryInfoFullDict();
+			var commited_files_list = new List<string>();
+			commited_files = commited_files_list;
 
 			foreach (var f in files)
 			{
@@ -384,7 +333,6 @@ namespace HgSccHelper
 				var commit_files = new List<CommitListItem>();
 				var commit_removed = new Dictionary<string, CommitListItem>();
 
-//				foreach (var f in files_status)
 				foreach (var tuple in files_status_dict)
 				{
 					var f = tuple.Value;
@@ -436,13 +384,13 @@ namespace HgSccHelper
 					if (checked_files.Count == 0)
 						return SccErrors.Ok;
 
-					string[] to_commit_files = new string[checked_files.Count];
-					for (int i = 0; i < checked_files.Count; ++i)
+					var to_commit_files = new List<string>();
+					foreach (var commit_item in checked_files)
 					{
-						to_commit_files[i] = checked_files[i].FileInfo.File;
-						if (checked_files[i].FileInfo.Status == HgFileStatus.Added)
+						to_commit_files.Add(commit_item.FileInfo.File);
+						if (commit_item.FileInfo.Status == HgFileStatus.Added)
 						{
-							event_queue.Enqueue(new HgFileInfo { File = to_commit_files[i], Status = HgFileStatus.Tracked });
+							event_queue.Enqueue(new HgFileInfo { File = commit_item.FileInfo.File, Status = HgFileStatus.Tracked });
 						}
 					}
 
@@ -451,78 +399,13 @@ namespace HgSccHelper
 					{
 						foreach (var f in to_commit_files)
 						{
+							commited_files_list.Add(Path.GetFullPath(Path.Combine(WorkingDir, f)));
 							string lower_f = f.ToLower();
 							track_ide_changes.Remove(lower_f);
 						}
 					}
 
 					return error;
-				}
-				else
-				{
-					return SccErrors.I_OperationCanceled;
-				}
-			}
-		}
-
-		//-----------------------------------------------------------------------------
-		private SccErrors CommitInternalOld(IntPtr hwnd, IEnumerable<string> files, string comment)
-		{
-			var dict = new Dictionary<string, HgFileStatus>();
-			var files_status = hg.Status(WorkingDir);
-
-			foreach (var f in files)
-			{
-				string file;
-				if (!GetRelativePath(f, out file))
-					return SccErrors.NonSpecificError;
-
-				dict.Add(file.ToLower(), HgFileStatus.NotTracked);
-			}
-
-			using (var form = new CommitForm())
-			{
-				form.Comment = comment;
-				form.Hg = hg;
-				form.WorkingDir = WorkingDir;
-
-				var commit_files = new List<CommitListItem>();
-
-				foreach (var f in files_status)
-				{
-					switch (f.Status)
-					{
-						case HgFileStatus.Added:
-//						case HgFileStatus.Deleted:
-						case HgFileStatus.Modified:
-						case HgFileStatus.Removed:
-							{
-								var item = new CommitListItem();
-								item.Checked = dict.ContainsKey(f.File.ToLower());
-								item.FileInfo = f;
-
-								commit_files.Add(item);
-								break;
-							}
-					}
-				}
-
-				if (commit_files.Count == 0)
-					return SccErrors.Ok;
-
-				form.SetItems(commit_files);
-
-				if (form.ShowDialog() == DialogResult.OK)
-				{
-					var checked_files = form.GetCheckedItems();
-					if (checked_files.Count == 0)
-						return SccErrors.Ok;
-
-					string[] commint_files = new string[checked_files.Count];
-					for(int i = 0; i < checked_files.Count; ++i)
-						commint_files[i] = checked_files[i].FileInfo.File;
-
-					return CheckInInternal(hwnd, commint_files, form.Comment);
 				}
 				else
 				{
@@ -563,9 +446,9 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors CheckIn(IntPtr hwnd, IEnumerable<string> files, string comment)
+		public SccErrors CheckIn(IntPtr hwnd, IEnumerable<string> files, string comment, out IEnumerable<string> commited_files)
 		{
-			return CommitInternal(hwnd, files, comment);
+			return CommitInternal(hwnd, files, comment, out commited_files);
 		}
 
 		//-----------------------------------------------------------------------------

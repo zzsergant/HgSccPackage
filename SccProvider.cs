@@ -577,9 +577,11 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			IList<string> files = GetSelectedFilesInControlledProjects();
-			if (files.Count != 1)
+			var selected_files = GetSelectedNodes();
+			if (selected_files.Count != 1)
 				return OLECMDF.OLECMDF_INVISIBLE;
+
+			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
 
 			if (sccService.GetFileStatus(files[0]) != SourceControlStatus.scsUncontrolled)
 			{
@@ -686,8 +688,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			IList<string> files =
 				GetSelectedFilesInControlledProjects(out selectedNodes);
 
-			// FIXME: Batch
 			sccService.CommitFiles(files);
+
 /*
 			foreach (string file in files)
 			{
@@ -701,10 +703,10 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 					sccService.AddFileToSourceControl(file);
 				}
 			}
-*/
-
 			// now refresh the selected nodes' glyphs
 			RefreshNodesGlyphs(selectedNodes);
+*/
+
 		}
 
 		private void Exec_icmdCheckout(object sender, EventArgs e)
@@ -741,9 +743,11 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				return;
 			}
 
-			IList<VSITEMSELECTION> selectedNodes = null;
-			IList<string> files =
-				GetSelectedFilesInControlledProjects(out selectedNodes);
+			var selected_files = GetSelectedNodes();
+			if (selected_files.Count != 1)
+				return;
+
+			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
 
 			if (files.Count == 1)
 			{
@@ -1094,6 +1098,47 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return sccFiles;
 		}
 
+		private IList<string> GetFilesInControlledProjectsWithoutSpecial(IList<VSITEMSELECTION> selectedNodes)
+		{
+			IList<string> sccFiles = new List<string>();
+
+			bool isSolutionSelected = false;
+			var hash = GetSelectedHierarchies(selectedNodes, out isSolutionSelected);
+			if (isSolutionSelected)
+			{
+				// Add the solution file to the list
+				if (sccService.IsProjectControlled(null))
+				{
+					IVsHierarchy solHier = (IVsHierarchy)GetService(typeof(SVsSolution));
+					VSITEMSELECTION vsItemSelection;
+					vsItemSelection.pHier = solHier;
+					vsItemSelection.itemid = VSConstants.VSITEMID_ROOT;
+					selectedNodes.Add(vsItemSelection);
+				}
+			}
+
+			// now look in the rest of selection and accumulate scc files
+			foreach (VSITEMSELECTION vsItemSel in selectedNodes)
+			{
+				var pscp2 = vsItemSel.pHier as IVsSccProject2;
+				if (pscp2 == null)
+				{
+					// solution case
+					sccFiles.Add(GetSolutionFileName());
+				}
+				else
+				{
+					IList<string> nodefilesrec = GetNodeFilesWithoutSpecial(pscp2, vsItemSel.itemid);
+					foreach (string file in nodefilesrec)
+					{
+						sccFiles.Add(file);
+					}
+				}
+			}
+
+			return sccFiles;
+		}
+
 		/// <summary>
 		/// Returns a list of source controllable files associated with the specified node
 		/// </summary>
@@ -1156,6 +1201,45 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 								}
 							}
 						}
+
+						Marshal.FreeCoTaskMem(pathIntPtr);
+					}
+					if (pathStr[0].cElems > 0)
+					{
+						Marshal.FreeCoTaskMem(pathStr[0].pElems);
+					}
+				}
+			}
+
+			return sccFiles;
+		}
+
+		public IList<string> GetNodeFilesWithoutSpecial(IVsHierarchy hier, uint itemid)
+		{
+			var pscp2 = hier as IVsSccProject2;
+			return GetNodeFiles(pscp2, itemid);
+		}
+
+		/// <summary>
+		/// Returns a list of source controllable files associated with the specified node
+		/// </summary>
+		private IList<string> GetNodeFilesWithoutSpecial(IVsSccProject2 pscp2, uint itemid)
+		{
+			// Initialize output parameters
+			IList<string> sccFiles = new List<string>();
+			if (pscp2 != null)
+			{
+				CALPOLESTR[] pathStr = new CALPOLESTR[1];
+				CADWORD[] flags = new CADWORD[1];
+
+				if (pscp2.GetSccFiles(itemid, pathStr, flags) == 0)
+				{
+					for (int elemIndex = 0; elemIndex < pathStr[0].cElems; elemIndex++)
+					{
+						IntPtr pathIntPtr = Marshal.ReadIntPtr(pathStr[0].pElems, elemIndex);
+						String path = Marshal.PtrToStringAuto(pathIntPtr);
+
+						sccFiles.Add(path);
 
 						Marshal.FreeCoTaskMem(pathIntPtr);
 					}

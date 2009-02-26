@@ -1619,10 +1619,63 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return nodes;
 		}
 
+/*
+		public IList<VSITEMSELECTION> GetControlledFiles(IEnumerable<string> files)
+		{
+			IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
+			var solHier = (IVsHierarchy) _sccProvider.GetService(typeof (SVsSolution));
+
+			foreach (var file in files)
+			{
+				foreach (IVsHierarchy pHier in _controlledProjects)
+				{
+					if (solHier == pHier)
+					{
+						// This is the solution
+						if (file.ToLower().CompareTo(_sccProvider.GetSolutionFileName().ToLower()) == 0)
+						{
+							VSITEMSELECTION vsItem;
+							vsItem.itemid = VSConstants.VSITEMID_ROOT;
+							vsItem.pHier = null;
+							nodes.Add(vsItem);
+						}
+					}
+					else
+					{
+						var pProject = pHier as IVsProject2;
+						// See if the file is member of this project
+						// Caveat: the IsDocumentInProject function is expensive for certain project types, 
+						// you may want to limit its usage by creating your own maps of file2project or folder2project
+						int fFound;
+						uint itemid;
+						VSDOCUMENTPRIORITY[] prio = new VSDOCUMENTPRIORITY[1];
+						if (pProject != null && pProject.IsDocumentInProject(file, out fFound, prio, out itemid) == VSConstants.S_OK &&
+						    fFound != 0)
+						{
+							VSITEMSELECTION vsItem;
+							vsItem.itemid = itemid;
+							vsItem.pHier = pHier;
+							nodes.Add(vsItem);
+						}
+					}
+				}
+			}
+		}
+*/
+
 		public void CommitFiles(IEnumerable<string> files)
 		{
-			storage.CheckInFiles(files);
+			IEnumerable<string> commited_files;
+			storage.CheckInFiles(files, out commited_files);
+
+			var list = GetControlledProjectsContainingFiles(commited_files);
+			if (list.Count != 0)
+			{
+				// now refresh the selected nodes' glyphs
+				_sccProvider.RefreshNodesGlyphs(list);
+			}
 		}
+
 		#endregion
 	}
 }
