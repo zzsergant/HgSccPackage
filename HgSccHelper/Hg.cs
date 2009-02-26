@@ -668,8 +668,10 @@ namespace HgSccHelper
 				args.Append(" " + f.Quote());
 
 				string real_path = Path.Combine(work_dir, f);
+/*
 				if (!File.Exists(real_path))
 					return false;
+*/
 
 /*
 				FileAttributes attr = File.GetAttributes(real_path);
