@@ -1405,7 +1405,50 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 					// let's refresh ourselves only one node at a time
 					IList<string> sccFiles = GetNodeFiles(sccProject2, vsItemSel.itemid);
 
+					if (sccFiles.Count > 0)
+					{
+						string[] rgpszFullPaths = new string[sccFiles.Count];
+						for (int i = 0; i < sccFiles.Count; ++i)
+							rgpszFullPaths[i] = sccFiles[i];
+
+						VsStateIcon[] rgsiGlyphs = new VsStateIcon[sccFiles.Count];
+						uint[] rgdwSccStatus = new uint[sccFiles.Count];
+						sccService.GetSccGlyph(sccFiles.Count, rgpszFullPaths, rgsiGlyphs, rgdwSccStatus);
+
+						uint[] rguiAffectedNodes = new uint[sccFiles.Count];
+						IList<uint> subnodes = GetProjectItems(vsItemSel.pHier, vsItemSel.itemid);
+						if (subnodes.Count != sccFiles.Count)
+						{
+							Misc.Log("RefreshNodeGlyphs: subnodes.Count != sccFiles.Count");
+							for(int i = 0; i < sccFiles.Count; ++i)
+								Misc.Log("[{0}]: {1}", i, sccFiles[i]);
+
+							return;
+						}
+/*
+						var dict = new Dictionary<string, uint>();
+						var proj = vsItemSel.pHier as IVsProject2;
+
+						foreach (var id in subnodes)
+						{
+							string docname;
+							var res = proj.GetMkDocument(id, out docname);
+
+							if (res == VSConstants.S_OK && !string.IsNullOrEmpty(docname))
+								dict[docname] = id;
+						}
+*/
+						// FIXME: Проверить соответствие
+						for (int i = 0; i < sccFiles.Count; ++i)
+						{
+							rguiAffectedNodes[i] = subnodes[i];
+						}
+
+						sccProject2.SccGlyphChanged(sccFiles.Count, rguiAffectedNodes, rgsiGlyphs,
+													rgdwSccStatus);
+					}
 					// We'll use for the node glyph just the Master file's status (ignoring special files of the node)
+/*
 					if (sccFiles.Count > 0)
 					{
 						string[] rgpszFullPaths = new string[1];
@@ -1419,6 +1462,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 						sccProject2.SccGlyphChanged(1, rguiAffectedNodes, rgsiGlyphs,
 													rgdwSccStatus);
 					}
+*/
 				}
 			}
 		}
