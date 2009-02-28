@@ -35,6 +35,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		IVsSolutionEvents2,
 		IVsQueryEditQuerySave2,     // Required to allow editing of controlled files 
 		IVsTrackProjectDocumentsEvents2,  // Usefull to track project changes (add, renames, deletes, etc)
+		IVsTrackProjectDocumentsEvents3,
 		IDisposable 
 	{
 		// Whether the provider is active or not
@@ -532,11 +533,13 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 		public int BeginQuerySaveBatch ()
 		{
+			Misc.Log("BeginQuerySaveBatch");
 			return VSConstants.S_OK;
 		}
 
 		public int EndQuerySaveBatch ()
 		{
+			Misc.Log("EndQuerySaveBatch");
 			return VSConstants.S_OK;
 		}
 
@@ -1674,6 +1677,96 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				// now refresh the selected nodes' glyphs
 				_sccProvider.RefreshNodesGlyphs(list);
 			}
+		}
+
+		#endregion
+
+		#region Implementation of IVsTrackProjectDocumentsEvents3
+
+		/// <summary>
+		/// Indicates that a project is about start a batch query process.
+		/// </summary>
+		/// <returns>
+		/// If the method succeeds, it returns <see cref="F:Microsoft.VisualStudio.VSConstants.S_OK" />. If it fails, it returns an error code.
+		/// </returns>
+		public int OnBeginQueryBatch()
+		{
+			Misc.Log("OnBeginQueryBatch");
+			return VSConstants.S_OK;
+		}
+
+		/// <summary>
+		/// Determines whether it is okay to proceed with the actual batch operation after successful completion of a batch query process. 
+		/// </summary>
+		/// <returns>
+		/// If the method succeeds, it returns <see cref="F:Microsoft.VisualStudio.VSConstants.S_OK" />. If it fails, it returns an error code.
+		/// </returns>
+		/// <param name="pfActionOK">[out] Returns nonzero if it is okay to continue with the proposed batch process. Returns zero if the proposed batch process should not proceed.</param>
+		public int OnEndQueryBatch(out int pfActionOK)
+		{
+			Misc.Log("OnEndQueryBatch");
+			pfActionOK = 1;
+			return VSConstants.S_OK;
+		}
+
+		/// <summary>
+		/// This method is called to indicate that a batch query process has been canceled.
+		/// </summary>
+		/// <returns>
+		/// If the method succeeds, it returns <see cref="F:Microsoft.VisualStudio.VSConstants.S_OK" />. If it fails, it returns an error code.
+		/// </returns>
+		public int OnCancelQueryBatch()
+		{
+			Misc.Log("OnCancelQueryBatch");
+			return VSConstants.S_OK;
+		}
+
+		/// <summary>
+		/// Determines if it is okay to add a collection of files (possibly from source control) whose final destination may be different from a source location.
+		/// </summary>
+		/// <returns>
+		/// If the method succeeds, it returns <see cref="F:Microsoft.VisualStudio.VSConstants.S_OK" />. If it fails, it returns an error code.
+		/// </returns>
+		/// <param name="pProject">[in] Project making the request about adding files.</param>
+		/// <param name="cFiles">[in] The number of files represented in the <paramref name="rgpszNewMkDocuments" />, <paramref name="rgpszSrcMkDocuments" />, <paramref name="rgFlags" />, and <paramref name="rgResults" /> arrays.</param>
+		/// <param name="rgpszNewMkDocuments">[in] An array of file names that indicate the files' final destination.</param>
+		/// <param name="rgpszSrcMkDocuments">[in] An array of file names specifying the source location of the files.</param>
+		/// <param name="rgFlags">[in] An array of values, one element for each file, from the <see cref="T:Microsoft.VisualStudio.Shell.Interop.VSQUERYADDFILEFLAGS" /> enumeration.</param>
+		/// <param name="pSummaryResult">[out] Returns an overall status for all files as a value from the <see cref="T:Microsoft.VisualStudio.Shell.Interop.VSQUERYADDFILERESULTS" /> enumeration.</param>
+		/// <param name="rgResults">[out] An array that is to be filled in with the status of each file. Each status is a value from the <see cref="T:Microsoft.VisualStudio.Shell.Interop.VSQUERYADDFILERESULTS" /> enumeration.</param>
+		public int OnQueryAddFilesEx(IVsProject pProject, int cFiles, string[] rgpszNewMkDocuments, string[] rgpszSrcMkDocuments, VSQUERYADDFILEFLAGS[] rgFlags, VSQUERYADDFILERESULTS[] pSummaryResult, VSQUERYADDFILERESULTS[] rgResults)
+		{
+			Misc.Log("OnQueryAddFilesEx");
+			return VSConstants.E_NOTIMPL;
+		}
+
+		/// <summary>
+		/// Accesses a specified set of files and asks all implementers of this method to release any locks that may exist on those files.
+		/// </summary>
+		/// <returns>
+		/// If the method succeeds, it returns <see cref="F:Microsoft.VisualStudio.VSConstants.S_OK" />. If it fails, it returns an error code.
+		/// </returns>
+		/// <param name="grfRequiredAccess">[in] A value from the <see cref="T:Microsoft.VisualStudio.Shell.Interop.__HANDSOFFMODE" /> enumeration, indicating the type of access requested. This can be used to optimize the locks that actually need to be released.</param>
+		/// <param name="cFiles">[in] The number of files in the <paramref name="rgpszMkDocuments" /> array.</param>
+		/// <param name="rgpszMkDocuments">[in] If there are any locks on this array of file names, the caller wants them to be released.</param>
+		public int HandsOffFiles(uint grfRequiredAccess, int cFiles, string[] rgpszMkDocuments)
+		{
+			Misc.Log("HandsOffFiles");
+			return VSConstants.E_NOTIMPL;
+		}
+
+		/// <summary>
+		/// Called when a project has completed operations on a set of files.
+		/// </summary>
+		/// <returns>
+		/// If the method succeeds, it returns <see cref="F:Microsoft.VisualStudio.VSConstants.S_OK" />. If it fails, it returns an error code.
+		/// </returns>
+		/// <param name="cFiles">[in] Number of file names given in the <paramref name="rgpszMkDocuments" /> array.</param>
+		/// <param name="rgpszMkDocuments">[in] An array of file names.</param>
+		public int HandsOnFiles(int cFiles, string[] rgpszMkDocuments)
+		{
+			Misc.Log("HandsOnFiles");
+			return VSConstants.E_NOTIMPL;
 		}
 
 		#endregion
