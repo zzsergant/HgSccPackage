@@ -1128,10 +1128,49 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				}
 				else
 				{
+/*
 					IList<string> nodefilesrec = GetNodeFilesWithoutSpecial(pscp2, vsItemSel.itemid);
 					foreach (string file in nodefilesrec)
 					{
 						sccFiles.Add(file);
+					}
+*/
+
+					IList<string> nodefilesrec = GetNodeFilesWithoutSpecial(pscp2, vsItemSel.itemid);
+					foreach (string file in nodefilesrec)
+					{
+						sccFiles.Add(file);
+					}
+
+					if (nodefilesrec.Count == 0)
+					{
+						// special or uncontrolled file
+						object prop;
+						var res = vsItemSel.pHier.GetProperty(vsItemSel.itemid, (int)__VSHPROPID.VSHPROPID_Parent, out prop);
+						if (res == VSConstants.S_OK)
+						{
+							Misc.Log("ParentId: {0}", prop);
+						}
+
+						uint parent_id = (uint)((int)prop);
+						IList<string> files = GetNodeFiles(pscp2, parent_id);
+						if (files.Count != 0)
+						{
+							object path;
+							res = vsItemSel.pHier.GetProperty(vsItemSel.itemid, (int)__VSHPROPID.VSHPROPID_SaveName, out path);
+							if (res == VSConstants.S_OK)
+							{
+								var lower_path = ((string) path).ToLower();
+
+								foreach (var f in files)
+								{
+									if (f.ToLower().EndsWith(lower_path))
+									{
+										sccFiles.Add(f);
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1252,6 +1291,72 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 			return sccFiles;
 		}
+
+/*
+		private string GetNodeFileFromItemId(IVsSccProject2 pscp2, uint itemid, uint itemid_to_find)
+		{
+			string node_file = null;
+
+			if (pscp2 != null)
+			{
+				CALPOLESTR[] pathStr = new CALPOLESTR[1];
+				CADWORD[] flags = new CADWORD[1];
+
+				if (pscp2.GetSccFiles(itemid, pathStr, flags) == 0)
+				{
+					for (int elemIndex = 0; elemIndex < pathStr[0].cElems; elemIndex++)
+					{
+						IntPtr pathIntPtr = Marshal.ReadIntPtr(pathStr[0].pElems, elemIndex);
+						String path = Marshal.PtrToStringAuto(pathIntPtr);
+
+						if (itemid == itemid_to_find)
+							node_file = path;
+
+						if (node_file == null)
+						{
+							// See if there are special files
+							if (flags.Length > 0 && flags[0].cElems > 0)
+							{
+								int flag = Marshal.ReadInt32(flags[0].pElems, elemIndex);
+
+								if (flag != 0)
+								{
+									// We have special files
+									CALPOLESTR[] specialFiles = new CALPOLESTR[1];
+									CADWORD[] specialFlags = new CADWORD[1];
+
+									pscp2.GetSccSpecialFiles(itemid, path, specialFiles, specialFlags);
+									for (int i = 0; i < specialFiles[0].cElems; i++)
+									{
+										IntPtr specialPathIntPtr = Marshal.ReadIntPtr(
+											specialFiles[0].pElems, i*IntPtr.Size);
+										String specialPath = Marshal.PtrToStringAuto(specialPathIntPtr);
+
+										if (itemid)
+										sccFiles.Add(specialPath);
+										Marshal.FreeCoTaskMem(specialPathIntPtr);
+									}
+
+									if (specialFiles[0].cElems > 0)
+									{
+										Marshal.FreeCoTaskMem(specialFiles[0].pElems);
+									}
+								}
+							}
+						}
+
+						Marshal.FreeCoTaskMem(pathIntPtr);
+					}
+					if (pathStr[0].cElems > 0)
+					{
+						Marshal.FreeCoTaskMem(pathStr[0].pElems);
+					}
+				}
+			}
+
+			return sccFiles;
+		}
+*/
 
 		/// <summary>
 		/// Refreshes the glyphs of the specified hierarchy nodes
