@@ -1145,26 +1145,28 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 					if (nodefilesrec.Count == 0)
 					{
 						// special or uncontrolled file
-						object prop;
-						var res = vsItemSel.pHier.GetProperty(vsItemSel.itemid, (int)__VSHPROPID.VSHPROPID_Parent, out prop);
-						if (res == VSConstants.S_OK)
+						var project = (IVsProject)pscp2;
+						string bstrMKDocument;
+						if (project.GetMkDocument(vsItemSel.itemid, out bstrMKDocument) == VSConstants.S_OK
+							&& !string.IsNullOrEmpty(bstrMKDocument))
 						{
-							Misc.Log("ParentId: {0}", prop);
-						}
-
-						uint parent_id = (uint)((int)prop);
-						IList<string> files = GetNodeFiles(pscp2, parent_id);
-						if (files.Count != 0)
-						{
-							object path;
-							res = vsItemSel.pHier.GetProperty(vsItemSel.itemid, (int)__VSHPROPID.VSHPROPID_SaveName, out path);
+							object prop;
+							var res = vsItemSel.pHier.GetProperty(vsItemSel.itemid, (int)__VSHPROPID.VSHPROPID_Parent, out prop);
 							if (res == VSConstants.S_OK)
 							{
-								var lower_path = ((string) path).ToLower();
+//								Misc.Log("ParentId: {0}", prop);
+							}
+
+							uint parent_id = (uint)((int)prop);
+							IList<string> files = GetNodeFiles(pscp2, parent_id);
+							if (files.Count != 0)
+							{
+								var lower_path = bstrMKDocument;//.ToLower();
 
 								foreach (var f in files)
 								{
-									if (f.ToLower().EndsWith(lower_path))
+//									if (f.ToLower().EndsWith(lower_path))
+									if (f == lower_path)
 									{
 										sccFiles.Add(f);
 									}
