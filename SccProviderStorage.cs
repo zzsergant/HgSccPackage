@@ -29,23 +29,27 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		scsCheckedOut
 	};
 
+	//------------------------------------------------------------------
 	public class SourceControlInfo
 	{
 		public string File { get; set; }
 		public SourceControlStatus Status { get; set; }
 	};
 
+	//==================================================================
 	public class SccProviderStorage
 	{
 		private HgScc hgscc;
 		private Dictionary<string, HgFileInfo> cache;
 
+		//------------------------------------------------------------------
 		public SccProviderStorage()
 		{
 			hgscc = new HgScc();
 			cache = new Dictionary<string, HgFileInfo>();
 		}
 
+		//------------------------------------------------------------------
 		public bool IsValid
 		{
 			get
@@ -54,19 +58,21 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			}
 		}
 
-		public SccErrors Init(string projectFile)
+		//------------------------------------------------------------------
+		public SccErrors Init(string work_dir, SccOpenProjectFlags flags)
 		{
-			var work_dir = Path.GetDirectoryName(projectFile);
 			Misc.Log("SccProviderStorage: {0}", work_dir);
-			return hgscc.OpenProject(work_dir, SccOpenProjectFlags.CreateIfNew);
+			return hgscc.OpenProject(work_dir, flags);
 		}
 
+		//------------------------------------------------------------------
 		public void Close()
 		{
 			hgscc.Dispose();
 			cache.Clear();
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Adds files to source control by adding them to the list of "controlled" files in the current project
 		/// and changing their attributes to reflect the "checked in" status.
@@ -97,6 +103,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return err;
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Renames a "controlled" file. If the project file is being renamed, rename the whole storage file
 		/// </summary>
@@ -122,6 +129,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return err;
 		}
 
+		//------------------------------------------------------------------
 		private static SourceControlStatus FromHgStatus(HgFileStatus status)
 		{
 			switch (status)
@@ -147,6 +155,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return SourceControlStatus.scsUncontrolled;
 		}
 
+		//------------------------------------------------------------------
 		private static HgFileStatus ToHgStatus(SourceControlStatus status)
 		{
 			switch (status)
@@ -162,6 +171,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return HgFileStatus.NotTracked;
 		}
 
+		//------------------------------------------------------------------
 		public SccErrors GetStatusForFiles(SourceControlInfo[] files)
 		{
 			if (!IsValid)
@@ -193,6 +203,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return SccErrors.Ok;
 		}
 
+		//------------------------------------------------------------------
 		public SccErrors GetStatusForFiles(string[] files, SourceControlStatus[] statuses)
 		{
 			if (!IsValid)
@@ -225,6 +236,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return SccErrors.Ok;
 		}
 
+		//------------------------------------------------------------------
 		public SccErrors CheckInFiles(IEnumerable<string> files, out IEnumerable<string> commited_files)
 		{
 			if (!IsValid)
@@ -247,6 +259,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return error;
 		}
 
+		//------------------------------------------------------------------
 		public SccErrors CheckOutFiles(IEnumerable<string> files)
 		{
 			if (!IsValid)
@@ -261,6 +274,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return SccErrors.Ok;
 		}
 
+		//------------------------------------------------------------------
 		public SccErrors RemoveFiles(IEnumerable<string> files)
 		{
 			if (!IsValid)
@@ -278,6 +292,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return SccErrors.Ok;
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns a source control status inferred from the file's attributes on local disk
 		/// </summary>
@@ -291,6 +306,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return lst[0].Status;
 		}
 
+		//------------------------------------------------------------------
 		public void ViewHistory(string filename)
 		{
 			if (!IsValid)
@@ -299,6 +315,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			hgscc.History(IntPtr.Zero, filename);
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Checkout a file from store by making the file on disk writable
 		/// </summary>
@@ -308,12 +325,14 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			CheckOutFiles(files);
 		}
 
+		//------------------------------------------------------------------
 		public void RemoveFile(string filename)
 		{
 			var files = new[] {filename};
 			RemoveFiles(files);
 		}
 
+		//------------------------------------------------------------------
 		private void UpdateCache(IEnumerable<string> files)
 		{
 			var lst = new List<HgFileInfo>();
@@ -337,11 +356,13 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			}
 		}
 
+		//------------------------------------------------------------------
 		private void ResetCache()
 		{
 			cache.Clear();
 		}
 
+		//------------------------------------------------------------------
 		public void SetCacheStatus(string file, SourceControlStatus status)
 		{
 			Misc.Log("SetCacheStatus: {0}, {1}", file, status);

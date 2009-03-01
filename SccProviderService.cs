@@ -19,6 +19,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using HgSccHelper;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
@@ -274,15 +275,26 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				return VSConstants.E_FAIL;
 			}
 
+			Misc.Log("RegisterSccProject: sln = '{0}'", _sccProvider.GetSolutionFileName());
+
 			if (pscp2Project == null)
 			{
+//				Misc.Log("RegisterSccProject: adding solution");
 				// Manual registration with source control of the solution, from OnAfterOpenSolution
-				Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Solution {0} is registering with source control - {1}, {2}, {3}, {4}", _sccProvider.GetSolutionFileName(), pszSccProjectName, pszSccAuxPath, pszSccLocalPath, pszProvider));
+				Misc.Log("Solution {0} is registering with source control - {1}, {2}, {3}, {4}", _sccProvider.GetSolutionFileName(), pszSccProjectName, pszSccAuxPath, pszSccLocalPath, pszProvider);
 
 				var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
 				string solutionFile = _sccProvider.GetSolutionFileName();
+				var work_dir = Path.GetDirectoryName(solutionFile);
+
+				// FIXME: Проверить что путь у солюшена выше по иерархии чем у проекта
+				// а также что у проекта нет репозитория
 				if (!storage.IsValid)
-					storage.Init(solutionFile);
+				{
+					var err = storage.Init(work_dir, SccOpenProjectFlags.CreateIfNew);
+					if (err != SccErrors.Ok)
+						return VSConstants.E_FAIL;
+				}
 /*
 				var storage = new SccProviderStorage(solutionFile);
 				_controlledProjects[solHier] = storage;
@@ -291,13 +303,21 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			}
 			else
 			{
-				Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Project {0} is registering with source control - {1}, {2}, {3}, {4}", _sccProvider.GetProjectFileName(pscp2Project), pszSccProjectName, pszSccAuxPath, pszSccLocalPath, pszProvider));
+				Misc.Log("Project {0} is registering with source control - {1}, {2}, {3}, {4}", _sccProvider.GetProjectFileName(pscp2Project), pszSccProjectName, pszSccAuxPath, pszSccLocalPath, pszProvider);
 
 				// Add the project to the list of controlled projects
 				var hierProject = (IVsHierarchy)pscp2Project;
 				var project_path = _sccProvider.GetProjectFileName(pscp2Project);
+				string solutionFile = _sccProvider.GetSolutionFileName();
+				var work_dir = Path.GetDirectoryName(solutionFile);
+//				Misc.Log("RegisterSccProject: adding project = '{0}'", project_path);
+
 				if (!storage.IsValid)
-					storage.Init(project_path);
+				{
+					var err = storage.Init(work_dir, SccOpenProjectFlags.CreateIfNew);
+					if (err != SccErrors.Ok)
+						return VSConstants.E_FAIL;
+				}
 				_controlledProjects.Add(hierProject);
 			}
 
@@ -314,12 +334,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			if (pscp2Project == null)
 			{
 				// If the project's pointer is null, it must be the solution calling to unregister, from OnBeforeCloseSolution
-				Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Solution {0} is unregistering with source control.", _sccProvider.GetSolutionFileName()));
+				Misc.Log("Solution {0} is unregistering with source control.", _sccProvider.GetSolutionFileName());
 				hierProject = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
 			}
 			else
 			{
-				Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Project {0} is unregistering with source control.", _sccProvider.GetProjectFileName(pscp2Project)));
+				Misc.Log("Project {0} is unregistering with source control.", _sccProvider.GetProjectFileName(pscp2Project));
 				hierProject = (IVsHierarchy)pscp2Project;
 			}
 
@@ -1408,8 +1428,15 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				var sccProject2 = (IVsSccProject2)pHier;
 				var files = _sccProvider.GetProjectFiles(sccProject2);
 				var project_path = _sccProvider.GetProjectFileName(sccProject2);
+				string solutionFile = _sccProvider.GetSolutionFileName();
+				var work_dir = Path.GetDirectoryName(solutionFile);
+
 				if (!storage.IsValid)
-					storage.Init(project_path);
+				{
+					var err = storage.Init(work_dir, SccOpenProjectFlags.CreateIfNew);
+//					if (err != SccErrors.Ok)
+//						return;
+				}
 
 				storage.AddFilesToStorage(files);
 			}
@@ -1421,8 +1448,14 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				var files = new List<string>();
 				string solutionFile = _sccProvider.GetSolutionFileName();
 				files.Add(solutionFile);
+				var work_dir = Path.GetDirectoryName(solutionFile);
+
 				if (!storage.IsValid)
-					storage.Init(solutionFile);
+				{
+					var err = storage.Init(work_dir, SccOpenProjectFlags.CreateIfNew);
+//					if (err != SccErrors.Ok)
+//						return;
+				}
 
 				storage.AddFilesToStorage(files);
 			}
