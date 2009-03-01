@@ -363,6 +363,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		}
 
 		//------------------------------------------------------------------
+		public void UpdateFileCache(string file)
+		{
+			UpdateCache(new[] {file});
+		}
+
+		//------------------------------------------------------------------
 		public void SetCacheStatus(string file, SourceControlStatus status)
 		{
 			Misc.Log("SetCacheStatus: {0}, {1}", file, status);

@@ -157,4 +157,7 @@
   <data name="TPD_DeleteControlledFile" xml:space="preserve">
     <value>The file {0} you are going to delete is a source controlled file. Are you sure you want to continue and delete this file?</value>
   </data>
+  <data name="Status_Uncontrolled" xml:space="preserve">
+    <value>Uncontrolled</value>
+  </data>
 </root>

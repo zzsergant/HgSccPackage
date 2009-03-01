@@ -21,6 +21,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using HgSccHelper;
 using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
 using System.Windows.Forms;
@@ -37,6 +38,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		IVsQueryEditQuerySave2,     // Required to allow editing of controlled files 
 		IVsTrackProjectDocumentsEvents2,  // Usefull to track project changes (add, renames, deletes, etc)
 		IVsTrackProjectDocumentsEvents3,
+		IVsRunningDocTableEvents,
 		IDisposable 
 	{
 		// Whether the provider is active or not
@@ -58,6 +60,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		private string _solutionLocation;
 		// The list of files approved for in-memory edit
 		private readonly HashSet<string> _approvedForInMemoryEdit = new HashSet<string>();
+		uint pdwCookie;
 
 		#region SccProvider Service initialization/unitialization
 
@@ -75,6 +78,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			var tpdService = (IVsTrackProjectDocuments2)_sccProvider.GetService(typeof(SVsTrackProjectDocuments));
 			tpdService.AdviseTrackProjectDocumentsEvents(this, out _tpdTrackProjectDocumentsCookie);
 			Debug.Assert(VSConstants.VSCOOKIE_NIL != _tpdTrackProjectDocumentsCookie);
+
+			// Get RDT service 
+
+			IVsRunningDocumentTable rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
+			// Subscribe to RDT events               
+			rdt.AdviseRunningDocTableEvents(this, out pdwCookie);
 		}
 
 		public void Dispose()
@@ -93,6 +102,12 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				var tpdService = (IVsTrackProjectDocuments2)_sccProvider.GetService(typeof(SVsTrackProjectDocuments));
 				tpdService.UnadviseTrackProjectDocumentsEvents(_tpdTrackProjectDocumentsCookie);
 				_tpdTrackProjectDocumentsCookie = VSConstants.VSCOOKIE_NIL;
+			}
+
+			if (pdwCookie != VSConstants.VSCOOKIE_NIL)
+			{
+				IVsRunningDocumentTable rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
+				rdt.UnadviseRunningDocTableEvents(pdwCookie);
 			}
 		}
 
@@ -202,6 +217,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 					break;
 				default:
 					IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgpszFullPaths[0]);
+/*
 					if (nodes.Count > 0)
 					{
 						// If the file is not controlled, but is member of a controlled project, report the item as checked out (same as source control in VS2003 did)
@@ -213,6 +229,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 						}
 					}
 					else
+*/
 					{
 						// This is an uncontrolled file, return a blank scc glyph for it
 						rgsiGlyphs[0] = VsStateIcon.STATEICON_BLANK;
@@ -390,7 +407,8 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 					IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(files[0]);
 					if (nodes.Count > 0)
 					{
-						pbstrTooltipText = Resources.ResourceManager.GetString("Status_PendingAdd");
+//						pbstrTooltipText = Resources.ResourceManager.GetString("Status_PendingAdd");
+						pbstrTooltipText = Resources.ResourceManager.GetString("Status_Uncontrolled");
 					}
 					break;
 			}
@@ -902,16 +920,59 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				pdwQSResult = (uint)tagVSQuerySaveResult.QSR_NoSave_Cancel;
 			}
 
+			// FIXME: Переделать на сохранение только нужных файлов
+/*
+			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
+*/
+
+/*
+			IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(checkout_files);
+			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+
+			foreach (var item in lst)
+			{
+				var proj = item.pHier as IVsProject2;
+				if (proj == null)
+				{
+					// solution
+					Misc.Log("QuerySaveFile, solution");
+					sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
+				}
+				else
+				{
+					object obj_doc_cookie;
+
+					var err = item.pHier.GetProperty(item.itemid, (int)__VSHPROPID.VSHPROPID_ItemDocCookie, out obj_doc_cookie);
+					if (err != VSConstants.S_OK)
+						continue;
+
+					uint doc_cookie = (uint)(int)obj_doc_cookie;
+
+					string doc_path;
+					err = proj.GetMkDocument(item.itemid, out doc_path);
+					if (err == VSConstants.S_OK)
+					{
+						sol.SaveSolutionElement((uint) __VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, doc_cookie);
+					}
+				}
+			}
+*/
+
+/*
 			foreach (var file in checkout_files)
 			{
 				storage.SetCacheStatus(file, SourceControlStatus.scsCheckedOut);
 			}
+*/
 
-			IList<VSITEMSELECTION> lst = this.GetControlledProjectsContainingFiles(checkout_files);
+/*
+			IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(checkout_files);
 			if (lst.Count != 0)
 			{
 				_sccProvider.RefreshNodesGlyphs(lst);
 			}
+*/
 
 			return VSConstants.S_OK;
 		}
@@ -1701,6 +1762,9 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 		public void CommitFiles(IEnumerable<string> files)
 		{
+			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
+
 			IEnumerable<string> commited_files;
 			storage.CheckInFiles(files, out commited_files);
 
@@ -1800,6 +1864,79 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		{
 			Misc.Log("HandsOnFiles");
 			return VSConstants.E_NOTIMPL;
+		}
+
+		#endregion
+
+		#region Implementation of IVsRunningDocTableEvents
+
+		public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
+		{
+			return VSConstants.S_OK;
+		}
+
+		public int OnBeforeLastDocumentUnlock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
+		{
+			return VSConstants.S_OK;
+		}
+
+		public int OnAfterSave(uint docCookie)
+		{
+			// Retrieve document info
+
+			uint pgrfRDTFlags;
+			uint pdwReadLocks;
+			uint pdwEditLocks;
+			string pbstrMkDocument;
+			IVsHierarchy ppHier;
+			uint pitemid;
+			IntPtr ppunkDocData;
+
+			var rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable)); 
+			var err = rdt.GetDocumentInfo(
+				docCookie, out pgrfRDTFlags, out pdwReadLocks, out pdwEditLocks,
+				out pbstrMkDocument, out ppHier, out pitemid, out ppunkDocData);
+
+			Misc.Log("OnAfterSave: {0}", pbstrMkDocument);
+
+/*
+			// Get automation-object Document and work with it
+
+			ProjectItem prjItem = DTE.Solution.FindProjectItem(pbstrMkDocument);
+			if (prjItem != null)
+				OnDocumentSaved(prjItem.Document);
+*/
+			if (storage.IsValid)
+			{
+				var status = storage.GetFileStatus(pbstrMkDocument);
+				if (status == SourceControlStatus.scsCheckedIn)
+				{
+					storage.UpdateFileCache(pbstrMkDocument);
+
+					IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new []{pbstrMkDocument});
+					if (lst.Count != 0)
+					{
+						_sccProvider.RefreshNodesGlyphs(lst);
+					}
+				}
+			}
+
+			return VSConstants.S_OK;
+		}
+
+		public int OnAfterAttributeChange(uint docCookie, uint grfAttribs)
+		{
+			return VSConstants.S_OK;
+		}
+
+		public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame)
+		{
+			return VSConstants.S_OK;
+		}
+
+		public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame)
+		{
+			return VSConstants.S_OK;
 		}
 
 		#endregion
