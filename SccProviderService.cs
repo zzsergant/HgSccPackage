@@ -1671,18 +1671,48 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
 			var fileChange = (IVsFileChangeEx)_sccProvider.GetService(typeof(SVsFileChangeEx));
+			var rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
+
+			var doc_list = new List<IVsPersistDocData>();
+
 			foreach (var f in files)
 			{
 				fileChange.IgnoreFile(0, f, 1);
+
+				IVsHierarchy h;
+				uint cookie;
+				uint itemid;
+				IntPtr doc_data;
+				var err = rdt.FindAndLockDocument((uint)_VSRDTFLAGS.RDT_NoLock, f, out h, out itemid, out doc_data, out cookie);
+
+				if (err != VSConstants.S_OK || doc_data == IntPtr.Zero)
+					continue;
+
+				try
+				{
+					var doc = (IVsPersistDocData) Marshal.GetObjectForIUnknown(doc_data);
+					doc_list.Add(doc);
+				}
+				catch(InvalidCastException ex)
+				{
+//					Misc.Log("Ex: {0}, {1}", f, ex.ToString());
+				}
 			}
 
 			IEnumerable<string> reverted_files = null;
 			try
 			{
 				storage.Revert(files, out reverted_files);
+
 			}
 			finally
 			{
+				foreach (var doc in doc_list)
+				{
+					doc.ReloadDocData((uint) _VSRELOADDOCDATA.RDD_IgnoreNextFileChange);
+					Marshal.ReleaseComObject(doc);
+				}
+
 				foreach (var f in files)
 				{
 					fileChange.SyncFile(f);
