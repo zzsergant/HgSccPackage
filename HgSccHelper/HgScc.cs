@@ -19,21 +19,17 @@ namespace HgSccHelper
 		public string WorkingDir { get; private set; }
 		private readonly Hg hg;
 
-		private readonly Queue<HgFileInfo> event_queue;
-		private readonly Dictionary<string, HgFileStatus> track_ide_changes;
-
 		//-----------------------------------------------------------------------------
 		public HgScc()
 		{
 			hg = new Hg();
-			event_queue = new Queue<HgFileInfo>();
-			track_ide_changes = new Dictionary<string, HgFileStatus>();
 		}
 
 		//-----------------------------------------------------------------------------
 		public void Dispose()
 		{
 			hg.Dispose();
+			WorkingDir = "";
 		}
 
 		//-----------------------------------------------------------------------------
@@ -200,13 +196,6 @@ namespace HgSccHelper
 			}
 */
 
-			var queue_dict = new Dictionary<string, HgFileStatus>();
-			while (event_queue.Count > 0)
-			{
-				var item = event_queue.Dequeue();
-				queue_dict.Add(item.File, item.Status);
-			}
-
 			foreach (var info in files)
 			{
 				HgFileStatus status = HgFileStatus.NotTracked;
@@ -223,11 +212,6 @@ namespace HgSccHelper
 
 				if (dict.ContainsKey(file))
 					dict.Remove(file);
-			}
-
-			foreach (var tuple in queue_dict)
-			{
-				event_queue.Enqueue(new HgFileInfo { File = tuple.Key, Status = tuple.Value });
 			}
 
 			return SccErrors.Ok;
@@ -280,13 +264,6 @@ namespace HgSccHelper
 					if (!hg.Add(WorkingDir, add_files.ToArray()))
 						return SccErrors.OpNotPerformed;
 
-					foreach (var add_f in add_files)
-					{
-						string lower_f = add_f.ToLower();
-						if (!track_ide_changes.ContainsKey(lower_f))
-							track_ide_changes.Add(lower_f, HgFileStatus.Added);
-					}
-
 					add_files.Clear();
 					count = 0;
 				}
@@ -294,13 +271,6 @@ namespace HgSccHelper
 
 			if (add_files.Count > 0)
 			{
-				foreach (var add_f in add_files)
-				{
-					string lower_f = add_f.ToLower();
-					if (!track_ide_changes.ContainsKey(lower_f))
-						track_ide_changes.Add(lower_f, HgFileStatus.Added);
-				}
-
 				if (!hg.Add(WorkingDir, add_files.ToArray()))
 					return SccErrors.OpNotPerformed;
 			}
@@ -346,7 +316,7 @@ namespace HgSccHelper
 							{
 								var item = new CommitListItem();
 								string lower_f = f.File.ToLower();
-								item.Checked = dict.ContainsKey(lower_f) || track_ide_changes.ContainsKey(lower_f);
+								item.Checked = dict.ContainsKey(lower_f);
 								item.FileInfo = f;
 
 								commit_files.Add(item);
@@ -388,10 +358,6 @@ namespace HgSccHelper
 					foreach (var commit_item in checked_files)
 					{
 						to_commit_files.Add(commit_item.FileInfo.File);
-						if (commit_item.FileInfo.Status == HgFileStatus.Added)
-						{
-							event_queue.Enqueue(new HgFileInfo { File = commit_item.FileInfo.File, Status = HgFileStatus.Tracked });
-						}
 					}
 
 					SccErrors error = CheckInInternal(hwnd, to_commit_files, form.Comment);
@@ -400,8 +366,6 @@ namespace HgSccHelper
 						foreach (var f in to_commit_files)
 						{
 							commited_files_list.Add(Path.GetFullPath(Path.Combine(WorkingDir, f)));
-							string lower_f = f.ToLower();
-							track_ide_changes.Remove(lower_f);
 						}
 					}
 
@@ -486,11 +450,6 @@ namespace HgSccHelper
 			if (!hg.Revert(WorkingDir, local_files.ToArray()))
 				return SccErrors.NonSpecificError;
 
-			foreach (var f in local_files)
-			{
-				track_ide_changes.Remove(f.ToLower());
-			}
-
 			return SccErrors.Ok;
 		}
 
@@ -564,13 +523,6 @@ namespace HgSccHelper
 					if (!hg.Remove(WorkingDir, remove_files.ToArray(), comment))
 						return SccErrors.OpNotPerformed;
 
-					foreach (var remove_f in remove_files)
-					{
-						string lower_f = remove_f.ToLower();
-						if (!track_ide_changes.ContainsKey(lower_f))
-							track_ide_changes.Add(lower_f, HgFileStatus.Removed);
-					}
-
 					remove_files.Clear();
 					count = 0;
 				}
@@ -580,13 +532,6 @@ namespace HgSccHelper
 			{
 				if (!hg.Remove(WorkingDir, remove_files.ToArray(), comment))
 					return SccErrors.OpNotPerformed;
-
-				foreach (var remove_f in remove_files)
-				{
-					string lower_f = remove_f.ToLower();
-					if (!track_ide_changes.ContainsKey(lower_f))
-						track_ide_changes.Add(lower_f, HgFileStatus.Removed);
-				}
 			}
 
 			return SccErrors.Ok;
@@ -607,15 +552,6 @@ namespace HgSccHelper
 
 			if (!hg.Rename(WorkingDir, f, new_f))
 				return SccErrors.NonSpecificError;
-
-			string lower_f = f.ToLower();
-			string lower_new_f = new_f.ToLower();
-			
-			if (!track_ide_changes.ContainsKey(lower_f))
-				track_ide_changes.Add(lower_f, HgFileStatus.Removed);
-
-			if (!track_ide_changes.ContainsKey(lower_new_f))
-				track_ide_changes.Add(lower_new_f, HgFileStatus.Added);
 
 			return SccErrors.Ok;
 		}
@@ -678,27 +614,6 @@ namespace HgSccHelper
 				form.ShowDialog();
 			}
 
-			return SccErrors.Ok;
-		}
-
-		//-----------------------------------------------------------------------------
-		public SccErrors GetEvents(out string filename, out SccStatus status, out int events_remaining)
-		{
-			if (event_queue.Count == 0)
-			{
-				filename = string.Empty;
-				status = SccStatus.Invalid;
-				events_remaining = 0;
-
-				return SccErrors.Ok;
-			}
-
-			var item = event_queue.Dequeue();
-
-			filename = Path.Combine(WorkingDir, item.File);
-			status = ToSccStatus(item.Status);
-			events_remaining = event_queue.Count;
-			
 			return SccErrors.Ok;
 		}
 
