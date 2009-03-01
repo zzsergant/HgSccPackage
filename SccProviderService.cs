@@ -1677,8 +1677,6 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 			foreach (var f in files)
 			{
-				fileChange.IgnoreFile(0, f, 1);
-
 				IVsHierarchy h;
 				uint cookie;
 				uint itemid;
@@ -1692,6 +1690,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				{
 					var doc = (IVsPersistDocData) Marshal.GetObjectForIUnknown(doc_data);
 					doc_list.Add(doc);
+					fileChange.IgnoreFile(0, f, 1);
 				}
 				catch(InvalidCastException ex)
 				{
