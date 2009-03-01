@@ -1909,7 +1909,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			if (storage.IsValid)
 			{
 				var status = storage.GetFileStatus(pbstrMkDocument);
-				if (status == SourceControlStatus.scsCheckedIn)
+				if (status != SourceControlStatus.scsUncontrolled)
 				{
 					storage.UpdateFileCache(pbstrMkDocument);
 
