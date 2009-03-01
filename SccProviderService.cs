@@ -1670,14 +1670,34 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
-			IEnumerable<string> reverted_files;
-			storage.Revert(files, out reverted_files);
-
-			var list = GetControlledProjectsContainingFiles(reverted_files);
-			if (list.Count != 0)
+			var fileChange = (IVsFileChangeEx)_sccProvider.GetService(typeof(SVsFileChangeEx));
+			foreach (var f in files)
 			{
-				// now refresh the selected nodes' glyphs
-				_sccProvider.RefreshNodesGlyphs(list);
+				fileChange.IgnoreFile(0, f, 1);
+			}
+
+			IEnumerable<string> reverted_files = null;
+			try
+			{
+				storage.Revert(files, out reverted_files);
+			}
+			finally
+			{
+				foreach (var f in files)
+				{
+					fileChange.SyncFile(f);
+					fileChange.IgnoreFile(0, f, 0);
+				}
+
+				if (reverted_files != null)
+				{
+					var list = GetControlledProjectsContainingFiles(reverted_files);
+					if (list.Count != 0)
+					{
+						// now refresh the selected nodes' glyphs
+						_sccProvider.RefreshNodesGlyphs(list);
+					}
+				}
 			}
 		}
 		#endregion
