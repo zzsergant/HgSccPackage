@@ -154,14 +154,19 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				mcs.AddCommand(menuCmd);
 
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdCheckin);
+					CommandId.icmdCommit);
 
-				menuCmd = new MenuCommand(Exec_icmdCheckin, cmd);
+				menuCmd = new MenuCommand(Exec_icmdCommit, cmd);
 				mcs.AddCommand(menuCmd);
 
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdCheckout);
-				menuCmd = new MenuCommand(Exec_icmdCheckout, cmd);
+					CommandId.icmdRevert);
+				menuCmd = new MenuCommand(Exec_icmdRevert, cmd);
+				mcs.AddCommand(menuCmd);
+
+				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
+									CommandId.icmdCompare);
+				menuCmd = new MenuCommand(Exec_icmdCompare, cmd);
 				mcs.AddCommand(menuCmd);
 
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
@@ -170,10 +175,6 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				menuCmd = new MenuCommand(Exec_icmdViewHistory, cmd);
 				mcs.AddCommand(menuCmd);
 
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-									CommandId.icmdUseSccOffline);
-				menuCmd = new MenuCommand(Exec_icmdUseSccOffline, cmd);
-				mcs.AddCommand(menuCmd);
 			}
 
 			// Register the provider with the source control manager
@@ -485,22 +486,22 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 					cmdf |= QueryStatus_icmdAddToSourceControl();
 					break;
 
-				case CommandId.icmdCheckin:
-					cmdf |= QueryStatus_icmdCheckin();
+				case CommandId.icmdCommit:
+					cmdf |= QueryStatus_icmdCommit();
 					break;
 
-				case CommandId.icmdCheckout:
-					cmdf |= QueryStatus_icmdCheckout();
+				case CommandId.icmdRevert:
+					cmdf |= QueryStatus_icmdRevert();
+					break;
+
+				case CommandId.icmdCompare:
+					cmdf |= QueryStatus_icmdCompare();
 					break;
 
 				case CommandId.icmdViewHistory:
 					cmdf |= QueryStatus_icmdHistory();
 					break;
-
-				case CommandId.icmdUseSccOffline:
-					cmdf |= QueryStatus_icmdUseSccOffline();
-					break;
-
+    
 				case CommandId.icmdViewToolWindow:
 				case CommandId.icmdToolWindowToolbarCommand:
 					// These commmands are always enabled when the provider is active
@@ -518,7 +519,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return VSConstants.S_OK;
 		}
 
-		private OLECMDF QueryStatus_icmdCheckin()
+		private OLECMDF QueryStatus_icmdCommit()
 		{
 			if (!IsThereASolution())
 			{
@@ -551,7 +552,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
-		private OLECMDF QueryStatus_icmdCheckout()
+		private OLECMDF QueryStatus_icmdRevert()
 		{
 			if (!IsThereASolution())
 			{
@@ -561,7 +562,21 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			IList<string> files = GetSelectedFilesInControlledProjects();
 			foreach (string file in files)
 			{
-				if (sccService.GetFileStatus(file) == SourceControlStatus.scsCheckedIn)
+				SourceControlStatus status = sccService.GetFileStatus(file);
+				if (status == SourceControlStatus.scsCheckedIn)
+				{
+					continue;
+				}
+
+				if (status == SourceControlStatus.scsCheckedOut)
+				{
+					return OLECMDF.OLECMDF_ENABLED;
+				}
+
+				// If the file is uncontrolled, enable the command only if the file is part of a controlled project
+				IList<VSITEMSELECTION> nodes =
+					sccService.GetControlledProjectsContainingFile(file);
+				if (nodes.Count > 0)
 				{
 					return OLECMDF.OLECMDF_ENABLED;
 				}
@@ -625,59 +640,32 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
-		private OLECMDF QueryStatus_icmdUseSccOffline()
+		private OLECMDF QueryStatus_icmdCompare()
 		{
 			if (!IsThereASolution())
 			{
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			IList<VSITEMSELECTION> sel = GetSelectedNodes();
-			bool isSolutionSelected = false;
-			var hash = GetSelectedHierarchies(sel, out isSolutionSelected);
-			if (isSolutionSelected)
+			var selected_files = GetSelectedNodes();
+			if (selected_files.Count != 1)
+				return OLECMDF.OLECMDF_INVISIBLE;
+
+			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
+
+			if (sccService.GetFileStatus(files[0]) == SourceControlStatus.scsCheckedOut)
 			{
-				IVsHierarchy solHier = (IVsHierarchy) GetService(typeof (SVsSolution));
-				hash.Remove(solHier);
-//                hash[solHier] = null;
+				return OLECMDF.OLECMDF_ENABLED;
 			}
 
-			bool selectedOffline = false;
-			bool selectedOnline = false;
-			foreach (IVsHierarchy pHier in hash)
-			{
-				if (!sccService.IsProjectControlled(pHier))
-				{
-					// If a project is not controlled, set both flags to disalbe the command
-					selectedOffline = selectedOnline = true;
-				}
-
-				if (sccService.IsProjectOffline(pHier))
-				{
-					selectedOffline = true;
-				}
-				else
-				{
-					selectedOnline = true;
-				}
-			}
-
-			// For mixed selection, or if nothing is selected, disable the command
-			if (selectedOnline && selectedOffline ||
-				!selectedOnline && !selectedOffline)
-			{
-				return OLECMDF.OLECMDF_SUPPORTED;
-			}
-
-			return OLECMDF.OLECMDF_ENABLED |
-				   (selectedOffline ? OLECMDF.OLECMDF_LATCHED : OLECMDF.OLECMDF_ENABLED);
+			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
 		#endregion
 
 		#region Source Control Commands Execution
 
-		private void Exec_icmdCheckin(object sender, EventArgs e)
+		private void Exec_icmdCommit(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
 			{
@@ -689,51 +677,20 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				GetSelectedFilesInControlledProjects(out selectedNodes);
 
 			sccService.CommitFiles(files);
-
-/*
-			foreach (string file in files)
-			{
-				SourceControlStatus status = sccService.GetFileStatus(file);
-				if (status == SourceControlStatus.scsCheckedOut)
-				{
-					sccService.CheckinFile(file);
-				}
-				else if (status == SourceControlStatus.scsUncontrolled)
-				{
-					sccService.AddFileToSourceControl(file);
-				}
-			}
-			// now refresh the selected nodes' glyphs
-			RefreshNodesGlyphs(selectedNodes);
-*/
-
 		}
 
-		private void Exec_icmdCheckout(object sender, EventArgs e)
+		private void Exec_icmdRevert(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
 			{
 				return;
 			}
-
-/*
+			
 			IList<VSITEMSELECTION> selectedNodes = null;
 			IList<string> files =
 				GetSelectedFilesInControlledProjects(out selectedNodes);
 
-			// FIXME: Batch
-			foreach (string file in files)
-			{
-				SourceControlStatus status = sccService.GetFileStatus(file);
-				if (status == SourceControlStatus.scsCheckedIn)
-				{
-					sccService.CheckoutFile(file);
-				}
-			}
-
-			// now refresh the selected nodes' glyphs
-			RefreshNodesGlyphs(selectedNodes);
-*/
+			sccService.RevertFiles(files);
 		}
 
 		private void Exec_icmdViewHistory(object sender, EventArgs e)
@@ -786,32 +743,22 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 												  isSolutionSelected);
 		}
 
-		private void Exec_icmdUseSccOffline(object sender, EventArgs e)
+		private void Exec_icmdCompare(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
 			{
 				return;
 			}
 
-			IList<VSITEMSELECTION> sel = GetSelectedNodes();
-			bool isSolutionSelected = false;
-			var hash = GetSelectedHierarchies(sel, out isSolutionSelected);
-			if (isSolutionSelected)
-			{
-				IVsHierarchy solHier = (IVsHierarchy) GetService(typeof (SVsSolution));
-				hash.Remove(solHier);
-//				hash[solHier] = null;
-			}
+			var selected_files = GetSelectedNodes();
+			if (selected_files.Count != 1)
+				return;
 
-			foreach (IVsHierarchy pHier in hash)
-			{
-				// If a project is not controlled, skip it
-				if (!sccService.IsProjectControlled(pHier))
-				{
-					continue;
-				}
+			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
 
-				sccService.ToggleOfflineStatus(pHier);
+			if (files.Count == 1)
+			{
+				sccService.Compare(files[0]);
 			}
 		}
 

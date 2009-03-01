@@ -410,7 +410,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors CheckIn(IntPtr hwnd, IEnumerable<string> files, string comment, out IEnumerable<string> commited_files)
+		public SccErrors Commit(IntPtr hwnd, IEnumerable<string> files, string comment, out IEnumerable<string> commited_files)
 		{
 			return CommitInternal(hwnd, files, comment, out commited_files);
 		}
@@ -435,9 +435,13 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors Revert(IntPtr hwnd, IEnumerable<string> files)
+		public SccErrors Revert(IntPtr hwnd, IEnumerable<string> files, out IEnumerable<string> reverted_files)
 		{
 			var local_files = new List<string>();
+			var to_revert = new List<string>(files);
+			reverted_files = to_revert;
+
+			// FIXME: Add dialog with checkboxes
 			foreach (var f in files)
 			{
 				string local_f;

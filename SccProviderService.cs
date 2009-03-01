@@ -1560,71 +1560,6 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			storage.GetStatusForFiles(files, statuses);
 		}
 
-		/// <summary>
-		/// Adds the specified file to source control; the file must be part of a controlled project
-		/// </summary>
-/*
-		public void AddFileToSourceControl(string file)
-		{
-			Misc.Log("AddFileToSourceControl: {0}", file);
-			var filesToAdd = new List<string>();
-			filesToAdd.Add(file);
-			
-			// Get all controlled projects containing this file
-			var nodes = GetControlledProjectsContainingFile(file);
-			foreach (VSITEMSELECTION vsItem in nodes)
-			{
-//                var storage = _controlledProjects[vsItem.pHier];
-				if (storage != null)
-				{
-					storage.AddFilesToStorage(filesToAdd);
-					break;
-				}
-			}
-		}
-*/
-
-		/// <summary>
-		/// Checks in the specified file
-		/// </summary>
-/*
-		public void CheckinFile(string file)
-		{
-			// Before checking in files, make sure all in-memory edits have been commited to disk 
-			// by forcing a save of the solution. Ideally, only the files to be checked in should be saved...
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			if (sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0) != VSConstants.S_OK)
-			{
-				// If saving the files failed, don't continue with the checkin
-				return;
-			}
-
-			if (storage != null)
-			{
-				storage.CheckinFile(file);
-			}
-		}
-*/
-
-		/// <summary>
-		/// Checkout the specified file from source control
-		/// </summary>
-/*
-		public void CheckoutFile(string file)
-		{
-			// FIXME: Убрать это все вообще
-			if (storage != null)
-			{
-				SourceControlStatus status = storage.GetFileStatus(file);
-				if (status != SourceControlStatus.scsUncontrolled)
-				{
-					storage.CheckoutFile(file);
-					return;
-				}
-			}
-		}
-*/
-
 		public void ViewHistory(string file)
 		{
 			if (storage != null)
@@ -1633,6 +1568,19 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				if (status != SourceControlStatus.scsUncontrolled)
 				{
 					storage.ViewHistory(file);
+					return;
+				}
+			}
+		}
+
+		public void Compare(string file)
+		{
+			if (storage != null)
+			{
+				SourceControlStatus status = storage.GetFileStatus(file);
+				if (status != SourceControlStatus.scsUncontrolled)
+				{
+					storage.Compare(file);
 					return;
 				}
 			}
@@ -1682,21 +1630,6 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return nodes;
 		}
 
-		/// <summary>
-		/// Checkout the file from source control and refreshes the glyphs of the files containing the file
-		/// </summary>
-/*
-		public void CheckoutFileAndRefreshProjectGlyphs(string file)
-		{
-			// First, checkout the file
-			CheckoutFile(file);
-
-			// And refresh the solution explorer glyphs of all the projects containing this file to reflect the checked out status
-			IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(file);
-			_sccProvider.RefreshNodesGlyphs(nodes);
-		}
-*/
-
 		public IList<VSITEMSELECTION> GetControlledProjectsContainingFiles(IEnumerable<string> files)
 		{
 			var nodes = new List<VSITEMSELECTION>();
@@ -1716,57 +1649,13 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			return nodes;
 		}
 
-/*
-		public IList<VSITEMSELECTION> GetControlledFiles(IEnumerable<string> files)
-		{
-			IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
-			var solHier = (IVsHierarchy) _sccProvider.GetService(typeof (SVsSolution));
-
-			foreach (var file in files)
-			{
-				foreach (IVsHierarchy pHier in _controlledProjects)
-				{
-					if (solHier == pHier)
-					{
-						// This is the solution
-						if (file.ToLower().CompareTo(_sccProvider.GetSolutionFileName().ToLower()) == 0)
-						{
-							VSITEMSELECTION vsItem;
-							vsItem.itemid = VSConstants.VSITEMID_ROOT;
-							vsItem.pHier = null;
-							nodes.Add(vsItem);
-						}
-					}
-					else
-					{
-						var pProject = pHier as IVsProject2;
-						// See if the file is member of this project
-						// Caveat: the IsDocumentInProject function is expensive for certain project types, 
-						// you may want to limit its usage by creating your own maps of file2project or folder2project
-						int fFound;
-						uint itemid;
-						VSDOCUMENTPRIORITY[] prio = new VSDOCUMENTPRIORITY[1];
-						if (pProject != null && pProject.IsDocumentInProject(file, out fFound, prio, out itemid) == VSConstants.S_OK &&
-						    fFound != 0)
-						{
-							VSITEMSELECTION vsItem;
-							vsItem.itemid = itemid;
-							vsItem.pHier = pHier;
-							nodes.Add(vsItem);
-						}
-					}
-				}
-			}
-		}
-*/
-
 		public void CommitFiles(IEnumerable<string> files)
 		{
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
 			IEnumerable<string> commited_files;
-			storage.CheckInFiles(files, out commited_files);
+			storage.Commit(files, out commited_files);
 
 			var list = GetControlledProjectsContainingFiles(commited_files);
 			if (list.Count != 0)
@@ -1776,6 +1665,21 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			}
 		}
 
+		public void RevertFiles(IEnumerable<string> files)
+		{
+			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
+
+			IEnumerable<string> reverted_files;
+			storage.Revert(files, out reverted_files);
+
+			var list = GetControlledProjectsContainingFiles(reverted_files);
+			if (list.Count != 0)
+			{
+				// now refresh the selected nodes' glyphs
+				_sccProvider.RefreshNodesGlyphs(list);
+			}
+		}
 		#endregion
 
 		#region Implementation of IVsTrackProjectDocumentsEvents3

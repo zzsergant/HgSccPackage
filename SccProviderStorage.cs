@@ -237,7 +237,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		}
 
 		//------------------------------------------------------------------
-		public SccErrors CheckInFiles(IEnumerable<string> files, out IEnumerable<string> commited_files)
+		public SccErrors Commit(IEnumerable<string> files, out IEnumerable<string> commited_files)
 		{
 			if (!IsValid)
 			{
@@ -247,11 +247,11 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 
 			foreach (var f in files)
 			{
-				Misc.Log("CheckIn: {0}", f);
+				Misc.Log("Commit: {0}", f);
 			}
 
 
-			var error = hgscc.CheckIn(IntPtr.Zero, files, "", out commited_files);
+			var error = hgscc.Commit(IntPtr.Zero, files, "", out commited_files);
 			if (error == SccErrors.Ok)
 			{
 				UpdateCache(commited_files);
@@ -260,18 +260,26 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 		}
 
 		//------------------------------------------------------------------
-		public SccErrors CheckOutFiles(IEnumerable<string> files)
+		public SccErrors Revert(IEnumerable<string> files, out IEnumerable<string> reverted_files)
 		{
 			if (!IsValid)
+			{
+				reverted_files = new List<string>();
 				return SccErrors.UnknownError;
+			}
 
-//			var error = hgscc.Checkout(IntPtr.Zero, files, "");
 			foreach (var f in files)
 			{
-				Misc.Log("CheckOut: {0}", f);
-				SetCacheStatus(f, SourceControlStatus.scsCheckedOut);
+				Misc.Log("Revert: {0}", f);
 			}
-			return SccErrors.Ok;
+
+
+			var error = hgscc.Revert(IntPtr.Zero, files, out reverted_files);
+			if (error == SccErrors.Ok)
+			{
+				UpdateCache(reverted_files);
+			}
+			return error;
 		}
 
 		//------------------------------------------------------------------
@@ -313,16 +321,6 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 				return;
 
 			hgscc.History(IntPtr.Zero, filename);
-		}
-
-		//------------------------------------------------------------------
-		/// <summary>
-		/// Checkout a file from store by making the file on disk writable
-		/// </summary>
-		public void CheckoutFile(string filename)
-		{
-			var files = new string[] {filename};
-			CheckOutFiles(files);
 		}
 
 		//------------------------------------------------------------------
@@ -382,6 +380,15 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 			{
 				Misc.Log("File not found in cache");
 			}
+		}
+
+		//------------------------------------------------------------------
+		public void Compare(string file)
+		{
+			if (!IsValid)
+				return;
+
+			hgscc.Diff(IntPtr.Zero, file, SccDiffFlags.None);
 		}
 	}
 }

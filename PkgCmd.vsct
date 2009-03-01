@@ -92,26 +92,36 @@
           <CommandName>Add to Source Code Control (SccProvider)</CommandName>
         </Strings>
       </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdCheckout" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconCheckout"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Checkout File</ButtonText>
-          <MenuText>Check&amp;out</MenuText>
-          <CommandName>Checkout File (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdCheckin" priority="0x0000" type="Button">
+      <Button guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
         <Icon guid="guidSccProviderImages" id="iconCheckin"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Checkin File</ButtonText>
-          <MenuText>Check&amp;in</MenuText>
-          <CommandName>Checkin (SccProvider)</CommandName>
+          <ButtonText>Commit...</ButtonText>
+          <MenuText>Commit...</MenuText>
+          <CommandName>Commit (SccProvider)</CommandName>
+        </Strings>
+      </Button>
+      <Button guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000" type="Button">
+        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+        <Icon guid="guidSccProviderImages" id="iconCheckout"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <Strings>
+          <ButtonText>Revert...</ButtonText>
+          <MenuText>Revert...</MenuText>
+          <CommandName>Revert (SccProvider)</CommandName>
+        </Strings>
+      </Button>
+      <Button guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000" type="Button">
+        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <Strings>
+          <ButtonText>Compare</ButtonText>
+          <MenuText>Compare</MenuText>
+          <CommandName>Compare (SccProvider)</CommandName>
         </Strings>
       </Button>
       <Button guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000" type="Button">
@@ -123,16 +133,6 @@
           <ButtonText>View History</ButtonText>
           <MenuText>View History</MenuText>
           <CommandName>View History (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdUseSccOffline" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Project uses Scc Offline</ButtonText>
-          <MenuText>Project uses Scc O&amp;ffline</MenuText>
-          <CommandName>Use Scc Offline (SccProvider)</CommandName>
         </Strings>
       </Button>
     </Buttons>
@@ -159,22 +159,31 @@
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCheckout" priority="0x0000">
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCheckout" priority="0x0000">
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCheckout" priority="0x0000">
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCheckin" priority="0x0000">
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCheckin" priority="0x0000">
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCheckin" priority="0x0000">
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000">
@@ -184,15 +193,6 @@
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdUseSccOffline" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdUseSccOffline" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdUseSccOffline" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
     <!-- Also place the scc commands in the toolbar -->
@@ -206,12 +206,12 @@
     <GuidSymbol name="guidSccProviderCmdSet" value="{B0BAC05D-5743-4FEB-A929-2938249CBA26}" >
 
       <IDSymbol name="icmdAddToSourceControl" value="0x100"/>
-      <IDSymbol name="icmdCheckout" value="0x101"/>
-      <IDSymbol name="icmdCheckin" value="0x102"/>
-      <IDSymbol name="icmdViewToolWindow" value="0x103"/>
-      <IDSymbol name="icmdToolWindowToolbarCommand" value="0x104"/>
-      <IDSymbol name="icmdUseSccOffline" value="0x105"/>
-      <IDSymbol name="icmdViewHistory" value="0x106"/>
+      <IDSymbol name="icmdCommit" value="0x101"/>
+      <IDSymbol name="icmdRevert" value="0x102"/>
+      <IDSymbol name="icmdCompare" value="0x103"/>
+      <IDSymbol name="icmdViewHistory" value="0x104"/>
+      <IDSymbol name="icmdViewToolWindow" value="0x105"/>
+      <IDSymbol name="icmdToolWindowToolbarCommand" value="0x106"/>
 
       <IDSymbol name="imnuFileSourceControlMenu" value="0x200"/>
       <IDSymbol name="imnuToolWindowToolbarMenu" value="0x201"/>
