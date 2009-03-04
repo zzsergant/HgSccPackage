@@ -18,7 +18,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
+namespace HgSccPackage
 {
     public partial class DlgQueryEditCheckedInFile : Form
     {

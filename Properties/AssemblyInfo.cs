@@ -1,15 +1,3 @@
-
-/***************************************************************************
-
-Copyright (c) Microsoft Corporation. All rights reserved.
-This code is licensed under the Visual Studio SDK license terms.
-THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-
-***************************************************************************/
-
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -19,12 +7,12 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle("Managed Source Control Sample Provider (C#)")]
+[assembly: AssemblyTitle("Mercurial Source Control Package")]
 [assembly: AssemblyDescription("This package implement the functionalities of a source control provider package.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("Managed Source Control Sample Provider (C#)")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2005")]
+[assembly: AssemblyCompany("Sergey Antonov")]
+[assembly: AssemblyProduct("Mercurial Source Control Package")]
+[assembly: AssemblyCopyright("Copyright © Sergey Antonov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]        
 

@@ -7,8 +7,8 @@
     <ProjectGuid>{ADECE07A-5D80-4950-9DA5-A681CE2F5106}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider</RootNamespace>
-    <AssemblyName>SccProvider</AssemblyName>
+    <RootNamespace>HgSccPackage</RootNamespace>
+    <AssemblyName>HgSccPackage</AssemblyName>
     <SccProjectName>example</SccProjectName>
     <SccLocalPath>.</SccLocalPath>
     <SccAuxPath>
@@ -163,7 +163,6 @@
     <VSCTCompile Include="PkgCmd.vsct">
       <ResourceName>1000</ResourceName>
     </VSCTCompile>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <PropertyGroup>
     <!--

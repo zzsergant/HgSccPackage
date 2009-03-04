@@ -1,14 +1,3 @@
-/***************************************************************************
-
-Copyright (c) Microsoft Corporation. All rights reserved.
-This code is licensed under the Visual Studio SDK license terms.
-THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-
-***************************************************************************/
-
 // SccProviderService.cs : Implementation of Sample Source Control Provider Service
 //
 
@@ -26,7 +15,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
 using System.Windows.Forms;
 
-namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
+namespace HgSccPackage
 {
 	[Guid("B0BAC05D-1000-41D1-A6C3-704E6C1A3DE2")]
 	public class SccProviderService : 
@@ -1692,7 +1681,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
 					doc_list.Add(doc);
 					fileChange.IgnoreFile(0, f, 1);
 				}
-				catch(InvalidCastException ex)
+				catch(InvalidCastException)
 				{
 //					Misc.Log("Ex: {0}, {1}", f, ex.ToString());
 				}

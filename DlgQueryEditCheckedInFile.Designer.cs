@@ -9,7 +9,7 @@ PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
 
 ***************************************************************************/
 
-namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
+namespace HgSccPackage
 {
     partial class DlgQueryEditCheckedInFile
     {

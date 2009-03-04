@@ -15,7 +15,7 @@ using System.Text;
 using System.IO;
 using Microsoft.VisualStudio.OLE.Interop;
 
-namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
+namespace HgSccPackage
 {
     /// <summary>
     /// Implements a managed Stream object on top of a COM IStream.

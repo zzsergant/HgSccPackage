@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider {
+namespace HgSccPackage {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("HgSccPackage.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace Microsoft.Samples.VisualStudio.SourceControlIntegration.SccProvider
+namespace HgSccPackage
 {
 	//=========================================================================
 	class Misc
