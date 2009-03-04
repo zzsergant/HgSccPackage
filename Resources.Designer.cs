@@ -61,7 +61,7 @@ namespace HgSccPackage {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Managed Source Control Sample Provider.
+        ///   Looks up a localized string similar to Mercurial Source Control Package.
         /// </summary>
         internal static string _100 {
             get {
@@ -109,7 +109,7 @@ namespace HgSccPackage {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Managed Source Code Control Provider.
+        ///   Looks up a localized string similar to Mercurial Source Code Control Package.
         /// </summary>
         internal static string ProviderName {
             get {
@@ -163,7 +163,7 @@ namespace HgSccPackage {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sample source control provider ToolWindow.
+        ///   Looks up a localized string similar to Mercurial Source Control Package ToolWindow.
         /// </summary>
         internal static string ToolWindowCaption {
             get {

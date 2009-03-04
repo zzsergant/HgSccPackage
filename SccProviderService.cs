@@ -1,6 +1,3 @@
-// SccProviderService.cs : Implementation of Sample Source Control Provider Service
-//
-
 using System;
 using System.IO;
 using System.Diagnostics;
@@ -17,7 +14,7 @@ using System.Windows.Forms;
 
 namespace HgSccPackage
 {
-	[Guid("B0BAC05D-1000-41D1-A6C3-704E6C1A3DE2")]
+	[Guid("A7F26CA1-1000-4729-896E-0BBE9E380635")]
 	public class SccProviderService : 
 		IVsSccProvider,             // Required for provider registration with source control manager
 		IVsSccManager2,             // Base source control functionality interface

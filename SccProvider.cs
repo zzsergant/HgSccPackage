@@ -37,25 +37,25 @@ namespace HgSccPackage
 	// Register a sample options page visible as Tools/Options/SourceControl/SampleOptionsPage
 	// when the provider is active
 	[MsVsShell.ProvideOptionPageAttribute(typeof (SccProviderOptions),
-		"Source Control", "Sample Options Page", 106, 107, false)]
-	[ProvideToolsOptionsPageVisibility("Source Control", "Sample Options Page",
-		"B0BAC05D-0000-41D1-A6C3-704E6C1A3DE2")]
+		"Source Control", "Mercurial Options Page", 106, 107, false)]
+	[ProvideToolsOptionsPageVisibility("Source Control", "Mercurial Options Page",
+		"A7F26CA1-0000-4729-896E-0BBE9E380635")]
 	// Register a sample tool window visible only when the provider is active
 	[MsVsShell.ProvideToolWindow(typeof (SccProviderToolWindow))]
 	[MsVsShell.ProvideToolWindowVisibility(typeof (SccProviderToolWindow),
-		"B0BAC05D-0000-41D1-A6C3-704E6C1A3DE2")]
+		"A7F26CA1-0000-4729-896E-0BBE9E380635")]
 	// Register the source control provider's service (implementing IVsScciProvider interface)
 	[MsVsShell.ProvideService(typeof (SccProviderService),
-		ServiceName = "Source Control Sample Provider Service")]
+		ServiceName = "Mercurial Source Control Provider Service")]
 	// Register the source control provider to be visible in Tools/Options/SourceControl/Plugin
 	// dropdown selector
-	[ProvideSourceControlProvider("Managed Source Control Sample Provider", "#100")]
+	[ProvideSourceControlProvider("Mercurial Source Control Package", "#100")]
 	// Pre-load the package when the command UI context is asserted (the provider will be automatically loaded after restarting the shell if it was active last time the shell was shutdown)
-	[MsVsShell.ProvideAutoLoad("B0BAC05D-0000-41D1-A6C3-704E6C1A3DE2")]
+	[MsVsShell.ProvideAutoLoad("A7F26CA1-0000-4729-896E-0BBE9E380635")]
 	// Register the key used for persisting solution properties, so the IDE will know to load the source control package when opening a controlled solution containing properties written by this package
 	[ProvideSolutionProps(_strSolutionPersistanceKey)]
 	// Declare the package guid
-	[Guid("B0BAC05D-2000-41D1-A6C3-704E6C1A3DE2")]
+	[Guid("A7F26CA1-2000-4729-896E-0BBE9E380635")]
 	public sealed class SccProvider : MsVsShell.Package,
 									  IOleCommandTarget,
 									  IVsPersistSolutionProps
@@ -66,15 +66,15 @@ namespace HgSccPackage
 		// The name of this provider (to be written in solution and project files)
 		// As a best practice, to be sure the provider has an unique name, a guid like the provider guid can be used as a part of the name
 		private const string _strProviderName =
-			"Sample Source Control Provider:{B0BAC05D-2000-41D1-A6C3-704E6C1A3DE2}";
+			"Mercurial Source Control Package";
 
 		// The name of the solution section used to persist provider options (should be unique)
 		private const string _strSolutionPersistanceKey =
-			"SampleSourceControlProviderSolutionProperties";
+			"MercurialSourceControlSolutionProperties";
 
 		// The name of the section in the solution user options file used to persist user-specific options (should be unique, shorter than 31 characters and without dots)
 		private const string _strSolutionUserOptionsKey =
-			"SampleSourceControlProvider";
+			"MercurialSourceControlProvider";
 
 		// The names of the properties stored by the provider in the solution file
 		private const string _strSolutionControlledProperty = "SolutionIsControlled";

@@ -11,12 +11,12 @@ namespace HgSccPackage
 	// Now define the list of guids as public static members.
    
         // Unique ID of the source control provider; this is also used as the command UI context to show/hide the pacakge UI
-        public static readonly Guid guidSccProvider = new Guid("{B0BAC05D-0000-41D1-A6C3-704E6C1A3DE2}");
+        public static readonly Guid guidSccProvider = new Guid("{A7F26CA1-0000-4729-896E-0BBE9E380635}");
         // The guid of the source control provider service (implementing IVsSccProvider interface)
-        public static readonly Guid guidSccProviderService = new Guid("{B0BAC05D-1000-41D1-A6C3-704E6C1A3DE2}");
+        public static readonly Guid guidSccProviderService = new Guid("{A7F26CA1-1000-4729-896E-0BBE9E380635}");
         // The guid of the source control provider package (implementing IVsPackage interface)
-        public static readonly Guid guidSccProviderPkg = new Guid("{B0BAC05D-2000-41D1-A6C3-704E6C1A3DE2}");
+        public static readonly Guid guidSccProviderPkg = new Guid("{A7F26CA1-2000-4729-896E-0BBE9E380635}");
         // Other guids for menus and commands
-        public static readonly Guid guidSccProviderCmdSet = new Guid("{B0BAC05D-5743-4FEB-A929-2938249CBA26}");
+        public static readonly Guid guidSccProviderCmdSet = new Guid("{A7F26CA1-3000-4729-896E-0BBE9E380635}");
     };
 }

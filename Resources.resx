@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="100" xml:space="preserve">
-    <value>Managed Source Control Sample Provider</value>
+    <value>Mercurial Source Control Package</value>
   </data>
   <data name="101" xml:space="preserve">
     <value>This package implements the functionalities of a source control provider package.</value>
@@ -137,7 +137,7 @@
     <value>Press Cancel to cancel this OnApply.  OK to continue</value>
   </data>
   <data name="ProviderName" xml:space="preserve">
-    <value>Managed Source Code Control Provider</value>
+    <value>Mercurial Source Code Control Package</value>
   </data>
   <data name="QEQS_EditUncontrolledReadOnly" xml:space="preserve">
     <value>The file {0} you are trying to edit is read only on disk. Do you want do make the file writable so you can continue editing it?</value>
@@ -152,7 +152,7 @@
     <value>Pending add</value>
   </data>
   <data name="ToolWindowCaption" xml:space="preserve">
-    <value>Sample source control provider ToolWindow</value>
+    <value>Mercurial Source Control Package ToolWindow</value>
   </data>
   <data name="TPD_DeleteControlledFile" xml:space="preserve">
     <value>The file {0} you are going to delete is a source controlled file. Are you sure you want to continue and delete this file?</value>

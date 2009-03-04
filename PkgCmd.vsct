@@ -10,8 +10,8 @@
       <Menu guid="guidSccProviderCmdSet" id="imnuFileSourceControlMenu" priority="0x0000" type="Menu">
         <Parent guid="guidSccProviderCmdSet" id="igrpFileSourceControl"/>
         <Strings>
-          <ButtonText>SccSampleMenu</ButtonText>
-          <CommandName>Sou&amp;rce Control Provider</CommandName>
+          <ButtonText>HgSccMenu</ButtonText>
+          <CommandName>Mercurial Source Control Package</CommandName>
         </Strings>
       </Menu>
       <!--  Menu for commands in toolwindow's toolbar -->
@@ -27,8 +27,8 @@
         <Parent guid="guidSccProviderCmdSet" id="igrpSccNowhere"/>
         <CommandFlag>DefaultDocked</CommandFlag>
         <Strings>
-          <ButtonText>Sample Source Control Toolbar</ButtonText>
-          <CommandName>Sample Source Control Toolbar</CommandName>
+          <ButtonText>Mercurial Source Control Toolbar</ButtonText>
+          <CommandName>Mercurial Source Control Toolbar</CommandName>
         </Strings>
       </Menu>
     </Menus>
@@ -192,8 +192,8 @@
   </CommandPlacements>
 
   <Symbols>
-    <GuidSymbol name="guidSccProviderPkg" value="{B0BAC05D-2000-41D1-A6C3-704E6C1A3DE2}" />
-    <GuidSymbol name="guidSccProviderCmdSet" value="{B0BAC05D-5743-4FEB-A929-2938249CBA26}" >
+    <GuidSymbol name="guidSccProviderPkg" value="{A7F26CA1-2000-4729-896E-0BBE9E380635}" />
+    <GuidSymbol name="guidSccProviderCmdSet" value="{A7F26CA1-3000-4729-896E-0BBE9E380635}" >
 
       <IDSymbol name="icmdAddToSourceControl" value="0x100"/>
       <IDSymbol name="icmdCommit" value="0x101"/>
@@ -214,7 +214,7 @@
       <IDSymbol name="itbrSccToolbar" value="0x400"/>
     </GuidSymbol>
 
-    <GuidSymbol name="guidSccProviderImages" value="{7701C9CA-A0EF-4754-835C-23D7CB4376E9}" >
+    <GuidSymbol name="guidSccProviderImages" value="{52F5275E-63E8-45e2-B2A1-A6856B662F56}" >
       <IDSymbol name="iconCheckout" value="1"/>
       <IDSymbol name="iconCheckin" value="2"/>
       <IDSymbol name="iconUncheckout" value="3"/>
