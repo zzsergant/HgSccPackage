@@ -255,6 +255,32 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public List<HgFileInfo> Status(string work_dir, IEnumerable<string> files)
+		{
+			var args = new StringBuilder();
+			args.Append("status");
+			args.Append(" -amrdcC");
+
+			foreach (var f in files)
+				args.Append(" " + f.Quote());
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				var reader = proc.StandardOutput;
+				var files_info = HgFileInfo.ParseFileInfo(reader);
+
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+				{
+					Logger.WriteLine(args.ToString());
+					Logger.WriteLine(reader.ReadToEnd());
+				}
+
+				return files_info;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
 		public bool Add(string work_dir, string[] files)
 		{
 			return Add(work_dir, files, 0);

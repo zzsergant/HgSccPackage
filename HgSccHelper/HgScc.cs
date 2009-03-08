@@ -104,6 +104,7 @@ namespace HgSccHelper
 			return scc;
 		}
 
+/*
 		//-----------------------------------------------------------------------------
 		public SccErrors LookupProjects(string folder, out SccFileInfo[] files)
 		{
@@ -143,9 +144,10 @@ namespace HgSccHelper
 
 			return QueryInfo(files);
 		}
+*/
 
 		//-----------------------------------------------------------------------------
-		private Dictionary<string, HgFileInfo> QueryInfoFullDict()
+		internal Dictionary<string, HgFileInfo> QueryInfoFullDict()
 		{
 			var dict = new Dictionary<string, HgFileInfo>();
 //			var hg_files = hg.Manifest(WorkingDir);
@@ -207,7 +209,7 @@ namespace HgSccHelper
 				}
 				else
 				{
-					info.Status = HgFileStatus.NotTracked;
+					info.Status = HgFileStatus.NotTracked;		  
 				}
 
 				if (dict.ContainsKey(file))
@@ -217,7 +219,51 @@ namespace HgSccHelper
 			return SccErrors.Ok;
 		}
 
+		//-----------------------------------------------------------------------------
+		internal SccErrors QueryInfo2(HgFileInfo[] files)
+		{
+			// TODO: Check if project is opened
+			var dict = new Dictionary<string, HgFileStatus>();
+			var lst = new List<string>();
 
+			int length = 0;
+			foreach (var f in files)
+			{
+				string file;
+				if (GetRelativePath(f.File, out file))
+				{
+					lst.Add(file);
+					length += file.Length;
+				}
+			}
+
+			var stats = (length > 30000) ? hg.Status(WorkingDir) : hg.Status(WorkingDir, lst);
+
+			foreach (var file_status in stats)
+			{
+				string file = file_status.File.ToLower();
+				dict.Add(file, file_status.Status);
+			}
+
+			foreach (var info in files)
+			{
+				HgFileStatus status = HgFileStatus.NotTracked;
+				string file;
+				if (GetRelativePath(info.File, out file)
+					&& dict.TryGetValue(file.ToLower(), out status))
+				{
+					info.Status = status;
+				}
+				else
+				{
+					info.Status = HgFileStatus.NotTracked;
+				}
+			}
+
+			return SccErrors.Ok;
+		}
+
+/*
 		//-----------------------------------------------------------------------------
 		public SccErrors QueryInfo(SccFileInfo [] files)
 		{
@@ -232,6 +278,7 @@ namespace HgSccHelper
 
 			return error;
 		}
+*/
 
 		//-----------------------------------------------------------------------------
 		public SccErrors Add(IntPtr hwnd, SccAddFile[] files, string comment)

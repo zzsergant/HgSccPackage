@@ -51,7 +51,28 @@ namespace HgSccPackage
 		public SccErrors Init(string work_dir, SccOpenProjectFlags flags)
 		{
 			Misc.Log("SccProviderStorage: {0}", work_dir);
-			return hgscc.OpenProject(work_dir, flags);
+			var err = hgscc.OpenProject(work_dir, flags);
+			if (err == SccErrors.Ok)
+				ReloadCache();
+
+			return err;
+		}
+
+		//------------------------------------------------------------------
+		public void ReloadCache()
+		{
+			if (!IsValid)
+				return;
+			
+			ResetCache();
+			
+			foreach (var pair in hgscc.QueryInfoFullDict())
+			{
+				var file = pair.Key;
+				var status = pair.Value;
+
+				cache[Path.Combine(hgscc.WorkingDir, file).ToLower()] = status;
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -333,7 +354,7 @@ namespace HgSccPackage
 			
 			var info_lst = lst.ToArray();
 
-			SccErrors error = hgscc.QueryInfo(info_lst);
+			SccErrors error = hgscc.QueryInfo2(info_lst);
 			if (error == SccErrors.Ok)
 			{
 				foreach (var info in info_lst)
