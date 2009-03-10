@@ -63,7 +63,7 @@
       <!-- 	Buttons in the toolwindow's toolbar -->
       <Button guid="guidSccProviderCmdSet" id="icmdToolWindowToolbarCommand" priority="0x0100" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpToolWindowToolbarGroup"/>
-        <Icon guid="guidSccProviderImages" id="iconCheckout"/>
+        <!--<Icon guid="guidSccProviderImages" id="iconRevert"/>-->
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
@@ -84,7 +84,7 @@
       </Button>
       <Button guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconCheckin"/>
+        <Icon guid="guidSccProviderImages" id="iconCommit"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
@@ -95,7 +95,7 @@
       </Button>
       <Button guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconCheckout"/>
+        <Icon guid="guidSccProviderImages" id="iconRevert"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
@@ -106,6 +106,7 @@
       </Button>
       <Button guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+        <Icon guid="guidSccProviderImages" id="iconCompare"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
@@ -116,7 +117,7 @@
       </Button>
       <Button guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <!--<Icon guid="guidSccProviderImages" id="iconCheckin"/>-->
+        <Icon guid="guidSccProviderImages" id="iconViewHistory"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
@@ -127,7 +128,7 @@
       </Button>
     </Buttons>
     <Bitmaps>
-      <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCheckin, iconUncheckout, iconAdd"/>
+      <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, icon5, iconCompare, icon7, icon8, icon9, icon10, icon11, icon12, icon13, icon14, icon15, icon16, icon17, icon18, icon19, icon20, icon21, icon22, icon23, icon24, icon25, iconViewHistory"/>
     </Bitmaps>
   </Commands>
 
@@ -216,9 +217,31 @@
 
     <GuidSymbol name="guidSccProviderImages" value="{52F5275E-63E8-45e2-B2A1-A6856B662F56}" >
       <IDSymbol name="iconCheckout" value="1"/>
-      <IDSymbol name="iconCheckin" value="2"/>
-      <IDSymbol name="iconUncheckout" value="3"/>
+      <IDSymbol name="iconCommit" value="2"/>
+      <IDSymbol name="iconRevert" value="3"/>
       <IDSymbol name="iconAdd" value="4"/>
+      <IDSymbol name="icon5" value="5"/>
+      <IDSymbol name="iconCompare" value="6"/>
+      <IDSymbol name="icon7" value="7"/>
+      <IDSymbol name="icon8" value="8"/>
+      <IDSymbol name="icon9" value="9"/>
+      <IDSymbol name="icon10" value="10"/>
+      <IDSymbol name="icon11" value="11"/>
+      <IDSymbol name="icon12" value="12"/>
+      <IDSymbol name="icon13" value="13"/>
+      <IDSymbol name="icon14" value="14"/>
+      <IDSymbol name="icon15" value="15"/>
+      <IDSymbol name="icon16" value="16"/>
+      <IDSymbol name="icon17" value="17"/>
+      <IDSymbol name="icon18" value="18"/>
+      <IDSymbol name="icon19" value="19"/>
+      <IDSymbol name="icon20" value="20"/>
+      <IDSymbol name="icon21" value="21"/>
+      <IDSymbol name="icon22" value="22"/>
+      <IDSymbol name="icon23" value="23"/>
+      <IDSymbol name="icon24" value="24"/>
+      <IDSymbol name="icon25" value="25"/>
+      <IDSymbol name="iconViewHistory" value="26"/>
     </GuidSymbol>
   </Symbols>
 </CommandTable>
