@@ -178,13 +178,33 @@ namespace HgSccHelper
 
 			while (true)
 			{
-				string prev_name;
-				if (!Hg.TrackRename(WorkingDir, current.Path, current.Rev.ToString(), out prev_name))
+				bool found_mismatch = false;
+				int mismatch_index = current.Index + 1;
+				string prev_name = null;
+
+				for (int i = current.Index + 1; !found_mismatch && i < changes.Count; ++i)
+				{
+					var ch = changes[i];
+					foreach (var info in ch.FilesAdded)
+					{
+						if (info.Path == current.Path)
+						{
+							if (!Hg.TrackRename(WorkingDir, current.Path, ch.Rev.ToString(), out prev_name))
+								return;
+
+							found_mismatch = true;
+							mismatch_index = i;
+							break;
+						}
+					}
+				}
+
+				if (!found_mismatch)
 					break;
 
 				bool found = false;
 
-				for(int i = current.Index + 1; !found && i < changes.Count; ++i)
+				for(int i = mismatch_index; !found && i < changes.Count - 1; ++i)
 				{
 					foreach (var f in changes[i].Files)
 					{
@@ -195,7 +215,7 @@ namespace HgSccHelper
 							found = true;
 //							Logger.WriteLine("Equal");
 
-							var prev = new RenameInfo { Path = prev_name, Index = i, Rev = changes[i].Rev };
+							var prev = new RenameInfo { Path = prev_name, Index = i + 1, Rev = changes[i + 1].Rev };
 							renames.Add(prev);
 							current = prev;
 							break;
