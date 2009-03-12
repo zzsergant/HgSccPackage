@@ -179,10 +179,10 @@ namespace HgSccHelper
 			while (true)
 			{
 				bool found_mismatch = false;
-				int mismatch_index = current.Index + 1;
+				int mismatch_index = current.Index;
 				string prev_name = null;
 
-				for (int i = current.Index + 1; !found_mismatch && i < changes.Count; ++i)
+				for (int i = current.Index; !found_mismatch && i < changes.Count; ++i)
 				{
 					var ch = changes[i];
 					foreach (var info in ch.FilesAdded)
