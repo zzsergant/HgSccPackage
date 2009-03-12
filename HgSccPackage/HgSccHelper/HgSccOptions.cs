@@ -2,28 +2,27 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Windows.Forms;
 using System.Xml.Serialization;
 
 //=============================================================================
-namespace HgSccHelper
+namespace HgSccPackage.HgSccHelper
 {
-	//-----------------------------------------------------------------------------
 	[Serializable]
-	public class HgOptions
+	public class HgPkgOptions
 	{
 		public string DiffTool { get; set; }
 
-		public HgOptions()
+		public HgPkgOptions()
 		{
 			DiffTool = "";
 		}
 	}
 
-	//-----------------------------------------------------------------------------
 	public sealed class HgSccOptions
 	{
 		static readonly HgSccOptions instance = new HgSccOptions();
-		HgOptions options;
+		HgPkgOptions options;
 
 		// Explicit static constructor to tell C# compiler
 		// not to mark type as beforefieldinit
@@ -36,11 +35,11 @@ namespace HgSccHelper
 		{
 			options = Load();
 			if (options == null)
-				options = new HgOptions();
+				options = new HgPkgOptions();
 		}
 
 		//-----------------------------------------------------------------------------
-		public static HgOptions Options
+		public static HgPkgOptions Options
 		{
 			get
 			{
@@ -54,11 +53,11 @@ namespace HgSccHelper
 			get
 			{
 				string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-				string hgdata = Path.Combine(appdata, "HgScc");
+				string hgdata = Path.Combine(appdata, "HgSccPackage");
 				if (!Directory.Exists(hgdata))
 					Directory.CreateDirectory(hgdata);
 
-				return Path.Combine(hgdata, "hgscc.xml");
+				return Path.Combine(hgdata, "hgsccpkg.xml");
 			}
 		}
 
@@ -71,7 +70,7 @@ namespace HgSccHelper
 
 				// Create an instance of the XmlSerializer class;
 				// specify the type of object to serialize.
-				XmlSerializer serializer = new XmlSerializer(typeof(HgOptions));
+				XmlSerializer serializer = new XmlSerializer(Options.GetType());
 				using (var writer = new StreamWriter(cfg))
 				{
 					// Serialize the purchase order, and close the TextWriter.
@@ -85,7 +84,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private static HgOptions Load()
+		private static HgPkgOptions Load()
 		{
 			try
 			{
@@ -94,7 +93,7 @@ namespace HgSccHelper
 				{
 					// Create an instance of the XmlSerializer class;
 					// specify the type of object to be deserialized.
-					XmlSerializer serializer = new XmlSerializer(typeof(HgOptions));
+					XmlSerializer serializer = new XmlSerializer(typeof(HgPkgOptions));
 
 					/* If the XML document has been altered with unknown 
 					nodes or attributes, handle them with the 
@@ -106,7 +105,7 @@ namespace HgSccHelper
 					using (var fs = new FileStream(cfg, FileMode.Open))
 					{
 						// Declare an object variable of the type to be deserialized.
-						var o = (HgOptions)serializer.Deserialize(fs);
+						var o = (HgPkgOptions)serializer.Deserialize(fs);
 						if (o != null)
 							return o;
 					}
@@ -117,7 +116,7 @@ namespace HgSccHelper
 				System.Windows.Forms.MessageBox.Show(e.Message);
 			}
 
-			return new HgOptions();
+			return new HgPkgOptions();
 		}
 
 		//-----------------------------------------------------------------------------
