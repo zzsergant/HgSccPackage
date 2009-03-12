@@ -287,7 +287,8 @@ namespace HgSccPackage
 			var error = hgscc.Revert(IntPtr.Zero, files, out reverted_files);
 			if (error == SccErrors.Ok)
 			{
-				UpdateCache(reverted_files);
+//				UpdateCache(reverted_files);
+				ReloadCache();
 			}
 			return error;
 		}
