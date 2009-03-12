@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HgSccPackage</RootNamespace>
     <AssemblyName>HgSccPackage</AssemblyName>
-    <SccProjectName>example</SccProjectName>
+    <SccProjectName>hgsccpackage</SccProjectName>
     <SccLocalPath>.</SccLocalPath>
     <SccAuxPath>
     </SccAuxPath>
