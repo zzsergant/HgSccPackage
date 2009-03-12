@@ -116,6 +116,15 @@ namespace HgSccHelper
 					}
 			}
 		}
+
+		//------------------------------------------------------------------
+		private void checkAll_CheckedChanged(object sender, EventArgs e)
+		{
+			for (int i = 0; i < checkedListFiles.Items.Count; ++i)
+			{
+				checkedListFiles.SetItemChecked(i, checkAll.Checked);
+			}
+		}
 	}
 
 	//-----------------------------------------------------------------------------

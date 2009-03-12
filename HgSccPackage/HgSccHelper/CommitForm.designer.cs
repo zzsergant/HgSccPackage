@@ -35,6 +35,7 @@
 			this.btnCancel = new System.Windows.Forms.Button();
 			this.btnOk = new System.Windows.Forms.Button();
 			this.btnDiffPrevious = new System.Windows.Forms.Button();
+			this.checkAll = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// label2
@@ -112,6 +113,20 @@
 			this.btnDiffPrevious.UseVisualStyleBackColor = true;
 			this.btnDiffPrevious.Click += new System.EventHandler(this.btnDiffPrevious_Click);
 			// 
+			// checkAll
+			// 
+			this.checkAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.checkAll.AutoSize = true;
+			this.checkAll.Checked = true;
+			this.checkAll.CheckState = System.Windows.Forms.CheckState.Indeterminate;
+			this.checkAll.Location = new System.Drawing.Point(94, 372);
+			this.checkAll.Name = "checkAll";
+			this.checkAll.Size = new System.Drawing.Size(120, 17);
+			this.checkAll.TabIndex = 11;
+			this.checkAll.Text = "Check/Uncheck All";
+			this.checkAll.UseVisualStyleBackColor = true;
+			this.checkAll.CheckedChanged += new System.EventHandler(this.checkAll_CheckedChanged);
+			// 
 			// CommitForm
 			// 
 			this.AcceptButton = this.btnOk;
@@ -119,6 +134,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.btnCancel;
 			this.ClientSize = new System.Drawing.Size(640, 401);
+			this.Controls.Add(this.checkAll);
 			this.Controls.Add(this.btnDiffPrevious);
 			this.Controls.Add(this.btnOk);
 			this.Controls.Add(this.btnCancel);
@@ -146,5 +162,6 @@
 		private System.Windows.Forms.Button btnCancel;
 		private System.Windows.Forms.Button btnOk;
 		private System.Windows.Forms.Button btnDiffPrevious;
+		private System.Windows.Forms.CheckBox checkAll;
 	}
 }
