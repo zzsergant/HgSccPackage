@@ -78,6 +78,15 @@ namespace HgSccPackage {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to DJQIHJRAEHPZE2IPI0EADHCJRZE1PDJ3CQM2PHEZKDIHJMCIR9ZCMMA8PJJRJDIEH8ARIPHHIKC8EPI2ATDIC9JQQPZMMPI9CTI3J0KRCMJHHTA3I2QEKRE0EPMTJMR0.
+        /// </summary>
+        internal static string _104 {
+            get {
+                return ResourceManager.GetString("104", resourceCulture);
+            }
+        }
+        
         internal static System.Drawing.Icon _400 {
             get {
                 object obj = ResourceManager.GetObject("400", resourceCulture);
