@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.IO;
 
 namespace HgSccPackage
@@ -15,16 +12,21 @@ namespace HgSccPackage
 
 		static Misc()
 		{
+#if RELEASE_DEPLOY
+#else
 			File.Delete(log_path);
+#endif
 		}
 
 		//-------------------------------------------------------------------------
+		[Conditional("DEBUG"), Conditional("RELEASE")]
 		public static void Log(string format, params object[] args)
 		{
 			Write(String.Format(CultureInfo.CurrentUICulture, format, args));
 		}
 
 		//-------------------------------------------------------------------------
+		[Conditional("DEBUG"), Conditional("RELEASE")]
 		public static void Log(string format, object arg)
 		{
 			Write(String.Format(CultureInfo.CurrentUICulture,
@@ -32,6 +34,7 @@ namespace HgSccPackage
 		}
 
 		//-------------------------------------------------------------------------
+		[Conditional("DEBUG"), Conditional("RELEASE")]
 		private static void Write(string str)
 		{
 			using (var file = File.AppendText(log_path))
