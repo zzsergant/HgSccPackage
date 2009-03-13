@@ -57,7 +57,7 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>&amp;Source control provider toolwindow</ButtonText>
+          <ButtonText>Mercurial Tool Window</ButtonText>
         </Strings>
       </Button>
       <!-- 	Buttons in the toolwindow's toolbar -->
