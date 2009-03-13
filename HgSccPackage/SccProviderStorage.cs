@@ -34,7 +34,6 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public SccProviderStorage()
 		{
-			hgscc = new HgScc();
 			cache = new Dictionary<string, HgFileInfo>();
 		}
 
@@ -43,7 +42,7 @@ namespace HgSccPackage
 		{
 			get
 			{
-				return !String.IsNullOrEmpty(hgscc.WorkingDir); 
+				return hgscc != null && !String.IsNullOrEmpty(hgscc.WorkingDir); 
 			}
 		}
 
@@ -51,6 +50,9 @@ namespace HgSccPackage
 		public SccErrors Init(string work_dir, SccOpenProjectFlags flags)
 		{
 			Misc.Log("SccProviderStorage: {0}", work_dir);
+			if (hgscc == null)
+				hgscc = new HgScc();
+
 			var err = hgscc.OpenProject(work_dir, flags);
 			if (err == SccErrors.Ok)
 				ReloadCache();
@@ -78,7 +80,11 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void Close()
 		{
-			hgscc.Dispose();
+			if (hgscc != null)
+			{
+				hgscc.Dispose();
+				hgscc = null;
+			}
 			cache.Clear();
 		}
 
@@ -344,6 +350,9 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		private void UpdateCache(IEnumerable<string> files)
 		{
+			if (!IsValid)
+				return;
+
 			var lst = new List<HgFileInfo>();
 			foreach (var f in files)
 			{

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.IO;
+using HgSccPackage;
 using HgSccPackage.HgSccHelper;
 using Microsoft.Win32;
 
@@ -36,7 +37,7 @@ namespace HgSccHelper
 		public Hg()
 		{
 			full_change_style_file = Path.GetTempFileName();
-			Logger.WriteLine("Creating temp file: " + full_change_style_file);
+			Misc.Log("Creating temp file: " + full_change_style_file);
 
 			using (var stream = new StreamWriter(File.OpenWrite(full_change_style_file)))
 			{
@@ -56,7 +57,7 @@ namespace HgSccHelper
 		{
 			if (!disposed)
 			{
-				Logger.WriteLine("Deleting " + full_change_style_file);
+				Misc.Log("Deleting " + full_change_style_file);
 				File.Delete(full_change_style_file);
 
 				disposed = true;
