@@ -1894,7 +1894,7 @@ namespace HgSccPackage
 				out pbstrMkDocument, out ppHier, out pitemid, out ppunkDocData);
 
 			Misc.Log("OnAfterAttributeChange: {0}, {1:X}", pbstrMkDocument, grfAttribs);
-			if ((grfAttribs & (uint)__VSRDTATTRIB.RDTA_DocDataReloaded) == (uint)__VSRDTATTRIB.RDTA_DocDataReloaded)
+			if ((grfAttribs & (uint)__VSRDTATTRIB.RDTA_DocDataReloaded) != (uint)__VSRDTATTRIB.RDTA_DocDataReloaded)
 				return VSConstants.S_OK;
 
 			/*
