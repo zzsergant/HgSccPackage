@@ -101,6 +101,7 @@
     <Compile Include="RunInstaller\DevEnvInstaller.Designer.cs">
       <DependentUpon>DevEnvInstaller.cs</DependentUpon>
     </Compile>
+    <Compile Include="SccFileChangesManager.cs" />
     <Compile Include="SccProvider.cs" />
     <Compile Include="CommandId.cs" />
     <Compile Include="Guids.cs" />

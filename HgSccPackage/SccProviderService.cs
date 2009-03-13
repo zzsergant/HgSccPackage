@@ -48,6 +48,10 @@ namespace HgSccPackage
 		private readonly HashSet<string> _approvedForInMemoryEdit = new HashSet<string>();
 		uint pdwCookie;
 
+		private IVsRunningDocumentTable rdt;
+
+//		private SccFileChangesManager file_changes;
+
 		#region SccProvider Service initialization/unitialization
 
 		public SccProviderService(SccProvider sccProvider)
@@ -67,9 +71,11 @@ namespace HgSccPackage
 
 			// Get RDT service 
 
-			IVsRunningDocumentTable rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
+			rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
 			// Subscribe to RDT events               
 			rdt.AdviseRunningDocTableEvents(this, out pdwCookie);
+
+//			file_changes = new SccFileChangesManager(_sccProvider);
 		}
 
 		public void Dispose()
@@ -92,9 +98,11 @@ namespace HgSccPackage
 
 			if (pdwCookie != VSConstants.VSCOOKIE_NIL)
 			{
-				IVsRunningDocumentTable rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
+//				IVsRunningDocumentTable rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
 				rdt.UnadviseRunningDocTableEvents(pdwCookie);
 			}
+
+//			file_changes.Dispose();
 		}
 
 		#endregion
@@ -425,11 +433,14 @@ namespace HgSccPackage
 
 		public int OnAfterLoadProject([InAttribute] IVsHierarchy pStubHierarchy, [InAttribute] IVsHierarchy pRealHierarchy)
 		{
+			Misc.Log("OnAfterLoadProject: {0}", pRealHierarchy);
 			return VSConstants.S_OK;
 		}
 
 		public int OnAfterOpenProject([InAttribute] IVsHierarchy pHierarchy, [InAttribute] int fAdded)
 		{
+			Misc.Log("OnAfterOpenProject: {0}, added = {1}", pHierarchy, fAdded);
+
 			// If a solution folder is added to the solution after the solution is added to scc, we need to controll that folder
 			if (_sccProvider.IsSolutionFolderProject(pHierarchy) && (fAdded == 1))
 			{
@@ -501,6 +512,7 @@ namespace HgSccPackage
 
 		public int OnBeforeCloseProject([InAttribute] IVsHierarchy pHierarchy, [InAttribute] int fRemoved)
 		{
+			Misc.Log("OnBeforeCloseProject: {0}", pHierarchy);
 			return VSConstants.S_OK;
 		}
 
@@ -522,6 +534,7 @@ namespace HgSccPackage
 
 		public int OnBeforeUnloadProject([InAttribute] IVsHierarchy pRealHierarchy, [InAttribute] IVsHierarchy pStubHierarchy)
 		{
+			Misc.Log("OnBeforeUnloadProject: {0}", pRealHierarchy);
 			return VSConstants.S_OK;
 		}
 
@@ -1657,7 +1670,7 @@ namespace HgSccPackage
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
 			var fileChange = (IVsFileChangeEx)_sccProvider.GetService(typeof(SVsFileChangeEx));
-			var rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
+//			var rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
 
 			var doc_list = new List<IVsPersistDocData>();
 
@@ -1831,7 +1844,7 @@ namespace HgSccPackage
 			uint pitemid;
 			IntPtr ppunkDocData;
 
-			var rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable)); 
+//			var rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable)); 
 			var err = rdt.GetDocumentInfo(
 				docCookie, out pgrfRDTFlags, out pdwReadLocks, out pdwEditLocks,
 				out pbstrMkDocument, out ppHier, out pitemid, out ppunkDocData);
@@ -1865,6 +1878,47 @@ namespace HgSccPackage
 
 		public int OnAfterAttributeChange(uint docCookie, uint grfAttribs)
 		{
+			// Retrieve document info
+
+			uint pgrfRDTFlags;
+			uint pdwReadLocks;
+			uint pdwEditLocks;
+			string pbstrMkDocument;
+			IVsHierarchy ppHier;
+			uint pitemid;
+			IntPtr ppunkDocData;
+
+//			var rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
+			var err = rdt.GetDocumentInfo(
+				docCookie, out pgrfRDTFlags, out pdwReadLocks, out pdwEditLocks,
+				out pbstrMkDocument, out ppHier, out pitemid, out ppunkDocData);
+
+			Misc.Log("OnAfterAttributeChange: {0}, {1:X}", pbstrMkDocument, grfAttribs);
+			if ((grfAttribs & (uint)__VSRDTATTRIB.RDTA_DocDataReloaded) == (uint)__VSRDTATTRIB.RDTA_DocDataReloaded)
+				return VSConstants.S_OK;
+
+			/*
+						// Get automation-object Document and work with it
+
+						ProjectItem prjItem = DTE.Solution.FindProjectItem(pbstrMkDocument);
+						if (prjItem != null)
+							OnDocumentSaved(prjItem.Document);
+			*/
+			if (storage.IsValid)
+			{
+				var status = storage.GetFileStatus(pbstrMkDocument);
+				if (status != SourceControlStatus.scsUncontrolled)
+				{
+					storage.UpdateFileCache(pbstrMkDocument);
+
+					IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new[] { pbstrMkDocument });
+					if (lst.Count != 0)
+					{
+						_sccProvider.RefreshNodesGlyphs(lst);
+					}
+				}
+			}
+
 			return VSConstants.S_OK;
 		}
 
