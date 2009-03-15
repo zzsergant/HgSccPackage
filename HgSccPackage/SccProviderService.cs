@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using C5;
 using HgSccHelper;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
@@ -210,7 +211,7 @@ namespace HgSccPackage
 					}
 					break;
 				default:
-					IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgpszFullPaths[0]);
+					System.Collections.Generic.IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgpszFullPaths[0]);
 /*
 					if (nodes.Count > 0)
 					{
@@ -379,7 +380,7 @@ namespace HgSccPackage
 			// Initialize output parameters
 			pbstrTooltipText = "";
 
-			IList<string> files = _sccProvider.GetNodeFiles(phierHierarchy, itemidNode);
+			System.Collections.Generic.IList<string> files = _sccProvider.GetNodeFiles(phierHierarchy, itemidNode);
 			if (files.Count == 0)
 			{
 				return VSConstants.S_OK;
@@ -398,7 +399,7 @@ namespace HgSccPackage
 				default:
 					// If the file is not controlled, but is member of a controlled project, report the item as checked out (same as source control in VS2003 did)
 					// If the provider wants to have special icons for "pending add" files, the IVsSccGlyphs interface needs to be supported
-					IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(files[0]);
+					System.Collections.Generic.IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(files[0]);
 					if (nodes.Count > 0)
 					{
 //						pbstrTooltipText = Resources.ResourceManager.GetString("Status_PendingAdd");
@@ -452,7 +453,7 @@ namespace HgSccPackage
 					RegisterSccProject(pSccProject, _solutionLocation, "", "", _sccProvider.ProviderName);
 
 					// We'll also need to refresh the solution folders glyphs to reflect the controlled state
-					IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
+					System.Collections.Generic.IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
 
 					VSITEMSELECTION vsItem;
 					vsItem.itemid = VSConstants.VSITEMID_ROOT;
@@ -474,7 +475,7 @@ namespace HgSccPackage
 			if (_loadingControlledSolutionLocation.Length > 0)
 			{
 				// We'll also need to refresh the solution glyphs to reflect the controlled state
-				IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
+				System.Collections.Generic.IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
 
 				// If the solution was controlled, now it is time to register the solution hierarchy with souce control, too.
 				// Note that solution is not calling RegisterSccProject(), the scc package will do this call as it knows the source control location
@@ -1076,7 +1077,7 @@ namespace HgSccPackage
 				for (int iFile = iProjectFilesStart; iFile < iNextProjecFilesStart; iFile++)
 				{
 					// Refresh the solution explorer glyphs for all projects containing this file
-					IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgpszMkDocuments[iFile]);
+					System.Collections.Generic.IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgpszMkDocuments[iFile]);
 					files.Add(rgpszMkDocuments[iFile]);
 					selected_items.AddRange(nodes);
 				}
@@ -1337,7 +1338,7 @@ namespace HgSccPackage
 
 						// And refresh the solution explorer glyphs because we affected the source control status of this file
 						// Note that by now, the project should already know about the new file name being part of its hierarchy
-						IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgszMkNewNames[iFile]);
+						System.Collections.Generic.IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgszMkNewNames[iFile]);
 						_sccProvider.RefreshNodesGlyphs(nodes);
 					}
 				}
@@ -1588,10 +1589,10 @@ namespace HgSccPackage
 		/// <summary>
 		/// Returns a list of controlled projects containing the specified file
 		/// </summary>
-		public IList<VSITEMSELECTION> GetControlledProjectsContainingFile(string file)
+		public System.Collections.Generic.IList<VSITEMSELECTION> GetControlledProjectsContainingFile(string file)
 		{
 			// Accumulate all the controlled projects that contain this file
-			IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
+			System.Collections.Generic.IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
 
 			foreach (IVsHierarchy pHier in _controlledProjects)
 			{
@@ -1629,7 +1630,7 @@ namespace HgSccPackage
 			return nodes;
 		}
 
-		public IList<VSITEMSELECTION> GetControlledProjectsContainingFiles(IEnumerable<string> files)
+		public System.Collections.Generic.IList<VSITEMSELECTION> GetControlledProjectsContainingFiles(IEnumerable<string> files)
 		{
 			var nodes = new List<VSITEMSELECTION>();
 			foreach (var f in files)
@@ -1865,7 +1866,7 @@ namespace HgSccPackage
 				{
 					storage.UpdateFileCache(pbstrMkDocument);
 
-					IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new []{pbstrMkDocument});
+					System.Collections.Generic.IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new []{pbstrMkDocument});
 					if (lst.Count != 0)
 					{
 						_sccProvider.RefreshNodesGlyphs(lst);
@@ -1911,7 +1912,7 @@ namespace HgSccPackage
 				{
 					storage.UpdateFileCache(pbstrMkDocument);
 
-					IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new[] { pbstrMkDocument });
+					System.Collections.Generic.IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new[] { pbstrMkDocument });
 					if (lst.Count != 0)
 					{
 						_sccProvider.RefreshNodesGlyphs(lst);

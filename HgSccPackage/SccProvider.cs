@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
+using C5;
 using Microsoft.Win32;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -520,7 +521,7 @@ namespace HgSccPackage
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			IList<string> files = GetSelectedFilesInControlledProjects();
+			System.Collections.Generic.IList<string> files = GetSelectedFilesInControlledProjects();
 			foreach (string file in files)
 			{
 				SourceControlStatus status = sccService.GetFileStatus(file);
@@ -535,7 +536,7 @@ namespace HgSccPackage
 				}
 
 				// If the file is uncontrolled, enable the command only if the file is part of a controlled project
-				IList<VSITEMSELECTION> nodes =
+				System.Collections.Generic.IList<VSITEMSELECTION> nodes =
 					sccService.GetControlledProjectsContainingFile(file);
 				if (nodes.Count > 0)
 				{
@@ -553,7 +554,7 @@ namespace HgSccPackage
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			IList<string> files = GetSelectedFilesInControlledProjects();
+			System.Collections.Generic.IList<string> files = GetSelectedFilesInControlledProjects();
 			foreach (string file in files)
 			{
 				SourceControlStatus status = sccService.GetFileStatus(file);
@@ -568,7 +569,7 @@ namespace HgSccPackage
 				}
 
 				// If the file is uncontrolled, enable the command only if the file is part of a controlled project
-				IList<VSITEMSELECTION> nodes =
+				System.Collections.Generic.IList<VSITEMSELECTION> nodes =
 					sccService.GetControlledProjectsContainingFile(file);
 				if (nodes.Count > 0)
 				{
@@ -607,7 +608,7 @@ namespace HgSccPackage
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			IList<VSITEMSELECTION> sel = GetSelectedNodes();
+			System.Collections.Generic.IList<VSITEMSELECTION> sel = GetSelectedNodes();
 			bool isSolutionSelected = false;
 			var hash = GetSelectedHierarchies(sel, out isSolutionSelected);
 
@@ -666,8 +667,8 @@ namespace HgSccPackage
 				return;
 			}
 
-			IList<VSITEMSELECTION> selectedNodes = null;
-			IList<string> files =
+			System.Collections.Generic.IList<VSITEMSELECTION> selectedNodes = null;
+			System.Collections.Generic.IList<string> files =
 				GetSelectedFilesInControlledProjects(out selectedNodes);
 
 			sccService.CommitFiles(files);
@@ -680,8 +681,8 @@ namespace HgSccPackage
 				return;
 			}
 			
-			IList<VSITEMSELECTION> selectedNodes = null;
-			IList<string> files =
+			System.Collections.Generic.IList<VSITEMSELECTION> selectedNodes = null;
+			System.Collections.Generic.IList<string> files =
 				GetSelectedFilesInControlledProjects(out selectedNodes);
 
 			sccService.RevertFiles(files);
@@ -714,7 +715,7 @@ namespace HgSccPackage
 				return;
 			}
 
-			IList<VSITEMSELECTION> sel = GetSelectedNodes();
+			System.Collections.Generic.IList<VSITEMSELECTION> sel = GetSelectedNodes();
 			bool isSolutionSelected = false;
 			var hash = GetSelectedHierarchies(sel, out isSolutionSelected);
 
@@ -841,7 +842,7 @@ namespace HgSccPackage
 		/// </summary>
 		/// <returns>True if a solution was created.</returns>
 		private HashSet<IVsHierarchy> GetSelectedHierarchies(
-			IList<VSITEMSELECTION> sel, out bool solutionSelected)
+			System.Collections.Generic.IList<VSITEMSELECTION> sel, out bool solutionSelected)
 		{
 			// Initialize output arguments
 			solutionSelected = false;
@@ -873,7 +874,7 @@ namespace HgSccPackage
 		/// Gets the list of directly selected VSITEMSELECTION objects
 		/// </summary>
 		/// <returns>A list of VSITEMSELECTION objects</returns>
-		private IList<VSITEMSELECTION> GetSelectedNodes()
+		private System.Collections.Generic.IList<VSITEMSELECTION> GetSelectedNodes()
 		{
 			// Retrieve shell interface in order to get current selection
 			IVsMonitorSelection monitorSelection =
@@ -973,19 +974,19 @@ namespace HgSccPackage
 		/// <summary>
 		/// Returns a list of source controllable files in the selection (recursive)
 		/// </summary>
-		private IList<string> GetSelectedFilesInControlledProjects()
+		private System.Collections.Generic.IList<string> GetSelectedFilesInControlledProjects()
 		{
-			IList<VSITEMSELECTION> selectedNodes = null;
+			System.Collections.Generic.IList<VSITEMSELECTION> selectedNodes = null;
 			return GetSelectedFilesInControlledProjects(out selectedNodes);
 		}
 
 		/// <summary>
 		/// Returns a list of source controllable files in the selection (recursive)
 		/// </summary>
-		private IList<string> GetSelectedFilesInControlledProjects(
-			out IList<VSITEMSELECTION> selectedNodes)
+		private System.Collections.Generic.IList<string> GetSelectedFilesInControlledProjects(
+			out System.Collections.Generic.IList<VSITEMSELECTION> selectedNodes)
 		{
-			IList<string> sccFiles = new List<string>();
+			System.Collections.Generic.IList<string> sccFiles = new List<string>();
 
 			selectedNodes = GetSelectedNodes();
 			bool isSolutionSelected = false;
@@ -1028,7 +1029,7 @@ namespace HgSccPackage
 				}
 				else
 				{
-					IList<string> nodefilesrec = GetProjectFiles(pscp2, vsItemSel.itemid);
+					System.Collections.Generic.IList<string> nodefilesrec = GetProjectFiles(pscp2, vsItemSel.itemid);
 					foreach (string file in nodefilesrec)
 					{
 						sccFiles.Add(file);
@@ -1039,9 +1040,9 @@ namespace HgSccPackage
 			return sccFiles;
 		}
 
-		private IList<string> GetFilesInControlledProjectsWithoutSpecial(IList<VSITEMSELECTION> selectedNodes)
+		private System.Collections.Generic.IList<string> GetFilesInControlledProjectsWithoutSpecial(System.Collections.Generic.IList<VSITEMSELECTION> selectedNodes)
 		{
-			IList<string> sccFiles = new List<string>();
+			System.Collections.Generic.IList<string> sccFiles = new List<string>();
 
 			bool isSolutionSelected = false;
 			var hash = GetSelectedHierarchies(selectedNodes, out isSolutionSelected);
@@ -1077,7 +1078,7 @@ namespace HgSccPackage
 					}
 */
 
-					IList<string> nodefilesrec = GetNodeFilesWithoutSpecial(pscp2, vsItemSel.itemid);
+					System.Collections.Generic.IList<string> nodefilesrec = GetNodeFilesWithoutSpecial(pscp2, vsItemSel.itemid);
 					foreach (string file in nodefilesrec)
 					{
 						sccFiles.Add(file);
@@ -1099,7 +1100,7 @@ namespace HgSccPackage
 							}
 
 							uint parent_id = (uint)((int)prop);
-							IList<string> files = GetNodeFiles(pscp2, parent_id);
+							System.Collections.Generic.IList<string> files = GetNodeFiles(pscp2, parent_id);
 							if (files.Count != 0)
 							{
 								var lower_path = bstrMKDocument;//.ToLower();
@@ -1124,7 +1125,7 @@ namespace HgSccPackage
 		/// <summary>
 		/// Returns a list of source controllable files associated with the specified node
 		/// </summary>
-		public IList<string> GetNodeFiles(IVsHierarchy hier, uint itemid)
+		public System.Collections.Generic.IList<string> GetNodeFiles(IVsHierarchy hier, uint itemid)
 		{
 			var pscp2 = hier as IVsSccProject2;
 			return GetNodeFiles(pscp2, itemid);
@@ -1133,14 +1134,14 @@ namespace HgSccPackage
 		/// <summary>
 		/// Returns a list of source controllable files associated with the specified node
 		/// </summary>
-		private IList<string> GetNodeFiles(IVsSccProject2 pscp2, uint itemid)
+		private System.Collections.Generic.IList<string> GetNodeFiles(IVsSccProject2 pscp2, uint itemid)
 		{
 			// NOTE: the function returns only a list of files, containing both regular files and special files
 			// If you want to hide the special files (similar with solution explorer), you may need to return 
 			// the special files in a hastable (key=master_file, values=special_file_list)
 
 			// Initialize output parameters
-			IList<string> sccFiles = new List<string>();
+			System.Collections.Generic.IList<string> sccFiles = new List<string>();
 			if (pscp2 != null)
 			{
 				CALPOLESTR[] pathStr = new CALPOLESTR[1];
@@ -1196,7 +1197,7 @@ namespace HgSccPackage
 			return sccFiles;
 		}
 
-		public IList<string> GetNodeFilesWithoutSpecial(IVsHierarchy hier, uint itemid)
+		public System.Collections.Generic.IList<string> GetNodeFilesWithoutSpecial(IVsHierarchy hier, uint itemid)
 		{
 			var pscp2 = hier as IVsSccProject2;
 			return GetNodeFiles(pscp2, itemid);
@@ -1205,10 +1206,10 @@ namespace HgSccPackage
 		/// <summary>
 		/// Returns a list of source controllable files associated with the specified node
 		/// </summary>
-		private IList<string> GetNodeFilesWithoutSpecial(IVsSccProject2 pscp2, uint itemid)
+		private System.Collections.Generic.IList<string> GetNodeFilesWithoutSpecial(IVsSccProject2 pscp2, uint itemid)
 		{
 			// Initialize output parameters
-			IList<string> sccFiles = new List<string>();
+			System.Collections.Generic.IList<string> sccFiles = new List<string>();
 			if (pscp2 != null)
 			{
 				CALPOLESTR[] pathStr = new CALPOLESTR[1];
@@ -1304,7 +1305,7 @@ namespace HgSccPackage
 		/// <summary>
 		/// Refreshes the glyphs of the specified hierarchy nodes
 		/// </summary>
-		public void RefreshNodesGlyphs(IList<VSITEMSELECTION> selectedNodes)
+		public void RefreshNodesGlyphs(System.Collections.Generic.IList<VSITEMSELECTION> selectedNodes)
 		{
 			foreach (VSITEMSELECTION vsItemSel in selectedNodes)
 			{
@@ -1344,7 +1345,7 @@ namespace HgSccPackage
 					// It may be easier/faster to simply refresh all the nodes in the project, 
 					// and let the project call back on GetSccGlyphs, but just for the sake of the demo, 
 					// let's refresh ourselves only one node at a time
-					IList<string> sccFiles = GetNodeFiles(sccProject2, vsItemSel.itemid);
+					System.Collections.Generic.IList<string> sccFiles = GetNodeFiles(sccProject2, vsItemSel.itemid);
 
 					if (sccFiles.Count > 0)
 					{
@@ -1357,7 +1358,7 @@ namespace HgSccPackage
 						sccService.GetSccGlyph(sccFiles.Count, rgpszFullPaths, rgsiGlyphs, rgdwSccStatus);
 
 						uint[] rguiAffectedNodes = new uint[sccFiles.Count];
-						IList<uint> subnodes = GetProjectItems(vsItemSel.pHier, vsItemSel.itemid);
+						System.Collections.Generic.IList<uint> subnodes = GetProjectItems(vsItemSel.pHier, vsItemSel.itemid);
 						if (subnodes.Count != sccFiles.Count)
 						{
 							Misc.Log("RefreshNodeGlyphs: subnodes.Count != sccFiles.Count");
@@ -1506,7 +1507,7 @@ namespace HgSccPackage
 			var project = (IVsProject) pscp2Project;
 
 			// Attempt to get first the filename controlled by the root node 
-			IList<string> sccFiles = GetNodeFiles(pscp2Project,
+			System.Collections.Generic.IList<string> sccFiles = GetNodeFiles(pscp2Project,
 												  VSConstants.VSITEMID_ROOT);
 			if (sccFiles.Count > 0 && !string.IsNullOrEmpty(sccFiles[0]))
 			{
@@ -1573,7 +1574,7 @@ namespace HgSccPackage
 		/// <summary>
 		/// Gets the list of ItemIDs that are nodes in the specified project
 		/// </summary>
-		private IList<uint> GetProjectItems(IVsHierarchy pHier)
+		private System.Collections.Generic.IList<uint> GetProjectItems(IVsHierarchy pHier)
 		{
 			// Start with the project root and walk all expandable nodes in the project
 			return GetProjectItems(pHier, VSConstants.VSITEMID_ROOT);
@@ -1582,7 +1583,7 @@ namespace HgSccPackage
 		/// <summary>
 		/// Gets the list of ItemIDs that are nodes in the specified project, starting with the specified item
 		/// </summary>
-		private IList<uint> GetProjectItems(IVsHierarchy pHier, uint startItemid)
+		private System.Collections.Generic.IList<uint> GetProjectItems(IVsHierarchy pHier, uint startItemid)
 		{
 			var projectNodes = new List<uint>();
 
@@ -1659,7 +1660,7 @@ namespace HgSccPackage
 		/// <summary>
 		/// Gets the list of source controllable files in the specified project
 		/// </summary>
-		public IList<string> GetProjectFiles(IVsSccProject2 pscp2Project)
+		public System.Collections.Generic.IList<string> GetProjectFiles(IVsSccProject2 pscp2Project)
 		{
 			return GetProjectFiles(pscp2Project, VSConstants.VSITEMID_ROOT);
 		}
@@ -1667,7 +1668,7 @@ namespace HgSccPackage
 		/// <summary>
 		/// Gets the list of source controllable files in the specified project
 		/// </summary>
-		public IList<string> GetProjectFiles(IVsSccProject2 pscp2Project,
+		public System.Collections.Generic.IList<string> GetProjectFiles(IVsSccProject2 pscp2Project,
 											 uint startItemId)
 		{
 			var projectFiles = new List<string>();
@@ -1676,7 +1677,7 @@ namespace HgSccPackage
 
 			foreach (uint itemid in projectItems)
 			{
-				IList<string> sccFiles = GetNodeFiles(pscp2Project, itemid);
+				System.Collections.Generic.IList<string> sccFiles = GetNodeFiles(pscp2Project, itemid);
 				foreach (string file in sccFiles)
 				{
 					projectFiles.Add(file);

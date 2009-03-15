@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using HgSccHelper;
 
-/*
 namespace System.Runtime.CompilerServices
 {
 	class ExtensionAttribute : Attribute
@@ -10,9 +10,8 @@ namespace System.Runtime.CompilerServices
 
 	}
 }
-*/
 
-namespace HgSccHelper
+namespace HgSccPackage.Tools
 {
 	static class Util
 	{
