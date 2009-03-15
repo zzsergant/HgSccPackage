@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
+using C5;
 
 //==================================================================
 namespace HgSccPackage
@@ -9,7 +10,7 @@ namespace HgSccPackage
 	//==================================================================
 	class SccFileChangesManager	: IVsFileChangeEvents, IDisposable
 	{
-		private readonly Dictionary<string, uint> files;
+		private readonly HashDictionary<string, uint> files;
 		private readonly IVsFileChangeEx file_change_service;
 		private bool disposed;
 
@@ -17,7 +18,7 @@ namespace HgSccPackage
 		public SccFileChangesManager(SccProvider provider)
 		{
 			file_change_service = (IVsFileChangeEx) provider.GetService(typeof (SVsFileChangeEx));
-			files = new Dictionary<string, uint>();
+			files = new HashDictionary<string, uint>();
 		}
 
 		//------------------------------------------------------------------
@@ -37,7 +38,7 @@ namespace HgSccPackage
 			if (err == VSConstants.S_OK)
 			{
 				var lower = file.ToLower();
-				if (files.ContainsKey(lower))
+				if (files.Contains(lower))
 				{
 					Misc.Log("Advise: file already monitoring, {0}", file);
 					return false;
@@ -55,7 +56,7 @@ namespace HgSccPackage
 		{
 			Misc.Log("UnadviseFileChange: {0}", file);
 			var lower = file.ToLower();
-			if (!files.ContainsKey(lower))
+			if (!files.Contains(lower))
 			{
 				Misc.Log("Unadvise: file is not monitoring, {0}", file);
 				return false;

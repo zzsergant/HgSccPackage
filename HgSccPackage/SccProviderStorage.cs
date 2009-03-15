@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using HgSccHelper;
+using C5;
 
 namespace HgSccPackage
 {
@@ -29,12 +30,12 @@ namespace HgSccPackage
 	public class SccProviderStorage
 	{
 		private HgScc hgscc;
-		private Dictionary<string, HgFileInfo> cache;
+		private HashDictionary<string, HgFileInfo> cache;
 
 		//------------------------------------------------------------------
 		public SccProviderStorage()
 		{
-			cache = new Dictionary<string, HgFileInfo>();
+			cache = new HashDictionary<string, HgFileInfo>();
 		}
 
 		//------------------------------------------------------------------
@@ -197,7 +198,7 @@ namespace HgSccPackage
 
 			foreach (var file in files)
 			{
-				if (!cache.ContainsKey(file.File.ToLower()))
+				if (!cache.Contains(file.File.ToLower()))
 					not_in_cache.Add(file.File);
 			}
 
@@ -209,7 +210,7 @@ namespace HgSccPackage
 			foreach (var file in files)
 			{
 				HgFileInfo info;
-				if (cache.TryGetValue(file.File.ToLower(), out info))
+				if (cache.Find(file.File.ToLower(), out info))
 				{
 					file.Status = FromHgStatus(info.Status);
 				}
@@ -229,7 +230,7 @@ namespace HgSccPackage
 
 			foreach (var file in files)
 			{
-				if (!cache.ContainsKey(file.ToLower()))
+				if (!cache.Contains(file.ToLower()))
 					not_in_cache.Add(file);
 			}
 
@@ -241,7 +242,7 @@ namespace HgSccPackage
 			for (int i = 0; i < files.Length; ++i)
 			{
 				HgFileInfo info;
-				if (cache.TryGetValue(files[i].ToLower(), out info))
+				if (cache.Find(files[i].ToLower(), out info))
 				{
 					statuses[i] = FromHgStatus(info.Status);
 				}
@@ -392,7 +393,7 @@ namespace HgSccPackage
 			Misc.Log("SetCacheStatus: {0}, {1}", file, status);
 			
 			HgFileInfo info;
-			if (cache.TryGetValue(file.ToLower(), out info))
+			if (cache.Find(file.ToLower(), out info))
 			{
 				info.Status = ToHgStatus(status);
 			}

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using C5;
 
 namespace HgSccHelper
 {
@@ -40,7 +41,7 @@ namespace HgSccHelper
 			}
 		}
 
-		private static void RemoveDuplicates(Dictionary<string, FileInfo> dict, List<FileInfo> files)
+		private static void RemoveDuplicates(HashDictionary<string, FileInfo> dict, List<FileInfo> files)
 		{
 			foreach (var file in files)
 			{
@@ -52,7 +53,7 @@ namespace HgSccHelper
 		public static List<ChangeDesc> ParseChanges(StreamReader reader)
 		{
 			var list = new List<ChangeDesc>();
-			var modified_files = new Dictionary<string, FileInfo>();
+			var modified_files = new HashDictionary<string, FileInfo>();
 			ChangeDesc cs = null;
 
 			while (true)

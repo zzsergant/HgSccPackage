@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using System.Windows.Forms;
+using C5;
 using HgSccPackage.Tools;
 
 namespace HgSccHelper
@@ -109,7 +110,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public SccErrors LookupProjects(string folder, out SccFileInfo[] files)
 		{
-			var dict = new Dictionary<string, bool>();
+			var dict = new HashDictionary<string, bool>();
 			dict.Add(".sln", true);
 			dict.Add(".atp", true);
 			dict.Add(".dbp", true);
@@ -148,9 +149,9 @@ namespace HgSccHelper
 */
 
 		//-----------------------------------------------------------------------------
-		internal Dictionary<string, HgFileInfo> QueryInfoFullDict()
+		internal HashDictionary<string, HgFileInfo> QueryInfoFullDict()
 		{
-			var dict = new Dictionary<string, HgFileInfo>();
+			var dict = new HashDictionary<string, HgFileInfo>();
 //			var hg_files = hg.Manifest(WorkingDir);
 
 			foreach (var file_status in hg.Status(WorkingDir))
@@ -178,8 +179,7 @@ namespace HgSccHelper
 		internal SccErrors QueryInfo(HgFileInfo[] files)
 		{
 			// TODO: Check if project is opened
-//			var hg_files = hg.Manifest(WorkingDir);
-			var dict = new Dictionary<string, HgFileStatus>();
+			var dict = new HashDictionary<string, HgFileStatus>();
 
 			foreach (var file_status in hg.Status(WorkingDir))
 			{
@@ -187,24 +187,12 @@ namespace HgSccHelper
 				dict.Add(file, file_status.Status);
 			}
 
-/*
-			foreach (var file in hg_files)
-			{
-				string f = file.ToLower().Replace('/', '\\');
-				if (!dict.ContainsKey(f))
-				{
-					//					Logger.WriteLine(String.Format("Manifest File: {0}", f));
-					dict.Add(f, HgFileStatus.Tracked);
-				}
-			}
-*/
-
 			foreach (var info in files)
 			{
 				HgFileStatus status = HgFileStatus.NotTracked;
 				string file;
 				if (GetRelativePath(info.File, out file)
-					&& dict.TryGetValue(file.ToLower(), out status))
+					&& dict.Find(file.ToLower(), out status))
 				{
 					info.Status = status;
 				}
@@ -213,8 +201,8 @@ namespace HgSccHelper
 					info.Status = HgFileStatus.NotTracked;		  
 				}
 
-				if (dict.ContainsKey(file))
-					dict.Remove(file);
+				// FIXME: file.ToLower() !
+//				dict.Remove(file);
 			}
 
 			return SccErrors.Ok;
@@ -224,7 +212,7 @@ namespace HgSccHelper
 		internal SccErrors QueryInfo2(HgFileInfo[] files)
 		{
 			// TODO: Check if project is opened
-			var dict = new Dictionary<string, HgFileStatus>();
+			var dict = new HashDictionary<string, HgFileStatus>();
 			var lst = new List<string>();
 
 			int length = 0;
@@ -251,7 +239,7 @@ namespace HgSccHelper
 				HgFileStatus status = HgFileStatus.NotTracked;
 				string file;
 				if (GetRelativePath(info.File, out file)
-					&& dict.TryGetValue(file.ToLower(), out status))
+					&& dict.Find(file.ToLower(), out status))
 				{
 					info.Status = status;
 				}
@@ -328,7 +316,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private SccErrors CommitInternal(IntPtr hwnd, IEnumerable<string> files, string comment, out IEnumerable<string> commited_files)
 		{
-			var dict = new Dictionary<string, HgFileStatus>();
+			var dict = new HashDictionary<string, HgFileStatus>();
 			var files_status_dict = QueryInfoFullDict();
 			var commited_files_list = new List<string>();
 			commited_files = commited_files_list;
@@ -349,7 +337,7 @@ namespace HgSccHelper
 				form.WorkingDir = WorkingDir;
 
 				var commit_files = new List<CommitListItem>();
-				var commit_removed = new Dictionary<string, CommitListItem>();
+				var commit_removed = new HashDictionary<string, CommitListItem>();
 
 				foreach (var tuple in files_status_dict)
 				{
@@ -364,7 +352,7 @@ namespace HgSccHelper
 							{
 								var item = new CommitListItem();
 								string lower_f = f.File.ToLower();
-								item.Checked = dict.ContainsKey(lower_f);
+								item.Checked = dict.Contains(lower_f);
 								item.FileInfo = f;
 
 								commit_files.Add(item);
@@ -383,7 +371,7 @@ namespace HgSccHelper
 					{
 						CommitListItem item;
 						
-						if (commit_removed.TryGetValue(f.FileInfo.CopiedFrom, out item))
+						if (commit_removed.Find(f.FileInfo.CopiedFrom, out item))
 						{
 							Logger.WriteLine("commit_removed: " + item.FileInfo.File);
 							item.Checked = true;
