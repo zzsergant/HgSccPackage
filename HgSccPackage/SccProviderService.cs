@@ -189,51 +189,57 @@ namespace HgSccPackage
 		/// <returns>The method returns S_OK if at least one of the files is controlled, S_FALSE if none of them are</returns>
 		public int GetSccGlyph( [InAttribute] int cFiles, [InAttribute] string[] rgpszFullPaths, [OutAttribute] VsStateIcon[] rgsiGlyphs, [OutAttribute] uint[] rgdwSccStatus )
 		{
-			Debug.Assert(cFiles == 1, "Only getting one file icon at a time is supported");
+//			Debug.Assert(cFiles == 1, "Only getting one file icon at a time is supported");
+			SourceControlStatus[] statuses = new SourceControlStatus[rgpszFullPaths.Length];
+			GetStatusForFiles(rgpszFullPaths, statuses);
 
-			// Return the icons and the status. While the status is a combination a flags, we'll return just values 
-			// with one bit set, to make life easier for GetSccGlyphsFromStatus
-			SourceControlStatus status = GetFileStatus(rgpszFullPaths[0]);
-			switch (status)
+			//Iterate through all the files
+			for (int iFile = 0; iFile < cFiles; iFile++)
 			{
-				case SourceControlStatus.scsCheckedIn:
-					rgsiGlyphs[0] = VsStateIcon.STATEICON_CHECKEDIN;
-					if (rgdwSccStatus != null)
-					{
-						rgdwSccStatus[0] = (uint) __SccStatus.SCC_STATUS_CONTROLLED;
-					}
-					break;
-				case SourceControlStatus.scsCheckedOut:
-					rgsiGlyphs[0] = VsStateIcon.STATEICON_CHECKEDOUT;
-					if (rgdwSccStatus != null)
-					{
-						rgdwSccStatus[0] = (uint) __SccStatus.SCC_STATUS_CHECKEDOUT;
-					}
-					break;
-				default:
-					System.Collections.Generic.IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgpszFullPaths[0]);
-/*
-					if (nodes.Count > 0)
-					{
-						// If the file is not controlled, but is member of a controlled project, report the item as checked out (same as source control in VS2003 did)
-						// If the provider wants to have special icons for "pending add" files, the IVsSccGlyphs interface needs to be supported
-						rgsiGlyphs[0] = VsStateIcon.STATEICON_CHECKEDOUT;
+				// Return the icons and the status. While the status is a combination a flags, we'll return just values 
+				// with one bit set, to make life easier for GetSccGlyphsFromStatus
+				SourceControlStatus status = statuses[iFile];
+				switch (status)
+				{
+					case SourceControlStatus.scsCheckedIn:
+						rgsiGlyphs[iFile] = VsStateIcon.STATEICON_CHECKEDIN;
 						if (rgdwSccStatus != null)
 						{
-							rgdwSccStatus[0] = (uint) __SccStatus.SCC_STATUS_CHECKEDOUT;
+							rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
 						}
-					}
-					else
-*/
-					{
-						// This is an uncontrolled file, return a blank scc glyph for it
-						rgsiGlyphs[0] = VsStateIcon.STATEICON_BLANK;
+						break;
+					case SourceControlStatus.scsCheckedOut:
+						rgsiGlyphs[iFile] = VsStateIcon.STATEICON_CHECKEDOUT;
 						if (rgdwSccStatus != null)
 						{
-							rgdwSccStatus[0] = (uint) __SccStatus.SCC_STATUS_NOTCONTROLLED;
+							rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CHECKEDOUT;
 						}
-					}
-					break;
+						break;
+					default:
+						//System.Collections.Generic.IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgpszFullPaths[i]);
+						/*
+											if (nodes.Count > 0)
+											{
+												// If the file is not controlled, but is member of a controlled project, report the item as checked out (same as source control in VS2003 did)
+												// If the provider wants to have special icons for "pending add" files, the IVsSccGlyphs interface needs to be supported
+												rgsiGlyphs[0] = VsStateIcon.STATEICON_CHECKEDOUT;
+												if (rgdwSccStatus != null)
+												{
+													rgdwSccStatus[0] = (uint) __SccStatus.SCC_STATUS_CHECKEDOUT;
+												}
+											}
+											else
+						*/
+						{
+							// This is an uncontrolled file, return a blank scc glyph for it
+							rgsiGlyphs[iFile] = VsStateIcon.STATEICON_BLANK;
+							if (rgdwSccStatus != null)
+							{
+								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_NOTCONTROLLED;
+							}
+						}
+						break;
+				}
 			}
 
 			return VSConstants.S_OK;
