@@ -87,6 +87,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_60CE0F22146FD30266E7E818B764EC85"
+        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_660EC0EC89605A07C2604242E67F3D77"
         "OwnerKey" = "8:_435522A1CCBCB04F4DF525DE6A8705C5"
         "MsmSig" = "8:_UNDEFINED"
@@ -227,6 +233,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_60CE0F22146FD30266E7E818B764EC85"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -560,6 +572,37 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_60CE0F22146FD30266E7E818B764EC85"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:C5, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_60CE0F22146FD30266E7E818B764EC85"
+                    {
+                    "Name" = "8:C5.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:C5.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E36607D0CDDE4F54A2B3FFC3AB6D725B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -989,72 +1032,6 @@
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                        "Values"
-                                                        {
-                                                        }
-                                                    }
-                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_52A837D9C04148658B1ACC427989D86B"
-                                                    {
-                                                    "Name" = "8:ToolWindows"
-                                                    "Condition" = "8:"
-                                                    "AlwaysCreate" = "11:FALSE"
-                                                    "DeleteAtUninstall" = "11:FALSE"
-                                                    "Transitive" = "11:FALSE"
-                                                        "Keys"
-                                                        {
-                                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_F2DAEB4A0A9644C68460E9D0217F39AA"
-                                                            {
-                                                            "Name" = "8:{b0bac05d-bbbb-42f2-8085-723ca3712763}"
-                                                            "Condition" = "8:"
-                                                            "AlwaysCreate" = "11:FALSE"
-                                                            "DeleteAtUninstall" = "11:FALSE"
-                                                            "Transitive" = "11:FALSE"
-                                                                "Keys"
-                                                                {
-                                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_F98D61CFBCF04AC0A008C1C18071E816"
-                                                                    {
-                                                                    "Name" = "8:Visibility"
-                                                                    "Condition" = "8:"
-                                                                    "AlwaysCreate" = "11:FALSE"
-                                                                    "DeleteAtUninstall" = "11:FALSE"
-                                                                    "Transitive" = "11:FALSE"
-                                                                        "Keys"
-                                                                        {
-                                                                        }
-                                                                        "Values"
-                                                                        {
-                                                                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_8A138CCB3950492FA3FFA11C76CE3CF0"
-                                                                            {
-                                                                            "Name" = "8:{a7f26ca1-0000-4729-896e-0bbe9e380635}"
-                                                                            "Condition" = "8:"
-                                                                            "Transitive" = "11:FALSE"
-                                                                            "ValueTypes" = "3:3"
-                                                                            "Value" = "3:0"
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                                "Values"
-                                                                {
-                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_8B3D2452AA1B45A1B40265AAA6E211C4"
-                                                                    {
-                                                                    "Name" = "8:"
-                                                                    "Condition" = "8:"
-                                                                    "Transitive" = "11:FALSE"
-                                                                    "ValueTypes" = "3:1"
-                                                                    "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
-                                                                    }
-                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_AB4306A98A844F94B2AB6071805BFEC4"
-                                                                    {
-                                                                    "Name" = "8:Name"
-                                                                    "Condition" = "8:"
-                                                                    "Transitive" = "11:FALSE"
-                                                                    "ValueTypes" = "3:1"
-                                                                    "Value" = "8:HgSccPackage.SccProviderToolWindow"
                                                                     }
                                                                 }
                                                             }

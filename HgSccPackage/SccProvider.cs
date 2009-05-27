@@ -46,9 +46,11 @@ namespace HgSccPackage
 	[ProvideToolsOptionsPageVisibility("Source Control", "Mercurial Options Page",
 		"A7F26CA1-0000-4729-896E-0BBE9E380635")]
 	// Register a sample tool window visible only when the provider is active
+/*
 	[MsVsShell.ProvideToolWindow(typeof (SccProviderToolWindow))]
 	[MsVsShell.ProvideToolWindowVisibility(typeof (SccProviderToolWindow),
 		"A7F26CA1-0000-4729-896E-0BBE9E380635")]
+*/
 	// Register the source control provider's service (implementing IVsScciProvider interface)
 	[MsVsShell.ProvideService(typeof (SccProviderService),
 		ServiceName = "Mercurial Source Control Provider Service")]
@@ -130,22 +132,26 @@ namespace HgSccPackage
 			if (mcs != null)
 			{
 				// ToolWindow Command
+/*
 				CommandID cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 											  CommandId.icmdViewToolWindow);
 
 				MenuCommand menuCmd = new MenuCommand(Exec_icmdViewToolWindow, cmd);
 				mcs.AddCommand(menuCmd);
+*/
 
 				// ToolWindow's ToolBar Command
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
+/*
+				var cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 									CommandId.icmdToolWindowToolbarCommand);
 				menuCmd = new MenuCommand(Exec_icmdToolWindowToolbarCommand, cmd);
 				mcs.AddCommand(menuCmd);
+*/
 
 				// Source control menu commmads
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
+				var cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 									CommandId.icmdAddToSourceControl);
-				menuCmd = new MenuCommand(Exec_icmdAddToSourceControl, cmd);
+				var menuCmd = new MenuCommand(Exec_icmdAddToSourceControl, cmd);
 				mcs.AddCommand(menuCmd);
 
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
@@ -497,11 +503,13 @@ namespace HgSccPackage
 					cmdf |= QueryStatus_icmdHistory();
 					break;
     
+/*
 				case CommandId.icmdViewToolWindow:
 				case CommandId.icmdToolWindowToolbarCommand:
 					// These commmands are always enabled when the provider is active
 					cmdf |= OLECMDF.OLECMDF_ENABLED;
 					break;
+*/
 
 				default:
 					return
@@ -758,6 +766,7 @@ namespace HgSccPackage
 		}
 
 		// The function can be used to bring back the provider's toolwindow if it was previously closed
+/*
 		private void Exec_icmdViewToolWindow(object sender, EventArgs e)
 		{
 			MsVsShell.ToolWindowPane window =
@@ -772,7 +781,9 @@ namespace HgSccPackage
 				ErrorHandler.ThrowOnFailure(windowFrame.Show());
 			}
 		}
+*/
 
+/*
 		private void Exec_icmdToolWindowToolbarCommand(object sender, EventArgs e)
 		{
 			SccProviderToolWindow window =
@@ -784,6 +795,7 @@ namespace HgSccPackage
 				window.ToolWindowToolbarCommand();
 			}
 		}
+*/
 
 		#endregion
 

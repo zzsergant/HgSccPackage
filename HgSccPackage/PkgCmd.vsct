@@ -14,14 +14,14 @@
           <CommandName>Mercurial Source Control Package</CommandName>
         </Strings>
       </Menu>
-      <!--  Menu for commands in toolwindow's toolbar -->
+      <!--  Menu for commands in toolwindow's toolbar 
       <Menu guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu" priority="0x0000" type="ToolWindowToolbar">
         <Parent guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu"/>
         <Strings>
           <ButtonText>WindowBar</ButtonText>
           <CommandName>Window Bar</CommandName>
         </Strings>
-      </Menu>
+      </Menu>-->
       <!--  Create a top-level toolbar for source control commands -->
       <Menu guid="guidSccProviderCmdSet" id="itbrSccToolbar" priority="0x0000" type="Toolbar">
         <Parent guid="guidSccProviderCmdSet" id="igrpSccNowhere"/>
@@ -41,17 +41,17 @@
       <Group guid="guidSccProviderCmdSet" id="igrpSourceControlCommands" priority="0x0000">
         <Parent guid="guidSccProviderCmdSet" id="imnuFileSourceControlMenu"/>
       </Group>
-      <!-- 	Group for commands under View main menu -->
+      <!-- 	Group for commands under View main menu 
       <Group guid="guidSccProviderCmdSet" id="igrpViewToolWindowGroup" priority="0x0100">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_VIEW"/>
-      </Group>
-      <!-- 	Group for buttons in toolwindow's toolbar -->
+      </Group>-->
+      <!-- 	Group for buttons in toolwindow's toolbar
       <Group guid="guidSccProviderCmdSet" id="igrpToolWindowToolbarGroup" priority="0x0100">
         <Parent guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu"/>
-      </Group>
+      </Group> -->
     </Groups>
     <Buttons>
-      <!-- 	View/ToolWindow command defined -->
+      <!-- 	View/ToolWindow command defined 
       <Button guid="guidSccProviderCmdSet" id="icmdViewToolWindow" priority="0x0100" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpViewToolWindowGroup"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
@@ -60,16 +60,16 @@
           <ButtonText>Mercurial Tool Window</ButtonText>
         </Strings>
       </Button>
-      <!-- 	Buttons in the toolwindow's toolbar -->
+      -->
+      <!-- 	Buttons in the toolwindow's toolbar
       <Button guid="guidSccProviderCmdSet" id="icmdToolWindowToolbarCommand" priority="0x0100" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpToolWindowToolbarGroup"/>
-        <!--<Icon guid="guidSccProviderImages" id="iconRevert"/>-->
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
           <ButtonText>ToolButton</ButtonText>
         </Strings>
-      </Button>
+      </Button> -->
       <!-- 	Scc commands in context menus for SolutionExplorer -->
       <Button guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0000" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
@@ -201,16 +201,16 @@
       <IDSymbol name="icmdRevert" value="0x102"/>
       <IDSymbol name="icmdCompare" value="0x103"/>
       <IDSymbol name="icmdViewHistory" value="0x104"/>
-      <IDSymbol name="icmdViewToolWindow" value="0x105"/>
+      <!--<IDSymbol name="icmdViewToolWindow" value="0x105"/>-->
       <IDSymbol name="icmdToolWindowToolbarCommand" value="0x106"/>
 
       <IDSymbol name="imnuFileSourceControlMenu" value="0x200"/>
-      <IDSymbol name="imnuToolWindowToolbarMenu" value="0x201"/>
+      <!--<IDSymbol name="imnuToolWindowToolbarMenu" value="0x201"/> -->
 
       <IDSymbol name="igrpFileSourceControl" value="0x300"/>
       <IDSymbol name="igrpSourceControlCommands" value="0x301"/>
-      <IDSymbol name="igrpViewToolWindowGroup" value="0x302"/>
-      <IDSymbol name="igrpToolWindowToolbarGroup" value="0x303"/>
+      <!--<IDSymbol name="igrpViewToolWindowGroup" value="0x302"/>-->
+      <!--<IDSymbol name="igrpToolWindowToolbarGroup" value="0x303"/> -->
       <IDSymbol name="igrpSccNowhere" value="0x304"/>
       <IDSymbol name="itbrSccToolbar" value="0x400"/>
     </GuidSymbol>
