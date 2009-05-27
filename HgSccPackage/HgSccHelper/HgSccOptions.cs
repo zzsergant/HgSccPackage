@@ -21,7 +21,6 @@ namespace HgSccPackage.HgSccHelper
 	public sealed class HgSccOptions
 	{
 		static readonly HgSccOptions instance = new HgSccOptions();
-		static readonly string RegKey_DiffTool = "DiffTool";
 
 		HgPkgOptions options;
 
@@ -29,7 +28,7 @@ namespace HgSccPackage.HgSccHelper
 		// not to mark type as beforefieldinit
 		static HgSccOptions()
 		{
-			instance.options = new HgPkgOptions();
+// 			instance.options = new HgPkgOptions();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -38,6 +37,8 @@ namespace HgSccPackage.HgSccHelper
 			var new_options = Load();
 			if (new_options != null)
 				options = new_options;
+			else
+				options = new HgPkgOptions();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -54,6 +55,14 @@ namespace HgSccPackage.HgSccHelper
 			get
 			{
 				return "Software\\Zz\\HgSccPackage";
+			}
+		}
+
+		private static string RegKey_DiffTool
+		{
+			get
+			{
+				return "DiffTool";
 			}
 		}
 
@@ -80,14 +89,18 @@ namespace HgSccPackage.HgSccHelper
 		{
 			try
 			{
+				HgPkgOptions options = new HgPkgOptions();
+
 				var hg_key = Registry.CurrentUser.OpenSubKey(RegistryPath);
 				if (hg_key != null)
 				{
-					string diff_tool = (string)hg_key.GetValue(RegKey_DiffTool, Options.DiffTool);
+					string diff_tool = (string)hg_key.GetValue(RegKey_DiffTool, options.DiffTool);
 					if (diff_tool != null)
-						Options.DiffTool = diff_tool;
+						options.DiffTool = diff_tool;
 					hg_key.Close();
 				}
+
+				return options;
 			}
 			catch (System.Exception e)
 			{
