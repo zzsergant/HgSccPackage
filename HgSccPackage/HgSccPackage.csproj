@@ -72,7 +72,20 @@
     </Compile>
     <Compile Include="HgSccHelper\FileInfo.cs" />
     <Compile Include="HgSccHelper\Hg.cs" />
+    <Compile Include="HgSccHelper\HgAboutControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="HgSccHelper\HgAboutControl.Designer.cs">
+      <DependentUpon>HgAboutControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HgSccHelper\HgDiffOptionsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="HgSccHelper\HgDiffOptionsControl.Designer.cs">
+      <DependentUpon>HgDiffOptionsControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="HgSccHelper\HgFileStatus.cs" />
+    <Compile Include="HgSccHelper\HgOptionsHelper.cs" />
     <Compile Include="HgSccHelper\HgScc.cs" />
     <Compile Include="HgSccHelper\HgSccOptions.cs" />
     <Compile Include="HgSccHelper\HistoryForm.cs">
@@ -135,6 +148,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HgSccHelper\CommitForm.resx">
       <DependentUpon>CommitForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HgSccHelper\HgAboutControl.resx">
+      <DependentUpon>HgAboutControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HgSccHelper\HgDiffOptionsControl.resx">
+      <DependentUpon>HgDiffOptionsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HgSccHelper\HistoryForm.resx">
       <DependentUpon>HistoryForm.cs</DependentUpon>

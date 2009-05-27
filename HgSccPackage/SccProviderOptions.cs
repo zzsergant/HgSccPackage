@@ -9,6 +9,8 @@ using System.Runtime.InteropServices;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using MsVsShell = Microsoft.VisualStudio.Shell;
+using HgSccPackage.HgSccHelper;
+using System.IO;
 
 namespace HgSccPackage
 {
@@ -50,7 +52,10 @@ namespace HgSccPackage
         protected override void OnActivate(CancelEventArgs e)
         {
             Trace.WriteLine(string.Format("In OnActivate"));
-             base.OnActivate(e);
+            base.OnActivate(e);
+
+// 			if (page != null)
+// 				page.Activate();
         }
 
         /// <include file='doc\DialogPage.uex' path='docs/doc[@for="DialogPage.OnClosed"]' />
@@ -72,6 +77,7 @@ namespace HgSccPackage
         protected override void OnDeactivate(CancelEventArgs e)
         {
             Trace.WriteLine(string.Format("In OnDeactivate"));
+
             base.OnDeactivate(e);
         }
 
@@ -80,9 +86,37 @@ namespace HgSccPackage
         ///     This method is called when VS wants to save the user's 
         ///     changes then the dialog is dismissed.
         /// </devdoc>
-        protected override void OnApply(PageApplyEventArgs e)
+		protected override void OnApply(PageApplyEventArgs e)
         {
             Trace.WriteLine(string.Format("In OnApply"));
+
+			if (page != null)
+			{
+				string diff_tool = page.DiffToolPath;
+
+				if (diff_tool.Length == 0)
+				{
+					MessageBox.Show("You should browse for Diff tool", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					e.ApplyBehavior = ApplyKind.CancelNoNavigate;
+				}
+				else if (!File.Exists(diff_tool))
+				{
+					MessageBox.Show("File: " + diff_tool + " is not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					e.ApplyBehavior = ApplyKind.CancelNoNavigate;
+				}
+				else
+				{
+					HgSccOptions.Options.DiffTool = diff_tool;
+					HgSccOptions.Save();
+				}
+			}
+			else
+			{
+				e.ApplyBehavior = ApplyKind.Cancel;
+			}
+			
+			base.OnApply(e);
+/*
             string messageText = Resources.ResourceManager.GetString("ApplyProviderOptions");
             string messageCaption = Resources.ResourceManager.GetString("ProviderName");
 
@@ -108,6 +142,7 @@ namespace HgSccPackage
             {
                 base.OnApply(e);
             }
+*/
         }
     }
 }

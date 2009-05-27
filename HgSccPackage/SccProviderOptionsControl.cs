@@ -15,13 +15,17 @@ namespace HgSccPackage
     /// Summary description for SccProviderOptionsControl.
 	/// </summary>
 	public class SccProviderOptionsControl : System.Windows.Forms.UserControl
-    {
-        private Label label1;
+	{
 
 		/// <summary> 
 		/// Required designer variable.
 		/// </summary>
 		private System.ComponentModel.Container components = null;
+		private TabControl tabOptions;
+		private TabPage tabDiff;
+		private HgSccPackage.HgSccHelper.HgDiffOptionsControl hgDiffOptionsControl1;
+		private TabPage tabPageAbout;
+		private HgSccPackage.HgSccHelper.HgAboutControl hgAboutControl1;
         // The parent page, use to persist data
         private SccProviderOptions _customPage;
 
@@ -57,37 +61,102 @@ namespace HgSccPackage
 		/// </summary>
 		private void InitializeComponent()
 		{
-            this.label1 = new System.Windows.Forms.Label();
-            this.SuspendLayout();
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 28);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(217, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Mercurial Source Control Package Options Page";
-            // 
-            // SccProviderOptionsControl
-            // 
-            this.AllowDrop = true;
-            this.Controls.Add(this.label1);
-            this.Name = "SccProviderOptionsControl";
-            this.Size = new System.Drawing.Size(292, 195);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+			this.tabOptions = new System.Windows.Forms.TabControl();
+			this.tabDiff = new System.Windows.Forms.TabPage();
+			this.hgDiffOptionsControl1 = new HgSccPackage.HgSccHelper.HgDiffOptionsControl();
+			this.tabPageAbout = new System.Windows.Forms.TabPage();
+			this.hgAboutControl1 = new HgSccPackage.HgSccHelper.HgAboutControl();
+			this.tabOptions.SuspendLayout();
+			this.tabDiff.SuspendLayout();
+			this.tabPageAbout.SuspendLayout();
+			this.SuspendLayout();
+			// 
+			// tabOptions
+			// 
+			this.tabOptions.Controls.Add(this.tabDiff);
+			this.tabOptions.Controls.Add(this.tabPageAbout);
+			this.tabOptions.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabOptions.Location = new System.Drawing.Point(0, 0);
+			this.tabOptions.Name = "tabOptions";
+			this.tabOptions.SelectedIndex = 0;
+			this.tabOptions.Size = new System.Drawing.Size(535, 234);
+			this.tabOptions.TabIndex = 3;
+			// 
+			// tabDiff
+			// 
+			this.tabDiff.Controls.Add(this.hgDiffOptionsControl1);
+			this.tabDiff.Location = new System.Drawing.Point(4, 22);
+			this.tabDiff.Name = "tabDiff";
+			this.tabDiff.Padding = new System.Windows.Forms.Padding(3);
+			this.tabDiff.Size = new System.Drawing.Size(527, 208);
+			this.tabDiff.TabIndex = 0;
+			this.tabDiff.Text = "Diff tool";
+			this.tabDiff.UseVisualStyleBackColor = true;
+			// 
+			// hgDiffOptionsControl1
+			// 
+			this.hgDiffOptionsControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.hgDiffOptionsControl1.Location = new System.Drawing.Point(3, 3);
+			this.hgDiffOptionsControl1.Name = "hgDiffOptionsControl1";
+			this.hgDiffOptionsControl1.Size = new System.Drawing.Size(521, 202);
+			this.hgDiffOptionsControl1.TabIndex = 0;
+			// 
+			// tabPageAbout
+			// 
+			this.tabPageAbout.Controls.Add(this.hgAboutControl1);
+			this.tabPageAbout.Location = new System.Drawing.Point(4, 22);
+			this.tabPageAbout.Name = "tabPageAbout";
+			this.tabPageAbout.Size = new System.Drawing.Size(518, 196);
+			this.tabPageAbout.TabIndex = 1;
+			this.tabPageAbout.Text = "About";
+			this.tabPageAbout.UseVisualStyleBackColor = true;
+			// 
+			// hgAboutControl1
+			// 
+			this.hgAboutControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.hgAboutControl1.Location = new System.Drawing.Point(0, 0);
+			this.hgAboutControl1.Name = "hgAboutControl1";
+			this.hgAboutControl1.Size = new System.Drawing.Size(518, 196);
+			this.hgAboutControl1.TabIndex = 0;
+			// 
+			// SccProviderOptionsControl
+			// 
+			this.AllowDrop = true;
+			this.Controls.Add(this.tabOptions);
+			this.Name = "SccProviderOptionsControl";
+			this.Size = new System.Drawing.Size(535, 234);
+			this.tabOptions.ResumeLayout(false);
+			this.tabDiff.ResumeLayout(false);
+			this.tabPageAbout.ResumeLayout(false);
+			this.ResumeLayout(false);
 
 		}
 		#endregion
     
-        public SccProviderOptions OptionsPage
+		//------------------------------------------------------------------
+		public SccProviderOptions OptionsPage
         {
             set
             {
                 _customPage = value;
             }
         }
+
+		//------------------------------------------------------------------
+		public string DiffToolPath
+		{
+			get
+			{
+				return hgDiffOptionsControl1.DiffToolPath;
+			}
+		}
+
+		//------------------------------------------------------------------
+		public void Activate()
+		{
+			hgDiffOptionsControl1.Activate();
+		}
+
     }
 
 }
