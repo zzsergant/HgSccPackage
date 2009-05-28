@@ -79,7 +79,7 @@ namespace HgSccPackage
 			this.tabOptions.Location = new System.Drawing.Point(0, 0);
 			this.tabOptions.Name = "tabOptions";
 			this.tabOptions.SelectedIndex = 0;
-			this.tabOptions.Size = new System.Drawing.Size(535, 234);
+			this.tabOptions.Size = new System.Drawing.Size(432, 234);
 			this.tabOptions.TabIndex = 3;
 			// 
 			// tabDiff
@@ -88,7 +88,7 @@ namespace HgSccPackage
 			this.tabDiff.Location = new System.Drawing.Point(4, 22);
 			this.tabDiff.Name = "tabDiff";
 			this.tabDiff.Padding = new System.Windows.Forms.Padding(3);
-			this.tabDiff.Size = new System.Drawing.Size(527, 208);
+			this.tabDiff.Size = new System.Drawing.Size(424, 208);
 			this.tabDiff.TabIndex = 0;
 			this.tabDiff.Text = "Diff tool";
 			this.tabDiff.UseVisualStyleBackColor = true;
@@ -98,7 +98,7 @@ namespace HgSccPackage
 			this.hgDiffOptionsControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.hgDiffOptionsControl1.Location = new System.Drawing.Point(3, 3);
 			this.hgDiffOptionsControl1.Name = "hgDiffOptionsControl1";
-			this.hgDiffOptionsControl1.Size = new System.Drawing.Size(521, 202);
+			this.hgDiffOptionsControl1.Size = new System.Drawing.Size(418, 202);
 			this.hgDiffOptionsControl1.TabIndex = 0;
 			// 
 			// tabPageAbout
@@ -106,7 +106,7 @@ namespace HgSccPackage
 			this.tabPageAbout.Controls.Add(this.hgAboutControl1);
 			this.tabPageAbout.Location = new System.Drawing.Point(4, 22);
 			this.tabPageAbout.Name = "tabPageAbout";
-			this.tabPageAbout.Size = new System.Drawing.Size(518, 196);
+			this.tabPageAbout.Size = new System.Drawing.Size(424, 208);
 			this.tabPageAbout.TabIndex = 1;
 			this.tabPageAbout.Text = "About";
 			this.tabPageAbout.UseVisualStyleBackColor = true;
@@ -116,7 +116,7 @@ namespace HgSccPackage
 			this.hgAboutControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.hgAboutControl1.Location = new System.Drawing.Point(0, 0);
 			this.hgAboutControl1.Name = "hgAboutControl1";
-			this.hgAboutControl1.Size = new System.Drawing.Size(518, 196);
+			this.hgAboutControl1.Size = new System.Drawing.Size(424, 208);
 			this.hgAboutControl1.TabIndex = 0;
 			// 
 			// SccProviderOptionsControl
@@ -124,7 +124,7 @@ namespace HgSccPackage
 			this.AllowDrop = true;
 			this.Controls.Add(this.tabOptions);
 			this.Name = "SccProviderOptionsControl";
-			this.Size = new System.Drawing.Size(535, 234);
+			this.Size = new System.Drawing.Size(432, 234);
 			this.tabOptions.ResumeLayout(false);
 			this.tabDiff.ResumeLayout(false);
 			this.tabPageAbout.ResumeLayout(false);

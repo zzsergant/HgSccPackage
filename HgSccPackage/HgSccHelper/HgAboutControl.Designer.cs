@@ -40,6 +40,8 @@
 			this.linkLabel2 = new System.Windows.Forms.LinkLabel();
 			this.label5 = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
+			this.textBox5 = new System.Windows.Forms.TextBox();
+			this.label7 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// textBox2
@@ -111,7 +113,7 @@
 			this.textBox3.Location = new System.Drawing.Point(80, 31);
 			this.textBox3.Name = "textBox3";
 			this.textBox3.ReadOnly = true;
-			this.textBox3.Size = new System.Drawing.Size(371, 20);
+			this.textBox3.Size = new System.Drawing.Size(199, 20);
 			this.textBox3.TabIndex = 11;
 			this.textBox3.Text = "sergant_@mail.ru";
 			// 
@@ -131,7 +133,7 @@
 			this.textBox4.Location = new System.Drawing.Point(80, 5);
 			this.textBox4.Name = "textBox4";
 			this.textBox4.ReadOnly = true;
-			this.textBox4.Size = new System.Drawing.Size(371, 20);
+			this.textBox4.Size = new System.Drawing.Size(199, 20);
 			this.textBox4.TabIndex = 9;
 			this.textBox4.Text = "Sergey Antonov (zz|sergant)";
 			// 
@@ -140,7 +142,7 @@
 			this.linkLabel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this.linkLabel2.AutoSize = true;
-			this.linkLabel2.Location = new System.Drawing.Point(77, 54);
+			this.linkLabel2.Location = new System.Drawing.Point(77, 80);
 			this.linkLabel2.Name = "linkLabel2";
 			this.linkLabel2.Size = new System.Drawing.Size(154, 13);
 			this.linkLabel2.TabIndex = 8;
@@ -152,7 +154,7 @@
 			// label5
 			// 
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(6, 54);
+			this.label5.Location = new System.Drawing.Point(6, 80);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(65, 13);
 			this.label5.TabIndex = 7;
@@ -167,10 +169,32 @@
 			this.label6.TabIndex = 6;
 			this.label6.Text = "Author:";
 			// 
+			// textBox5
+			// 
+			this.textBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this.textBox5.Location = new System.Drawing.Point(80, 57);
+			this.textBox5.Name = "textBox5";
+			this.textBox5.ReadOnly = true;
+			this.textBox5.Size = new System.Drawing.Size(199, 20);
+			this.textBox5.TabIndex = 13;
+			this.textBox5.Text = "HgSccPackage v1.0.1";
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Location = new System.Drawing.Point(26, 60);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(45, 13);
+			this.label7.TabIndex = 12;
+			this.label7.Text = "Version:";
+			// 
 			// HgAboutControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.textBox5);
+			this.Controls.Add(this.label7);
 			this.Controls.Add(this.textBox3);
 			this.Controls.Add(this.label4);
 			this.Controls.Add(this.textBox4);
@@ -178,7 +202,7 @@
 			this.Controls.Add(this.label5);
 			this.Controls.Add(this.label6);
 			this.Name = "HgAboutControl";
-			this.Size = new System.Drawing.Size(459, 96);
+			this.Size = new System.Drawing.Size(287, 126);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -198,5 +222,7 @@
 		private System.Windows.Forms.LinkLabel linkLabel2;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.Label label6;
+		private System.Windows.Forms.TextBox textBox5;
+		private System.Windows.Forms.Label label7;
 	}
 }
