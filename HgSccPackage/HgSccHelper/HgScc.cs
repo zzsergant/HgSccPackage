@@ -21,6 +21,8 @@ namespace HgSccHelper
 		public string WorkingDir { get; private set; }
 		private readonly Hg hg;
 
+		private const int MaxCmdLength = 30000;
+
 		//-----------------------------------------------------------------------------
 		public HgScc()
 		{
@@ -226,7 +228,7 @@ namespace HgSccHelper
 				}
 			}
 
-			var stats = (length > 30000) ? hg.Status(WorkingDir) : hg.Status(WorkingDir, lst);
+			var stats = (length > MaxCmdLength) ? hg.Status(WorkingDir) : hg.Status(WorkingDir, lst);
 
 			foreach (var file_status in stats)
 			{
@@ -295,7 +297,7 @@ namespace HgSccHelper
 				add_files.Add(f);
 				count += f.Length;
 
-				if (count > 30000)
+				if (count > MaxCmdLength)
 				{
 					if (!hg.Add(WorkingDir, add_files.ToArray()))
 						return SccErrors.OpNotPerformed;
@@ -312,7 +314,25 @@ namespace HgSccHelper
 			}
 			return SccErrors.Ok;
 		}
-		
+
+		//-----------------------------------------------------------------------------
+		public SccErrors CommitAll(IntPtr hwnd, string comment)
+		{
+			if (!hg.CommitAll(WorkingDir, comment))
+				return SccErrors.OpNotPerformed;
+
+			return SccErrors.Ok;
+		}
+
+		//-----------------------------------------------------------------------------
+		public SccErrors CommitAll(IntPtr hwnd, string comment, string date_str)
+		{
+			if (!hg.CommitAll(WorkingDir, comment, date_str))
+				return SccErrors.OpNotPerformed;
+
+			return SccErrors.Ok;
+		}
+
 		//-----------------------------------------------------------------------------
 		private SccErrors CommitInternal(IntPtr hwnd, IEnumerable<string> files, string comment, out IEnumerable<string> commited_files)
 		{
@@ -390,13 +410,27 @@ namespace HgSccHelper
 					if (checked_files.Count == 0)
 						return SccErrors.Ok;
 
+					Logger.WriteLine("Checked: {0}, Commit: {1}, Status: {2}",
+						checked_files.Count, commit_files.Count, files_status_dict.Count);
+
+					SccErrors error = SccErrors.UnknownError;
+
 					var to_commit_files = new List<string>();
 					foreach (var commit_item in checked_files)
 					{
 						to_commit_files.Add(commit_item.FileInfo.File);
 					}
 
-					SccErrors error = CheckInInternal(hwnd, to_commit_files, form.Comment);
+					if (checked_files.Count == commit_files.Count
+						&&	commit_files.Count == files_status_dict.Count)
+					{
+						error = CommitAll(hwnd, form.Comment);
+					}
+					else
+					{
+						error = CheckInInternal(hwnd, to_commit_files, form.Comment);
+					}
+
 					if (error == SccErrors.Ok)
 					{
 						foreach (var f in to_commit_files)
@@ -426,7 +460,7 @@ namespace HgSccHelper
 				checkin_files.Add(f);
 				count += f.Length;
 
-				if (count > 30000)
+				if (count > MaxCmdLength)
 				{
 					if (!hg.Commit(WorkingDir, checkin_files.ToArray(), comment))
 						return SccErrors.OpNotPerformed;
@@ -558,7 +592,7 @@ namespace HgSccHelper
 				remove_files.Add(f);
 				count += f.Length;
 
-				if (count > 30000)
+				if (count > MaxCmdLength)
 				{
 					if (!hg.Remove(WorkingDir, remove_files.ToArray(), comment))
 						return SccErrors.OpNotPerformed;

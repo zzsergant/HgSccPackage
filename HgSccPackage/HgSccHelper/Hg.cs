@@ -38,7 +38,7 @@ namespace HgSccHelper
 		public Hg()
 		{
 			full_change_style_file = Path.GetTempFileName();
-			Misc.Log("Creating temp file: " + full_change_style_file);
+			//Misc.Log("Creating temp file: " + full_change_style_file);
 
 			using (var stream = new StreamWriter(File.OpenWrite(full_change_style_file)))
 			{
@@ -58,7 +58,7 @@ namespace HgSccHelper
 		{
 			if (!disposed)
 			{
-				Misc.Log("Deleting " + full_change_style_file);
+				//Misc.Log("Deleting " + full_change_style_file);
 				File.Delete(full_change_style_file);
 
 				disposed = true;
@@ -350,6 +350,41 @@ namespace HgSccHelper
 					}
 				}
 */
+
+				return true;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		public bool CommitAll(string work_dir, string comment)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("commit");
+			args.Append(" -m " + comment.EscapeQuotes().Quote());
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return false;
+
+				return true;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		public bool CommitAll(string work_dir, string comment, string date_str)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("commit");
+			args.Append(" -m " + comment.EscapeQuotes().Quote());
+			args.Append(" -d " + date_str.Quote());
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return false;
 
 				return true;
 			}

@@ -46,5 +46,11 @@ namespace HgSccHelper
 				}
 			}
 		}
+
+		[Conditional("LOG_ENABLED")]
+		public static void WriteLine(string format, params object[] parameters)
+		{
+			WriteLine(String.Format(format, parameters));
+		}
 	}
 }
