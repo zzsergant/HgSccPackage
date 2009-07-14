@@ -99,12 +99,24 @@ namespace HgSccPackage
 			if (!IsValid)
 				return SccErrors.UnknownError;
 
+			var files_list = new List<string>(files);
+			var status_list = new SourceControlStatus[files_list.Count];
+
+			var status_error = GetStatusForFiles(files_list.ToArray(), status_list);
+
 			var lst = new List<SccAddFile>();
-			foreach (var f in files)
+			for (int i = 0; i < files_list.Count; ++i)
 			{
-				lst.Add(new SccAddFile{ File = f, Flags = SccAddFlags.FileTypeAuto });
-				Misc.Log("Adding: {0}", f);
+				if (status_list[i] == SourceControlStatus.scsUncontrolled)
+				{
+					var f = files_list[i];
+					lst.Add(new SccAddFile { File = f, Flags = SccAddFlags.FileTypeAuto });
+					Misc.Log("Adding: {0}", f);
+				}
 			}
+
+			if (lst.Count == 0)
+				return SccErrors.Ok;
 
 			var err = hgscc.Add(IntPtr.Zero, lst.ToArray(), "Adding files");
 			if (err == SccErrors.Ok)

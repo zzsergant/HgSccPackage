@@ -21,7 +21,7 @@ namespace HgSccHelper
 		public string WorkingDir { get; private set; }
 		private readonly Hg hg;
 
-		private const int MaxCmdLength = 30000;
+		private const int MaxCmdLength = 2000 - 300;
 
 		//-----------------------------------------------------------------------------
 		public HgScc()
@@ -462,11 +462,16 @@ namespace HgSccHelper
 
 				if (count > MaxCmdLength)
 				{
+					MessageBox.Show("Resulted command line for hg.exe is too long. In this situation you can only commit all changed files (which is equivalent to invoking hg.exe without specified files).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					return SccErrors.UnknownError;
+
+/*
 					if (!hg.Commit(WorkingDir, checkin_files.ToArray(), comment))
 						return SccErrors.OpNotPerformed;
 
 					checkin_files.Clear();
 					count = 0;
+*/
 				}
 			}
 
