@@ -87,6 +87,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_60CE0F22146FD30266E7E818B764EC85"
+        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_660EC0EC89605A07C2604242E67F3D77"
         "OwnerKey" = "8:_435522A1CCBCB04F4DF525DE6A8705C5"
         "MsmSig" = "8:_UNDEFINED"
@@ -165,12 +171,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A0169433E5181797CA0C1FF08B7EA604"
-        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_B9B1794E29CABBAEDFB62532AF2DCF38"
         "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
         "MsmSig" = "8:_UNDEFINED"
@@ -238,7 +238,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A0169433E5181797CA0C1FF08B7EA604"
+        "OwnerKey" = "8:_60CE0F22146FD30266E7E818B764EC85"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -575,6 +575,37 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_60CE0F22146FD30266E7E818B764EC85"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:C5, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_60CE0F22146FD30266E7E818B764EC85"
+                    {
+                    "Name" = "8:C5.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:C5.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E36607D0CDDE4F54A2B3FFC3AB6D725B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_660EC0EC89605A07C2604242E67F3D77"
             {
             "AssemblyRegister" = "3:1"
@@ -719,37 +750,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A0169433E5181797CA0C1FF08B7EA604"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:C5, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_A0169433E5181797CA0C1FF08B7EA604"
-                    {
-                    "Name" = "8:C5.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:C5.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_E36607D0CDDE4F54A2B3FFC3AB6D725B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_B9B1794E29CABBAEDFB62532AF2DCF38"
             {
             "AssemblyRegister" = "3:1"
@@ -868,14 +868,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Mercurial Source Control Package"
-        "ProductCode" = "8:{BF83B2D9-3C38-4B5F-B44E-1DB0C21C2FB6}"
-        "PackageCode" = "8:{CD2C6239-7F84-4240-AE5F-BAA7FF1C117F}"
+        "ProductCode" = "8:{984B7568-1416-4A05-9D25-FC616A552655}"
+        "PackageCode" = "8:{39E7DDA3-730F-4403-A002-12016545765F}"
         "UpgradeCode" = "8:{92680898-E5B3-43AF-9D81-3E07DA507EBC}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.1"
+        "ProductVersion" = "8:1.0.2"
         "Manufacturer" = "8:Sergey Antonov"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
