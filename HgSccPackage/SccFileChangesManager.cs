@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using C5;
+using HgSccHelper;
 
 //==================================================================
 namespace HgSccPackage
@@ -36,7 +37,7 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public bool AdviseFileChange(string file)
 		{
-			Misc.Log("AdviseFileChange: {0}", file);
+			Logger.WriteLine("AdviseFileChange: {0}", file);
 
 			uint flags =
 					(uint)_VSFILECHANGEFLAGS.VSFILECHG_Add
@@ -52,7 +53,7 @@ namespace HgSccPackage
 				var lower = file.ToLower();
 				if (files.Contains(lower))
 				{
-					Misc.Log("Advise: file already monitoring, {0}", file);
+					Logger.WriteLine("Advise: file already monitoring, {0}", file);
 					return false;
 				}
 
@@ -66,11 +67,11 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public bool UnadviseFileChange(string file)
 		{
-			Misc.Log("UnadviseFileChange: {0}", file);
+			Logger.WriteLine("UnadviseFileChange: {0}", file);
 			var lower = file.ToLower();
 			if (!files.Contains(lower))
 			{
-				Misc.Log("Unadvise: file is not monitoring, {0}", file);
+				Logger.WriteLine("Unadvise: file is not monitoring, {0}", file);
 				return false;
 			}
 
@@ -87,7 +88,7 @@ namespace HgSccPackage
 		{
 			for(int i = 0; i < cChanges; ++i)
 			{
-				Misc.Log("FileChanged[{0}]: {1}, {2}", i, rgpszFile[i], rggrfChange[i]);
+				Logger.WriteLine("FileChanged[{0}]: {1}, {2}", i, rgpszFile[i], rggrfChange[i]);
 			}
 
 			return VSConstants.S_OK;
@@ -96,7 +97,7 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public int DirectoryChanged(string pszDirectory)
 		{
-			Misc.Log("DirectoryChange: {0}", pszDirectory);
+			Logger.WriteLine("DirectoryChange: {0}", pszDirectory);
 			return VSConstants.S_OK;
 		}
 

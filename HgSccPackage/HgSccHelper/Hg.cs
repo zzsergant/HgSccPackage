@@ -50,7 +50,7 @@ namespace HgSccHelper
 		public Hg()
 		{
 			full_change_style_file = Path.GetTempFileName();
-			//Misc.Log("Creating temp file: " + full_change_style_file);
+			//Logger.WriteLine("Creating temp file: " + full_change_style_file);
 
 			using (var stream = new StreamWriter(File.OpenWrite(full_change_style_file)))
 			{
@@ -70,7 +70,7 @@ namespace HgSccHelper
 		{
 			if (!disposed)
 			{
-				//Misc.Log("Deleting " + full_change_style_file);
+				//Logger.WriteLine("Deleting " + full_change_style_file);
 				File.Delete(full_change_style_file);
 
 				disposed = true;

@@ -27,6 +27,7 @@ using Microsoft.VisualStudio;
 using System.Runtime.Serialization.Formatters.Binary;
 using MsVsShell = Microsoft.VisualStudio.Shell;
 using ErrorHandler = Microsoft.VisualStudio.ErrorHandler;
+using HgSccHelper;
 
 namespace HgSccPackage
 {
@@ -108,7 +109,7 @@ namespace HgSccPackage
 
 		public SccProvider()
 		{
-			Misc.Log("Entering constructor for: {0}", this.ToString());
+			Logger.WriteLine("Entering constructor for: {0}", this.ToString());
 
 			// The provider implements the IVsPersistSolutionProps interface which is derived from IVsPersistSolutionOpts,
 			// The base class MsVsShell.Package also implements IVsPersistSolutionOpts, so we're overriding its functionality
@@ -128,7 +129,7 @@ namespace HgSccPackage
 
 		protected override void Initialize()
 		{
-			Misc.Log("Entering Initialize() of: {0}", this.ToString());
+			Logger.WriteLine("Entering Initialize() of: {0}", this.ToString());
 			base.Initialize();
 
 			// Proffer the source control service implemented by the provider
@@ -199,7 +200,7 @@ namespace HgSccPackage
 
 		protected override void Dispose(bool disposing)
 		{
-			Misc.Log("Entering Dispose() of: {0}", this.ToString());
+			Logger.WriteLine("Entering Dispose() of: {0}", this.ToString());
 
 			sccService.Dispose();
 
@@ -1120,7 +1121,7 @@ namespace HgSccPackage
 							var res = vsItemSel.pHier.GetProperty(vsItemSel.itemid, (int)__VSHPROPID.VSHPROPID_Parent, out prop);
 							if (res == VSConstants.S_OK)
 							{
-//								Misc.Log("ParentId: {0}", prop);
+//								Logger.WriteLine("ParentId: {0}", prop);
 							}
 
 							uint parent_id = (uint)((int)prop);
@@ -1385,9 +1386,9 @@ namespace HgSccPackage
 						System.Collections.Generic.IList<uint> subnodes = GetProjectItems(vsItemSel.pHier, vsItemSel.itemid);
 						if (subnodes.Count != sccFiles.Count)
 						{
-							Misc.Log("RefreshNodeGlyphs: subnodes.Count != sccFiles.Count");
+							Logger.WriteLine("RefreshNodeGlyphs: subnodes.Count != sccFiles.Count");
 							for(int i = 0; i < sccFiles.Count; ++i)
-								Misc.Log("[{0}]: {1}", i, sccFiles[i]);
+								Logger.WriteLine("[{0}]: {1}", i, sccFiles[i]);
 
 							return;
 						}
@@ -1591,7 +1592,7 @@ namespace HgSccPackage
 				pHier.GetProperty(itemid, (int) __VSHPROPID.VSHPROPID_Name, out property) ==
 				VSConstants.S_OK)
 			{
-				Misc.Log("Walking hierarchy node: {0}", (string) property);
+				Logger.WriteLine("Walking hierarchy node: {0}", (string) property);
 			}
 		}
 

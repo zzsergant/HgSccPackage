@@ -20,43 +20,36 @@ namespace HgSccHelper
 {
 	static class Logger
 	{
-		static object critical = new object();
+		//------------------------------------------------------------------
+		static Logger()
+		{
+			InitLog();
+		}
 
-		//-----------------------------------------------------------------------------
-		private static string GetLogPath()
+		//------------------------------------------------------------------
+		[Conditional("LOG_ENABLED")]
+		static void InitLog()
 		{
 			string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-			string hgdata = Path.Combine(appdata, "HgScc");
+			string hgdata = Path.Combine(appdata, "HgSccPackage");
 			if (!Directory.Exists(hgdata))
 				Directory.CreateDirectory(hgdata);
 
-			string log_path = Path.Combine(hgdata, "hgscc.log");
-			if (!File.Exists(log_path))
-				using (File.CreateText(log_path))
-				{
-				}
+			string log_path = Path.Combine(hgdata, "hgsccpkg.log");
+			if (File.Exists(log_path))
+				File.Delete(log_path);
 
-			return log_path;
+			var file_listener = new TextWriterTraceListener(log_path);
+			Debug.Listeners.Add(file_listener);
+			Debug.AutoFlush = true;
 		}
 
+		//-----------------------------------------------------------------------------
 		//-----------------------------------------------------------------------------
 		[Conditional("LOG_ENABLED")]
 		public static void WriteLine(string line)
 		{
-			lock (critical)
-			{
-				try
-				{
-					using (StreamWriter writer = File.AppendText(GetLogPath()))
-					{
-						writer.WriteLine(line);
-					}
-				}
-				catch
-				{
-
-				}
-			}
+			Debug.WriteLine(line);
 		}
 
 		[Conditional("LOG_ENABLED")]

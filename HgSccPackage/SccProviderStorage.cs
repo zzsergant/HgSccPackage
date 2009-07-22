@@ -59,7 +59,7 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public SccErrors Init(string work_dir, SccOpenProjectFlags flags)
 		{
-			Misc.Log("SccProviderStorage: {0}", work_dir);
+			Logger.WriteLine("SccProviderStorage: {0}", work_dir);
 			if (hgscc == null)
 				hgscc = new HgScc();
 
@@ -120,7 +120,7 @@ namespace HgSccPackage
 				{
 					var f = files_list[i];
 					lst.Add(new SccAddFile { File = f, Flags = SccAddFlags.FileTypeAuto });
-					Misc.Log("Adding: {0}", f);
+					Logger.WriteLine("Adding: {0}", f);
 				}
 			}
 
@@ -151,7 +151,7 @@ namespace HgSccPackage
 			if (!IsValid)
 				return SccErrors.UnknownError;
 
-			Misc.Log("Rename: {0} to {1}", strOldName, strNewName);
+			Logger.WriteLine("Rename: {0} to {1}", strOldName, strNewName);
 
 			var err = hgscc.Rename(IntPtr.Zero, strOldName, strNewName);
 			if (err == SccErrors.Ok)
@@ -235,7 +235,7 @@ namespace HgSccPackage
 				{
 					file.Status = FromHgStatus(info.Status);
 				}
-				Misc.Log("GetFileStatus: {0} = {1}", file.File, file.Status);
+				Logger.WriteLine("GetFileStatus: {0} = {1}", file.File, file.Status);
 			}
 
 			return SccErrors.Ok;
@@ -268,7 +268,7 @@ namespace HgSccPackage
 					statuses[i] = FromHgStatus(info.Status);
 				}
 
-				Misc.Log("GetFileStatus: {0} = {1}", files[i], statuses[i]);
+				Logger.WriteLine("GetFileStatus: {0} = {1}", files[i], statuses[i]);
 			}
 
 			return SccErrors.Ok;
@@ -285,7 +285,7 @@ namespace HgSccPackage
 
 			foreach (var f in files)
 			{
-				Misc.Log("Commit: {0}", f);
+				Logger.WriteLine("Commit: {0}", f);
 			}
 
 
@@ -308,7 +308,7 @@ namespace HgSccPackage
 
 			foreach (var f in files)
 			{
-				Misc.Log("Revert: {0}", f);
+				Logger.WriteLine("Revert: {0}", f);
 			}
 
 
@@ -333,7 +333,7 @@ namespace HgSccPackage
 
 			foreach (var f in files)
 			{
-				Misc.Log("Remove: {0}", f);
+				Logger.WriteLine("Remove: {0}", f);
 				SetCacheStatus(f, SourceControlStatus.scsCheckedOut);
 			}
 			return SccErrors.Ok;
@@ -381,7 +381,7 @@ namespace HgSccPackage
 				var info = new HgFileInfo {File = f, Status = HgFileStatus.NotTracked};
 				lst.Add(info);
 				
-				Misc.Log("UpdateCache: {0}", f);
+				Logger.WriteLine("UpdateCache: {0}", f);
 			}
 			
 			var info_lst = lst.ToArray();
@@ -411,7 +411,7 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void SetCacheStatus(string file, SourceControlStatus status)
 		{
-			Misc.Log("SetCacheStatus: {0}, {1}", file, status);
+			Logger.WriteLine("SetCacheStatus: {0}, {1}", file, status);
 			
 			HgFileInfo info;
 			if (cache.Find(file.ToLower(), out info))
@@ -420,7 +420,7 @@ namespace HgSccPackage
 			}
 			else
 			{
-				Misc.Log("File not found in cache");
+				Logger.WriteLine("File not found in cache");
 			}
 		}
 

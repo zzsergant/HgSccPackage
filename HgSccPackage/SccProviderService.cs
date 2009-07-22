@@ -305,13 +305,13 @@ namespace HgSccPackage
 				return VSConstants.E_FAIL;
 			}
 
-			Misc.Log("RegisterSccProject: sln = '{0}'", _sccProvider.GetSolutionFileName());
+			Logger.WriteLine("RegisterSccProject: sln = '{0}'", _sccProvider.GetSolutionFileName());
 
 			if (pscp2Project == null)
 			{
-//				Misc.Log("RegisterSccProject: adding solution");
+//				Logger.WriteLine("RegisterSccProject: adding solution");
 				// Manual registration with source control of the solution, from OnAfterOpenSolution
-				Misc.Log("Solution {0} is registering with source control - {1}, {2}, {3}, {4}", _sccProvider.GetSolutionFileName(), pszSccProjectName, pszSccAuxPath, pszSccLocalPath, pszProvider);
+				Logger.WriteLine("Solution {0} is registering with source control - {1}, {2}, {3}, {4}", _sccProvider.GetSolutionFileName(), pszSccProjectName, pszSccAuxPath, pszSccLocalPath, pszProvider);
 
 				var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
 				string solutionFile = _sccProvider.GetSolutionFileName();
@@ -333,14 +333,14 @@ namespace HgSccPackage
 			}
 			else
 			{
-				Misc.Log("Project {0} is registering with source control - {1}, {2}, {3}, {4}", _sccProvider.GetProjectFileName(pscp2Project), pszSccProjectName, pszSccAuxPath, pszSccLocalPath, pszProvider);
+				Logger.WriteLine("Project {0} is registering with source control - {1}, {2}, {3}, {4}", _sccProvider.GetProjectFileName(pscp2Project), pszSccProjectName, pszSccAuxPath, pszSccLocalPath, pszProvider);
 
 				// Add the project to the list of controlled projects
 				var hierProject = (IVsHierarchy)pscp2Project;
 				var project_path = _sccProvider.GetProjectFileName(pscp2Project);
 				string solutionFile = _sccProvider.GetSolutionFileName();
 				var work_dir = Path.GetDirectoryName(solutionFile);
-//				Misc.Log("RegisterSccProject: adding project = '{0}'", project_path);
+//				Logger.WriteLine("RegisterSccProject: adding project = '{0}'", project_path);
 
 				if (!storage.IsValid)
 				{
@@ -364,12 +364,12 @@ namespace HgSccPackage
 			if (pscp2Project == null)
 			{
 				// If the project's pointer is null, it must be the solution calling to unregister, from OnBeforeCloseSolution
-				Misc.Log("Solution {0} is unregistering with source control.", _sccProvider.GetSolutionFileName());
+				Logger.WriteLine("Solution {0} is unregistering with source control.", _sccProvider.GetSolutionFileName());
 				hierProject = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
 			}
 			else
 			{
-				Misc.Log("Project {0} is unregistering with source control.", _sccProvider.GetProjectFileName(pscp2Project));
+				Logger.WriteLine("Project {0} is unregistering with source control.", _sccProvider.GetProjectFileName(pscp2Project));
 				hierProject = (IVsHierarchy)pscp2Project;
 			}
 
@@ -452,13 +452,13 @@ namespace HgSccPackage
 
 		public int OnAfterLoadProject([InAttribute] IVsHierarchy pStubHierarchy, [InAttribute] IVsHierarchy pRealHierarchy)
 		{
-			Misc.Log("OnAfterLoadProject: {0}", pRealHierarchy);
+			Logger.WriteLine("OnAfterLoadProject: {0}", pRealHierarchy);
 			return VSConstants.S_OK;
 		}
 
 		public int OnAfterOpenProject([InAttribute] IVsHierarchy pHierarchy, [InAttribute] int fAdded)
 		{
-			Misc.Log("OnAfterOpenProject: {0}, added = {1}", pHierarchy, fAdded);
+			Logger.WriteLine("OnAfterOpenProject: {0}, added = {1}", pHierarchy, fAdded);
 
 			// If a solution folder is added to the solution after the solution is added to scc, we need to controll that folder
 			if (_sccProvider.IsSolutionFolderProject(pHierarchy) && (fAdded == 1))
@@ -531,7 +531,7 @@ namespace HgSccPackage
 
 		public int OnBeforeCloseProject([InAttribute] IVsHierarchy pHierarchy, [InAttribute] int fRemoved)
 		{
-			Misc.Log("OnBeforeCloseProject: {0}", pHierarchy);
+			Logger.WriteLine("OnBeforeCloseProject: {0}", pHierarchy);
 			return VSConstants.S_OK;
 		}
 
@@ -553,7 +553,7 @@ namespace HgSccPackage
 
 		public int OnBeforeUnloadProject([InAttribute] IVsHierarchy pRealHierarchy, [InAttribute] IVsHierarchy pStubHierarchy)
 		{
-			Misc.Log("OnBeforeUnloadProject: {0}", pRealHierarchy);
+			Logger.WriteLine("OnBeforeUnloadProject: {0}", pRealHierarchy);
 			return VSConstants.S_OK;
 		}
 
@@ -589,13 +589,13 @@ namespace HgSccPackage
 
 		public int BeginQuerySaveBatch ()
 		{
-			Misc.Log("BeginQuerySaveBatch");
+			Logger.WriteLine("BeginQuerySaveBatch");
 			return VSConstants.S_OK;
 		}
 
 		public int EndQuerySaveBatch ()
 		{
-			Misc.Log("EndQuerySaveBatch");
+			Logger.WriteLine("EndQuerySaveBatch");
 			return VSConstants.S_OK;
 		}
 
@@ -618,7 +618,7 @@ namespace HgSccPackage
 
 		public int OnAfterSaveUnreloadableFile([InAttribute] string pszMkDocument, [InAttribute] uint rgf, [InAttribute] VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
 		{
-			Misc.Log("OnAfterSaveUnreloadableFile: {0}", pszMkDocument);
+			Logger.WriteLine("OnAfterSaveUnreloadableFile: {0}", pszMkDocument);
 			return VSConstants.S_OK;
 		}
 
@@ -657,7 +657,7 @@ namespace HgSccPackage
 				//Iterate through all the files
 				for (int iFile = 0; iFile < cFiles; iFile++)
 				{
-					Misc.Log("QueryEditFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
+					Logger.WriteLine("QueryEditFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
 					 
 					uint fEditVerdict = (uint)tagVSQueryEditResult.QER_EditNotOK;
 					uint fMoreInfo = 0;
@@ -859,7 +859,7 @@ namespace HgSccPackage
 
 				for (int iFile = 0; iFile < cFiles; iFile++)
 				{
-					Misc.Log("QuerySaveFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
+					Logger.WriteLine("QuerySaveFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
 //					SourceControlStatus status = GetFileStatus(rgpszMkDocuments[iFile]);
 					SourceControlStatus status = statuses[iFile];
 					bool fileExists = File.Exists(rgpszMkDocuments[iFile]);
@@ -954,7 +954,7 @@ namespace HgSccPackage
 				if (proj == null)
 				{
 					// solution
-					Misc.Log("QuerySaveFile, solution");
+					Logger.WriteLine("QuerySaveFile, solution");
 					sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 				}
 				else
@@ -1008,7 +1008,7 @@ namespace HgSccPackage
 			{
 				for (int iFile = 0; iFile < cFiles; iFile++)
 				{
-					Misc.Log("OnQueryAddFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
+					Logger.WriteLine("OnQueryAddFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
 					rgResults[iFile] = VSQUERYADDFILERESULTS.VSQUERYADDFILERESULTS_AddOK;
 				}
 			}
@@ -1145,7 +1145,7 @@ namespace HgSccPackage
 			{
 				for (int iFile = 0; iFile < cFiles; iFile++)
 				{
-					Misc.Log("OnQueryRemoveFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
+					Logger.WriteLine("OnQueryRemoveFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
 					rgResults[iFile] = VSQUERYREMOVEFILERESULTS.VSQUERYREMOVEFILERESULTS_RemoveOK;
 				}
 			}
@@ -1348,7 +1348,7 @@ namespace HgSccPackage
 				// Now that we know which files belong to this project, iterate the project files
 				for (int iFile = iProjectFilesStart; iFile < iNextProjecFilesStart; iFile++)
 				{
-					Misc.Log("OnAfterRenameFiles: [{0}]: {1} -> {2}", iFile, rgszMkOldNames[iFile], rgszMkNewNames[iFile]);
+					Logger.WriteLine("OnAfterRenameFiles: [{0}]: {1} -> {2}", iFile, rgszMkOldNames[iFile], rgszMkNewNames[iFile]);
 					// var storage = _controlledProjects[pHier];
 					if (storage != null)
 					{
@@ -1660,7 +1660,7 @@ namespace HgSccPackage
 				}
 				else
 				{
-					Misc.Log("GetCtrlNodes: file = {0}, count = {1}", f, found.Count);
+					Logger.WriteLine("GetCtrlNodes: file = {0}, count = {1}", f, found.Count);
 				}
 			}
 
@@ -1712,7 +1712,7 @@ namespace HgSccPackage
 				}
 				catch(InvalidCastException)
 				{
-//					Misc.Log("Ex: {0}, {1}", f, ex.ToString());
+//					Logger.WriteLine("Ex: {0}, {1}", f, ex.ToString());
 				}
 			}
 
@@ -1759,7 +1759,7 @@ namespace HgSccPackage
 		/// </returns>
 		public int OnBeginQueryBatch()
 		{
-			Misc.Log("OnBeginQueryBatch");
+			Logger.WriteLine("OnBeginQueryBatch");
 			return VSConstants.S_OK;
 		}
 
@@ -1772,7 +1772,7 @@ namespace HgSccPackage
 		/// <param name="pfActionOK">[out] Returns nonzero if it is okay to continue with the proposed batch process. Returns zero if the proposed batch process should not proceed.</param>
 		public int OnEndQueryBatch(out int pfActionOK)
 		{
-			Misc.Log("OnEndQueryBatch");
+			Logger.WriteLine("OnEndQueryBatch");
 			pfActionOK = 1;
 			return VSConstants.S_OK;
 		}
@@ -1785,7 +1785,7 @@ namespace HgSccPackage
 		/// </returns>
 		public int OnCancelQueryBatch()
 		{
-			Misc.Log("OnCancelQueryBatch");
+			Logger.WriteLine("OnCancelQueryBatch");
 			return VSConstants.S_OK;
 		}
 
@@ -1804,7 +1804,7 @@ namespace HgSccPackage
 		/// <param name="rgResults">[out] An array that is to be filled in with the status of each file. Each status is a value from the <see cref="T:Microsoft.VisualStudio.Shell.Interop.VSQUERYADDFILERESULTS" /> enumeration.</param>
 		public int OnQueryAddFilesEx(IVsProject pProject, int cFiles, string[] rgpszNewMkDocuments, string[] rgpszSrcMkDocuments, VSQUERYADDFILEFLAGS[] rgFlags, VSQUERYADDFILERESULTS[] pSummaryResult, VSQUERYADDFILERESULTS[] rgResults)
 		{
-			Misc.Log("OnQueryAddFilesEx");
+			Logger.WriteLine("OnQueryAddFilesEx");
 			return VSConstants.E_NOTIMPL;
 		}
 
@@ -1819,7 +1819,7 @@ namespace HgSccPackage
 		/// <param name="rgpszMkDocuments">[in] If there are any locks on this array of file names, the caller wants them to be released.</param>
 		public int HandsOffFiles(uint grfRequiredAccess, int cFiles, string[] rgpszMkDocuments)
 		{
-			Misc.Log("HandsOffFiles");
+			Logger.WriteLine("HandsOffFiles");
 			return VSConstants.E_NOTIMPL;
 		}
 
@@ -1833,7 +1833,7 @@ namespace HgSccPackage
 		/// <param name="rgpszMkDocuments">[in] An array of file names.</param>
 		public int HandsOnFiles(int cFiles, string[] rgpszMkDocuments)
 		{
-			Misc.Log("HandsOnFiles");
+			Logger.WriteLine("HandsOnFiles");
 			return VSConstants.E_NOTIMPL;
 		}
 
@@ -1868,7 +1868,7 @@ namespace HgSccPackage
 				docCookie, out pgrfRDTFlags, out pdwReadLocks, out pdwEditLocks,
 				out pbstrMkDocument, out ppHier, out pitemid, out ppunkDocData);
 
-			Misc.Log("OnAfterSave: {0}", pbstrMkDocument);
+			Logger.WriteLine("OnAfterSave: {0}", pbstrMkDocument);
 
 /*
 			// Get automation-object Document and work with it
@@ -1912,7 +1912,7 @@ namespace HgSccPackage
 				docCookie, out pgrfRDTFlags, out pdwReadLocks, out pdwEditLocks,
 				out pbstrMkDocument, out ppHier, out pitemid, out ppunkDocData);
 
-			Misc.Log("OnAfterAttributeChange: {0}, {1:X}", pbstrMkDocument, grfAttribs);
+			Logger.WriteLine("OnAfterAttributeChange: {0}, {1:X}", pbstrMkDocument, grfAttribs);
 			if ((grfAttribs & (uint)__VSRDTATTRIB.RDTA_DocDataReloaded) != (uint)__VSRDTATTRIB.RDTA_DocDataReloaded)
 				return VSConstants.S_OK;
 
