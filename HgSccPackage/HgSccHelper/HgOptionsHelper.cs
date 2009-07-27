@@ -96,7 +96,7 @@ namespace HgSccPackage.HgSccHelper
 		//------------------------------------------------------------------
 		public static bool BrowseDiffTool(ref string diff_tool)
 		{
-			using (var f = new OpenFileDialog())
+			using (var f = new System.Windows.Forms.OpenFileDialog())
 			{
 				f.RestoreDirectory = true;
 				f.Filter = "Executables|*.exe";

@@ -432,5 +432,16 @@ namespace HgSccPackage
 
 			hgscc.Diff(IntPtr.Zero, file, SccDiffFlags.None);
 		}
+
+		//------------------------------------------------------------------
+		public void ViewChangeLog()
+		{
+			if (!IsValid)
+				return;
+
+			RevLogWindow wnd = new RevLogWindow();
+			wnd.WorkingDir = hgscc.WorkingDir;
+			wnd.ShowDialog();
+		}
 	}
 }

@@ -62,6 +62,7 @@ namespace HgSccHelper
 				stream.WriteLine(@"last_file_add = '{file_add}'");
 				stream.WriteLine(@"file_del = '{file_del}:'");
 				stream.WriteLine(@"last_file_del = '{file_del}'");
+				// stream.WriteLine(@"branches = '{branches}:'");
 			}
 		}
 
@@ -154,6 +155,25 @@ namespace HgSccHelper
 				return lst;
 			}
 		}
+
+		//-----------------------------------------------------------------------------
+		public List<RevLogChangeDesc> RevLog(string work_dir, int max_count)
+		{
+			var args = new StringBuilder();
+			args.Append("debug-rev-list");
+			args.Append(" --header --topo-order --parents");
+			if (max_count > 0)
+				args.Append(" --max-count " + max_count);
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				var lst = RevLogChangeDesc.ParseChanges(proc.StandardOutput);
+				proc.WaitForExit();
+
+				return lst;
+			}
+		}
+
 
 		//-----------------------------------------------------------------------------
 /*

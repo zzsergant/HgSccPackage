@@ -189,6 +189,11 @@ namespace HgSccPackage
 				menuCmd = new MenuCommand(Exec_icmdViewHistory, cmd);
 				mcs.AddCommand(menuCmd);
 
+				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
+					CommandId.icmdViewChangeLog);
+
+				menuCmd = new MenuCommand(Exec_icmdViewChangeLog, cmd);
+				mcs.AddCommand(menuCmd);
 			}
 
 			// Register the provider with the source control manager
@@ -516,6 +521,13 @@ namespace HgSccPackage
 					cmdf |= QueryStatus_icmdHistory();
 					break;
     
+				case CommandId.icmdViewChangeLog:
+					cmdf |= QueryStatus_icmdViewChangeLog();
+					break;
+
+
+
+
 /*
 				case CommandId.icmdViewToolWindow:
 				case CommandId.icmdToolWindowToolbarCommand:
@@ -615,6 +627,27 @@ namespace HgSccPackage
 			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
 
 			if (sccService.GetFileStatus(files[0]) != SourceControlStatus.scsUncontrolled)
+			{
+				return OLECMDF.OLECMDF_ENABLED;
+			}
+
+			return OLECMDF.OLECMDF_SUPPORTED;
+		}
+
+		private OLECMDF QueryStatus_icmdViewChangeLog()
+		{
+			if (!IsThereASolution())
+			{
+				return OLECMDF.OLECMDF_INVISIBLE;
+			}
+
+			var selected_files = GetSelectedNodes();
+			if (selected_files.Count == 0)
+				return OLECMDF.OLECMDF_INVISIBLE;
+
+			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
+
+			if (files.Count != 0)
 			{
 				return OLECMDF.OLECMDF_ENABLED;
 			}
@@ -728,6 +761,25 @@ namespace HgSccPackage
 			}
 		}
 
+		private void Exec_icmdViewChangeLog(object sender, EventArgs e)
+		{
+			if (!IsThereASolution())
+			{
+				return;
+			}
+
+			var selected_files = GetSelectedNodes();
+			if (selected_files.Count == 0)
+				return;
+
+			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
+
+			if (files.Count != 0)
+			{
+				sccService.ViewChangeLog();
+			}
+		}
+
 		private void Exec_icmdAddToSourceControl(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
@@ -826,9 +878,9 @@ namespace HgSccPackage
 		/// <summary>
 		/// Returns a list of controllable projects in the solution
 		/// </summary>
-		private HashSet<IVsHierarchy> GetLoadedControllableProjectsEnum()
+		private C5.HashSet<IVsHierarchy> GetLoadedControllableProjectsEnum()
 		{
-			var mapHierarchies = new HashSet<IVsHierarchy>();
+			var mapHierarchies = new C5.HashSet<IVsHierarchy>();
 
 			IVsSolution sol = (IVsSolution) GetService(typeof (SVsSolution));
 			Guid rguidEnumOnlyThisType = new Guid();
@@ -866,13 +918,13 @@ namespace HgSccPackage
 		/// Gets the list of selected controllable project hierarchies
 		/// </summary>
 		/// <returns>True if a solution was created.</returns>
-		private HashSet<IVsHierarchy> GetSelectedHierarchies(
+		private C5.HashSet<IVsHierarchy> GetSelectedHierarchies(
 			System.Collections.Generic.IList<VSITEMSELECTION> sel, out bool solutionSelected)
 		{
 			// Initialize output arguments
 			solutionSelected = false;
 
-			var mapHierarchies = new HashSet<IVsHierarchy>();
+			var mapHierarchies = new C5.HashSet<IVsHierarchy>();
 			foreach (VSITEMSELECTION vsItemSel in sel)
 			{
 				if (vsItemSel.pHier == null
@@ -1752,9 +1804,9 @@ namespace HgSccPackage
 		/// <summary>
 		/// Returns a list of solution folders projects in the solution
 		/// </summary>
-		public HashSet<IVsHierarchy> GetSolutionFoldersEnum()
+		public C5.HashSet<IVsHierarchy> GetSolutionFoldersEnum()
 		{
-			var mapHierarchies = new HashSet<IVsHierarchy>();
+			var mapHierarchies = new C5.HashSet<IVsHierarchy>();
 
 			var sol = (IVsSolution) GetService(typeof (SVsSolution));
 			Guid rguidEnumOnlyThisType = guidSolutionFolderProject;

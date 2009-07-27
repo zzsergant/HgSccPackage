@@ -49,16 +49,16 @@ namespace HgSccPackage
 		// The cookie for project document events
 		private uint _tpdTrackProjectDocumentsCookie;
 		// The list of controlled projects hierarchies
-		private readonly HashSet<IVsHierarchy> _controlledProjects = new HashSet<IVsHierarchy>();
+		private readonly C5.HashSet<IVsHierarchy> _controlledProjects = new C5.HashSet<IVsHierarchy>();
 		private SccProviderStorage storage = new SccProviderStorage();
 		// The list of controlled and offline projects hierarchies
-		private readonly HashSet<IVsHierarchy> _offlineProjects = new HashSet<IVsHierarchy>();
+		private readonly C5.HashSet<IVsHierarchy> _offlineProjects = new C5.HashSet<IVsHierarchy>();
 		// Variable tracking whether the currently loading solution is controlled (during solution load or merge)
 		private string _loadingControlledSolutionLocation = "";
 		// The location of the currently controlled solution
 		private string _solutionLocation;
 		// The list of files approved for in-memory edit
-		private readonly HashSet<string> _approvedForInMemoryEdit = new HashSet<string>();
+		private readonly C5.HashSet<string> _approvedForInMemoryEdit = new C5.HashSet<string>();
 		uint pdwCookie;
 
 		private IVsRunningDocumentTable rdt;
@@ -1603,6 +1603,15 @@ namespace HgSccPackage
 				}
 			}
 		}
+
+		public void ViewChangeLog()
+		{
+			if (storage != null)
+			{
+				storage.ViewChangeLog();
+			}
+		}
+
 
 		/// <summary>
 		/// Returns a list of controlled projects containing the specified file
