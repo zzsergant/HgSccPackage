@@ -157,7 +157,14 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public List<RevLogChangeDesc> RevLog(string work_dir, int max_count)
+		/// <summary>
+		/// This function returns a list of revisions suitable to build a revision graph.
+		/// Requires HGK extension enabled in user hgrc
+		/// </summary>
+		/// <param name="work_dir">Repository root</param>
+		/// <param name="max_count">Limit count of revisions. 0 - unlimited</param>
+		/// <returns></returns>
+		public List<RevLogChangeDesc> RevLogHgk(string work_dir, int max_count)
 		{
 			var args = new StringBuilder();
 			args.Append("debug-rev-list");
@@ -167,13 +174,60 @@ namespace HgSccHelper
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
-				var lst = RevLogChangeDesc.ParseChanges(proc.StandardOutput);
+				var lst = RevLogChangeDesc.ParseChangesHgk(proc.StandardOutput);
 				proc.WaitForExit();
 
 				return lst;
 			}
 		}
 
+		//-----------------------------------------------------------------------------
+		/// <summary>
+		/// This function returns a list of revisions suitable to build a revision graph 
+		/// </summary>
+		/// <param name="work_dir">Repository root</param>
+		/// <param name="max_count">Limit count of revisions. 0 - unlimited</param>
+		/// <returns></returns>
+		public List<RevLogChangeDesc> RevLog(string work_dir, int max_count)
+		{
+			return RevLog(work_dir, "", max_count);
+		}
+
+		//-----------------------------------------------------------------------------
+		/// <summary>
+		/// This function returns a list of revisions suitable to build a revision graph 
+		/// </summary>
+		/// <param name="work_dir">Repository root</param>
+		/// <param name="rev">String that used to specify revision or revision range</param>
+		/// <param name="max_count">Limit count of revisions. 0 - unlimited</param>
+		/// <remarks>
+		/// This function does not require an HGK extension, but unfortunately works ~2.5 times slower than HGK version.
+		/// On the other side it is possible to specify revision range and it is much more flexible with templates and styles.
+		/// </remarks>
+		/// <returns></returns>
+		public List<RevLogChangeDesc> RevLog(string work_dir, string rev, int max_count)
+		{
+			var args = new StringBuilder();
+			args.Append("log");
+			args.Append(" --debug");
+			args.Append(" -v");
+			args.Append(" -f");
+			if (max_count != 0)
+				args.Append(" -l " + max_count);
+			if (rev.Length > 0)
+				args.Append(" -r " + rev);
+
+			var template = @"==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\nbranch: {branches}\ntag: {tags}\nparents: {parents}\n".Quote();
+			args.Append(" --template " + template);
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				var lst = RevLogChangeDesc.ParseChanges(proc.StandardOutput);
+				proc.WaitForExit();
+
+				return lst;
+			}
+		}
 
 		//-----------------------------------------------------------------------------
 /*

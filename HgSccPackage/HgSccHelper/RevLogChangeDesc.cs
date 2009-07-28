@@ -43,7 +43,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public static List<RevLogChangeDesc> ParseChanges(StreamReader reader)
+		public static List<RevLogChangeDesc> ParseChangesHgk(StreamReader reader)
 		{
 			var list = new List<RevLogChangeDesc>();
 			RevLogChangeDesc cs = null;
@@ -133,6 +133,100 @@ namespace HgSccHelper
 				cs.Desc = desc.ToString();
 				desc.Remove(0, desc.Length);
 
+				list.Add(cs);
+			}
+
+			return list;
+		}
+
+		//-----------------------------------------------------------------------------
+		public static List<RevLogChangeDesc> ParseChanges(StreamReader reader)
+		{
+			var list = new List<RevLogChangeDesc>();
+			RevLogChangeDesc cs = null;
+			var parent_sep = new char[] { ':', ' ' };
+
+			while (true)
+			{
+				string str = reader.ReadLine();
+				if (str == null)
+					break;
+
+				if (str.StartsWith("==:"))
+				{
+					if (cs != null)
+					{
+						list.Add(cs);
+					}
+
+					cs = new RevLogChangeDesc();
+					continue;
+				}
+
+				if (str.StartsWith("date: "))
+				{
+					cs.Date = DateTime.Parse(str.Substring("date: ".Length));
+					continue;
+				}
+
+				if (str.StartsWith("author: "))
+				{
+					cs.Author = str.Substring("author: ".Length);
+					continue;
+				}
+
+				if (str.StartsWith("rev: "))
+				{
+					cs.Rev = Int32.Parse(str.Substring("rev: ".Length));
+					continue;
+				}
+
+				if (str.StartsWith("node: "))
+				{
+					cs.SHA1 = str.Substring("node: ".Length);
+					continue;
+				}
+
+				if (str.StartsWith("desc: "))
+				{
+					cs.Desc = str.Substring("desc: ".Length);
+					cs.OneLineDesc = cs.Desc;
+					continue;
+				}
+
+				if (str.StartsWith("branch: "))
+				{
+					cs.Branch = str.Substring("branch: ".Length);
+					if (cs.Branch.Length == 0)
+						cs.Branch = "default";
+
+					continue;
+				}
+
+				if (str.StartsWith("parents: "))
+				{
+					var parents_strs = str.Substring("parents: ".Length).Split(parent_sep);
+					if (parents_strs[0] != "-1")
+						cs.Parents.Add(parents_strs[1]);
+					if (parents_strs[2] != "-1")
+						cs.Parents.Add(parents_strs[3]);
+					continue;
+				}
+
+				if (str.Length > 0)
+				{
+					if (str[0] == '\t')
+					{
+						cs.Desc += str.Substring(1);
+						continue;
+					}
+				}
+
+				//--
+			}
+
+			if (cs != null)
+			{
 				list.Add(cs);
 			}
 
