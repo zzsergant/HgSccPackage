@@ -40,12 +40,7 @@ namespace HgSccHelper
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			Title = string.Format("ChangeLog: '{0}'", WorkingDir);
-
-			using (var hg = new Hg())
-			{
-				var rev_log = hg.RevLog(WorkingDir, 0);
-				revLogControl1.SetRevs(rev_log);
-			}
+			revLogControl1.WorkingDir = WorkingDir;
 		}
 	}
 }

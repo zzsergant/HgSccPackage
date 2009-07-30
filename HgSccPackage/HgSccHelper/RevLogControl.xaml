@@ -5,7 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:HgSccHelper"
              mc:Ignorable="d"
-             d:DesignHeight="317" d:DesignWidth="476">
+             d:DesignHeight="317" d:DesignWidth="476"
+             Loaded="UserControl_Loaded"
+             Unloaded="UserControl_Unloaded">
     <UserControl.Resources>
     	<local:RevLogLinesPair x:Key="RevLogLinesPairDataSource" d:IsDataSource="True"/>
         <DataTemplate x:Key="myCellTemplateDesc">
@@ -51,15 +53,17 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="300" />
+            <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <ListView x:Name="listView1"
+        <ListView x:Name="graphView"
                   Grid.Row="0"
                   Margin="0, 0, 0, 5"
-                  ItemContainerStyle="{DynamicResource ListViewItemStyle1}">
+                  ItemContainerStyle="{DynamicResource ListViewItemStyle1}"
+                  SelectionChanged="graphView_SelectionChanged">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding Current.ChangeDesc.Rev}" CellTemplate="{StaticResource myCellTemplateDesc}" />
+                    <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding Current.ChangeDesc.Rev}" />
                     <GridViewColumn Header="Desc" Width="450"  CellTemplate="{StaticResource myCellTemplateDesc}"/>
                     <!--<GridViewColumn Header="Desc" Width="250" DisplayMemberBinding="{Binding Current.ChangeDesc.OneLineDesc}" />-->
                     <GridViewColumn Header="Author" Width="250" DisplayMemberBinding="{Binding Current.ChangeDesc.Author}" />
@@ -67,11 +71,11 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <GridSplitter Grid.Row="0" Margin="0" Name="gridSplitter1"
+        <GridSplitter Grid.Row="0" Margin="0"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
         <StackPanel Grid.Row="1"
                     Grid.RowSpan="2"
-                    DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=listView1, Mode=OneWay}">
+                    DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}" CanVerticallyScroll="True">
             <StackPanel Orientation="Horizontal">
                 <Label Content="Changeset:" Padding="2"></Label>
                 <TextBox Text="{Binding Path=Rev}" IsReadOnly="True" Margin="5, 0" MinWidth="70"/>
@@ -82,8 +86,19 @@
                 <Label Content="Date:" Padding="2" />
                 <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
             </StackPanel>
-            <TextBox Text="{Binding Path=Desc}" TextWrapping="Wrap">                
+            <TextBox Text="{Binding Path=Desc}" TextWrapping="Wrap" IsReadOnly="True">                
             </TextBox>
         </StackPanel>
+        <GridSplitter Grid.Row="1" Margin="0"
+                      Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
+        <ListView Grid.Row="2" Name="listViewFiles"
+                      ItemsSource="{Binding Path=Files}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding Status}" />
+                    <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding Path}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
     </Grid>
 </UserControl>

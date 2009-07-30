@@ -12,6 +12,8 @@
 
 using System.Collections.Generic;
 using System.Windows.Controls;
+using System.Windows.Threading;
+using System;
 
 namespace HgSccHelper
 {
@@ -23,23 +25,73 @@ namespace HgSccHelper
 		List<RevLogChangeDesc> revs;
 		List<RevLogLinesPair> rev_lines;
 
+		DispatcherTimer timer;
+
+		Hg Hg { get; set; }
+
+		//-----------------------------------------------------------------------------
+		public string WorkingDir { get; set; }
+
 		//------------------------------------------------------------------
 		public RevLogControl()
 		{
 			InitializeComponent();
 
-			VirtualizingStackPanel.SetIsVirtualizing(listView1, true);
-			VirtualizingStackPanel.SetVirtualizationMode(listView1, VirtualizationMode.Recycling);
+			VirtualizingStackPanel.SetIsVirtualizing(graphView, true);
+			VirtualizingStackPanel.SetVirtualizationMode(graphView, VirtualizationMode.Recycling);
 		}
 
 		//------------------------------------------------------------------
-		internal void SetRevs(List<RevLogChangeDesc> rev_log)
+		private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
 		{
-			this.revs = rev_log;
-			this.rev_lines = new List<RevLogLinesPair>(
-				RevLogLinesPair.FromV1(RevLogIterator.GetLines(revs)));
+			Hg = new Hg();
+			timer = new DispatcherTimer();
+			timer.Interval = TimeSpan.FromMilliseconds(50);
+			timer.Tick += OnTimerTick;
 
-			listView1.ItemsSource = rev_lines;
+			if (WorkingDir != null)
+			{
+				this.revs = Hg.RevLog(WorkingDir, 0);
+				this.rev_lines = new List<RevLogLinesPair>(
+					RevLogLinesPair.FromV1(RevLogIterator.GetLines(revs)));
+
+				graphView.ItemsSource = rev_lines;
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void OnTimerTick(object o, EventArgs e)
+		{
+			timer.Stop();
+
+			if (graphView.SelectedItems.Count == 1)
+			{
+				var rev_pair = (RevLogLinesPair)graphView.SelectedItem;
+				var cs_list = Hg.ChangesFull(WorkingDir, "", rev_pair.Current.ChangeDesc.SHA1);
+				if (cs_list.Count == 1)
+					listViewFiles.DataContext = cs_list[0];
+
+				return;
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void graphView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			listViewFiles.DataContext = null;
+			timer.Stop();
+
+			if (graphView.SelectedItems.Count == 1)
+			{
+				timer.Start();
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void UserControl_Unloaded(object sender, System.Windows.RoutedEventArgs e)
+		{
+			timer.Tick -= OnTimerTick;
+			Hg.Dispose();
 		}
 	}
 }
