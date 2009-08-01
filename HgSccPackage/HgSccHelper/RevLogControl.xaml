@@ -8,6 +8,12 @@
              d:DesignHeight="317" d:DesignWidth="476"
              Loaded="UserControl_Loaded"
              Unloaded="UserControl_Unloaded">
+    <UserControl.CommandBindings>
+        <CommandBinding Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+                        CanExecute="DiffPrevious_CanExecute"
+                        Executed="DiffPrevious_Executed">
+        </CommandBinding>
+    </UserControl.CommandBindings>
     <UserControl.Resources>
     	<local:RevLogLinesPair x:Key="RevLogLinesPairDataSource" d:IsDataSource="True"/>
         <DataTemplate x:Key="myCellTemplateDesc">
@@ -93,12 +99,29 @@
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
         <ListView Grid.Row="2" Name="listViewFiles"
                       ItemsSource="{Binding Path=Files}">
+            <ListView.InputBindings>
+                <KeyBinding Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+                            Modifiers="Control" Key="D" />
+            </ListView.InputBindings>
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+                              InputGestureText="Ctrl + D"></MenuItem>
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding Status}" />
                     <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding Path}" />
                 </GridView>
             </ListView.View>
+            <ListView.Resources>
+                <Style TargetType="ListViewItem">
+                    <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                    <EventSetter Event="MouseDoubleClick"
+                                 Handler="ListViewFiles_MouseDoubleClick" />
+                </Style>
+            </ListView.Resources>
         </ListView>
     </Grid>
 </UserControl>

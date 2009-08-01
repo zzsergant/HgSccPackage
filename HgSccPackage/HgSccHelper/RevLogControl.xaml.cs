@@ -14,6 +14,9 @@ using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using System;
+using System.Windows.Input;
+using HgSccPackage.Tools;
+using System.Windows;
 
 namespace HgSccHelper
 {
@@ -27,6 +30,11 @@ namespace HgSccHelper
 
 		DispatcherTimer timer;
 
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand DiffPreviousCommand = new RoutedUICommand("Diff Previous",
+			"DiffPrevious", typeof(RevLogControl));
+
+		//------------------------------------------------------------------
 		Hg Hg { get; set; }
 
 		//-----------------------------------------------------------------------------
@@ -39,6 +47,9 @@ namespace HgSccHelper
 
 			VirtualizingStackPanel.SetIsVirtualizing(graphView, true);
 			VirtualizingStackPanel.SetVirtualizationMode(graphView, VirtualizationMode.Recycling);
+
+			VirtualizingStackPanel.SetIsVirtualizing(listViewFiles, true);
+			VirtualizingStackPanel.SetVirtualizationMode(listViewFiles, VirtualizationMode.Recycling);
 		}
 
 		//------------------------------------------------------------------
@@ -93,5 +104,47 @@ namespace HgSccHelper
 			timer.Tick -= OnTimerTick;
 			Hg.Dispose();
 		}
+
+		//------------------------------------------------------------------
+		private void DiffPrevious_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+			if (listViewFiles.SelectedItems.Count == 1)
+			{
+				var file_info = (FileInfo)listViewFiles.SelectedItem;
+				if (file_info.Status == FileStatus.Modified)
+					e.CanExecute = true;
+			}
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void DiffPrevious_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+		{
+			e.Handled = true;
+
+			var cs = (ChangeDesc)listViewFiles.DataContext;
+			var file_info = (FileInfo)listViewFiles.SelectedItem;
+
+			try
+			{
+				Hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void ListViewFiles_MouseDoubleClick(object sender, MouseEventArgs e)
+		{
+			if (DiffPreviousCommand != null)
+			{
+				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
+					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
+			}
+		}
+
 	}
 }
