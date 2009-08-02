@@ -67,6 +67,7 @@ namespace HgSccHelper
 			var list = new List<ChangeDesc>();
 			var modified_files = new HashDictionary<string, FileInfo>();
 			ChangeDesc cs = null;
+			var desc_builder = new StringBuilder();
 
 			while (true)
 			{
@@ -84,6 +85,8 @@ namespace HgSccHelper
 						{
 							cs.FilesModified.Add(info);
 						}
+
+						cs.Desc = desc_builder.ToString();
 						
 						list.Add(cs);
 						modified_files.Clear();
@@ -113,7 +116,8 @@ namespace HgSccHelper
 
 				if (str.StartsWith("desc: "))
 				{
-					cs.Desc = str.Substring("desc: ".Length);
+					desc_builder.Remove(0, desc_builder.Length);
+					desc_builder.AppendLine(str.Substring("desc: ".Length));
 					continue;
 				}
 
@@ -121,7 +125,7 @@ namespace HgSccHelper
 				{
 					if (str[0] == '\t')
 					{
-						cs.Desc += str.Substring(1);
+						desc_builder.AppendLine(str.Substring(1));
 						continue;
 					}
 				}
@@ -178,6 +182,7 @@ namespace HgSccHelper
 					cs.FilesModified.Add(info);
 				}
 
+				cs.Desc = desc_builder.ToString();
 				list.Add(cs);
 				modified_files.Clear();
 			}

@@ -145,6 +145,7 @@ namespace HgSccHelper
 			var list = new List<RevLogChangeDesc>();
 			RevLogChangeDesc cs = null;
 			var parent_sep = new char[] { ':', ' ' };
+			var desc_builder = new StringBuilder();
 
 			while (true)
 			{
@@ -156,6 +157,7 @@ namespace HgSccHelper
 				{
 					if (cs != null)
 					{
+						cs.Desc = desc_builder.ToString();
 						list.Add(cs);
 					}
 
@@ -189,8 +191,9 @@ namespace HgSccHelper
 
 				if (str.StartsWith("desc: "))
 				{
-					cs.Desc = str.Substring("desc: ".Length);
-					cs.OneLineDesc = cs.Desc;
+					cs.OneLineDesc = str.Substring("desc: ".Length);
+					desc_builder.Remove(0, desc_builder.Length);
+					desc_builder.AppendLine(cs.OneLineDesc);
 					continue;
 				}
 
@@ -217,7 +220,7 @@ namespace HgSccHelper
 				{
 					if (str[0] == '\t')
 					{
-						cs.Desc += str.Substring(1);
+						desc_builder.AppendLine(str.Substring(1));
 						continue;
 					}
 				}
@@ -227,6 +230,7 @@ namespace HgSccHelper
 
 			if (cs != null)
 			{
+				cs.Desc = desc_builder.ToString();
 				list.Add(cs);
 			}
 
