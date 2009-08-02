@@ -79,22 +79,22 @@
         </ListView>
         <GridSplitter Grid.Row="0" Margin="0"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-        <StackPanel Grid.Row="1"
-                    Grid.RowSpan="2"
-                    DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}" CanVerticallyScroll="True">
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Changeset:" Padding="2"></Label>
-                <TextBox Text="{Binding Path=Rev}" IsReadOnly="True" Margin="5, 0" MinWidth="70"/>
-                <Label Content=":" Padding="2"></Label>
-                <TextBox Text="{Binding Path=SHA1}" IsReadOnly="True" Margin="5, 0" MinWidth="120"/>
-                <Label Content="Author:" Padding="2" />
-                <TextBox Text="{Binding Path=Author}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
-                <Label Content="Date:" Padding="2" />
-                <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
+        <ScrollViewer Grid.Row="1" CanContentScroll="True">
+            <StackPanel DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}" CanVerticallyScroll="True">
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Changeset:" Padding="2"></Label>
+                    <TextBox Text="{Binding Path=Rev}" IsReadOnly="True" Margin="5, 0" MinWidth="70"/>
+                    <Label Content=":" Padding="2"></Label>
+                    <TextBox Text="{Binding Path=SHA1}" IsReadOnly="True" Margin="5, 0" MinWidth="120"/>
+                    <Label Content="Author:" Padding="2" />
+                    <TextBox Text="{Binding Path=Author}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
+                    <Label Content="Date:" Padding="2" />
+                    <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
+                </StackPanel>
+                <TextBox Text="{Binding Path=Desc}" TextWrapping="Wrap" IsReadOnly="True">
+                </TextBox>
             </StackPanel>
-            <TextBox Text="{Binding Path=Desc}" TextWrapping="Wrap" IsReadOnly="True">                
-            </TextBox>
-        </StackPanel>
+        </ScrollViewer>
         <GridSplitter Grid.Row="1" Margin="0"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
         <ListView Grid.Row="2" Name="listViewFiles"
