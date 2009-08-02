@@ -17,6 +17,7 @@ using System;
 using System.Windows.Input;
 using HgSccPackage.Tools;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 
 namespace HgSccHelper
 {
@@ -30,9 +31,19 @@ namespace HgSccHelper
 
 		DispatcherTimer timer;
 
+		const int BatchSize = 500;
+
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand DiffPreviousCommand = new RoutedUICommand("Diff Previous",
 			"DiffPrevious", typeof(RevLogControl));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand ReadNextCommand = new RoutedUICommand("Read Next",
+			"ReadNext", typeof(RevLogControl));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand ReadAllCommand = new RoutedUICommand("Read All",
+			"ReadAll", typeof(RevLogControl));
 
 		//------------------------------------------------------------------
 		Hg Hg { get; set; }
@@ -62,11 +73,10 @@ namespace HgSccHelper
 
 			if (WorkingDir != null)
 			{
-				this.revs = Hg.RevLog(WorkingDir, 0);
-				this.rev_lines = new List<RevLogLinesPair>(
-					RevLogLinesPair.FromV1(RevLogIterator.GetLines(revs)));
-
-				graphView.ItemsSource = rev_lines;
+				var rev = string.Format("tip:-{0}", BatchSize);
+				ReadRevLog(rev);
+				if (graphView.Items.Count > 0)
+					graphView.SelectedIndex = 0;
 			}
 		}
 
@@ -142,6 +152,103 @@ namespace HgSccHelper
 			{
 				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
 					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void ReadNext_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+			if (WorkingDir != null && revs != null)
+			{
+				if (revs[revs.Count - 1].Rev != 0)
+					e.CanExecute = true;
+			}
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		void ReadRevLog(string revisions)
+		{
+			var prev_cursor = Cursor;
+			Cursor = Cursors.Wait;
+
+			var next_revs = Hg.RevLog(WorkingDir, revisions, 0);
+			if (revs == null)
+				revs = next_revs;
+			else
+				revs.AddRange(next_revs);
+
+			rev_lines = new List<RevLogLinesPair>(
+				RevLogLinesPair.FromV1(RevLogIterator.GetLines(revs)));
+
+			graphView.ItemsSource = rev_lines;
+
+			Cursor = prev_cursor;
+		}
+
+		//------------------------------------------------------------------
+		private void ReadNext_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var prev_selected = graphView.SelectedIndex;
+
+			var start_rev = revs[revs.Count - 1].Rev - 1;
+			var stop_rev = Math.Max(0, start_rev - BatchSize);
+			var rev = string.Format("{0}:{1}", start_rev, stop_rev);
+
+			ReadRevLog(rev);
+
+			if (prev_selected != -1)
+			{
+				graphView.SelectedIndex = prev_selected;
+				graphView.ItemContainerGenerator.StatusChanged += new EventHandler(ItemContainerGenerator_StatusChanged);
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void ReadAll_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			ReadNext_CanExecute(sender, e);
+		}
+
+		//------------------------------------------------------------------
+		private void ReadAll_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var prev_selected = graphView.SelectedIndex;
+
+			var start_rev = revs[revs.Count - 1].Rev - 1;
+			var rev = string.Format("{0}:{1}", start_rev, 0);
+
+			ReadRevLog(rev);
+
+			if (prev_selected != -1)
+			{
+				graphView.SelectedIndex = prev_selected;
+				graphView.ItemContainerGenerator.StatusChanged += new EventHandler(ItemContainerGenerator_StatusChanged);
+			}
+		}
+
+		//------------------------------------------------------------------
+		void ItemContainerGenerator_StatusChanged(object sender, EventArgs e)
+		{
+			var generator = (ItemContainerGenerator)sender;
+			if (generator.Status == GeneratorStatus.ContainersGenerated)
+			{
+				graphView.ItemContainerGenerator.StatusChanged -= new EventHandler(ItemContainerGenerator_StatusChanged);
+				var selected_item = (ListViewItem)graphView.ItemContainerGenerator.ContainerFromIndex(graphView.SelectedIndex);
+				if (selected_item != null)
+				{
+					// if selected item is visible, set keyboard focus to it
+					selected_item.Focus();
+				}
+				else
+				{
+					// otherwise we can either:
+					// 1. scroll view to the selected item and focus it
+					// 2. set selected index to first item
+ 
+					// graphView.SelectedIndex = 0;
+				}
 			}
 		}
 

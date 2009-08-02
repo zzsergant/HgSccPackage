@@ -13,6 +13,14 @@
                         CanExecute="DiffPrevious_CanExecute"
                         Executed="DiffPrevious_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:RevLogControl.ReadNextCommand}"
+                        CanExecute="ReadNext_CanExecute"
+                        Executed="ReadNext_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static local:RevLogControl.ReadAllCommand}"
+                        CanExecute="ReadAll_CanExecute"
+                        Executed="ReadAll_Executed">
+        </CommandBinding>
     </UserControl.CommandBindings>
     <UserControl.Resources>
     	<local:RevLogLinesPair x:Key="RevLogLinesPairDataSource" d:IsDataSource="True"/>
@@ -57,6 +65,10 @@
         </Style>
     </UserControl.Resources>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="300" />
             <RowDefinition Height="Auto" MinHeight="70" />
@@ -64,6 +76,7 @@
         </Grid.RowDefinitions>
         <ListView x:Name="graphView"
                   Grid.Row="0"
+                  Grid.Column="0"
                   Margin="0, 0, 0, 5"
                   ItemContainerStyle="{DynamicResource ListViewItemStyle1}"
                   SelectionChanged="graphView_SelectionChanged">
@@ -77,9 +90,24 @@
                 </GridView>
             </ListView.View>
         </ListView>
+        <StackPanel Grid.Row="0"
+                    Grid.Column="1" VerticalAlignment="Bottom">
+            <Button Content="+500"
+                    Command="{x:Static local:RevLogControl.ReadNextCommand}"
+                    Margin="5" Padding="5, 0" Focusable="False" IsTabStop="False">
+            </Button>
+            <Button Content="All"
+                    Command="{x:Static local:RevLogControl.ReadAllCommand}"
+                    Margin="5, 0, 5, 5" Padding="5, 0" Focusable="False" IsTabStop="False">
+            </Button>
+        </StackPanel>
         <GridSplitter Grid.Row="0" Margin="0"
+                      Grid.Column="0"
+                      Grid.ColumnSpan="2"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-        <ScrollViewer Grid.Row="1" CanContentScroll="True">
+        <ScrollViewer Grid.Row="1"
+                      Grid.ColumnSpan="2"
+                      CanContentScroll="True" VerticalScrollBarVisibility="Auto">
             <StackPanel DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}" CanVerticallyScroll="True">
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Changeset:" Padding="2"></Label>
@@ -91,14 +119,19 @@
                     <Label Content="Date:" Padding="2" />
                     <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
                 </StackPanel>
-                <TextBox Text="{Binding Path=Desc}" TextWrapping="Wrap" IsReadOnly="True">
+                <TextBox Text="{Binding Path=Desc}" TextWrapping="Wrap"
+                         IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
                 </TextBox>
             </StackPanel>
         </ScrollViewer>
         <GridSplitter Grid.Row="1" Margin="0"
+                      Grid.Column="0"
+                      Grid.ColumnSpan="2"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
         <ListView Grid.Row="2" Name="listViewFiles"
-                      ItemsSource="{Binding Path=Files}">
+                  Grid.Column="0"
+                  Grid.ColumnSpan="2"
+                  ItemsSource="{Binding Path=Files}">
             <ListView.InputBindings>
                 <KeyBinding Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />

@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Window1"
     Height="600"
-    Width="970"
+    Width="1026"
     xmlns:my="clr-namespace:HgSccHelper"
     Loaded="Window_Loaded" WindowStartupLocation="CenterOwner">
     <Grid>
