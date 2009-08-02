@@ -73,8 +73,7 @@ namespace HgSccHelper
 
 			if (WorkingDir != null)
 			{
-				var rev = string.Format("tip:-{0}", BatchSize);
-				ReadRevLog(rev);
+				ReadRevLog("", BatchSize);
 				if (graphView.Items.Count > 0)
 					graphView.SelectedIndex = 0;
 			}
@@ -170,10 +169,21 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		void ReadRevLog(string revisions)
 		{
+			ReadRevLog(revisions, 0);
+		}
+
+		//------------------------------------------------------------------
+		void ReadRevLog(string revisions, int max_count)
+		{
 			var prev_cursor = Cursor;
 			Cursor = Cursors.Wait;
 
-			var next_revs = Hg.RevLog(WorkingDir, revisions, 0);
+			List<RevLogChangeDesc> next_revs;
+			if (revisions.Length > 0)
+				next_revs = Hg.RevLog(WorkingDir, revisions, max_count);
+			else
+				next_revs = Hg.RevLog(WorkingDir, max_count);
+
 			if (revs == null)
 				revs = next_revs;
 			else
