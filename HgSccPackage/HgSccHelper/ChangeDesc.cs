@@ -190,4 +190,36 @@ namespace HgSccHelper
 			return list;
 		}
 	}
+
+	//==================================================================
+	class ChangeSetStyleFile : IDisposable
+	{
+		public string FileName { get; private set; }
+
+		//------------------------------------------------------------------
+		public ChangeSetStyleFile()
+		{
+			FileName = Path.GetTempFileName();
+			//Logger.WriteLine("Creating temp file: " + FileName);
+
+			using (var stream = new StreamWriter(File.OpenWrite(FileName)))
+			{
+				stream.WriteLine(@"changeset = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\n{files}\n'");
+				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n'");
+				stream.WriteLine(@"file = '{file}:'");
+				stream.WriteLine(@"last_file = '{file}'");
+				stream.WriteLine(@"file_add = '{file_add}:'");
+				stream.WriteLine(@"last_file_add = '{file_add}'");
+				stream.WriteLine(@"file_del = '{file_del}:'");
+				stream.WriteLine(@"last_file_del = '{file_del}'");
+				// stream.WriteLine(@"branches = '{branches}:'");
+			}
+		}
+
+		//------------------------------------------------------------------
+		public void Dispose()
+		{
+			File.Delete(FileName);
+		}
+	}
 }

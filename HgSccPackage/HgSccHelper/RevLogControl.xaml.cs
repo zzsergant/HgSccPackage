@@ -102,7 +102,6 @@ namespace HgSccHelper
 		private void UserControl_Unloaded(object sender, System.Windows.RoutedEventArgs e)
 		{
 			timer.Tick -= OnTimerTick;
-			Hg.Dispose();
 		}
 
 		//------------------------------------------------------------------

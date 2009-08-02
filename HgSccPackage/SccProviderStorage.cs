@@ -90,11 +90,7 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void Close()
 		{
-			if (hgscc != null)
-			{
-				hgscc.Dispose();
-				hgscc = null;
-			}
+			hgscc = null;
 			cache.Clear();
 		}
 

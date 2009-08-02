@@ -41,41 +41,11 @@ namespace HgSccHelper
 	}
 
 	//=============================================================================
-	class Hg : IDisposable
+	class Hg
 	{
-		string full_change_style_file;
-		bool disposed;
-
 		//-----------------------------------------------------------------------------
 		public Hg()
 		{
-			full_change_style_file = Path.GetTempFileName();
-			//Logger.WriteLine("Creating temp file: " + full_change_style_file);
-
-			using (var stream = new StreamWriter(File.OpenWrite(full_change_style_file)))
-			{
-				stream.WriteLine(@"changeset = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\n{files}\n'");
-				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n'");
-				stream.WriteLine(@"file = '{file}:'");
-				stream.WriteLine(@"last_file = '{file}'");
-				stream.WriteLine(@"file_add = '{file_add}:'");
-				stream.WriteLine(@"last_file_add = '{file_add}'");
-				stream.WriteLine(@"file_del = '{file_del}:'");
-				stream.WriteLine(@"last_file_del = '{file_del}'");
-				// stream.WriteLine(@"branches = '{branches}:'");
-			}
-		}
-
-		//-----------------------------------------------------------------------------
-		public void Dispose()
-		{
-			if (!disposed)
-			{
-				//Logger.WriteLine("Deleting " + full_change_style_file);
-				File.Delete(full_change_style_file);
-
-				disposed = true;
-			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -132,27 +102,30 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<ChangeDesc> ChangesFull(string work_dir, string path, string rev)
 		{
-			var args = new StringBuilder();
-			args.Append("log");
-			args.Append(" --debug");
-			args.Append(" -v");
-			args.Append(" -f");
-			if (rev.Length > 0)
-				args.Append(" -r " + rev);
-
-			args.Append(" --style " + full_change_style_file.Quote());
-
-			if (path.Length > 0)
+			using (var style = new ChangeSetStyleFile())
 			{
-				args.Append(" " + path.Quote());
-			}
+				var args = new StringBuilder();
+				args.Append("log");
+				args.Append(" --debug");
+				args.Append(" -v");
+				args.Append(" -f");
+				if (rev.Length > 0)
+					args.Append(" -r " + rev);
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
-			{
-				var lst = ChangeDesc.ParseChanges(proc.StandardOutput);
-				proc.WaitForExit();
+				args.Append(" --style " + style.FileName.Quote());
 
-				return lst;
+				if (path.Length > 0)
+				{
+					args.Append(" " + path.Quote());
+				}
+
+				using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+				{
+					var lst = ChangeDesc.ParseChanges(proc.StandardOutput);
+					proc.WaitForExit();
+
+					return lst;
+				}
 			}
 		}
 

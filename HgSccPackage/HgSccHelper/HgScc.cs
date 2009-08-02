@@ -28,7 +28,7 @@ namespace HgSccHelper
 	}
 
 	//-----------------------------------------------------------------------------
-	public class HgScc : IDisposable
+	public class HgScc
 	{
 		public string WorkingDir { get; private set; }
 		private readonly Hg hg;
@@ -39,13 +39,6 @@ namespace HgSccHelper
 		public HgScc()
 		{
 			hg = new Hg();
-		}
-
-		//-----------------------------------------------------------------------------
-		public void Dispose()
-		{
-			hg.Dispose();
-			WorkingDir = "";
 		}
 
 		//-----------------------------------------------------------------------------
