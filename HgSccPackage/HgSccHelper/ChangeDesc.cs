@@ -23,8 +23,10 @@ namespace HgSccHelper
 	{
 		public string Author { get; set; }
 		public string Desc { get; set; }
+		public string OneLineDesc { get; set; }
 		public int Rev { get; set; }
 		public DateTime Date { get; set; }
+		public string SHA1 { get; set; }
 		public List<FileInfo> FilesAdded { get; set; }
 		public List<FileInfo> FilesModified { get; set; }
 		public List<FileInfo> FilesRemoved { get; set; }
@@ -53,6 +55,7 @@ namespace HgSccHelper
 			}
 		}
 
+		//------------------------------------------------------------------
 		private static void RemoveDuplicates(HashDictionary<string, FileInfo> dict, List<FileInfo> files)
 		{
 			foreach (var file in files)
@@ -113,11 +116,18 @@ namespace HgSccHelper
 					cs.Rev = Int32.Parse(str.Substring("rev: ".Length));
 					continue;
 				}
-
+				
+				if (str.StartsWith("node: "))
+				{
+					cs.SHA1 = str.Substring("node: ".Length);
+					continue;
+				}
+				
 				if (str.StartsWith("desc: "))
 				{
+					cs.OneLineDesc = str.Substring("desc: ".Length);
 					desc_builder.Remove(0, desc_builder.Length);
-					desc_builder.AppendLine(str.Substring("desc: ".Length));
+					desc_builder.AppendLine(cs.OneLineDesc);
 					continue;
 				}
 
@@ -204,8 +214,7 @@ namespace HgSccHelper
 
 			using (var stream = new StreamWriter(File.OpenWrite(FileName)))
 			{
-				stream.WriteLine(@"changeset = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\n{files}\n'");
-				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n'");
+				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n'");
 				stream.WriteLine(@"file = '{file}:'");
 				stream.WriteLine(@"last_file = '{file}'");
 				stream.WriteLine(@"file_add = '{file_add}:'");
