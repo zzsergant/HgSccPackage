@@ -38,6 +38,10 @@ namespace HgSccHelper
 			"DiffPrevious", typeof(RevLogControl));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
+			"FileHistory", typeof(RevLogControl));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand ReadNextCommand = new RoutedUICommand("Read Next",
 			"ReadNext", typeof(RevLogControl));
 
@@ -262,5 +266,25 @@ namespace HgSccHelper
 			}
 		}
 
+		//------------------------------------------------------------------
+		private void FileHistory_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = listViewFiles.SelectedItems.Count == 1;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void FileHistory_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var change = (ChangeDesc)listViewFiles.DataContext;
+			var file_info = (FileInfo)listViewFiles.SelectedItem;
+
+			FileHistoryWindow wnd = new FileHistoryWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.Rev = change.Rev.ToString();
+			wnd.FileName = file_info.Path;
+
+			wnd.ShowDialog();
+		}
 	}
 }

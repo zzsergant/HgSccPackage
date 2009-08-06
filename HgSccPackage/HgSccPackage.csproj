@@ -82,6 +82,9 @@
     <Compile Include="HgSccHelper\CommitForm.designer.cs">
       <DependentUpon>CommitForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="HgSccHelper\FileHistoryWindow.xaml.cs">
+      <DependentUpon>FileHistoryWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="HgSccHelper\FileInfo.cs" />
     <Compile Include="HgSccHelper\Hg.cs" />
     <Compile Include="HgSccHelper\HgAboutControl.cs">
@@ -218,6 +221,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="HgSccHelper\FileHistoryWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="HgSccHelper\RevLogControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
