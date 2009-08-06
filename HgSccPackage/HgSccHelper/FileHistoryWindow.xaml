@@ -8,12 +8,6 @@
     Loaded="Window_Loaded"
     Unloaded="Window_Unloaded"
     WindowStartupLocation="CenterOwner">
-    <Window.CommandBindings>
-        <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
-                        CanExecute="DiffPrevious_CanExecute"
-                        Executed="DiffPrevious_Executed">
-        </CommandBinding>
-    </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="300" />
@@ -23,6 +17,22 @@
         <ListView x:Name="listChanges"
                   Grid.Row="0"
                   Margin="0, 0, 0, 5">
+            <ListView.CommandBindings>
+                <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                        CanExecute="HistoryDiffPrevious_CanExecute"
+                        Executed="HistoryDiffPrevious_Executed">
+                </CommandBinding>
+            </ListView.CommandBindings>
+            <ListView.InputBindings>
+                <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                            Modifiers="Control" Key="D" />
+            </ListView.InputBindings>
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                              InputGestureText="Ctrl + D"></MenuItem>
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.GroupStyle>
                 <GroupStyle>
                     <GroupStyle.HeaderTemplate>
@@ -43,6 +53,13 @@
                     <GridViewColumn Header="Date" Width="150" DisplayMemberBinding="{Binding ChangeDesc.Date}" />
                 </GridView>
             </ListView.View>
+            <ListView.Resources>
+                <Style TargetType="ListViewItem">
+                    <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                    <EventSetter Event="MouseDoubleClick"
+                                 Handler="ListChanges_MouseDoubleClick" />
+                </Style>
+            </ListView.Resources>
         </ListView>
         <GridSplitter Grid.Row="0" Margin="0"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
@@ -68,6 +85,12 @@
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
         <ListView Grid.Row="2" Name="listViewFiles"
                   ItemsSource="{Binding Path=SelectedItem.ChangeDesc.Files, ElementName=listChanges, Mode=OneWay}">
+            <ListView.CommandBindings>
+                <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                        CanExecute="FilesDiffPrevious_CanExecute"
+                        Executed="FilesDiffPrevious_Executed">
+                </CommandBinding>
+            </ListView.CommandBindings>
             <ListView.InputBindings>
                 <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />

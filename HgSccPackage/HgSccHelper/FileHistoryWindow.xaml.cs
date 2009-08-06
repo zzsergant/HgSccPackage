@@ -113,7 +113,47 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		private void DiffPrevious_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		private void HistoryDiffPrevious_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+			if (listChanges.SelectedItems.Count == 1)
+			{
+				if (listChanges.SelectedIndex != (listChanges.Items.Count - 1))
+					e.CanExecute = true;
+			}
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void HistoryDiffPrevious_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var f1 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex];
+			var f2 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex + 1];
+
+			try
+			{
+				Hg.Diff(WorkingDir, f1.RenameInfo.Path, f1.ChangeDesc.Rev, f2.RenameInfo.Path, f2.ChangeDesc.Rev);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void ListChanges_MouseDoubleClick(object sender, MouseEventArgs e)
+		{
+			if (DiffPreviousCommand != null)
+			{
+				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
+					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void FilesDiffPrevious_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;
 			if (listViewFiles.SelectedItems.Count == 1)
@@ -126,7 +166,7 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		private void DiffPrevious_Executed(object sender, ExecutedRoutedEventArgs e)
+		private void FilesDiffPrevious_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var file_history = (FileHistoryInfo)listChanges.SelectedItem;
 			var file_info = (FileInfo)listViewFiles.SelectedItem;
