@@ -134,6 +134,13 @@ namespace HgSccHelper
 			var f1 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex];
 			var f2 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex + 1];
 
+			if (f1.ChangeDesc.Rev > f2.ChangeDesc.Rev)
+			{
+				var temp = f2;
+				f2 = f1;
+				f1 = temp;
+			}
+
 			try
 			{
 				Hg.Diff(WorkingDir, f1.RenameInfo.Path, f1.ChangeDesc.Rev, f2.RenameInfo.Path, f2.ChangeDesc.Rev);
