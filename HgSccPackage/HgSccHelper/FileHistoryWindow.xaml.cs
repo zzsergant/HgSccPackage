@@ -29,6 +29,10 @@ namespace HgSccHelper
 		public static RoutedUICommand DiffPreviousCommand = new RoutedUICommand("Diff Previous",
 			"DiffPrevious", typeof(FileHistoryWindow));
 
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
+			"FileHistory", typeof(FileHistoryWindow));
+
 		List<FileHistoryInfo> history;
 
 		//------------------------------------------------------------------
@@ -192,6 +196,28 @@ namespace HgSccHelper
 				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
 					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
 			}
+		}
+
+		//------------------------------------------------------------------
+		private void FileHistory_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = listViewFiles.SelectedItems.Count == 1;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void FileHistory_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var file_history = (FileHistoryInfo)listChanges.SelectedItem;
+			var file_info = (FileInfo)listViewFiles.SelectedItem;
+			var cs = file_history.ChangeDesc;
+
+			FileHistoryWindow wnd = new FileHistoryWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.Rev = cs.Rev.ToString();
+			wnd.FileName = file_info.Path;
+
+			wnd.ShowDialog();
 		}
 	}
 

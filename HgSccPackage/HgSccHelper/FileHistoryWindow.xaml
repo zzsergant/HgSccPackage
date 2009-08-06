@@ -48,7 +48,7 @@
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding ChangeDesc.Rev}" />
-                    <GridViewColumn Header="Desc" Width="250" DisplayMemberBinding="{Binding ChangeDesc.OneLineDesc}" />
+                    <GridViewColumn Header="Desc" Width="500" DisplayMemberBinding="{Binding ChangeDesc.OneLineDesc}" />
                     <GridViewColumn Header="Author" Width="250" DisplayMemberBinding="{Binding ChangeDesc.Author}" />
                     <GridViewColumn Header="Date" Width="150" DisplayMemberBinding="{Binding ChangeDesc.Date}" />
                 </GridView>
@@ -90,15 +90,23 @@
                         CanExecute="FilesDiffPrevious_CanExecute"
                         Executed="FilesDiffPrevious_Executed">
                 </CommandBinding>
+                <CommandBinding Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                        CanExecute="FileHistory_CanExecute"
+                        Executed="FileHistory_Executed">
+                </CommandBinding>
             </ListView.CommandBindings>
             <ListView.InputBindings>
                 <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
+                <KeyBinding Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                            Modifiers="Control" Key="H" />
             </ListView.InputBindings>
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
+                    <MenuItem Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                              InputGestureText="Ctrl + H"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.View>
