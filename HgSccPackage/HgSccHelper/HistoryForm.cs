@@ -182,63 +182,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void FindRenames(List<ChangeDesc> changes)
 		{
-			renames.Clear();
-			if (changes.Count == 0)
-				return;
-
-			var current = new RenameInfo { Path = this.Path.Replace('\\', '/'), Index = 0, Rev = changes[0].Rev };
-			renames.Add(current);
-
-			while (true)
-			{
-				bool found_mismatch = false;
-				int mismatch_index = current.Index;
-				string prev_name = null;
-
-				for (int i = current.Index; !found_mismatch && i < changes.Count; ++i)
-				{
-					var ch = changes[i];
-					foreach (var info in ch.FilesAdded)
-					{
-						if (info.Path == current.Path)
-						{
-							if (!Hg.TrackRename(WorkingDir, current.Path, ch.Rev.ToString(), out prev_name))
-								return;
-
-							found_mismatch = true;
-							mismatch_index = i;
-							break;
-						}
-					}
-				}
-
-				if (!found_mismatch)
-					break;
-
-				bool found = false;
-
-				for(int i = mismatch_index; !found && i < changes.Count - 1; ++i)
-				{
-					foreach (var f in changes[i].Files)
-					{
-//						Logger.WriteLine(String.Format("Comparing: {0}, {1}", f.Path, prev_name));
-
-						if (0 == String.Compare(f.Path, prev_name, true))
-						{
-							found = true;
-//							Logger.WriteLine("Equal");
-
-							var prev = new RenameInfo { Path = prev_name, Index = i + 1, Rev = changes[i + 1].Rev };
-							renames.Add(prev);
-							current = prev;
-							break;
-						}
-					}
-				}
-
-				if (!found)
-					break;
-			}			
+			renames = Hg.FindRenames(WorkingDir, Path.Replace('\\', '/'), changes);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -341,11 +285,4 @@ namespace HgSccHelper
 		}
 	}
 
-	//-----------------------------------------------------------------------------
-	class RenameInfo
-	{
-		public string Path { get; set; }
-		public int Rev { get; set; }
-		public int Index { get; set; }
-	}
 }

@@ -293,12 +293,21 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<HgFileInfo> Status(string work_dir, string path)
 		{
+			return Status(work_dir, path, "");
+		}
+
+		//-----------------------------------------------------------------------------
+		public List<HgFileInfo> Status(string work_dir, string path, string rev)
+		{
 			var args = new StringBuilder();
 			args.Append("status");
-//			args.Append(" -amrdC");
 			args.Append(" -amrdcC");
+			
 			if (path.Length > 0)
 				args.Append(" " + path.Quote());
+
+			if (rev.Length > 0)
+				args.Append(" -r " + rev);
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
@@ -834,5 +843,78 @@ namespace HgSccHelper
 
 			return true;
 		}
+
+		//-----------------------------------------------------------------------------
+		public List<RenameInfo> FindRenames(string work_dir, string file, List<ChangeDesc> changes)
+		{
+			var renames = new List<RenameInfo>();
+			if (changes.Count == 0)
+				return renames;
+
+			var current = new RenameInfo { Path = file, Index = 0, Rev = changes[0].Rev };
+			renames.Add(current);
+
+			while (true)
+			{
+				bool found_mismatch = false;
+				int mismatch_index = current.Index;
+				string prev_name = null;
+
+				for (int i = current.Index; !found_mismatch && i < changes.Count; ++i)
+				{
+					var ch = changes[i];
+					foreach (var info in ch.FilesAdded)
+					{
+						if (info.Path == current.Path)
+						{
+							if (!TrackRename(work_dir, current.Path, ch.Rev.ToString(), out prev_name))
+								return renames;
+
+							found_mismatch = true;
+							mismatch_index = i;
+							break;
+						}
+					}
+				}
+
+				if (!found_mismatch)
+					break;
+
+				bool found = false;
+
+				for (int i = mismatch_index; !found && i < changes.Count - 1; ++i)
+				{
+					foreach (var f in changes[i].Files)
+					{
+						// Logger.WriteLine(String.Format("Comparing: {0}, {1}", f.Path, prev_name));
+
+						if (0 == String.Compare(f.Path, prev_name, true))
+						{
+							found = true;
+							// Logger.WriteLine("Equal");
+
+							var prev = new RenameInfo { Path = prev_name, Index = i + 1, Rev = changes[i + 1].Rev };
+							renames.Add(prev);
+							current = prev;
+							break;
+						}
+					}
+				}
+
+				if (!found)
+					break;
+			}
+
+			return renames;
+		}
+
+	}
+
+	//-----------------------------------------------------------------------------
+	class RenameInfo
+	{
+		public string Path { get; set; }
+		public int Rev { get; set; }
+		public int Index { get; set; }
 	}
 }
