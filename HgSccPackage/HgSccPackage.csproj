@@ -263,6 +263,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>"C:\Program Files\Microsoft Visual Studio 2008 SDK\VisualStudioIntegration\Tools\bin\regpkg.exe" /regfile:"$(TargetDir)$(TargetName).reg" /codebase $(TargetPath)</PostBuildEvent>
+    <PostBuildEvent>"%25VSSDK90Install%25\VisualStudioIntegration\Tools\bin\regpkg.exe" /regfile:"$(TargetDir)$(TargetName).reg" /codebase $(TargetPath)</PostBuildEvent>
   </PropertyGroup>
 </Project>
