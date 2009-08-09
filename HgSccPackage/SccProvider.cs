@@ -1442,25 +1442,37 @@ namespace HgSccPackage
 							for(int i = 0; i < sccFiles.Count; ++i)
 								Logger.WriteLine("[{0}]: {1}", i, sccFiles[i]);
 
-							return;
-						}
-/*
-						var dict = new Dictionary<string, uint>();
-						var proj = vsItemSel.pHier as IVsProject2;
+							var dict = new Dictionary<string, uint>();
+							var proj = vsItemSel.pHier as IVsProject2;
 
-						foreach (var id in subnodes)
-						{
-							string docname;
-							var res = proj.GetMkDocument(id, out docname);
+							foreach (var id in subnodes)
+							{
+								string docname;
+								var res = proj.GetMkDocument(id, out docname);
 
-							if (res == VSConstants.S_OK && !string.IsNullOrEmpty(docname))
-								dict[docname] = id;
+								if (res == VSConstants.S_OK && !string.IsNullOrEmpty(docname))
+									dict[docname] = id;
+							}
+
+							for(int i = 0; i < sccFiles.Count; ++i)
+							{
+								uint id;
+								if (dict.TryGetValue(sccFiles[i], out id))
+								{
+									rguiAffectedNodes[i] = id;
+								}
+								else
+								{
+									Logger.WriteLine("Error: Unable to map id<->filename: {0}", sccFiles[i]);
+								}
+							}
 						}
-*/
-						// FIXME: Проверить соответствие
-						for (int i = 0; i < sccFiles.Count; ++i)
+						else
 						{
-							rguiAffectedNodes[i] = subnodes[i];
+							for (int i = 0; i < sccFiles.Count; ++i)
+							{
+								rguiAffectedNodes[i] = subnodes[i];
+							}
 						}
 
 						sccProject2.SccGlyphChanged(sccFiles.Count, rguiAffectedNodes, rgsiGlyphs,
