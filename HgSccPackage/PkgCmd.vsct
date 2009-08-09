@@ -82,6 +82,17 @@
           <CommandName>Add to Source Code Control (SccProvider)</CommandName>
         </Strings>
       </Button>
+      <Button guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0000" type="Button">
+        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+        <Icon guid="guidSccProviderImages" id="iconSynchronize"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <Strings>
+          <ButtonText>Synchronize...</ButtonText>
+          <MenuText>Synchronize...</MenuText>
+          <CommandName>Synchronize (SccProvider)</CommandName>
+        </Strings>
+      </Button>
       <Button guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
         <Icon guid="guidSccProviderImages" id="iconCommit"/>
@@ -139,7 +150,7 @@
       </Button>
     </Buttons>
     <Bitmaps>
-      <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, icon5, iconCompare, icon7, icon8, icon9, icon10, icon11, icon12, icon13, icon14, icon15, icon16, icon17, icon18, icon19, icon20, icon21, icon22, icon23, icon24, icon25, iconViewHistory"/>
+      <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, iconSynchronize, iconCompare, icon7, icon8, icon9, icon10, icon11, icon12, icon13, icon14, icon15, icon16, icon17, icon18, icon19, icon20, icon21, icon22, icon23, icon24, icon25, iconViewHistory"/>
     </Bitmaps>
   </Commands>
 
@@ -159,6 +170,15 @@
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000">
@@ -217,10 +237,11 @@
     <GuidSymbol name="guidSccProviderCmdSet" value="{A7F26CA1-3000-4729-896E-0BBE9E380635}" >
 
       <IDSymbol name="icmdAddToSourceControl" value="0x100"/>
-      <IDSymbol name="icmdCommit" value="0x101"/>
-      <IDSymbol name="icmdRevert" value="0x102"/>
-      <IDSymbol name="icmdCompare" value="0x103"/>
-      <IDSymbol name="icmdViewHistory" value="0x104"/>
+      <IDSymbol name="icmdSynchronize" value="0x101"/>
+      <IDSymbol name="icmdCommit" value="0x102"/>
+      <IDSymbol name="icmdRevert" value="0x103"/>
+      <IDSymbol name="icmdCompare" value="0x104"/>
+      <IDSymbol name="icmdViewHistory" value="0x105"/>
       <!--<IDSymbol name="icmdViewToolWindow" value="0x105"/>-->
       <IDSymbol name="icmdToolWindowToolbarCommand" value="0x106"/>
       <IDSymbol name="icmdViewChangeLog" value="0x107"/>
@@ -241,7 +262,7 @@
       <IDSymbol name="iconCommit" value="2"/>
       <IDSymbol name="iconRevert" value="3"/>
       <IDSymbol name="iconAdd" value="4"/>
-      <IDSymbol name="icon5" value="5"/>
+      <IDSymbol name="iconSynchronize" value="5"/>
       <IDSymbol name="iconCompare" value="6"/>
       <IDSymbol name="icon7" value="7"/>
       <IDSymbol name="icon8" value="8"/>

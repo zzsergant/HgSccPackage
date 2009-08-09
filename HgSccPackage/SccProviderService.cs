@@ -1961,5 +1961,11 @@ namespace HgSccPackage
 		}
 
 		#endregion
+
+		internal void Synchronize()
+		{
+			if (storage != null)
+				storage.Synchronize();
+		}
 	}
 }
