@@ -651,15 +651,28 @@ namespace HgSccPackage
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			var selected_files = GetSelectedNodes();
-			if (selected_files.Count == 0)
-				return OLECMDF.OLECMDF_INVISIBLE;
+			System.Collections.Generic.IList<VSITEMSELECTION> sel = GetSelectedNodes();
+			bool isSolutionSelected = false;
+			var hash = GetSelectedHierarchies(sel, out isSolutionSelected);
 
-			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
-
-			if (files.Count != 0)
+			// The command is enabled when the solution is selected and is controlled
+			// or when an controlled project is selected
+			if (isSolutionSelected)
 			{
-				return OLECMDF.OLECMDF_ENABLED;
+				if (sccService.IsProjectControlled(null))
+				{
+					return OLECMDF.OLECMDF_ENABLED;
+				}
+			}
+			else
+			{
+				foreach (IVsHierarchy pHier in hash)
+				{
+					if (sccService.IsProjectControlled(pHier))
+					{
+						return OLECMDF.OLECMDF_ENABLED;
+					}
+				}
 			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
@@ -812,13 +825,7 @@ namespace HgSccPackage
 				return;
 			}
 
-			var selected_files = GetSelectedNodes();
-			if (selected_files.Count == 0)
-				return;
-
-			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
-
-			if (files.Count != 0)
+			if (sccService != null)
 			{
 				sccService.ViewChangeLog();
 			}
