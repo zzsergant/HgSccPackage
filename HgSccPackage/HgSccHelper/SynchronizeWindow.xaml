@@ -39,12 +39,14 @@
                         MinWidth="75"></Button>
             </ToolBar>
         </ToolBarTray>
-        <RichTextBox Grid.Row="1"
-                     Name="richTextBox"
-                     HorizontalContentAlignment="Stretch"
-                     VerticalContentAlignment="Stretch"
-                     VerticalScrollBarVisibility="Auto"
-                     HorizontalScrollBarVisibility="Auto" FontFamily="Courier New" IsReadOnly="True">
-        </RichTextBox>
+        <TextBox Grid.Row="1"
+                 Name="textBox"
+                 HorizontalContentAlignment="Stretch"
+                 VerticalContentAlignment="Stretch"
+                 VerticalScrollBarVisibility="Visible"
+                 HorizontalScrollBarVisibility="Visible"
+                 FontFamily="Courier New"
+                 IsReadOnly="True">
+        </TextBox>
     </Grid>
 </Window>

@@ -73,21 +73,6 @@ namespace HgSccHelper
 		{
  			Title = string.Format("Synchronize: '{0}'", WorkingDir);
 			Hg = new Hg();
-
-			var paragraph = new Paragraph();
-			paragraph.TextIndent = 0;
-
-			var run = new Run("Some Text");
-			paragraph.Inlines.Add(run);
-
-			paragraph.Inlines.Add(new LineBreak());
-
-			var red = new Run("Red color");
-			red.Foreground = Brushes.Red;
-			paragraph.Inlines.Add(red);
-
-			richTextBox.Document.Blocks.Clear();
-			richTextBox.Document.Blocks.Add(paragraph);
 		}
 
 		//------------------------------------------------------------------
@@ -112,7 +97,8 @@ namespace HgSccHelper
 //			worker.WorkerReportsProgress = true;
 			worker.WorkerSupportsCancellation = true;
 
-			richTextBox.Document.Blocks.Clear();
+			textBox.Text = "";
+
 			worker.RunWorkerAsync();
 			e.Handled = true;
 		}
@@ -143,14 +129,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		void Incoming_NewMsg(string msg)
 		{
-			if (richTextBox.Document.Blocks.Count == 0)
-				richTextBox.Document.Blocks.Add(new Paragraph());
-
-			var paragraph = richTextBox.Document.Blocks.FirstBlock as Paragraph;
-			paragraph.Inlines.Add(new Run(msg));
-			paragraph.Inlines.Add(new LineBreak());
-
-			richTextBox.ScrollToEnd();
+			textBox.AppendText(msg + "\n");
+			textBox.ScrollToEnd();
 		}
 
 		//------------------------------------------------------------------
@@ -160,29 +140,18 @@ namespace HgSccHelper
 //			worker.ProgressChanged -= new ProgressChangedEventHandler(Incoming_ProgressChanged);
 			worker.RunWorkerCompleted -= new RunWorkerCompletedEventHandler(Incoming_RunWorkerCompleted);
 
-			var msg = new Run();
 			if (e.Error != null)
 			{
-				msg.Text = e.Error.Message;
-				msg.Foreground = Brushes.Red;
+				Incoming_NewMsg(e.Error.Message);
 			}
 			else if (e.Cancelled)
 			{
-				msg.Text = "[Operation canceled]";
-				msg.Foreground = Brushes.Red;
+				Incoming_NewMsg("[Operation canceled]");
 			}
 			else
 			{
-				msg.Text = "[Operation completed]";
-				msg.Foreground = Brushes.Green;
+				Incoming_NewMsg("[Operation completed]");
 			}
-
-			if (richTextBox.Document.Blocks.Count == 0)
-				richTextBox.Document.Blocks.Add(new Paragraph());
-
-			var paragraph = richTextBox.Document.Blocks.FirstBlock as Paragraph;
-			paragraph.Inlines.Add(msg);
-			richTextBox.ScrollToEnd();
 		}
 
 		//------------------------------------------------------------------
