@@ -127,6 +127,9 @@
       <DependentUpon>RevLogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="HgSccHelper\SccDefines.cs" />
+    <Compile Include="HgSccHelper\SynchronizeWindow.xaml.cs">
+      <DependentUpon>SynchronizeWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tools\Util.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProvideSolutionProps.cs" />
@@ -230,6 +233,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="HgSccHelper\RevLogWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="HgSccHelper\SynchronizeWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

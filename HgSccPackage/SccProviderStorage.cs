@@ -446,7 +446,9 @@ namespace HgSccPackage
 			if (!IsValid)
 				return;
 
-			System.Windows.Forms.MessageBox.Show("Synchronize placeholder");
+			var wnd = new SynchronizeWindow();
+			wnd.WorkingDir = hgscc.WorkingDir;
+			wnd.ShowDialog();
 		}
 	}
 }

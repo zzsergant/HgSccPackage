@@ -49,7 +49,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private ProcessStartInfo PrepareProcess(string work_dir, string arguments)
+		public ProcessStartInfo PrepareProcess(string work_dir, string arguments)
 		{
 			var info = new ProcessStartInfo("hg.exe");
 			info.Arguments = arguments;
