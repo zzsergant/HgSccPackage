@@ -20,6 +20,9 @@ using HgSccPackage.Tools;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Text;
+using System.ComponentModel;
+using System;
+using System.Windows.Threading;
 
 namespace HgSccHelper
 {
@@ -43,11 +46,17 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand PushCommand = new RoutedUICommand("Push",
 			"Push", typeof(SynchronizeWindow));
-		
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand StopCommand = new RoutedUICommand("Stop",
+			"Stop", typeof(SynchronizeWindow));
+
 		//------------------------------------------------------------------
 		public SynchronizeWindow()
 		{
 			InitializeComponent();
+
+			worker = new BackgroundWorker();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -55,6 +64,9 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		Hg Hg { get; set; }
+
+		//------------------------------------------------------------------
+		BackgroundWorker worker;
 
 		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -81,24 +93,101 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
+			worker.Dispose();
 		}
 
 		//------------------------------------------------------------------
 		private void Incoming_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = true;
+			e.CanExecute = (worker != null && !worker.IsBusy);
 			e.Handled = true;
 		}
 
 		//------------------------------------------------------------------
 		private void Incoming_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			richTextBox.Document.Blocks.Clear();
-			var paragraph = new Paragraph();
-			var run = new Run("Incoming\n");
-			paragraph.Inlines.Add(run);
-			richTextBox.Document.Blocks.Add(paragraph);
+			worker.DoWork += new DoWorkEventHandler(Incoming_DoWork);
+//			worker.ProgressChanged += new ProgressChangedEventHandler(Incoming_ProgressChanged);
+			worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Incoming_RunWorkerCompleted);
+//			worker.WorkerReportsProgress = true;
+			worker.WorkerSupportsCancellation = true;
 
+			richTextBox.Document.Blocks.Clear();
+			worker.RunWorkerAsync();
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Stop_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = (worker != null && worker.IsBusy && !worker.CancellationPending);
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Stop_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			worker.CancelAsync();
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		void Incoming_ProgressChanged(object sender, ProgressChangedEventArgs e)
+		{
+			if (e.UserState is string)
+			{
+				Incoming_NewMsg(e.UserState as string);
+			}
+		}
+
+		//------------------------------------------------------------------
+		void Incoming_NewMsg(string msg)
+		{
+			if (richTextBox.Document.Blocks.Count == 0)
+				richTextBox.Document.Blocks.Add(new Paragraph());
+
+			var paragraph = richTextBox.Document.Blocks.FirstBlock as Paragraph;
+			paragraph.Inlines.Add(new Run(msg));
+			paragraph.Inlines.Add(new LineBreak());
+
+			richTextBox.ScrollToEnd();
+		}
+
+		//------------------------------------------------------------------
+		void Incoming_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		{
+			worker.DoWork -= new DoWorkEventHandler(Incoming_DoWork);
+//			worker.ProgressChanged -= new ProgressChangedEventHandler(Incoming_ProgressChanged);
+			worker.RunWorkerCompleted -= new RunWorkerCompletedEventHandler(Incoming_RunWorkerCompleted);
+
+			var msg = new Run();
+			if (e.Error != null)
+			{
+				msg.Text = e.Error.Message;
+				msg.Foreground = Brushes.Red;
+			}
+			else if (e.Cancelled)
+			{
+				msg.Text = "[Operation canceled]";
+				msg.Foreground = Brushes.Red;
+			}
+			else
+			{
+				msg.Text = "[Operation completed]";
+				msg.Foreground = Brushes.Green;
+			}
+
+			if (richTextBox.Document.Blocks.Count == 0)
+				richTextBox.Document.Blocks.Add(new Paragraph());
+
+			var paragraph = richTextBox.Document.Blocks.FirstBlock as Paragraph;
+			paragraph.Inlines.Add(msg);
+			richTextBox.ScrollToEnd();
+		}
+
+		//------------------------------------------------------------------
+		void Incoming_DoWork(object sender, DoWorkEventArgs e)
+		{
 			var args = new StringBuilder();
 			args.Append("incoming");
 
@@ -107,26 +196,41 @@ namespace HgSccHelper
 				var reader = proc.StandardOutput;
 				while (true)
 				{
+					if (worker.CancellationPending)
+					{
+						try
+						{
+							proc.Kill();
+							proc.WaitForExit();
+						}
+						catch (InvalidOperationException)
+						{							
+						}
+						catch (Win32Exception)
+						{
+						}
+
+						e.Cancel = true;
+						return;
+					}
+
 					string str = reader.ReadLine();
 					if (str == null)
 						break;
 
-					paragraph.Inlines.Add(new Run(str));
-					paragraph.Inlines.Add(new LineBreak());
+					// FIXME: Tried report progress, but it quickly
+					// fill message queue
+					//worker.ReportProgress(0, str);
+
+					// Trying to update one line at time (invoke synchronously)
+					Dispatcher.Invoke(DispatcherPriority.Normal,
+						new Action<string>(Incoming_NewMsg), str);
 				}
 
 				var error = proc.StandardError.ReadToEnd();
 				if (!string.IsNullOrEmpty(error))
-				{
-					var error_msg = new Run();
-					error_msg.Foreground = Brushes.Red;
-					paragraph.Inlines.Add(error_msg);
-				}
-				
-				proc.WaitForExit();
+					throw new System.ApplicationException(error);
 			}
-
-			e.Handled = true;
 		}
 	}
 }

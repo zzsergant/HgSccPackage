@@ -13,6 +13,10 @@
                         CanExecute="Incoming_CanExecute"
                         Executed="Incoming_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:SynchronizeWindow.StopCommand}"
+                        CanExecute="Stop_CanExecute"
+                        Executed="Stop_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -29,6 +33,10 @@
                 <Separator />
                 <Button Content="Outgoing" MinWidth="75"></Button>
                 <Button Content="Push" MinWidth="75"></Button>
+                <Separator />
+                <Button Content="Stop"
+                        Command="{x:Static local:SynchronizeWindow.StopCommand}"
+                        MinWidth="75"></Button>
             </ToolBar>
         </ToolBarTray>
         <RichTextBox Grid.Row="1"
