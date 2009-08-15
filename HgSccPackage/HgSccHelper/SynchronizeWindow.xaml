@@ -13,6 +13,10 @@
                         CanExecute="Incoming_CanExecute"
                         Executed="Incoming_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:SynchronizeWindow.OutgoingCommand}"
+                        CanExecute="Outgoing_CanExecute"
+                        Executed="Outgoing_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static local:SynchronizeWindow.StopCommand}"
                         CanExecute="Stop_CanExecute"
                         Executed="Stop_Executed">
@@ -31,7 +35,10 @@
                 </Button>
                 <Button Content="Pull" MinWidth="75"></Button>
                 <Separator />
-                <Button Content="Outgoing" MinWidth="75"></Button>
+                <Button Content="Outgoing"
+                            Command="{x:Static local:SynchronizeWindow.OutgoingCommand}"
+                            MinWidth="75">
+                </Button>
                 <Button Content="Push" MinWidth="75"></Button>
                 <Separator />
                 <Button Content="Stop"

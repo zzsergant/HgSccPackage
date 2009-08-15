@@ -23,6 +23,8 @@ using System.Text;
 using System.ComponentModel;
 using System;
 using System.Windows.Threading;
+using System.Threading;
+using Microsoft.Win32.SafeHandles;
 
 namespace HgSccHelper
 {
@@ -51,33 +53,34 @@ namespace HgSccHelper
 		public static RoutedUICommand StopCommand = new RoutedUICommand("Stop",
 			"Stop", typeof(SynchronizeWindow));
 
+		//-----------------------------------------------------------------------------
+		public string WorkingDir { get; set; }
+
+		//------------------------------------------------------------------
+		BackgroundWorker worker;
+		EventWaitHandle stop_event;
+
 		//------------------------------------------------------------------
 		public SynchronizeWindow()
 		{
 			InitializeComponent();
 
 			worker = new BackgroundWorker();
+			stop_event = new EventWaitHandle(false, EventResetMode.AutoReset);
 		}
-
-		//-----------------------------------------------------------------------------
-		public string WorkingDir { get; set; }
-
-		//------------------------------------------------------------------
-		Hg Hg { get; set; }
-
-		//------------------------------------------------------------------
-		BackgroundWorker worker;
 
 		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
  			Title = string.Format("Synchronize: '{0}'", WorkingDir);
-			Hg = new Hg();
 		}
 
 		//------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
+			if (StopCommand.CanExecute(sender, e.Source as IInputElement))
+				StopCommand.Execute(sender, e.Source as IInputElement);
+
 			worker.Dispose();
 		}
 
@@ -91,15 +94,37 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Incoming_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			worker.DoWork += new DoWorkEventHandler(Incoming_DoWork);
-//			worker.ProgressChanged += new ProgressChangedEventHandler(Incoming_ProgressChanged);
-			worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(Incoming_RunWorkerCompleted);
-//			worker.WorkerReportsProgress = true;
+			worker.DoWork += Worker_DoWork;
+			worker.RunWorkerCompleted += Worker_Completed;
 			worker.WorkerSupportsCancellation = true;
 
 			textBox.Text = "";
+			Worker_NewMsg("[Incoming started]\n");
 
-			worker.RunWorkerAsync();
+			var arg = "incoming";
+			worker.RunWorkerAsync(arg);
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Outgoing_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = (worker != null && !worker.IsBusy);
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Outgoing_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			worker.DoWork += Worker_DoWork;
+			worker.RunWorkerCompleted += Worker_Completed;
+			worker.WorkerSupportsCancellation = true;
+
+			textBox.Text = "";
+			Worker_NewMsg("[Outgoing started]\n");
+
+			var arg = "outgoing";
+			worker.RunWorkerAsync(arg);
 			e.Handled = true;
 		}
 
@@ -114,91 +139,93 @@ namespace HgSccHelper
 		private void Stop_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			worker.CancelAsync();
+			stop_event.Set();
 			e.Handled = true;
 		}
 
 		//------------------------------------------------------------------
-		void Incoming_ProgressChanged(object sender, ProgressChangedEventArgs e)
-		{
-			if (e.UserState is string)
-			{
-				Incoming_NewMsg(e.UserState as string);
-			}
-		}
-
-		//------------------------------------------------------------------
-		void Incoming_NewMsg(string msg)
+		void Worker_NewMsg(string msg)
 		{
 			textBox.AppendText(msg + "\n");
 			textBox.ScrollToEnd();
 		}
 
 		//------------------------------------------------------------------
-		void Incoming_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		void Worker_Completed(object sender, RunWorkerCompletedEventArgs e)
 		{
-			worker.DoWork -= new DoWorkEventHandler(Incoming_DoWork);
-//			worker.ProgressChanged -= new ProgressChangedEventHandler(Incoming_ProgressChanged);
-			worker.RunWorkerCompleted -= new RunWorkerCompletedEventHandler(Incoming_RunWorkerCompleted);
+			worker.DoWork -= Worker_DoWork;
+			worker.RunWorkerCompleted -= Worker_Completed;
 
 			if (e.Error != null)
 			{
-				Incoming_NewMsg(e.Error.Message);
+				Worker_NewMsg(e.Error.Message);
 			}
 			else if (e.Cancelled)
 			{
-				Incoming_NewMsg("[Operation canceled]");
+				Worker_NewMsg("[Operation canceled]");
 			}
 			else
 			{
-				Incoming_NewMsg("[Operation completed]");
+				Worker_NewMsg("[Operation completed]");
 			}
+
+			// Updating commands state (CanExecute)
+			CommandManager.InvalidateRequerySuggested();
 		}
 
 		//------------------------------------------------------------------
-		void Incoming_DoWork(object sender, DoWorkEventArgs e)
+		void Worker_DoWork(object sender, DoWorkEventArgs e)
 		{
 			var args = new StringBuilder();
-			args.Append("incoming");
+			args.Append(e.Argument as string);
 
-			using (Process proc = Process.Start(Hg.PrepareProcess(WorkingDir, args.ToString())))
+			var hg = new Hg();
+			
+			using (Process proc = new Process())
 			{
-				var reader = proc.StandardOutput;
-				while (true)
-				{
-					if (worker.CancellationPending)
-					{
-						try
-						{
-							proc.Kill();
-							proc.WaitForExit();
-						}
-						catch (InvalidOperationException)
-						{							
-						}
-						catch (Win32Exception)
-						{
-						}
+				proc.StartInfo = hg.PrepareProcess(WorkingDir, args.ToString());
+				proc.OutputDataReceived += proc_OutputDataReceived;
+				proc.Start();
 
-						e.Cancel = true;
-						return;
+				proc.BeginOutputReadLine();
+				var events = new WaitHandle[]{stop_event, new AutoResetEvent(false)};
+				events[1].SafeWaitHandle = new SafeWaitHandle(proc.Handle, true);
+
+				var result = WaitHandle.WaitAny(events);
+				proc.CancelOutputRead();
+				proc.OutputDataReceived -= proc_OutputDataReceived;
+
+				if (result == 0)
+				{
+					try
+					{
+						proc.Kill();
+						proc.WaitForExit();
+					}
+					catch (InvalidOperationException)
+					{
+					}
+					catch (Win32Exception)
+					{
 					}
 
-					string str = reader.ReadLine();
-					if (str == null)
-						break;
-
-					// FIXME: Tried report progress, but it quickly
-					// fill message queue
-					//worker.ReportProgress(0, str);
-
-					// Trying to update one line at time (invoke synchronously)
-					Dispatcher.Invoke(DispatcherPriority.Normal,
-						new Action<string>(Incoming_NewMsg), str);
+					e.Cancel = true;
+					return;
 				}
 
 				var error = proc.StandardError.ReadToEnd();
 				if (!string.IsNullOrEmpty(error))
 					throw new System.ApplicationException(error);
+			}
+		}
+
+		//------------------------------------------------------------------
+		void proc_OutputDataReceived(object sender, DataReceivedEventArgs e)
+		{
+			if (e.Data != null)
+			{
+				Dispatcher.Invoke(DispatcherPriority.Normal,
+					new Action<string>(Worker_NewMsg), e.Data);
 			}
 		}
 	}
