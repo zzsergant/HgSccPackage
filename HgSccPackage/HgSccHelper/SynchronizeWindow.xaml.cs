@@ -101,8 +101,10 @@ namespace HgSccHelper
 			textBox.Text = "";
 			Worker_NewMsg("[Incoming started]\n");
 
-			var arg = "incoming";
-			worker.RunWorkerAsync(arg);
+			var builder = new StringBuilder();
+			builder.Append("-v incoming");
+
+			worker.RunWorkerAsync(builder.ToString());
 			e.Handled = true;
 		}
 
@@ -123,8 +125,10 @@ namespace HgSccHelper
 			textBox.Text = "";
 			Worker_NewMsg("[Outgoing started]\n");
 
-			var arg = "outgoing";
-			worker.RunWorkerAsync(arg);
+			var builder = new StringBuilder();
+			builder.Append("-v outgoing");
+
+			worker.RunWorkerAsync(builder.ToString());
 			e.Handled = true;
 		}
 
