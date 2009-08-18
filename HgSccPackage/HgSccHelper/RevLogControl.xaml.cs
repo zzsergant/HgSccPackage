@@ -162,7 +162,7 @@ namespace HgSccHelper
 		private void ReadNext_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;
-			if (WorkingDir != null && revs != null)
+			if (WorkingDir != null && revs != null && revs.Count > 0)
 			{
 				if (revs[revs.Count - 1].Rev != 0)
 					e.CanExecute = true;
