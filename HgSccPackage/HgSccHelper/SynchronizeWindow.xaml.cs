@@ -262,14 +262,11 @@ namespace HgSccHelper
 				events[1].SafeWaitHandle = new SafeWaitHandle(proc.Handle, true);
 
 				var result = WaitHandle.WaitAny(events);
-				proc.CancelOutputRead();
-				proc.CancelErrorRead();
-
-				proc.OutputDataReceived -= proc_OutputDataReceived;
-				proc.ErrorDataReceived -= proc_ErrorDataReceived;
 
 				if (result == 0)
 				{
+					// stop event raised
+
 					try
 					{
 						proc.Kill();
@@ -283,10 +280,20 @@ namespace HgSccHelper
 					}
 
 					e.Cancel = true;
-					return;
+				}
+				else
+				{
+					// Wait until all redirected output is written
+					proc.WaitForExit();
 				}
 
-				if (proc.ExitCode < 0)
+				proc.CancelOutputRead();
+				proc.CancelErrorRead();
+
+				proc.OutputDataReceived -= proc_OutputDataReceived;
+				proc.ErrorDataReceived -= proc_ErrorDataReceived;
+
+				if (proc.ExitCode < 0 && !e.Cancel)
 				{
 					throw new ApplicationException(
 						String.Format("[Exit code: {0}]", proc.ExitCode));
