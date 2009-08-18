@@ -60,6 +60,17 @@ namespace HgSccHelper
 		BackgroundWorker worker;
 		EventWaitHandle stop_event;
 
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty UpdateAfterPullProperty =
+			DependencyProperty.Register("UpdateAfterPull", typeof(bool), typeof(SynchronizeWindow));
+
+		//-----------------------------------------------------------------------------
+		public bool UpdateAfterPull
+		{
+			get { return (bool)this.GetValue(UpdateAfterPullProperty); }
+			set { this.SetValue(UpdateAfterPullProperty, value); }
+		}
+
 		//------------------------------------------------------------------
 		public SynchronizeWindow()
 		{
@@ -133,6 +144,56 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void Pull_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = (worker != null && !worker.IsBusy);
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Pull_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			worker.DoWork += Worker_DoWork;
+			worker.RunWorkerCompleted += Worker_Completed;
+			worker.WorkerSupportsCancellation = true;
+
+			textBox.Text = "";
+			Worker_NewMsg("[Pull started]\n");
+
+			var builder = new StringBuilder();
+			builder.Append("-v pull");
+			if (UpdateAfterPull)
+				builder.Append(" -u");
+
+			worker.RunWorkerAsync(builder.ToString());
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Push_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = (worker != null && !worker.IsBusy);
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Push_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			worker.DoWork += Worker_DoWork;
+			worker.RunWorkerCompleted += Worker_Completed;
+			worker.WorkerSupportsCancellation = true;
+
+			textBox.Text = "";
+			Worker_NewMsg("[Push started]\n");
+
+			var builder = new StringBuilder();
+			builder.Append("-v push");
+
+			worker.RunWorkerAsync(builder.ToString());
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
 		private void Stop_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = (worker != null && worker.IsBusy && !worker.CancellationPending);
@@ -160,9 +221,11 @@ namespace HgSccHelper
 			worker.DoWork -= Worker_DoWork;
 			worker.RunWorkerCompleted -= Worker_Completed;
 
+			Worker_NewMsg("");
+
 			if (e.Error != null)
 			{
-				Worker_NewMsg(e.Error.Message);
+				Worker_NewMsg("[Error: " + e.Error.Message + "]");
 			}
 			else if (e.Cancelled)
 			{

@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:HgSccHelper"
     Loaded="Window_Loaded"
     Unloaded="Window_Unloaded"
+    x:Name="root"
     WindowStartupLocation="CenterOwner">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static local:SynchronizeWindow.IncomingCommand}"
@@ -17,6 +18,14 @@
                         CanExecute="Outgoing_CanExecute"
                         Executed="Outgoing_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:SynchronizeWindow.PushCommand}"
+                        CanExecute="Push_CanExecute"
+                        Executed="Push_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static local:SynchronizeWindow.PullCommand}"
+                        CanExecute="Pull_CanExecute"
+                        Executed="Pull_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static local:SynchronizeWindow.StopCommand}"
                         CanExecute="Stop_CanExecute"
                         Executed="Stop_Executed">
@@ -25,28 +34,38 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition />
         </Grid.RowDefinitions>
         <ToolBarTray Grid.Row="0">
             <ToolBar>
                 <Button Content="Incoming"
                             Command="{x:Static local:SynchronizeWindow.IncomingCommand}"
-                            MinWidth="75">
-                </Button>
-                <Button Content="Pull" MinWidth="75"></Button>
+                            MinWidth="75" />
+                <Button Content="Pull"
+                        Command="{x:Static local:SynchronizeWindow.PullCommand}"
+                        MinWidth="75" />
                 <Separator />
                 <Button Content="Outgoing"
                             Command="{x:Static local:SynchronizeWindow.OutgoingCommand}"
-                            MinWidth="75">
-                </Button>
-                <Button Content="Push" MinWidth="75"></Button>
+                            MinWidth="75" />
+                <Button Content="Push"
+                        Command="{x:Static local:SynchronizeWindow.PushCommand}"
+                        MinWidth="75" />
                 <Separator />
                 <Button Content="Stop"
                         Command="{x:Static local:SynchronizeWindow.StopCommand}"
-                        MinWidth="75"></Button>
+                        MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
-        <TextBox Grid.Row="1"
+        <StackPanel Grid.Row="1">
+            <GroupBox Header="Options:" Padding="5">
+                <CheckBox Content="Update after pull"
+                          IsChecked="{Binding ElementName=root, Path=UpdateAfterPull}">
+                </CheckBox>
+            </GroupBox>
+        </StackPanel>
+        <TextBox Grid.Row="2"
                  Name="textBox"
                  HorizontalContentAlignment="Stretch"
                  VerticalContentAlignment="Stretch"
