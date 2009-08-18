@@ -188,16 +188,22 @@ namespace HgSccHelper
 			using (Process proc = new Process())
 			{
 				proc.StartInfo = hg.PrepareProcess(WorkingDir, args.ToString());
+// 				proc.StartInfo.EnvironmentVariables.Add("PYTHONUBUFFERED", "1");
 				proc.OutputDataReceived += proc_OutputDataReceived;
+				proc.ErrorDataReceived += proc_ErrorDataReceived;
 				proc.Start();
 
 				proc.BeginOutputReadLine();
+				proc.BeginErrorReadLine();
 				var events = new WaitHandle[]{stop_event, new AutoResetEvent(false)};
 				events[1].SafeWaitHandle = new SafeWaitHandle(proc.Handle, true);
 
 				var result = WaitHandle.WaitAny(events);
 				proc.CancelOutputRead();
+				proc.CancelErrorRead();
+
 				proc.OutputDataReceived -= proc_OutputDataReceived;
+				proc.ErrorDataReceived -= proc_ErrorDataReceived;
 
 				if (result == 0)
 				{
@@ -217,9 +223,22 @@ namespace HgSccHelper
 					return;
 				}
 
-				var error = proc.StandardError.ReadToEnd();
-				if (!string.IsNullOrEmpty(error))
-					throw new System.ApplicationException(error);
+				if (proc.ExitCode < 0)
+				{
+					throw new ApplicationException(
+						String.Format("[Exit code: {0}]", proc.ExitCode));
+				}
+			}
+		}
+
+		//------------------------------------------------------------------
+		void proc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+		{
+			if (e.Data != null)
+			{
+				var error_msg = string.Format("[Error: {0}]", e.Data);
+				Dispatcher.Invoke(DispatcherPriority.Normal,
+					new Action<string>(Worker_NewMsg), error_msg);
 			}
 		}
 
