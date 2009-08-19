@@ -57,8 +57,7 @@ namespace HgSccHelper
 		public string WorkingDir { get; set; }
 
 		//------------------------------------------------------------------
-		BackgroundWorker worker;
-		EventWaitHandle stop_event;
+		HgThread worker;
 
 		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty UpdateAfterPullProperty =
@@ -76,8 +75,7 @@ namespace HgSccHelper
 		{
 			InitializeComponent();
 
-			worker = new BackgroundWorker();
-			stop_event = new EventWaitHandle(false, EventResetMode.AutoReset);
+			worker = new HgThread();
 		}
 
 		//------------------------------------------------------------------
@@ -105,17 +103,22 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Incoming_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			worker.DoWork += Worker_DoWork;
-			worker.RunWorkerCompleted += Worker_Completed;
-			worker.WorkerSupportsCancellation = true;
-
 			textBox.Text = "";
 			Worker_NewMsg("[Incoming started]\n");
 
+			var p = new HgThreadParams();
+			p.CompleteHandler = Worker_Completed;
+			p.ErrorHandler = Error_Handler;
+			p.OutputHandler = Output_Handler;
+			p.WorkingDir = WorkingDir;
+			
 			var builder = new StringBuilder();
 			builder.Append("-v incoming");
 
-			worker.RunWorkerAsync(builder.ToString());
+			p.Args = builder.ToString();
+
+			worker.Run(p);
+
 			e.Handled = true;
 		}
 
@@ -129,17 +132,21 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Outgoing_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			worker.DoWork += Worker_DoWork;
-			worker.RunWorkerCompleted += Worker_Completed;
-			worker.WorkerSupportsCancellation = true;
-
 			textBox.Text = "";
 			Worker_NewMsg("[Outgoing started]\n");
+
+			var p = new HgThreadParams();
+			p.CompleteHandler = Worker_Completed;
+			p.ErrorHandler = Error_Handler;
+			p.OutputHandler = Output_Handler;
+			p.WorkingDir = WorkingDir;
 
 			var builder = new StringBuilder();
 			builder.Append("-v outgoing");
 
-			worker.RunWorkerAsync(builder.ToString());
+			p.Args = builder.ToString();
+
+			worker.Run(p);
 			e.Handled = true;
 		}
 
@@ -153,19 +160,24 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Pull_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			worker.DoWork += Worker_DoWork;
-			worker.RunWorkerCompleted += Worker_Completed;
-			worker.WorkerSupportsCancellation = true;
-
 			textBox.Text = "";
 			Worker_NewMsg("[Pull started]\n");
 
+			var p = new HgThreadParams();
+			p.CompleteHandler = Worker_Completed;
+			p.ErrorHandler = Error_Handler;
+			p.OutputHandler = Output_Handler;
+			p.WorkingDir = WorkingDir;
+
 			var builder = new StringBuilder();
 			builder.Append("-v pull");
+
 			if (UpdateAfterPull)
 				builder.Append(" -u");
 
-			worker.RunWorkerAsync(builder.ToString());
+			p.Args = builder.ToString();
+
+			worker.Run(p);
 			e.Handled = true;
 		}
 
@@ -179,17 +191,21 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Push_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			worker.DoWork += Worker_DoWork;
-			worker.RunWorkerCompleted += Worker_Completed;
-			worker.WorkerSupportsCancellation = true;
-
 			textBox.Text = "";
 			Worker_NewMsg("[Push started]\n");
+
+			var p = new HgThreadParams();
+			p.CompleteHandler = Worker_Completed;
+			p.ErrorHandler = Error_Handler;
+			p.OutputHandler = Output_Handler;
+			p.WorkingDir = WorkingDir;
 
 			var builder = new StringBuilder();
 			builder.Append("-v push");
 
-			worker.RunWorkerAsync(builder.ToString());
+			p.Args = builder.ToString();
+
+			worker.Run(p);
 			e.Handled = true;
 		}
 
@@ -203,8 +219,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Stop_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			worker.CancelAsync();
-			stop_event.Set();
+			worker.Cancel();
 			e.Handled = true;
 		}
 
@@ -216,24 +231,28 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		void Worker_Completed(object sender, RunWorkerCompletedEventArgs e)
+		void Worker_Completed(HgThreadResult completed)
 		{
-			worker.DoWork -= Worker_DoWork;
-			worker.RunWorkerCompleted -= Worker_Completed;
-
 			Worker_NewMsg("");
 
-			if (e.Error != null)
+			switch(completed.Status)
 			{
-				Worker_NewMsg("[Error: " + e.Error.Message + "]");
-			}
-			else if (e.Cancelled)
-			{
-				Worker_NewMsg("[Operation canceled]");
-			}
-			else
-			{
-				Worker_NewMsg("[Operation completed]");
+				case HgThreadStatus.Completed:
+					{
+						var msg = String.Format("[Operation completed. Exit code: {0}]", completed.ExitCode);
+						Worker_NewMsg(msg);
+						break;
+					}
+				case HgThreadStatus.Canceled:
+					{
+						Worker_NewMsg("[Operation canceled]");
+						break;
+					}
+				case HgThreadStatus.Error:
+					{
+						Worker_NewMsg("[Error: " + completed.ErrorMessage + "]");
+						break;
+					}
 			}
 
 			// Updating commands state (CanExecute)
@@ -241,85 +260,18 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		void Worker_DoWork(object sender, DoWorkEventArgs e)
+		void Error_Handler(string msg)
 		{
-			var args = new StringBuilder();
-			args.Append(e.Argument as string);
-
-			var hg = new Hg();
-			
-			using (Process proc = new Process())
-			{
-				proc.StartInfo = hg.PrepareProcess(WorkingDir, args.ToString());
-// 				proc.StartInfo.EnvironmentVariables.Add("PYTHONUBUFFERED", "1");
-				proc.OutputDataReceived += proc_OutputDataReceived;
-				proc.ErrorDataReceived += proc_ErrorDataReceived;
-				proc.Start();
-
-				proc.BeginOutputReadLine();
-				proc.BeginErrorReadLine();
-				var events = new WaitHandle[]{stop_event, new AutoResetEvent(false)};
-				events[1].SafeWaitHandle = new SafeWaitHandle(proc.Handle, true);
-
-				var result = WaitHandle.WaitAny(events);
-
-				if (result == 0)
-				{
-					// stop event raised
-
-					try
-					{
-						proc.Kill();
-						proc.WaitForExit();
-					}
-					catch (InvalidOperationException)
-					{
-					}
-					catch (Win32Exception)
-					{
-					}
-
-					e.Cancel = true;
-				}
-				else
-				{
-					// Wait until all redirected output is written
-					proc.WaitForExit();
-				}
-
-				proc.CancelOutputRead();
-				proc.CancelErrorRead();
-
-				proc.OutputDataReceived -= proc_OutputDataReceived;
-				proc.ErrorDataReceived -= proc_ErrorDataReceived;
-
-				if (proc.ExitCode < 0 && !e.Cancel)
-				{
-					throw new ApplicationException(
-						String.Format("[Exit code: {0}]", proc.ExitCode));
-				}
-			}
-		}
-
-		//------------------------------------------------------------------
-		void proc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-		{
-			if (e.Data != null)
-			{
-				var error_msg = string.Format("[Error: {0}]", e.Data);
-				Dispatcher.Invoke(DispatcherPriority.Normal,
+			var error_msg = string.Format("[Error: {0}]", msg);
+			Dispatcher.Invoke(DispatcherPriority.Normal,
 					new Action<string>(Worker_NewMsg), error_msg);
-			}
 		}
 
 		//------------------------------------------------------------------
-		void proc_OutputDataReceived(object sender, DataReceivedEventArgs e)
+		void Output_Handler(string msg)
 		{
-			if (e.Data != null)
-			{
-				Dispatcher.Invoke(DispatcherPriority.Normal,
-					new Action<string>(Worker_NewMsg), e.Data);
-			}
+			Dispatcher.Invoke(DispatcherPriority.Normal,
+				new Action<string>(Worker_NewMsg), msg);
 		}
 	}
 }

@@ -103,6 +103,7 @@
     <Compile Include="HgSccHelper\HgOptionsHelper.cs" />
     <Compile Include="HgSccHelper\HgScc.cs" />
     <Compile Include="HgSccHelper\HgSccOptions.cs" />
+    <Compile Include="HgSccHelper\HgThread.cs" />
     <Compile Include="HgSccHelper\HistoryForm.cs">
       <SubType>Form</SubType>
     </Compile>
