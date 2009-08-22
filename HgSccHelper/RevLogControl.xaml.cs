@@ -15,7 +15,6 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using System;
 using System.Windows.Input;
-using HgSccPackage.Tools;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 

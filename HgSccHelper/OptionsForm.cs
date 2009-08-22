@@ -18,7 +18,6 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using HgSccPackage.HgSccHelper;
 using Microsoft.Win32;
 
 namespace HgSccHelper

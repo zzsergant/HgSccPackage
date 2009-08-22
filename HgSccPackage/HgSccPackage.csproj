@@ -75,63 +75,6 @@
     <Compile Include="DlgQuerySaveCheckedInFile.Designer.cs">
       <DependentUpon>DlgQuerySaveCheckedInFile.cs</DependentUpon>
     </Compile>
-    <Compile Include="HgSccHelper\ChangeDesc.cs" />
-    <Compile Include="HgSccHelper\CommitForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="HgSccHelper\CommitForm.designer.cs">
-      <DependentUpon>CommitForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="HgSccHelper\FileHistoryWindow.xaml.cs">
-      <DependentUpon>FileHistoryWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="HgSccHelper\FileInfo.cs" />
-    <Compile Include="HgSccHelper\Hg.cs" />
-    <Compile Include="HgSccHelper\HgAboutControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="HgSccHelper\HgAboutControl.Designer.cs">
-      <DependentUpon>HgAboutControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="HgSccHelper\HgDiffOptionsControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="HgSccHelper\HgDiffOptionsControl.Designer.cs">
-      <DependentUpon>HgDiffOptionsControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="HgSccHelper\HgFileStatus.cs" />
-    <Compile Include="HgSccHelper\HgOptionsHelper.cs" />
-    <Compile Include="HgSccHelper\HgScc.cs" />
-    <Compile Include="HgSccHelper\HgSccOptions.cs" />
-    <Compile Include="HgSccHelper\HgThread.cs" />
-    <Compile Include="HgSccHelper\HistoryForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="HgSccHelper\HistoryForm.designer.cs">
-      <DependentUpon>HistoryForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="HgSccHelper\LightChangeDesc.cs" />
-    <Compile Include="HgSccHelper\Logger.cs" />
-    <Compile Include="HgSccHelper\OptionsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="HgSccHelper\OptionsForm.designer.cs">
-      <DependentUpon>OptionsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="HgSccHelper\RevLogChangeDesc.cs" />
-    <Compile Include="HgSccHelper\RevLogControl.xaml.cs">
-      <DependentUpon>RevLogControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="HgSccHelper\RevLogIterator.cs" />
-    <Compile Include="HgSccHelper\RevLogLinesVisual.cs" />
-    <Compile Include="HgSccHelper\RevLogWindow.xaml.cs">
-      <DependentUpon>RevLogWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="HgSccHelper\SccDefines.cs" />
-    <Compile Include="HgSccHelper\SynchronizeWindow.xaml.cs">
-      <DependentUpon>SynchronizeWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Tools\Util.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProvideSolutionProps.cs" />
     <Compile Include="RunInstaller\DevEnvInstaller.cs">
@@ -173,21 +116,6 @@
       <DependentUpon>DlgQuerySaveCheckedInFile.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="HgSccHelper\CommitForm.resx">
-      <DependentUpon>CommitForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HgSccHelper\HgAboutControl.resx">
-      <DependentUpon>HgAboutControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HgSccHelper\HgDiffOptionsControl.resx">
-      <DependentUpon>HgDiffOptionsControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HgSccHelper\HistoryForm.resx">
-      <DependentUpon>HistoryForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HgSccHelper\OptionsForm.resx">
-      <DependentUpon>OptionsForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Resources.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
@@ -223,24 +151,10 @@
       <Project>{D70489CD-ABDA-48FF-BD1E-BE3F7495BE71}</Project>
       <Name>C5</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="HgSccHelper\FileHistoryWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="HgSccHelper\RevLogControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="HgSccHelper\RevLogWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="HgSccHelper\SynchronizeWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
+    <ProjectReference Include="..\HgSccHelper\HgSccHelper.csproj">
+      <Project>{172BA27D-ACC4-4294-A57C-C09895599EEA}</Project>
+      <Name>HgSccHelper</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <!--

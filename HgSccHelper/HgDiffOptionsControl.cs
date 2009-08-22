@@ -18,7 +18,7 @@ using System.Data;
 using System.Text;
 using System.Windows.Forms;
 
-namespace HgSccPackage.HgSccHelper
+namespace HgSccHelper
 {
 	public partial class HgDiffOptionsControl : UserControl
 	{

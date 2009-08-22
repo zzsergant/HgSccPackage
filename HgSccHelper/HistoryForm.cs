@@ -17,7 +17,6 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using HgSccPackage.Tools;
 
 namespace HgSccHelper
 {

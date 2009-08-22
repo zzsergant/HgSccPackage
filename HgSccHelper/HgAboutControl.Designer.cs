@@ -1,4 +1,4 @@
-﻿namespace HgSccPackage.HgSccHelper
+﻿namespace HgSccHelper
 {
 	partial class HgAboutControl
 	{

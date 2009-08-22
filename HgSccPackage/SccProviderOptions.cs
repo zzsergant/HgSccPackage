@@ -21,7 +21,7 @@ using System.Runtime.InteropServices;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using MsVsShell = Microsoft.VisualStudio.Shell;
-using HgSccPackage.HgSccHelper;
+using HgSccHelper;
 using System.IO;
 
 namespace HgSccPackage

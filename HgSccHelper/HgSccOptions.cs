@@ -18,7 +18,7 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 
 //=============================================================================
-namespace HgSccPackage.HgSccHelper
+namespace HgSccHelper
 {
 	public class HgPkgOptions
 	{

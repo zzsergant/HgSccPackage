@@ -35,9 +35,9 @@ namespace HgSccPackage
 		private System.ComponentModel.Container components = null;
 		private TabControl tabOptions;
 		private TabPage tabDiff;
-		private HgSccPackage.HgSccHelper.HgDiffOptionsControl hgDiffOptionsControl1;
+		private HgSccHelper.HgDiffOptionsControl hgDiffOptionsControl1;
 		private TabPage tabPageAbout;
-		private HgSccPackage.HgSccHelper.HgAboutControl hgAboutControl1;
+		private HgSccHelper.HgAboutControl hgAboutControl1;
         // The parent page, use to persist data
         private SccProviderOptions _customPage;
 
@@ -75,9 +75,9 @@ namespace HgSccPackage
 		{
 			this.tabOptions = new System.Windows.Forms.TabControl();
 			this.tabDiff = new System.Windows.Forms.TabPage();
-			this.hgDiffOptionsControl1 = new HgSccPackage.HgSccHelper.HgDiffOptionsControl();
+			this.hgDiffOptionsControl1 = new HgSccHelper.HgDiffOptionsControl();
 			this.tabPageAbout = new System.Windows.Forms.TabPage();
-			this.hgAboutControl1 = new HgSccPackage.HgSccHelper.HgAboutControl();
+			this.hgAboutControl1 = new HgSccHelper.HgAboutControl();
 			this.tabOptions.SuspendLayout();
 			this.tabDiff.SuspendLayout();
 			this.tabPageAbout.SuspendLayout();

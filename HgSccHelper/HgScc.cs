@@ -17,7 +17,6 @@ using System.IO;
 using System.Diagnostics;
 using System.Windows.Forms;
 using C5;
-using HgSccPackage.Tools;
 
 namespace HgSccHelper
 {
@@ -156,7 +155,7 @@ namespace HgSccHelper
 */
 
 		//-----------------------------------------------------------------------------
-		internal HashDictionary<string, HgFileInfo> QueryInfoFullDict()
+		public HashDictionary<string, HgFileInfo> QueryInfoFullDict()
 		{
 			var dict = new HashDictionary<string, HgFileInfo>();
 //			var hg_files = hg.Manifest(WorkingDir);
@@ -183,7 +182,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		internal SccErrors QueryInfo(HgFileInfo[] files)
+		public SccErrors QueryInfo(HgFileInfo[] files)
 		{
 			// TODO: Check if project is opened
 			var dict = new HashDictionary<string, HgFileStatus>();
@@ -216,7 +215,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		internal SccErrors QueryInfo2(HgFileInfo[] files)
+		public SccErrors QueryInfo2(HgFileInfo[] files)
 		{
 			// TODO: Check if project is opened
 			var dict = new HashDictionary<string, HgFileStatus>();

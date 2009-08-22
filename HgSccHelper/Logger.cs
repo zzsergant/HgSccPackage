@@ -18,7 +18,7 @@ using System.Diagnostics;
 
 namespace HgSccHelper
 {
-	static class Logger
+	static public class Logger
 	{
 		//------------------------------------------------------------------
 		static Logger()

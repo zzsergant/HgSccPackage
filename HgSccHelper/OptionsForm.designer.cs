@@ -33,8 +33,8 @@
 			this.tabPageAbout = new System.Windows.Forms.TabPage();
 			this.btnOK = new System.Windows.Forms.Button();
 			this.btnCancel = new System.Windows.Forms.Button();
-			this.hgAboutControl1 = new HgSccPackage.HgSccHelper.HgAboutControl();
-			this.hgDiffOptionsControl1 = new HgSccPackage.HgSccHelper.HgDiffOptionsControl();
+			this.hgAboutControl1 = new HgSccHelper.HgAboutControl();
+			this.hgDiffOptionsControl1 = new HgSccHelper.HgDiffOptionsControl();
 			this.tabOptions.SuspendLayout();
 			this.tabDiff.SuspendLayout();
 			this.tabPageAbout.SuspendLayout();
@@ -142,7 +142,7 @@
 		private System.Windows.Forms.Button btnOK;
 		private System.Windows.Forms.Button btnCancel;
 		private System.Windows.Forms.TabPage tabPageAbout;
-		private HgSccPackage.HgSccHelper.HgDiffOptionsControl hgDiffOptionsControl1;
-		private HgSccPackage.HgSccHelper.HgAboutControl hgAboutControl1;
+		private HgSccHelper.HgDiffOptionsControl hgDiffOptionsControl1;
+		private HgSccHelper.HgAboutControl hgAboutControl1;
 	}
 }

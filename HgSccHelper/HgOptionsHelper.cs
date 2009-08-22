@@ -17,7 +17,7 @@ using System.IO;
 using Microsoft.Win32;
 using System.Windows.Forms;
 
-namespace HgSccPackage.HgSccHelper
+namespace HgSccHelper
 {
 	static class HgOptionsHelper
 	{

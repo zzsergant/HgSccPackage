@@ -13,7 +13,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using HgSccHelper;
 
 /*
  * Uncomment to get support of extension methods on .Net FW 2.0 (in VS 2008)
@@ -26,7 +25,7 @@ namespace System.Runtime.CompilerServices
 }
 */
 
-namespace HgSccPackage.Tools
+namespace HgSccHelper
 {
 	static class Util
 	{

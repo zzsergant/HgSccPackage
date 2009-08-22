@@ -15,9 +15,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.IO;
-using HgSccPackage;
-using HgSccPackage.HgSccHelper;
-using HgSccPackage.Tools;
 using Microsoft.Win32;
 
 //=============================================================================

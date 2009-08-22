@@ -16,7 +16,6 @@ using System.Windows.Input;
 using System.Windows.Controls;
 using System.Collections.Generic;
 using System.Windows.Data;
-using HgSccPackage.Tools;
 
 namespace HgSccHelper
 {
