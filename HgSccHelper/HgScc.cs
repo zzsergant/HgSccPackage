@@ -519,6 +519,8 @@ namespace HgSccHelper
 			var to_revert = new List<string>(files);
 			reverted_files = to_revert;
 
+			int count = 0;
+
 			// FIXME: Add dialog with checkboxes
 			foreach (var f in files)
 			{
@@ -526,11 +528,24 @@ namespace HgSccHelper
 				if (!GetRelativePath(f, out local_f))
 					return SccErrors.InvalidFilePath;
 
+				if ((count + local_f.Length) > MaxCmdLength)
+				{
+					if (!hg.Revert(WorkingDir, local_files.ToArray()))
+						return SccErrors.NonSpecificError;
+
+					local_files.Clear();
+					count = 0;
+				}
+
 				local_files.Add(local_f);
+				count += local_f.Length;
 			}
 
-			if (!hg.Revert(WorkingDir, local_files.ToArray()))
-				return SccErrors.NonSpecificError;
+			if (local_files.Count > 0)
+			{
+				if (!hg.Revert(WorkingDir, local_files.ToArray()))
+					return SccErrors.NonSpecificError;
+			}
 
 			return SccErrors.Ok;
 		}
