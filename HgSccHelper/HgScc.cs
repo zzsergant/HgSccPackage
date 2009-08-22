@@ -425,8 +425,7 @@ namespace HgSccHelper
 						to_commit_files.Add(commit_item.FileInfo.File);
 					}
 
-					if (checked_files.Count == commit_files.Count
-						&&	commit_files.Count == files_status_dict.Count)
+					if (checked_files.Count == commit_files.Count)
 					{
 						error = CommitAll(hwnd, form.Comment);
 					}
