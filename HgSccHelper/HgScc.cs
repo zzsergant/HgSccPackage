@@ -298,10 +298,7 @@ namespace HgSccHelper
 				if (!GetRelativePath(file, out f))
 					return SccErrors.InvalidFilePath;
 
-				add_files.Add(f);
-				count += f.Length;
-
-				if (count > MaxCmdLength)
+				if ((count + f.Length) > MaxCmdLength)
 				{
 					if (!hg.Add(WorkingDir, add_files.ToArray()))
 						return SccErrors.OpNotPerformed;
@@ -309,6 +306,9 @@ namespace HgSccHelper
 					add_files.Clear();
 					count = 0;
 				}
+
+				add_files.Add(f);
+				count += f.Length;
 			}
 
 			if (add_files.Count > 0)
@@ -612,10 +612,7 @@ namespace HgSccHelper
 				if (!GetRelativePath(file, out f))
 					return SccErrors.InvalidFilePath;
 
-				remove_files.Add(f);
-				count += f.Length;
-
-				if (count > MaxCmdLength)
+				if ((count + f.Length) > MaxCmdLength)
 				{
 					if (!hg.Remove(WorkingDir, remove_files.ToArray(), comment))
 						return SccErrors.OpNotPerformed;
@@ -623,6 +620,9 @@ namespace HgSccHelper
 					remove_files.Clear();
 					count = 0;
 				}
+
+				remove_files.Add(f);
+				count += f.Length;
 			}
 
 			if (remove_files.Count > 0)
