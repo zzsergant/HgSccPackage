@@ -69,6 +69,39 @@ namespace HgSccHelper
 			set { this.SetValue(UpdateAfterPullProperty, value); }
 		}
 
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty ShowNewestFirstProperty =
+			DependencyProperty.Register("ShowNewestFirst", typeof(bool), typeof(SynchronizeWindow));
+
+		//-----------------------------------------------------------------------------
+		public bool ShowNewestFirst
+		{
+			get { return (bool)this.GetValue(ShowNewestFirstProperty); }
+			set { this.SetValue(ShowNewestFirstProperty, value); }
+		}
+
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty ShowPatchProperty =
+			DependencyProperty.Register("ShowPatch", typeof(bool), typeof(SynchronizeWindow));
+
+		//-----------------------------------------------------------------------------
+		public bool ShowPatch
+		{
+			get { return (bool)this.GetValue(ShowPatchProperty); }
+			set { this.SetValue(ShowPatchProperty, value); }
+		}
+
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty ShowNoMergesProperty =
+			DependencyProperty.Register("ShowNoMerges", typeof(bool), typeof(SynchronizeWindow));
+
+		//-----------------------------------------------------------------------------
+		public bool ShowNoMerges
+		{
+			get { return (bool)this.GetValue(ShowNoMergesProperty); }
+			set { this.SetValue(ShowNoMergesProperty, value); }
+		}
+
 		//------------------------------------------------------------------
 		public SynchronizeWindow()
 		{
@@ -81,6 +114,8 @@ namespace HgSccHelper
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
  			Title = string.Format("Synchronize: '{0}'", WorkingDir);
+
+			UpdateAfterPull = true;
 		}
 
 		//------------------------------------------------------------------
@@ -114,6 +149,15 @@ namespace HgSccHelper
 			var builder = new StringBuilder();
 			builder.Append("-v incoming");
 
+			if (ShowPatch)
+				builder.Append(" --patch");
+
+			if (ShowNewestFirst)
+				builder.Append(" --newest-first");
+	
+			if (ShowNoMerges)
+				builder.Append(" --no-merges");
+
 			p.Args = builder.ToString();
 
 			worker.Run(p);
@@ -142,6 +186,15 @@ namespace HgSccHelper
 
 			var builder = new StringBuilder();
 			builder.Append("-v outgoing");
+
+			if (ShowPatch)
+				builder.Append(" --patch");
+
+			if (ShowNewestFirst)
+				builder.Append(" --newest-first");
+
+			if (ShowNoMerges)
+				builder.Append(" --no-merges");
 
 			p.Args = builder.ToString();
 
