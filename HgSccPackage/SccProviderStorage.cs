@@ -323,7 +323,7 @@ namespace HgSccPackage
 			if (!IsValid)
 				return SccErrors.UnknownError;
 
-			var error = hgscc.Remove(IntPtr.Zero, files, "");
+			var error = hgscc.Remove(IntPtr.Zero, files);
 			if (error != SccErrors.Ok)
 				return error;
 

@@ -38,8 +38,51 @@ namespace HgSccHelper
 	}
 
 	//=============================================================================
+	class HgCommandLineException : Exception
+	{
+		//-----------------------------------------------------------------------------
+		public HgCommandLineException()
+		{
+
+		}
+
+		//-----------------------------------------------------------------------------
+		public HgCommandLineException(string message)
+			: base(message)
+		{
+
+		}
+	}
+
+	//==================================================================
+	class CommitMessageFile : IDisposable
+	{
+		public string FileName { get; private set; }
+
+		//------------------------------------------------------------------
+		public CommitMessageFile(string msg)
+		{
+			FileName = Path.GetTempFileName();
+			//Logger.WriteLine("Creating temp file: " + FileName);
+
+			using (var stream = new StreamWriter(File.OpenWrite(FileName)))
+			{
+				stream.Write(msg);
+			}
+		}
+
+		//------------------------------------------------------------------
+		public void Dispose()
+		{
+			File.Delete(FileName);
+		}
+	}
+
+	//=============================================================================
 	class Hg
 	{
+		public const int MaxCmdLength = 2000 - 300;
+
 		//-----------------------------------------------------------------------------
 		public Hg()
 		{
@@ -332,149 +375,154 @@ namespace HgSccHelper
 			foreach (var f in files)
 				args.Append(" " + f.Quote());
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
-			{
-				var reader = proc.StandardOutput;
-				var files_info = HgFileInfo.ParseFileInfo(reader);
+			var cmd_line = new StringBuilder();
+			cmd_line.Append(args.ToString());
 
-				proc.WaitForExit();
-				if (proc.ExitCode != 0)
+			var files_info = new List<HgFileInfo>();
+
+			foreach (string f in files)
+			{
+				var str = " " + f.Quote();
+
+				if ((cmd_line.Length + str.Length) > MaxCmdLength)
 				{
-					Logger.WriteLine(args.ToString());
-					Logger.WriteLine(reader.ReadToEnd());
+					using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+					{
+						var reader = proc.StandardOutput;
+						var info = HgFileInfo.ParseFileInfo(reader);
+						files_info.AddRange(info);
+
+						proc.WaitForExit();
+						if (proc.ExitCode < 0)
+						{
+							// FIXME: some error
+							return files_info;
+						}
+					}
+
+					cmd_line.Remove(0, cmd_line.Length);
+					cmd_line.Append(args.ToString());
 				}
 
-				return files_info;
+				cmd_line.Append(str);
+			}
+
+			if (cmd_line.Length != args.Length)
+			{
+				using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+				{
+					var reader = proc.StandardOutput;
+					var info = HgFileInfo.ParseFileInfo(reader);
+					files_info.AddRange(info);
+
+					proc.WaitForExit();
+					if (proc.ExitCode < 0)
+					{
+						// FIXME: some error
+						return files_info;
+					}
+				}
+			}
+
+			return files_info;
+		}
+
+		//-----------------------------------------------------------------------------
+		private bool RunHg(string work_dir, string args)
+		{
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				proc.WaitForExit();
+				if (proc.ExitCode < 0)
+					return false;
+
+				return true;
 			}
 		}
 
 		//-----------------------------------------------------------------------------
 		public bool Add(string work_dir, string[] files)
 		{
-			return Add(work_dir, files, 0);
-		}
-
-		//-----------------------------------------------------------------------------
-		public bool Add(string work_dir, string[] files, int approx_cmd_line_length)
-		{
-			// FIXME: cmd line length
-			StringBuilder args = new StringBuilder(approx_cmd_line_length);
+			StringBuilder args = new StringBuilder();
 			args.Append("add");
+
+			var cmd_line = new StringBuilder();
+			cmd_line.Append(args.ToString());
+
 			foreach (string f in files)
 			{
-				args.Append(" " + f.Quote());
+				var str = " " + f.Quote();
+
+				if ((cmd_line.Length + str.Length) > MaxCmdLength)
+				{
+					if (!RunHg(work_dir, cmd_line.ToString()))
+						return false;
+
+					cmd_line.Remove(0, cmd_line.Length);
+					cmd_line.Append(args.ToString());
+				}
+
+				cmd_line.Append(str);
 			}
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			if (cmd_line.Length != args.Length)
 			{
-				proc.WaitForExit();
-				if (proc.ExitCode != 0)
-					return false;
-
-				return true;
+				return RunHg(work_dir, cmd_line.ToString());
 			}
+
+			return true;
 		}
 
 		//-----------------------------------------------------------------------------
 		public bool Commit(string work_dir, string[] files, string comment)
 		{
-			return Commit(work_dir, files, comment, 0);
-		}
-
-		//-----------------------------------------------------------------------------
-		public bool Commit(string work_dir, string[] files, string comment, int approx_cmd_line_length)
-		{
-			// FIXME: cmd line length
-			StringBuilder args = new StringBuilder(approx_cmd_line_length);
-			args.Append("commit");
-			args.Append(" -m " + comment.EscapeQuotes().Quote());
-
-			foreach (string f in files)
+			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
-				args.Append(" " + f.Quote());
-			}
+				StringBuilder args = new StringBuilder();
+				args.Append("commit");
+				args.Append(" -l " + commit_msg_file.FileName.Quote());
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
-			{
-				proc.WaitForExit();
-				if (proc.ExitCode != 0)
-					return false;
+				var cmd_line = new StringBuilder();
+				cmd_line.Append(args.ToString());
 
-/*
-				foreach (var f in files)
+				foreach (string f in files)
 				{
-					string path = Path.Combine(work_dir, f);
-					if (File.Exists(path))
-					{
-						FileAttributes attr = File.GetAttributes(path);
-						if ((attr | FileAttributes.ReadOnly) != FileAttributes.ReadOnly)
-						{
-							attr |= FileAttributes.ReadOnly;
-							File.SetAttributes(path, attr);
-						}
-					}
-				}
-*/
+					var str = " " + f.Quote();
+					cmd_line.Append(str);
 
-				return true;
+					if (cmd_line.Length > MaxCmdLength)
+						throw new HgCommandLineException();
+				}
+
+				return RunHg(work_dir, cmd_line.ToString());
 			}
 		}
 
 		//-----------------------------------------------------------------------------
 		public bool CommitAll(string work_dir, string comment)
 		{
-			StringBuilder args = new StringBuilder();
-			args.Append("commit");
-			args.Append(" -m " + comment.EscapeQuotes().Quote());
-
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
-				proc.WaitForExit();
-				if (proc.ExitCode != 0)
-					return false;
+				StringBuilder args = new StringBuilder();
+				args.Append("commit");
+				args.Append(" -l " + commit_msg_file.FileName.Quote());
 
-				return true;
+				return RunHg(work_dir, args.ToString());
 			}
 		}
 
 		//-----------------------------------------------------------------------------
 		public bool CommitAll(string work_dir, string comment, string date_str)
 		{
-			StringBuilder args = new StringBuilder();
-			args.Append("commit");
-			args.Append(" -m " + comment.EscapeQuotes().Quote());
-			args.Append(" -d " + date_str.Quote());
-
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
-				proc.WaitForExit();
-				if (proc.ExitCode != 0)
-					return false;
+				StringBuilder args = new StringBuilder();
+				args.Append("commit");
+				args.Append(" -l " + commit_msg_file.FileName.Quote());
+				args.Append(" -d " + date_str.Quote());
 
-				return true;
+				return RunHg(work_dir, args.ToString());
 			}
-		}
-
-		//-----------------------------------------------------------------------------
-		public bool Checkout(string work_dir, string[] files)
-		{
-/*
-			DateTime now = DateTime.Now;
-			foreach (var f in files)
-			{
-				string path = Path.Combine(work_dir, f);
-				FileAttributes attr = File.GetAttributes(path);
-				if ((attr | FileAttributes.ReadOnly) != 0)
-				{
-					attr &= ~FileAttributes.ReadOnly;
-					File.SetAttributes(path, attr);
-				}
-
-				File.SetLastWriteTime(path, now);
-			}
-*/
-
-			return true;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -486,16 +534,28 @@ namespace HgSccHelper
 			if (no_backups)
 				args.Append(" --no-backup");
 
+			var cmd_line = new StringBuilder();
+			cmd_line.Append(args.ToString());
+
 			foreach (string f in files)
 			{
-				args.Append(" " + f.Quote());
+				var str = " " + f.Quote();
+
+				if ((cmd_line.Length + str.Length) > MaxCmdLength)
+				{
+					if (!RunHg(work_dir, cmd_line.ToString()))
+						return false;
+
+					cmd_line.Remove(0, cmd_line.Length);
+					cmd_line.Append(args.ToString());
+				}
+
+				cmd_line.Append(str);
 			}
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			if (cmd_line.Length != args.Length)
 			{
-				proc.WaitForExit();
-				if (proc.ExitCode != 0)
-					return false;
+				return RunHg(work_dir, cmd_line.ToString());
 			}
 
 			return true;
@@ -784,39 +844,33 @@ namespace HgSccHelper
 
 
 		//-----------------------------------------------------------------------------
-		public bool Remove(string work_dir, string[] files, string comment)
+		public bool Remove(string work_dir, string[] files)
 		{
-			if (comment.Length == 0)
-				comment = "Removed";
-
 			StringBuilder args = new StringBuilder();
 			args.Append("remove");
 
+			var cmd_line = new StringBuilder();
+			cmd_line.Append(args.ToString());
+
 			foreach (string f in files)
 			{
-				args.Append(" " + f.Quote());
+				var str = " " + f.Quote();
 
-				string real_path = Path.Combine(work_dir, f);
-/*
-				if (!File.Exists(real_path))
-					return false;
-*/
-
-/*
-				FileAttributes attr = File.GetAttributes(real_path);
-				if ((attr & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+				if ((cmd_line.Length + str.Length) > MaxCmdLength)
 				{
-					attr &= ~FileAttributes.ReadOnly;
-					File.SetAttributes(real_path, attr);
+					if (!RunHg(work_dir, cmd_line.ToString()))
+						return false;
+
+					cmd_line.Remove(0, cmd_line.Length);
+					cmd_line.Append(args.ToString());
 				}
-*/
+
+				cmd_line.Append(str);
 			}
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			if (cmd_line.Length != args.Length)
 			{
-				proc.WaitForExit();
-				if (proc.ExitCode != 0)
-					return false;
+				return RunHg(work_dir, cmd_line.ToString());
 			}
 
 			return true;

@@ -32,8 +32,6 @@ namespace HgSccHelper
 		public string WorkingDir { get; private set; }
 		private readonly Hg hg;
 
-		private const int MaxCmdLength = 2000 - 300;
-
 		//-----------------------------------------------------------------------------
 		public HgScc()
 		{
@@ -232,7 +230,7 @@ namespace HgSccHelper
 				}
 			}
 
-			var stats = (length > MaxCmdLength) ? hg.Status(WorkingDir) : hg.Status(WorkingDir, lst);
+			var stats = (length > Hg.MaxCmdLength) ? hg.Status(WorkingDir) : hg.Status(WorkingDir, lst);
 
 			foreach (var file_status in stats)
 			{
@@ -290,7 +288,6 @@ namespace HgSccHelper
 		{
 			// TODO: Check if project is opened
 			var add_files = new List<string>();
-			int count = 0;
 
 			foreach (var file in files)
 			{
@@ -298,17 +295,7 @@ namespace HgSccHelper
 				if (!GetRelativePath(file, out f))
 					return SccErrors.InvalidFilePath;
 
-				if ((count + f.Length) > MaxCmdLength)
-				{
-					if (!hg.Add(WorkingDir, add_files.ToArray()))
-						return SccErrors.OpNotPerformed;
-
-					add_files.Clear();
-					count = 0;
-				}
-
 				add_files.Add(f);
-				count += f.Length;
 			}
 
 			if (add_files.Count > 0)
@@ -456,32 +443,24 @@ namespace HgSccHelper
 		{
 			// TODO: Check if project is opened
 			var checkin_files = new List<string>();
-			int count = 0;
 
 			foreach (var f in files)
 			{
 				checkin_files.Add(f);
-				count += f.Length;
-
-				if (count > MaxCmdLength)
-				{
-					MessageBox.Show("Resulted command line for hg.exe is too long. In this situation you can only commit all changed files (which is equivalent to invoking hg.exe without specified files).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					return SccErrors.UnknownError;
-
-/*
-					if (!hg.Commit(WorkingDir, checkin_files.ToArray(), comment))
-						return SccErrors.OpNotPerformed;
-
-					checkin_files.Clear();
-					count = 0;
-*/
-				}
 			}
 
 			if (checkin_files.Count > 0)
 			{
-				if (!hg.Commit(WorkingDir, checkin_files.ToArray(), comment))
+				try
+				{
+					if (!hg.Commit(WorkingDir, checkin_files.ToArray(), comment))
+						return SccErrors.OpNotPerformed;
+				}
+				catch (HgCommandLineException)
+				{
+					MessageBox.Show("Resulted command line for hg.exe is too long. In this situation you can only commit all changed files (which is equivalent to invoking hg.exe without specified files).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return SccErrors.OpNotPerformed;
+				}
 			}
 
 			return SccErrors.Ok;
@@ -494,32 +473,11 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors Checkout(IntPtr hwnd, IEnumerable<string> files, string comment)
-		{
-			var local_files = new List<string>();
-			foreach (var f in files)
-			{
-				string local_f;
-				if (!GetRelativePath(f, out local_f))
-					return SccErrors.InvalidFilePath;
-
-				local_files.Add(local_f);
-			}
-
-			if (!hg.Checkout(WorkingDir, local_files.ToArray()))
-				return SccErrors.NonSpecificError;
-
-			return SccErrors.Ok;
-		}
-
-		//-----------------------------------------------------------------------------
 		public SccErrors Revert(IntPtr hwnd, IEnumerable<string> files, out IEnumerable<string> reverted_files)
 		{
 			var local_files = new List<string>();
 			var to_revert = new List<string>(files);
 			reverted_files = to_revert;
-
-			int count = 0;
 
 			// FIXME: Add dialog with checkboxes
 			foreach (var f in files)
@@ -528,17 +486,7 @@ namespace HgSccHelper
 				if (!GetRelativePath(f, out local_f))
 					return SccErrors.InvalidFilePath;
 
-				if ((count + local_f.Length) > MaxCmdLength)
-				{
-					if (!hg.Revert(WorkingDir, local_files.ToArray()))
-						return SccErrors.NonSpecificError;
-
-					local_files.Clear();
-					count = 0;
-				}
-
 				local_files.Add(local_f);
-				count += local_f.Length;
 			}
 
 			if (local_files.Count > 0)
@@ -600,11 +548,10 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors Remove(IntPtr hwnd, IEnumerable<string> files, string comment)
+		public SccErrors Remove(IntPtr hwnd, IEnumerable<string> files)
 		{
 			// TODO: Check if project is opened
 			var remove_files = new List<string>();
-			int count = 0;
 
 			foreach (var file in files)
 			{
@@ -612,22 +559,12 @@ namespace HgSccHelper
 				if (!GetRelativePath(file, out f))
 					return SccErrors.InvalidFilePath;
 
-				if ((count + f.Length) > MaxCmdLength)
-				{
-					if (!hg.Remove(WorkingDir, remove_files.ToArray(), comment))
-						return SccErrors.OpNotPerformed;
-
-					remove_files.Clear();
-					count = 0;
-				}
-
 				remove_files.Add(f);
-				count += f.Length;
 			}
 
 			if (remove_files.Count > 0)
 			{
-				if (!hg.Remove(WorkingDir, remove_files.ToArray(), comment))
+				if (!hg.Remove(WorkingDir, remove_files.ToArray()))
 					return SccErrors.OpNotPerformed;
 			}
 
