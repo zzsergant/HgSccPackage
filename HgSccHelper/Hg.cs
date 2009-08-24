@@ -105,35 +105,6 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public List<LightChangeDesc> Changes(string work_dir, string path)
-		{
-			return Changes(work_dir, path, "");
-		}
-
-		//-----------------------------------------------------------------------------
-		public List<LightChangeDesc> Changes(string work_dir, string path, string rev)
-		{
-			var template = @"==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc}\nrev: {rev}\n".Quote();
-			var args = new StringBuilder();
-			args.Append("log " + rev);
-			args.Append(" -f");
-			args.Append(" --template " + template);
-
-			if (path.Length > 0)
-			{
-				args.Append(" " + path.Quote());
-			}
-
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
-			{
-				var lst = LightChangeDesc.ParseChanges(proc.StandardOutput);
-				proc.WaitForExit();
-
-				return lst;
-			}
-		}
-
-		//-----------------------------------------------------------------------------
 		public List<ChangeDesc> ChangesFull(string work_dir, string path)
 		{
 			return ChangesFull(work_dir, path, "");
@@ -230,7 +201,7 @@ namespace HgSccHelper
 			if (rev.Length > 0)
 				args.Append(" -r " + rev);
 
-			var template = @"==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\nbranch: {branches}\ntag: {tags}\nparents: {parents}\n".Quote();
+			var template = RevLogChangeDesc.Template.Quote();
 			args.Append(" --template " + template);
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))

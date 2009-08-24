@@ -139,6 +139,31 @@ namespace HgSccHelper
 			return list;
 		}
 
+		//------------------------------------------------------------------
+		/// <summary>
+		/// Mercurial template string for ParseChanges function
+		/// </summary>
+		public static string Template
+		{
+			get
+			{
+				var builder = new StringBuilder();
+				builder.Append("==:\n");
+				builder.Append("date: {date|isodate}\n");
+				builder.Append("author: {author}\n");
+				builder.Append("desc: {desc|strip|tabindent}\n");
+				builder.Append("rev: {rev}\n");
+				builder.Append("node: {node}\n");
+				builder.Append("branch: {branches}\n");
+				builder.Append("tag: {tags}\n");
+				builder.Append("parents: {parents}\n");
+				builder.Append("::=\n");
+
+				return builder.ToString();
+			}
+		}
+
+
 		//-----------------------------------------------------------------------------
 		public static List<RevLogChangeDesc> ParseChanges(StreamReader reader)
 		{
@@ -155,13 +180,17 @@ namespace HgSccHelper
 
 				if (str.StartsWith("==:"))
 				{
+					cs = new RevLogChangeDesc();
+					continue;
+				}
+
+				if (str.StartsWith("::="))
+				{
 					if (cs != null)
 					{
 						cs.Desc = desc_builder.ToString();
 						list.Add(cs);
 					}
-
-					cs = new RevLogChangeDesc();
 					continue;
 				}
 
@@ -226,12 +255,6 @@ namespace HgSccHelper
 				}
 
 				//--
-			}
-
-			if (cs != null)
-			{
-				cs.Desc = desc_builder.ToString();
-				list.Add(cs);
 			}
 
 			return list;

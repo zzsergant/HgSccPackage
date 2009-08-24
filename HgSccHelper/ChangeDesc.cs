@@ -80,6 +80,12 @@ namespace HgSccHelper
 
 				if (str.StartsWith("==:"))
 				{
+					cs = new ChangeDesc();
+					continue;
+				}
+
+				if (str.StartsWith("::="))
+				{
 					if (cs != null)
 					{
 						RemoveDuplicates(modified_files, cs.FilesAdded);
@@ -90,12 +96,11 @@ namespace HgSccHelper
 						}
 
 						cs.Desc = desc_builder.ToString();
-						
+
 						list.Add(cs);
 						modified_files.Clear();
 					}
 
-					cs = new ChangeDesc();
 					continue;
 				}
 
@@ -182,21 +187,6 @@ namespace HgSccHelper
 				//--
 			}
 
-			if (cs != null)
-			{
-				// FIXME: Удаляем из списка модифицированных файлов добавленные и удаленные (hg 1.1.1 ??)
-				RemoveDuplicates(modified_files, cs.FilesAdded);
-				RemoveDuplicates(modified_files, cs.FilesRemoved);
-				foreach (var info in modified_files.Values)
-				{
-					cs.FilesModified.Add(info);
-				}
-
-				cs.Desc = desc_builder.ToString();
-				list.Add(cs);
-				modified_files.Clear();
-			}
-
 			return list;
 		}
 	}
@@ -214,7 +204,7 @@ namespace HgSccHelper
 
 			using (var stream = new StreamWriter(File.OpenWrite(FileName)))
 			{
-				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n'");
+				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n::=\n'");
 				stream.WriteLine(@"file = '{file}:'");
 				stream.WriteLine(@"last_file = '{file}'");
 				stream.WriteLine(@"file_add = '{file_add}:'");

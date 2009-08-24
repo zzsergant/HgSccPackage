@@ -90,7 +90,6 @@
     <Compile Include="HistoryForm.designer.cs">
       <DependentUpon>HistoryForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="LightChangeDesc.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="OptionsForm.cs">
       <SubType>Form</SubType>
