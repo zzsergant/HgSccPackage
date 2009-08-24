@@ -280,7 +280,7 @@ namespace HgSccHelper
 			foreach (var f in files)
 				lst.Add(f.File);
 
-			return Add(hwnd, lst.ToArray());
+			return Add(hwnd, lst);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -300,7 +300,7 @@ namespace HgSccHelper
 
 			if (add_files.Count > 0)
 			{
-				if (!hg.Add(WorkingDir, add_files.ToArray()))
+				if (!hg.Add(WorkingDir, add_files))
 					return SccErrors.OpNotPerformed;
 			}
 			return SccErrors.Ok;
@@ -416,9 +416,13 @@ namespace HgSccHelper
 					{
 						error = CommitAll(hwnd, form.Comment);
 					}
-					else
+					else if (to_commit_files.Count > 0)
 					{
 						error = CheckInInternal(hwnd, to_commit_files, form.Comment);
+					}
+					else
+					{
+						return SccErrors.Ok;
 					}
 
 					if (error == SccErrors.Ok)
@@ -442,25 +446,15 @@ namespace HgSccHelper
 		public SccErrors CheckInInternal(IntPtr hwnd, IEnumerable<string> files, string comment)
 		{
 			// TODO: Check if project is opened
-			var checkin_files = new List<string>();
-
-			foreach (var f in files)
+			try
 			{
-				checkin_files.Add(f);
-			}
-
-			if (checkin_files.Count > 0)
-			{
-				try
-				{
-					if (!hg.Commit(WorkingDir, checkin_files.ToArray(), comment))
-						return SccErrors.OpNotPerformed;
-				}
-				catch (HgCommandLineException)
-				{
-					MessageBox.Show("Resulted command line for hg.exe is too long. In this situation you can only commit all changed files (which is equivalent to invoking hg.exe without specified files).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				if (!hg.Commit(WorkingDir, files, comment))
 					return SccErrors.OpNotPerformed;
-				}
+			}
+			catch (HgCommandLineException)
+			{
+				MessageBox.Show("Resulted command line for hg.exe is too long. In this situation you can only commit all changed files (which is equivalent to invoking hg.exe without specified files).", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return SccErrors.OpNotPerformed;
 			}
 
 			return SccErrors.Ok;
@@ -491,7 +485,7 @@ namespace HgSccHelper
 
 			if (local_files.Count > 0)
 			{
-				if (!hg.Revert(WorkingDir, local_files.ToArray()))
+				if (!hg.Revert(WorkingDir, local_files))
 					return SccErrors.NonSpecificError;
 			}
 
@@ -564,7 +558,7 @@ namespace HgSccHelper
 
 			if (remove_files.Count > 0)
 			{
-				if (!hg.Remove(WorkingDir, remove_files.ToArray()))
+				if (!hg.Remove(WorkingDir, remove_files))
 					return SccErrors.OpNotPerformed;
 			}
 

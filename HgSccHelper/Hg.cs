@@ -441,7 +441,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public bool Add(string work_dir, string[] files)
+		public bool Add(string work_dir, IEnumerable<string> files)
 		{
 			StringBuilder args = new StringBuilder();
 			args.Append("add");
@@ -474,7 +474,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public bool Commit(string work_dir, string[] files, string comment)
+		public bool Commit(string work_dir, IEnumerable<string> files, string comment)
 		{
 			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
@@ -492,6 +492,12 @@ namespace HgSccHelper
 
 					if (cmd_line.Length > MaxCmdLength)
 						throw new HgCommandLineException();
+				}
+
+				if (cmd_line.Length == args.Length)
+				{
+					// To commit all changes use CommitAll() function
+					throw new ArgumentException("Passing no files in Commit function is not allowed");
 				}
 
 				return RunHg(work_dir, cmd_line.ToString());
@@ -526,7 +532,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public bool Revert(string work_dir, string[] files)
+		public bool Revert(string work_dir, IEnumerable<string> files)
 		{
 			bool no_backups = true;
 			StringBuilder args = new StringBuilder();
@@ -844,7 +850,7 @@ namespace HgSccHelper
 
 
 		//-----------------------------------------------------------------------------
-		public bool Remove(string work_dir, string[] files)
+		public bool Remove(string work_dir, IEnumerable<string> files)
 		{
 			StringBuilder args = new StringBuilder();
 			args.Append("remove");
