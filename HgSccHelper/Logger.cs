@@ -37,7 +37,16 @@ namespace HgSccHelper
 
 			string log_path = Path.Combine(hgdata, "hgsccpkg.log");
 			if (File.Exists(log_path))
-				File.Delete(log_path);
+			{
+				try
+				{
+					File.Delete(log_path);
+				}
+				catch(System.IO.IOException)
+				{
+
+				}
+			}
 
 			var file_listener = new TextWriterTraceListener(log_path);
 			Debug.Listeners.Add(file_listener);
