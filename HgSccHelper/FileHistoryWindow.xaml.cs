@@ -29,6 +29,10 @@ namespace HgSccHelper
 			"DiffPrevious", typeof(FileHistoryWindow));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand DiffTwoRevisionsCommand = new RoutedUICommand("Diff Two Revisions",
+			"DiffTwoRevisions", typeof(FileHistoryWindow));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
 			"FileHistory", typeof(FileHistoryWindow));
 
@@ -133,6 +137,13 @@ namespace HgSccHelper
 			var f1 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex];
 			var f2 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex + 1];
 
+			DiffTwoRevisions(f1, f2);
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void DiffTwoRevisions(FileHistoryInfo f1, FileHistoryInfo f2)
+		{
 			if (f1.ChangeDesc.Rev > f2.ChangeDesc.Rev)
 			{
 				var temp = f2;
@@ -148,8 +159,6 @@ namespace HgSccHelper
 			{
 				Util.HandleHgDiffException();
 			}
-
-			e.Handled = true;
 		}
 
 		//------------------------------------------------------------------
@@ -224,6 +233,23 @@ namespace HgSccHelper
 			wnd.FileName = file_info.Path;
 
 			wnd.ShowDialog();
+		}
+
+		//------------------------------------------------------------------
+		private void HistoryDiffTwoRevisions_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = (listChanges.SelectedItems.Count == 2);
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void HistoryDiffTwoRevisions_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var f1 = (FileHistoryInfo)listChanges.SelectedItems[0];
+			var f2 = (FileHistoryInfo)listChanges.SelectedItems[1];
+
+			DiffTwoRevisions(f1, f2);
+			e.Handled = true;
 		}
 	}
 

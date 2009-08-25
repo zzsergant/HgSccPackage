@@ -10,27 +10,50 @@
     WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="300" />
             <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <ToolBarTray Grid.Row="0">
+            <ToolBar>
+                <Button Content="Diff Previous"
+                        Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                        MinWidth="75" />
+                <Button Content="Diff Two Revisions"
+                        Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="File History"
+                        Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                        MinWidth="75" />
+            </ToolBar>
+        </ToolBarTray>
         <ListView x:Name="listChanges"
-                  Grid.Row="0"
+                  Grid.Row="1"
                   Margin="0, 0, 0, 5">
             <ListView.CommandBindings>
                 <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                         CanExecute="HistoryDiffPrevious_CanExecute"
                         Executed="HistoryDiffPrevious_Executed">
                 </CommandBinding>
+                <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
+                        CanExecute="HistoryDiffTwoRevisions_CanExecute"
+                        Executed="HistoryDiffTwoRevisions_Executed">
+                </CommandBinding>
             </ListView.CommandBindings>
             <ListView.InputBindings>
                 <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
+                <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
+                            Modifiers="Control" Key="T" />
             </ListView.InputBindings>
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
+                    <MenuItem Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
+                              InputGestureText="Ctrl + T"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.GroupStyle>
@@ -61,9 +84,9 @@
                 </Style>
             </ListView.Resources>
         </ListView>
-        <GridSplitter Grid.Row="0" Margin="0"
+        <GridSplitter Grid.Row="1" Margin="0"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-        <ScrollViewer Grid.Row="1"
+        <ScrollViewer Grid.Row="2"
                       CanContentScroll="True" VerticalScrollBarVisibility="Auto">
             <StackPanel DataContext="{Binding Path=SelectedItem.ChangeDesc, ElementName=listChanges, Mode=OneWay}" CanVerticallyScroll="True">
                 <StackPanel Orientation="Horizontal">
@@ -81,9 +104,9 @@
                 </TextBox>
             </StackPanel>
         </ScrollViewer>
-        <GridSplitter Grid.Row="1" Margin="0"
+        <GridSplitter Grid.Row="2" Margin="0"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-        <ListView Grid.Row="2" Name="listViewFiles"
+        <ListView Grid.Row="3" Name="listViewFiles"
                   ItemsSource="{Binding Path=SelectedItem.ChangeDesc.Files, ElementName=listChanges, Mode=OneWay}">
             <ListView.CommandBindings>
                 <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
