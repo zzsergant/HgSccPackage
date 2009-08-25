@@ -36,7 +36,7 @@
         	<StackPanel Orientation="Horizontal">
         		<local:RevLogLinesVisual Height="20"
 										 RevLogLines="{Binding}" />
-        		<TextBlock Text="{Binding Current.ChangeDesc.OneLineDesc}"/>
+        		<TextBlock Text="{Binding Current.ChangeDesc.OneLineDesc}" VerticalAlignment="Center" />
         	</StackPanel>
 		</DataTemplate>
         <Style x:Key="ListViewItemStyle1" TargetType="{x:Type ListViewItem}">
