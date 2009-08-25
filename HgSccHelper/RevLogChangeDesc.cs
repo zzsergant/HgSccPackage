@@ -168,9 +168,7 @@ namespace HgSccHelper
 		public static List<RevLogChangeDesc> ParseChanges(StreamReader reader)
 		{
 			var list = new List<RevLogChangeDesc>();
-			RevLogChangeDesc cs = null;
-			var parent_sep = new char[] { ':', ' ' };
-			var desc_builder = new StringBuilder();
+			var parser = new RevLogChangeDescParser();
 
 			while (true)
 			{
@@ -178,86 +176,122 @@ namespace HgSccHelper
 				if (str == null)
 					break;
 
-				if (str.StartsWith("==:"))
+				var cs = parser.ParseLine(str);
+				if (cs != null)
+					list.Add(cs);
+			}
+
+			return list;
+		}
+	}
+
+	//------------------------------------------------------------------
+	public class RevLogChangeDescParser
+	{
+		RevLogChangeDesc cs = null;
+		char[] parent_sep;
+		StringBuilder desc_builder;
+
+		//------------------------------------------------------------------
+		public RevLogChangeDescParser()
+		{
+			parent_sep = new char[] { ':', ' ' };
+			desc_builder = new StringBuilder();
+		}
+
+		//-----------------------------------------------------------------------------
+		public RevLogChangeDesc ParseLine(string str)
+		{
+			// str may be broken, if background process stopped by user,
+			// so we need to use TryParse() intead of Parse methods
+
+			if (str == null)
+				return null;
+
+			if (str.StartsWith("==:"))
+			{
+				cs = new RevLogChangeDesc();
+				return null;
+			}
+
+			if (str.StartsWith("::="))
+			{
+				if (cs != null)
 				{
-					cs = new RevLogChangeDesc();
-					continue;
+					cs.Desc = desc_builder.ToString();
+					return cs;
 				}
+				return null;
+			}
 
-				if (str.StartsWith("::="))
+			if (str.StartsWith("date: "))
+			{
+				DateTime date_time;
+				if (DateTime.TryParse(str.Substring("date: ".Length), out date_time))
+					cs.Date = date_time;
+				return null;
+			}
+
+			if (str.StartsWith("author: "))
+			{
+				cs.Author = str.Substring("author: ".Length);
+				return null;
+			}
+
+			if (str.StartsWith("rev: "))
+			{
+				int rev;
+				if (Int32.TryParse(str.Substring("rev: ".Length), out rev))
+					cs.Rev = rev;
+				return null;
+			}
+
+			if (str.StartsWith("node: "))
+			{
+				cs.SHA1 = str.Substring("node: ".Length);
+				return null;
+			}
+
+			if (str.StartsWith("desc: "))
+			{
+				cs.OneLineDesc = str.Substring("desc: ".Length);
+				desc_builder.Remove(0, desc_builder.Length);
+				desc_builder.AppendLine(cs.OneLineDesc);
+				return null;
+			}
+
+			if (str.StartsWith("branch: "))
+			{
+				cs.Branch = str.Substring("branch: ".Length);
+				if (cs.Branch.Length == 0)
+					cs.Branch = "default";
+
+				return null;
+			}
+
+			if (str.StartsWith("parents: "))
+			{
+				var parents_strs = str.Substring("parents: ".Length).Split(parent_sep, StringSplitOptions.RemoveEmptyEntries);
+				if (parents_strs.Length == 4)
 				{
-					if (cs != null)
-					{
-						cs.Desc = desc_builder.ToString();
-						list.Add(cs);
-					}
-					continue;
-				}
-
-				if (str.StartsWith("date: "))
-				{
-					cs.Date = DateTime.Parse(str.Substring("date: ".Length));
-					continue;
-				}
-
-				if (str.StartsWith("author: "))
-				{
-					cs.Author = str.Substring("author: ".Length);
-					continue;
-				}
-
-				if (str.StartsWith("rev: "))
-				{
-					cs.Rev = Int32.Parse(str.Substring("rev: ".Length));
-					continue;
-				}
-
-				if (str.StartsWith("node: "))
-				{
-					cs.SHA1 = str.Substring("node: ".Length);
-					continue;
-				}
-
-				if (str.StartsWith("desc: "))
-				{
-					cs.OneLineDesc = str.Substring("desc: ".Length);
-					desc_builder.Remove(0, desc_builder.Length);
-					desc_builder.AppendLine(cs.OneLineDesc);
-					continue;
-				}
-
-				if (str.StartsWith("branch: "))
-				{
-					cs.Branch = str.Substring("branch: ".Length);
-					if (cs.Branch.Length == 0)
-						cs.Branch = "default";
-
-					continue;
-				}
-
-				if (str.StartsWith("parents: "))
-				{
-					var parents_strs = str.Substring("parents: ".Length).Split(parent_sep);
 					if (parents_strs[0] != "-1")
 						cs.Parents.Add(parents_strs[1]);
 					if (parents_strs[2] != "-1")
 						cs.Parents.Add(parents_strs[3]);
-					continue;
 				}
-
-				if (str.Length > 0)
-				{
-					if (str[0] == '\t')
-					{
-						desc_builder.AppendLine(str.Substring(1));
-						continue;
-					}
-				}
-
-				//--
+				return null;
 			}
 
-			return list;
+			if (str.Length > 0)
+			{
+				if (str[0] == '\t')
+				{
+					desc_builder.AppendLine(str.Substring(1));
+					return null;
+				}
+			}
+
+			return null;
 		}
 	}
 }

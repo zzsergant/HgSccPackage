@@ -17,6 +17,8 @@ using System;
 using System.Windows.Input;
 using System.Windows;
 using System.Windows.Controls.Primitives;
+using System.Collections.ObjectModel;
+using System.Text;
 
 namespace HgSccHelper
 {
@@ -26,7 +28,11 @@ namespace HgSccHelper
 	public partial class RevLogControl : UserControl
 	{
 		List<RevLogChangeDesc> revs;
-		List<RevLogLinesPair> rev_lines;
+		ObservableCollection<RevLogLinesPair> rev_lines;
+
+		RevLogChangeDescParser rev_log_parser;
+		RevLogIteratorParser rev_log_iterator;
+		RevLogLinesPairParser rev_log_lines_parser;
 
 		DispatcherTimer timer;
 
@@ -48,11 +54,18 @@ namespace HgSccHelper
 		public static RoutedUICommand ReadAllCommand = new RoutedUICommand("Read All",
 			"ReadAll", typeof(RevLogControl));
 
-		//------------------------------------------------------------------
-		Hg Hg { get; set; }
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand StopCommand = new RoutedUICommand("Stop",
+			"Stop", typeof(RevLogControl));
 
 		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
+
+		//------------------------------------------------------------------
+		HgThread worker;
+
+		//------------------------------------------------------------------
+		Cursor prev_cursor;
 
 		//------------------------------------------------------------------
 		public RevLogControl()
@@ -64,21 +77,27 @@ namespace HgSccHelper
 
 			VirtualizingStackPanel.SetIsVirtualizing(listViewFiles, true);
 			VirtualizingStackPanel.SetVirtualizationMode(listViewFiles, VirtualizationMode.Recycling);
+
+			worker = new HgThread();
+
+			rev_log_iterator = new RevLogIteratorParser();
+			rev_log_lines_parser = new RevLogLinesPairParser();
+
+			revs = new List<RevLogChangeDesc>();
+			rev_lines = new ObservableCollection<RevLogLinesPair>();
+			graphView.ItemsSource = rev_lines;
 		}
 
 		//------------------------------------------------------------------
 		private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
 		{
-			Hg = new Hg();
 			timer = new DispatcherTimer();
 			timer.Interval = TimeSpan.FromMilliseconds(50);
 			timer.Tick += OnTimerTick;
 
 			if (WorkingDir != null)
 			{
-				ReadRevLog("", BatchSize);
-				if (graphView.Items.Count > 0)
-					graphView.SelectedIndex = 0;
+				RunRevLogThread(WorkingDir, "", BatchSize);
 			}
 		}
 
@@ -90,7 +109,8 @@ namespace HgSccHelper
 			if (graphView.SelectedItems.Count == 1)
 			{
 				var rev_pair = (RevLogLinesPair)graphView.SelectedItem;
-				var cs_list = Hg.ChangesFull(WorkingDir, "", rev_pair.Current.ChangeDesc.SHA1);
+				var hg = new Hg();
+				var cs_list = hg.ChangesFull(WorkingDir, "", rev_pair.Current.ChangeDesc.SHA1);
 				if (cs_list.Count == 1)
 					listViewFiles.DataContext = cs_list[0];
 
@@ -114,6 +134,11 @@ namespace HgSccHelper
 		private void UserControl_Unloaded(object sender, System.Windows.RoutedEventArgs e)
 		{
 			timer.Tick -= OnTimerTick;
+
+			if (StopCommand.CanExecute(sender, e.Source as IInputElement))
+				StopCommand.Execute(sender, e.Source as IInputElement);
+
+			worker.Dispose();
 		}
 
 		//------------------------------------------------------------------
@@ -139,7 +164,8 @@ namespace HgSccHelper
 
 			try
 			{
-				Hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
+				var hg = new Hg();
+				hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
 			}
 			catch (HgDiffException)
 			{
@@ -163,59 +189,57 @@ namespace HgSccHelper
 			e.CanExecute = false;
 			if (WorkingDir != null && revs != null && revs.Count > 0)
 			{
-				if (revs[revs.Count - 1].Rev != 0)
-					e.CanExecute = true;
+				if (worker != null && !worker.IsBusy)
+					if (revs[revs.Count - 1].Rev != 0)
+					{
+						e.CanExecute = true;
+					}
 			}
 			e.Handled = true;
 		}
 
 		//------------------------------------------------------------------
-		void ReadRevLog(string revisions)
-		{
-			ReadRevLog(revisions, 0);
-		}
-
-		//------------------------------------------------------------------
-		void ReadRevLog(string revisions, int max_count)
-		{
-			var prev_cursor = Cursor;
-			Cursor = Cursors.Wait;
-
-			List<RevLogChangeDesc> next_revs;
-			if (revisions.Length > 0)
-				next_revs = Hg.RevLog(WorkingDir, revisions, max_count);
-			else
-				next_revs = Hg.RevLog(WorkingDir, max_count);
-
-			if (revs == null)
-				revs = next_revs;
-			else
-				revs.AddRange(next_revs);
-
-			rev_lines = new List<RevLogLinesPair>(
-				RevLogLinesPair.FromV1(RevLogIterator.GetLines(revs)));
-
-			graphView.ItemsSource = rev_lines;
-
-			Cursor = prev_cursor;
-		}
-
-		//------------------------------------------------------------------
 		private void ReadNext_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var prev_selected = graphView.SelectedIndex;
-
 			var start_rev = revs[revs.Count - 1].Rev - 1;
 			var stop_rev = Math.Max(0, start_rev - BatchSize);
 			var rev = string.Format("{0}:{1}", start_rev, stop_rev);
 
-			ReadRevLog(rev);
+			RunRevLogThread(WorkingDir, rev, 0);
+			e.Handled = true;
+		}
 
-			if (prev_selected != -1)
-			{
-				graphView.SelectedIndex = prev_selected;
-				graphView.ItemContainerGenerator.StatusChanged += new EventHandler(ItemContainerGenerator_StatusChanged);
-			}
+		//------------------------------------------------------------------
+		private void RunRevLogThread(string work_dir, string rev, int max_count)
+		{
+			var p = new HgThreadParams();
+			p.CompleteHandler = Worker_Completed;
+			p.OutputHandler = Output_Handler;
+			p.WorkingDir = WorkingDir;
+
+			var args = new StringBuilder();
+			args.Append("log");
+			args.Append(" --debug");
+			args.Append(" -v");
+			args.Append(" -f");
+	
+			if (max_count != 0)
+				args.Append(" -l " + max_count);
+
+			if (rev.Length > 0)
+				args.Append(" -r " + rev);
+
+			var template = RevLogChangeDesc.Template.Quote();
+			args.Append(" --template " + template);
+
+			p.Args = args.ToString();
+
+			rev_log_parser = new RevLogChangeDescParser();
+			
+			prev_cursor = Cursor;
+			Cursor = Cursors.Wait;
+			
+			worker.Run(p);
 		}
 
 		//------------------------------------------------------------------
@@ -227,42 +251,11 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ReadAll_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var prev_selected = graphView.SelectedIndex;
-
 			var start_rev = revs[revs.Count - 1].Rev - 1;
 			var rev = string.Format("{0}:{1}", start_rev, 0);
 
-			ReadRevLog(rev);
-
-			if (prev_selected != -1)
-			{
-				graphView.SelectedIndex = prev_selected;
-				graphView.ItemContainerGenerator.StatusChanged += new EventHandler(ItemContainerGenerator_StatusChanged);
-			}
-		}
-
-		//------------------------------------------------------------------
-		void ItemContainerGenerator_StatusChanged(object sender, EventArgs e)
-		{
-			var generator = (ItemContainerGenerator)sender;
-			if (generator.Status == GeneratorStatus.ContainersGenerated)
-			{
-				graphView.ItemContainerGenerator.StatusChanged -= new EventHandler(ItemContainerGenerator_StatusChanged);
-				var selected_item = (ListViewItem)graphView.ItemContainerGenerator.ContainerFromIndex(graphView.SelectedIndex);
-				if (selected_item != null)
-				{
-					// if selected item is visible, set keyboard focus to it
-					selected_item.Focus();
-				}
-				else
-				{
-					// otherwise we can either:
-					// 1. scroll view to the selected item and focus it
-					// 2. set selected index to first item
- 
-					// graphView.SelectedIndex = 0;
-				}
-			}
+			RunRevLogThread(WorkingDir, rev, 0);
+			e.Handled = true;
 		}
 
 		//------------------------------------------------------------------
@@ -284,6 +277,51 @@ namespace HgSccHelper
 			wnd.FileName = file_info.Path;
 
 			wnd.ShowDialog();
+		}
+
+		//------------------------------------------------------------------
+		private void Stop_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = (worker != null && worker.IsBusy && !worker.CancellationPending);
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Stop_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			worker.Cancel();
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		void Worker_Completed(HgThreadResult completed)
+		{
+			Cursor = prev_cursor;
+
+			// Updating commands state (CanExecute)
+			CommandManager.InvalidateRequerySuggested();
+		}
+
+		//------------------------------------------------------------------
+		void Output_Handler(string msg)
+		{
+			var change_desc = rev_log_parser.ParseLine(msg);
+			if (change_desc != null)
+			{
+				Dispatcher.Invoke(DispatcherPriority.Normal,
+					new Action<RevLogChangeDesc>(Worker_NewRevLogChangeDesc), change_desc);
+			}
+		}
+
+		//------------------------------------------------------------------
+		void Worker_NewRevLogChangeDesc(RevLogChangeDesc change_desc)
+		{
+			revs.Add(change_desc);
+			rev_lines.Add(rev_log_lines_parser.ParseLogLines(
+				rev_log_iterator.ParseChangeDesc(change_desc)));
+
+			if (graphView.SelectedIndex == -1 && graphView.Items.Count > 0)
+				graphView.SelectedIndex = 0;
 		}
 	}
 }

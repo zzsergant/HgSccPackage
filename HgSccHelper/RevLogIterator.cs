@@ -41,17 +41,6 @@ namespace HgSccHelper
 	{
 		public RevLogLines Prev { get; set; }
 		public RevLogLines Current { get; set; }
-		
-		//------------------------------------------------------------------
-		public static IEnumerable<RevLogLinesPair> FromV1(IEnumerable<RevLogLines> lines)
-		{
-			RevLogLines prev = null;
-			foreach (var l in lines)
-			{
-				yield return new RevLogLinesPair { Prev = prev, Current = l };
-				prev = l;
-			}
-		}
 	}
 
 
@@ -61,61 +50,100 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public static IEnumerable<RevLogLines> GetLines(List<RevLogChangeDesc> revs)
 		{
-			var revisions = new List<string>();
+			var parser = new RevLogIteratorParser();
 
 			foreach (var rev in revs)
 			{
-				if (!revisions.Contains(rev.SHA1))
+				var lines = parser.ParseChangeDesc(rev);
+				yield return lines;
+			}
+		}
+	}
+
+	//==================================================================
+	class RevLogIteratorParser
+	{
+		List<string> revisions;
+
+		//------------------------------------------------------------------
+		public RevLogIteratorParser()
+		{
+			revisions = new List<string>();
+		}
+
+		//------------------------------------------------------------------
+		public RevLogLines ParseChangeDesc(RevLogChangeDesc rev)
+		{
+			if (!revisions.Contains(rev.SHA1))
+			{
+				// new head
+				revisions.Add(rev.SHA1);
+			}
+
+			int rev_index = revisions.IndexOf(rev.SHA1);
+			var next_revs = new List<string>(revisions);
+			var parents = rev.Parents;
+			var parents_to_add = new List<string>();
+
+			foreach (var parent in parents)
+			{
+				if (!next_revs.Contains(parent))
+					parents_to_add.Add(parent);
+			}
+
+			next_revs.RemoveAt(rev_index);
+			next_revs.InsertRange(rev_index, parents_to_add);
+
+			var l = new RevLogLines();
+			l.ChangeDesc = rev;
+			l.Lines = new List<LinePos>();
+			l.Pos = rev_index;
+			l.Count = revisions.Count;
+
+			for (int i = 0; i < revisions.Count; ++i)
+			{
+				int next_pos = next_revs.IndexOf(revisions[i]);
+				if (next_pos != -1)
 				{
-					// new head
-					revisions.Add(rev.SHA1);
+					l.Lines.Add(new LinePos { X1 = i, X2 = next_pos });
 				}
-
-				int rev_index = revisions.IndexOf(rev.SHA1);
-				var next_revs = new List<string>(revisions);
-				var parents = rev.Parents;
-				var parents_to_add = new List<string>();
-
-				foreach (var parent in parents)
+				else
 				{
-					if (!next_revs.Contains(parent))
-						parents_to_add.Add(parent);
-				}
-
-				next_revs.RemoveAt(rev_index);
-				next_revs.InsertRange(rev_index, parents_to_add);
-
-				var l = new RevLogLines();
-				l.ChangeDesc = rev;
-				l.Lines = new List<LinePos>();
-				l.Pos = rev_index;
-				l.Count = revisions.Count;
-
-				for (int i = 0; i < revisions.Count; ++i)
-				{
-					int next_pos = next_revs.IndexOf(revisions[i]);
-					if (next_pos != -1)
+					if (revisions[i] == rev.SHA1)
 					{
-						l.Lines.Add(new LinePos { X1 = i, X2 = next_pos });
-					}
-					else
-					{
-						if (revisions[i] == rev.SHA1)
+						foreach (var parent in parents)
 						{
-							foreach (var parent in parents)
-							{
-								int idx = next_revs.IndexOf(parent);
-								l.Lines.Add(new LinePos { X1 = i, X2 = idx });
-							}
+							int idx = next_revs.IndexOf(parent);
+							l.Lines.Add(new LinePos { X1 = i, X2 = idx });
 						}
 					}
-
 				}
 
-				yield return l;
-
-				revisions = next_revs;
 			}
+
+			revisions = next_revs;
+			return l;
+		}
+	}
+
+	//------------------------------------------------------------------
+	public class RevLogLinesPairParser
+	{
+		RevLogLines prev;
+
+		//------------------------------------------------------------------
+		public RevLogLinesPairParser()
+		{
+
+		}
+
+		//------------------------------------------------------------------
+		public RevLogLinesPair ParseLogLines(RevLogLines lines)
+		{
+			var pair = new RevLogLinesPair { Prev = prev, Current = lines };
+			prev = lines;
+
+			return pair;
 		}
 	}
 }

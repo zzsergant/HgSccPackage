@@ -25,6 +25,10 @@
                         CanExecute="ReadAll_CanExecute"
                         Executed="ReadAll_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:RevLogControl.StopCommand}"
+                        CanExecute="Stop_CanExecute"
+                        Executed="Stop_Executed">
+        </CommandBinding>
     </UserControl.CommandBindings>
     <UserControl.Resources>
     	<local:RevLogLinesPair x:Key="RevLogLinesPairDataSource" d:IsDataSource="True"/>
@@ -94,6 +98,13 @@
                 </GridView>
             </ListView.View>
         </ListView>
+        <StackPanel Grid.Row="0"
+                    Grid.Column="1" VerticalAlignment="Top">
+            <Button Content="Stop"
+                    Command="{x:Static local:RevLogControl.StopCommand}"
+                    Margin="5" Padding="5, 0" Focusable="False" IsTabStop="False">
+            </Button>
+        </StackPanel>
         <StackPanel Grid.Row="0"
                     Grid.Column="1" VerticalAlignment="Bottom">
             <Button Content="+500"
