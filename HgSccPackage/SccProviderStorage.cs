@@ -355,7 +355,19 @@ namespace HgSccPackage
 			if (!IsValid)
 				return;
 
-			hgscc.History(IntPtr.Zero, filename);
+			string relative_path;
+			if (!hgscc.GetRelativePath(filename, out relative_path))
+			{
+				Logger.WriteLine("Can't get relative path: " + filename);
+				return;
+			}
+
+
+			FileHistoryWindow wnd = new FileHistoryWindow();
+			wnd.WorkingDir = hgscc.WorkingDir;
+			wnd.FileName = relative_path;
+
+			wnd.ShowDialog();
 		}
 
 		//------------------------------------------------------------------
