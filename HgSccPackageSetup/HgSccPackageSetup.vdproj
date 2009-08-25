@@ -51,8 +51,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_0F3149A3920FEEC3C218143700A53C45"
+        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3D761CA6B7B183B3243F36A9DCA3674E"
         "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3D761CA6B7B183B3243F36A9DCA3674E"
+        "OwnerKey" = "8:_0F3149A3920FEEC3C218143700A53C45"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -233,6 +245,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_0F3149A3920FEEC3C218143700A53C45"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -493,6 +511,37 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_0F3149A3920FEEC3C218143700A53C45"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:HgSccHelper, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_0F3149A3920FEEC3C218143700A53C45"
+                    {
+                    "Name" = "8:HgSccHelper.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:HgSccHelper.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E36607D0CDDE4F54A2B3FFC3AB6D725B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -882,14 +931,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Mercurial Source Control Package"
-        "ProductCode" = "8:{984B7568-1416-4A05-9D25-FC616A552655}"
-        "PackageCode" = "8:{39E7DDA3-730F-4403-A002-12016545765F}"
+        "ProductCode" = "8:{A1052417-022F-4690-8ACD-57807DF6C548}"
+        "PackageCode" = "8:{FA1EB00F-A153-47A9-B5EB-2B04185ABE72}"
         "UpgradeCode" = "8:{92680898-E5B3-43AF-9D81-3E07DA507EBC}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.2"
+        "ProductVersion" = "8:1.0.3"
         "Manufacturer" = "8:Sergey Antonov"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
