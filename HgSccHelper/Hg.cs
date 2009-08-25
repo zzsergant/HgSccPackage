@@ -872,6 +872,42 @@ namespace HgSccHelper
 			return true;
 		}
 
+		//------------------------------------------------------------------
+		public List<PathAlias> GetPaths(string work_dir)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("paths");
+
+			var paths = new List<PathAlias>();
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				var stream = proc.StandardOutput;
+				while (true)
+				{
+					var str = stream.ReadLine();
+					if (str == null)
+						break;
+
+					var separators = new char[] { '=' };
+					var path_parts = str.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+					if (path_parts.Length == 2)
+					{
+						var path_alias = new PathAlias();
+						path_alias.Alias = path_parts[0].Trim();
+						path_alias.Path = path_parts[1].Trim();
+
+						paths.Add(path_alias);
+					}
+				}
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return new List<PathAlias>();
+			}
+
+			return paths;
+		}
+
 		//-----------------------------------------------------------------------------
 		public List<RenameInfo> FindRenames(string work_dir, string file, List<ChangeDesc> changes)
 		{
@@ -944,5 +980,12 @@ namespace HgSccHelper
 		public string Path { get; set; }
 		public int Rev { get; set; }
 		public int Index { get; set; }
+	}
+
+	//------------------------------------------------------------------
+	class PathAlias
+	{
+		public string Alias { get; set; }
+		public string Path { get; set; }
 	}
 }

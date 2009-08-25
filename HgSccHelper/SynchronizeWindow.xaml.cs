@@ -102,6 +102,8 @@ namespace HgSccHelper
 			set { this.SetValue(ShowNoMergesProperty, value); }
 		}
 
+		List<PathAlias> paths;
+
 		//------------------------------------------------------------------
 		public SynchronizeWindow()
 		{
@@ -116,6 +118,39 @@ namespace HgSccHelper
  			Title = string.Format("Synchronize: '{0}'", WorkingDir);
 
 			UpdateAfterPull = true;
+
+			var hg = new Hg();
+			paths = hg.GetPaths(WorkingDir);
+
+			if (paths.Count > 0)
+			{
+				comboBoxPaths.IsEnabled = true;
+				comboBoxPaths.DataContext = paths;
+				comboBoxPaths.SelectedIndex = 0;
+			}
+			else
+			{
+				comboBoxPaths.IsEnabled = false;
+			}
+		}
+
+		//------------------------------------------------------------------
+		private string GetSelectedRepository()
+		{
+			if (comboBoxPaths.SelectedItem != null)
+			{
+				var path_alias = comboBoxPaths.SelectedItem as PathAlias;
+				if (path_alias != null)
+					return path_alias.Alias;
+			}
+
+			return comboBoxPaths.Text;
+		}
+
+		//------------------------------------------------------------------
+		private string GetTargetRevision()
+		{
+			return textBoxRevision.Text;
 		}
 
 		//------------------------------------------------------------------
@@ -158,6 +193,14 @@ namespace HgSccHelper
 			if (ShowNoMerges)
 				builder.Append(" --no-merges");
 
+			var target_revision = GetTargetRevision();
+			if (!string.IsNullOrEmpty(target_revision))
+				builder.Append(" -r " + target_revision.Quote());
+
+			var repository = GetSelectedRepository();
+			if (!string.IsNullOrEmpty(repository))
+				builder.Append(" " + repository.Quote());
+
 			p.Args = builder.ToString();
 
 			worker.Run(p);
@@ -196,6 +239,14 @@ namespace HgSccHelper
 			if (ShowNoMerges)
 				builder.Append(" --no-merges");
 
+			var target_revision = GetTargetRevision();
+			if (!string.IsNullOrEmpty(target_revision))
+				builder.Append(" -r " + target_revision.Quote());
+
+			var repository = GetSelectedRepository();
+			if (!string.IsNullOrEmpty(repository))
+				builder.Append(" " + repository.Quote());
+
 			p.Args = builder.ToString();
 
 			worker.Run(p);
@@ -227,6 +278,14 @@ namespace HgSccHelper
 			if (UpdateAfterPull)
 				builder.Append(" -u");
 
+			var target_revision = GetTargetRevision();
+			if (!string.IsNullOrEmpty(target_revision))
+				builder.Append(" -r " + target_revision.Quote());
+
+			var repository = GetSelectedRepository();
+			if (!string.IsNullOrEmpty(repository))
+				builder.Append(" " + repository.Quote());
+
 			p.Args = builder.ToString();
 
 			worker.Run(p);
@@ -254,6 +313,14 @@ namespace HgSccHelper
 
 			var builder = new StringBuilder();
 			builder.Append("-v push");
+
+			var target_revision = GetTargetRevision();
+			if (!string.IsNullOrEmpty(target_revision))
+				builder.Append(" -r " + target_revision.Quote());
+
+			var repository = GetSelectedRepository();
+			if (!string.IsNullOrEmpty(repository))
+				builder.Append(" " + repository.Quote());
 
 			p.Args = builder.ToString();
 
@@ -324,6 +391,23 @@ namespace HgSccHelper
 		{
 			Dispatcher.Invoke(DispatcherPriority.Normal,
 				new Action<string>(Worker_NewMsg), msg);
+		}
+
+		//------------------------------------------------------------------
+		private void Browse_Click(object sender, RoutedEventArgs e)
+		{
+			using (var dlg = new System.Windows.Forms.FolderBrowserDialog())
+			{
+				dlg.Description = "Browse for repository...";
+				dlg.ShowNewFolderButton = false;
+				dlg.SelectedPath = WorkingDir;
+				
+				var result = dlg.ShowDialog();
+				if (result == System.Windows.Forms.DialogResult.OK)
+				{
+					comboBoxPaths.Text = dlg.SelectedPath;
+				}
+			}
 		}
 	}
 }
