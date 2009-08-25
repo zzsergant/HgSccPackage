@@ -78,12 +78,24 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="300" />
             <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <ToolBarTray Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+            <ToolBar>
+                <Button Content="Diff Previous"
+                        Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="File History"
+                        Command="{x:Static local:RevLogControl.FileHistoryCommand}"
+                        MinWidth="75" />
+            </ToolBar>
+        </ToolBarTray>
         <ListView x:Name="graphView"
-                  Grid.Row="0"
+                  Grid.Row="1"
                   Grid.Column="0"
                   Margin="0, 0, 0, 5"
                   ItemContainerStyle="{DynamicResource ListViewItemStyle1}"
@@ -98,14 +110,14 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <StackPanel Grid.Row="0"
+        <StackPanel Grid.Row="1"
                     Grid.Column="1" VerticalAlignment="Top">
             <Button Content="Stop"
                     Command="{x:Static local:RevLogControl.StopCommand}"
                     Margin="5" Padding="5, 0" Focusable="False" IsTabStop="False">
             </Button>
         </StackPanel>
-        <StackPanel Grid.Row="0"
+        <StackPanel Grid.Row="1"
                     Grid.Column="1" VerticalAlignment="Bottom">
             <Button Content="+500"
                     Command="{x:Static local:RevLogControl.ReadNextCommand}"
@@ -116,11 +128,11 @@
                     Margin="5, 0, 5, 5" Padding="5, 0" Focusable="False" IsTabStop="False">
             </Button>
         </StackPanel>
-        <GridSplitter Grid.Row="0" Margin="0"
+        <GridSplitter Grid.Row="1" Margin="0"
                       Grid.Column="0"
                       Grid.ColumnSpan="2"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-        <ScrollViewer Grid.Row="1"
+        <ScrollViewer Grid.Row="2"
                       Grid.ColumnSpan="2"
                       CanContentScroll="True" VerticalScrollBarVisibility="Auto">
             <StackPanel DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}" CanVerticallyScroll="True">
@@ -139,11 +151,11 @@
                 </TextBox>
             </StackPanel>
         </ScrollViewer>
-        <GridSplitter Grid.Row="1" Margin="0"
+        <GridSplitter Grid.Row="2" Margin="0"
                       Grid.Column="0"
                       Grid.ColumnSpan="2"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-        <ListView Grid.Row="2" Name="listViewFiles"
+        <ListView Grid.Row="3" Name="listViewFiles"
                   Grid.Column="0"
                   Grid.ColumnSpan="2"
                   ItemsSource="{Binding Path=Files}">

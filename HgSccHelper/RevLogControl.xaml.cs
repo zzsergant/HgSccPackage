@@ -145,7 +145,7 @@ namespace HgSccHelper
 		private void DiffPrevious_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;
-			if (listViewFiles.SelectedItems.Count == 1)
+			if (listViewFiles != null && listViewFiles.SelectedItems.Count == 1)
 			{
 				var file_info = (FileInfo)listViewFiles.SelectedItem;
 				if (file_info.Status == FileStatus.Modified)
@@ -261,7 +261,9 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void FileHistory_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = listViewFiles.SelectedItems.Count == 1;
+			e.CanExecute = false;
+			if (listViewFiles != null && (listViewFiles.SelectedItems.Count == 1))
+				e.CanExecute = true;
 			e.Handled = true;
 		}
 
