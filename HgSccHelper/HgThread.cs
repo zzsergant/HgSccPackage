@@ -26,15 +26,17 @@ namespace HgSccHelper
 	class HgThread : IDisposable
 	{
 		BackgroundWorker worker;
-		EventWaitHandle stop_event;
 
 		HgThreadParams work_params;
+
+		Process work_process;
+		object critical;
 
 		//-----------------------------------------------------------------------------
 		public HgThread()
 		{
 			worker = new BackgroundWorker();
-			stop_event = new EventWaitHandle(false, EventResetMode.AutoReset);
+			critical = new object();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -86,7 +88,11 @@ namespace HgSccHelper
 			if (IsBusy && !worker.CancellationPending)
 			{
 				worker.CancelAsync();
-				stop_event.Set();
+				lock (critical)
+				{
+					if (work_process != null && !work_process.HasExited)
+						KillProcess(work_process);
+				}
 			}
 		}
 
@@ -121,71 +127,88 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void KillProcess(Process process)
+		{
+			if (process != null)
+			{
+				try
+				{
+					process.Kill();
+				}
+				catch (InvalidOperationException ex)
+				{
+					Logger.WriteLine("Invalid operation exception from HgThread: {0}", ex.Message);
+				}
+				catch (Win32Exception ex)
+				{
+					Logger.WriteLine("Win32Exception exception from HgThread: {0}", ex.Message);
+				}
+			}
+		}
+
+		//------------------------------------------------------------------
 		void Worker_DoWork(object sender, DoWorkEventArgs e)
 		{
 			var hg = new Hg();
 
-			using (Process proc = new Process())
+			using (Process process = new Process())
 			{
-				proc.StartInfo = hg.PrepareProcess(work_params.WorkingDir, work_params.Args);
+				process.StartInfo = hg.PrepareProcess(work_params.WorkingDir, work_params.Args);
 
 				// FIXME: Put the hg in unbuffered mode for
 				// redirected output and error streams
 				// proc.StartInfo.EnvironmentVariables.Add("PYTHONUBUFFERED", "1");
 
-				proc.OutputDataReceived += proc_OutputDataReceived;
-				proc.ErrorDataReceived += proc_ErrorDataReceived;
+				process.OutputDataReceived += proc_OutputDataReceived;
+				process.ErrorDataReceived += proc_ErrorDataReceived;
 
 				try
 				{
-					proc.Start();
+					process.Start();
 				}
 				catch (Win32Exception ex)
 				{
-					proc.OutputDataReceived -= proc_OutputDataReceived;
-					proc.ErrorDataReceived -= proc_ErrorDataReceived;
+					process.OutputDataReceived -= proc_OutputDataReceived;
+					process.ErrorDataReceived -= proc_ErrorDataReceived;
 					throw ex;
 				}
 
-				proc.BeginOutputReadLine();
-				proc.BeginErrorReadLine();
+				process.BeginOutputReadLine();
+				process.BeginErrorReadLine();
 
-				var events = new WaitHandle[] { stop_event, new AutoResetEvent(false) };
-				events[1].SafeWaitHandle = new SafeWaitHandle(proc.Handle, true);
-
-				var result = WaitHandle.WaitAny(events);
-
-				if (result == 0)
+				lock (critical)
 				{
-					// stop event raised
+					if (worker.CancellationPending)
+					{
+						// Work is allready cancelled
+						// Need to kill process
 
-					try
-					{
-						proc.Kill();
-						proc.WaitForExit();
+						KillProcess(process);
 					}
-					catch (InvalidOperationException)
+					else
 					{
+						this.work_process = process;
 					}
-					catch (Win32Exception)
-					{
-					}
+				}
 
+				// Wait until all redirected output is written
+				process.WaitForExit();
+
+				lock (critical)
+				{
+					this.work_process = null;
+				}
+
+				process.CancelOutputRead();
+				process.CancelErrorRead();
+
+				process.OutputDataReceived -= proc_OutputDataReceived;
+				process.ErrorDataReceived -= proc_ErrorDataReceived;
+
+				e.Result = process.ExitCode;
+				
+				if (worker.CancellationPending)
 					e.Cancel = true;
-				}
-				else
-				{
-					// Wait until all redirected output is written
-					proc.WaitForExit();
-				}
-
-				proc.CancelOutputRead();
-				proc.CancelErrorRead();
-
-				proc.OutputDataReceived -= proc_OutputDataReceived;
-				proc.ErrorDataReceived -= proc_ErrorDataReceived;
-
-				e.Result = proc.ExitCode;
 			}
 		}
 
@@ -213,7 +236,6 @@ namespace HgSccHelper
 		public void Dispose()
 		{
 			worker.Dispose();
-			stop_event.Close();
 		}
 	}
 
