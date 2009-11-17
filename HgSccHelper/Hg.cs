@@ -65,7 +65,10 @@ namespace HgSccHelper
 			FileName = Path.GetTempFileName();
 			//Logger.WriteLine("Creating temp file: " + FileName);
 
-			using (var stream = new StreamWriter(File.OpenWrite(FileName)))
+			// Write commit message in default encoding (based on OS ANSI code page)
+			// instead of UTF8.
+			// TODO: Make commit encoding configurable via options
+			using (var stream = new StreamWriter(File.OpenWrite(FileName), System.Text.Encoding.Default))
 			{
 				stream.Write(msg);
 			}
