@@ -365,7 +365,7 @@ namespace HgSccPackage
 
 			FileHistoryWindow wnd = new FileHistoryWindow();
 			wnd.WorkingDir = hgscc.WorkingDir;
-			wnd.FileName = relative_path;
+			wnd.FileName = relative_path.Replace('\\', '/');
 
 			wnd.ShowDialog();
 		}
