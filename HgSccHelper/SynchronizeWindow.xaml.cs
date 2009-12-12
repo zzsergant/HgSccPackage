@@ -163,6 +163,13 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+		{
+			if (e.Key == Key.Escape)
+				Close();
+		}
+
+		//------------------------------------------------------------------
 		private void Incoming_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = (worker != null && !worker.IsBusy);

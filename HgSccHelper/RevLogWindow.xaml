@@ -5,7 +5,7 @@
     Height="600"
     Width="1026"
     xmlns:my="clr-namespace:HgSccHelper"
-    Loaded="Window_Loaded" WindowStartupLocation="CenterOwner">
+    Loaded="Window_Loaded" PreviewKeyDown="Window_PreviewKeyDown" WindowStartupLocation="CenterOwner">
     <Grid>
         <my:RevLogControl x:Name="revLogControl1">
         </my:RevLogControl>

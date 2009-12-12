@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:HgSccHelper"
     Loaded="Window_Loaded"
     Unloaded="Window_Unloaded"
+    PreviewKeyDown="Window_PreviewKeyDown"
     WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>

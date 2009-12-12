@@ -120,6 +120,13 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Escape)
+				Close();
+		}
+
+		//------------------------------------------------------------------
 		private void HistoryDiffPrevious_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;

@@ -11,7 +11,7 @@
 //=========================================================================
 
 using System.Windows;
-using System.Diagnostics;
+using System.Windows.Input;
 
 namespace HgSccHelper
 {
@@ -41,6 +41,13 @@ namespace HgSccHelper
 		{
 			Title = string.Format("ChangeLog: '{0}'", WorkingDir);
 			revLogControl1.WorkingDir = WorkingDir;
+		}
+
+		//------------------------------------------------------------------
+		private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+		{
+			if (e.Key == Key.Escape)
+				Close();
 		}
 	}
 }
