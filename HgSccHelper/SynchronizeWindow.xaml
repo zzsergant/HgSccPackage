@@ -60,8 +60,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition />
         </Grid.RowDefinitions>
-        <ToolBarTray Grid.Row="0">
-            <ToolBar>
+        <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+            <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                 <Button Content="Incoming"
                         Command="{x:Static local:SynchronizeWindow.IncomingCommand}"
                         MinWidth="75" />

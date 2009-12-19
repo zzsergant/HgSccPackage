@@ -16,8 +16,8 @@
             <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <ToolBarTray Grid.Row="0">
-            <ToolBar>
+        <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+            <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                 <Button Content="Diff Previous"
                         Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                         MinWidth="75" />

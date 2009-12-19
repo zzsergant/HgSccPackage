@@ -83,8 +83,8 @@
             <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <ToolBarTray Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-            <ToolBar>
+        <ToolBarTray Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+            <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                 <Button Content="Diff Previous"
                         Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
                         MinWidth="75" />
