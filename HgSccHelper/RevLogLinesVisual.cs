@@ -31,7 +31,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		static RevLogLinesVisual()
 		{
-			BlackPen = new Pen(Brushes.Black, 1.0);
+			BlackPen = new Pen(SystemColors.ControlTextBrush, 1.0);
 			BluePen = new Pen(Brushes.Blue, 1.0);
 
 			BlackPen.Freeze();
