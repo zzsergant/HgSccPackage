@@ -1041,7 +1041,7 @@
                                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_EE14B6358AD14F5BA12C9EDB0F11215D"
                                                                                     {
                                                                                     "Name" = "8:{a7f26ca1-0000-4729-896e-0bbe9e380635}"
-                                                                                    "Condition" = "8:"
+                                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                                     "Transitive" = "11:FALSE"
                                                                                     "ValueTypes" = "3:3"
                                                                                     "Value" = "3:1"
@@ -1054,7 +1054,7 @@
                                                                             "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_4D1F05C167C94E69B54925E78B843A4B"
                                                                             {
                                                                             "Name" = "8:Package"
-                                                                            "Condition" = "8:"
+                                                                            "Condition" = "8:CHECKBOXAVS2008=1"
                                                                             "Transitive" = "11:FALSE"
                                                                             "ValueTypes" = "3:1"
                                                                             "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
@@ -1062,7 +1062,7 @@
                                                                             "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_571344964F644C81869AF75E962C8C02"
                                                                             {
                                                                             "Name" = "8:Page"
-                                                                            "Condition" = "8:"
+                                                                            "Condition" = "8:CHECKBOXAVS2008=1"
                                                                             "Transitive" = "11:FALSE"
                                                                             "ValueTypes" = "3:1"
                                                                             "Value" = "8:{b0bac05d-111e-4a5b-9834-076cb319ed59}"
@@ -1070,7 +1070,7 @@
                                                                             "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_A2E8BC0199D74233B79717F79FB311A6"
                                                                             {
                                                                             "Name" = "8:"
-                                                                            "Condition" = "8:"
+                                                                            "Condition" = "8:CHECKBOXAVS2008=1"
                                                                             "Transitive" = "11:FALSE"
                                                                             "ValueTypes" = "3:1"
                                                                             "Value" = "8:##107"
@@ -1083,7 +1083,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_5714F271801645CBBA354D4D03D57F96"
                                                                     {
                                                                     "Name" = "8:"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:##106"
@@ -1091,7 +1091,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_EE56381510484D3280B4D689FC5E2307"
                                                                     {
                                                                     "Name" = "8:Package"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
@@ -1127,7 +1127,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_EBD4F25360964B5FA95DB312E4B6734D"
                                                                     {
                                                                     "Name" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:3"
                                                                     "Value" = "3:0"
@@ -1163,7 +1163,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_488EC96E2EC24AC5959DB1867EAAFA7B"
                                                                     {
                                                                     "Name" = "8:"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:##100"
@@ -1171,7 +1171,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_7ACE955161ED409C961DFDBA7D53B5A9"
                                                                     {
                                                                     "Name" = "8:PID"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:1.0.0.0"
@@ -1179,7 +1179,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_8E73085B70C0495CB043055CC7C8A704"
                                                                     {
                                                                     "Name" = "8:Package"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
@@ -1187,7 +1187,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_C9BA3123C4C54EAFAE8BDB504FDE6F27"
                                                                     {
                                                                     "Name" = "8:ProductDetails"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:##101"
@@ -1195,7 +1195,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_E0AF2EE8C7A342C88161D842C18EEB17"
                                                                     {
                                                                     "Name" = "8:LogoID"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:##400"
@@ -1231,7 +1231,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_3BA3AE7B999445E3A0E7F2AC80415389"
                                                                     {
                                                                     "Name" = "8:"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
@@ -1267,7 +1267,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_26F16461A40640B9A27204A188B071D0"
                                                                     {
                                                                     "Name" = "8:ID"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:3"
                                                                     "Value" = "3:104"
@@ -1275,7 +1275,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_2FA7F62E8A884DDEA0AB7CB32C4A6CA6"
                                                                     {
                                                                     "Name" = "8:Class"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:HgSccPackage.SccProvider"
@@ -1283,7 +1283,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_4E5691B5E9C840588A322893A914141E"
                                                                     {
                                                                     "Name" = "8:"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:HgSccPackage.SccProvider, HgSccPackage, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
@@ -1291,7 +1291,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_5F011DC8A4B544BC8E5FAFAC13551E2E"
                                                                     {
                                                                     "Name" = "8:InprocServer32"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:[SystemFolder]mscoree.dll"
@@ -1299,7 +1299,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_621620C162274B808A731C189A84422C"
                                                                     {
                                                                     "Name" = "8:CompanyName"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:Sergey Antonov"
@@ -1307,7 +1307,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_6A2D7A3E8FB64F1CBDDD5F5138CDBFC5"
                                                                     {
                                                                     "Name" = "8:ProductName"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:Mercurial Source Control Package"
@@ -1315,7 +1315,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_799EBB3A54ED44379DD4EACF9BDEED51"
                                                                     {
                                                                     "Name" = "8:CodeBase"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:[TARGETDIR]HgSccPackage.dll"
@@ -1323,7 +1323,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_B1D95D29140042C0A129A4AFAFE4BE63"
                                                                     {
                                                                     "Name" = "8:ProductVersion"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:1.0"
@@ -1331,7 +1331,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_D618DEED3E534DA29E0F4F1EA152D3A4"
                                                                     {
                                                                     "Name" = "8:MinEdition"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:Standard"
@@ -1367,7 +1367,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_546B72FBF3274C4AAD072676DC1A0305"
                                                                     {
                                                                     "Name" = "8:"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
@@ -1375,7 +1375,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_B0D1CE408C874DEE921018313FF70C6C"
                                                                     {
                                                                     "Name" = "8:Name"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:Mercurial Source Control Provider Service"
@@ -1420,7 +1420,7 @@
                                                                             "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_316C2A0B491241DB92624C771AFA767D"
                                                                             {
                                                                             "Name" = "8:"
-                                                                            "Condition" = "8:"
+                                                                            "Condition" = "8:CHECKBOXAVS2008=1"
                                                                             "Transitive" = "11:FALSE"
                                                                             "ValueTypes" = "3:1"
                                                                             "Value" = "8:##100"
@@ -1428,7 +1428,7 @@
                                                                             "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_B6C319C899164395A3F020068D7C9E94"
                                                                             {
                                                                             "Name" = "8:Package"
-                                                                            "Condition" = "8:"
+                                                                            "Condition" = "8:CHECKBOXAVS2008=1"
                                                                             "Transitive" = "11:FALSE"
                                                                             "ValueTypes" = "3:1"
                                                                             "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
@@ -1441,7 +1441,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_5A76B66D697141418E6A10F4F8E14FF1"
                                                                     {
                                                                     "Name" = "8:Service"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:{a7f26ca1-1000-4729-896e-0bbe9e380635}"
@@ -1449,7 +1449,7 @@
                                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_B0D92360C92D4104959DFC68C20A469C"
                                                                     {
                                                                     "Name" = "8:"
-                                                                    "Condition" = "8:"
+                                                                    "Condition" = "8:CHECKBOXAVS2008=1"
                                                                     "Transitive" = "11:FALSE"
                                                                     "ValueTypes" = "3:1"
                                                                     "Value" = "8:Mercurial Source Control Package"
@@ -1476,11 +1476,509 @@
                                                             "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_E727CA313529445383E2B25AA967E8D6"
                                                             {
                                                             "Name" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
-                                                            "Condition" = "8:"
+                                                            "Condition" = "8:CHECKBOXAVS2008=1"
                                                             "Transitive" = "11:FALSE"
                                                             "ValueTypes" = "3:1"
                                                             "Value" = "8:, 1000, 1"
                                                             }
+                                                        }
+                                                    }
+                                                }
+                                                "Values"
+                                                {
+                                                }
+                                            }
+                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_F013ABA1A18F42DD85CE80088B0E2815"
+                                            {
+                                            "Name" = "8:10.0"
+                                            "Condition" = "8:"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "DeleteAtUninstall" = "11:FALSE"
+                                            "Transitive" = "11:FALSE"
+                                                "Keys"
+                                                {
+                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_0EF36226F8D04A889ADEB735E7A04E82"
+                                                    {
+                                                    "Name" = "8:ToolsOptionsPages"
+                                                    "Condition" = "8:"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                    "Transitive" = "11:FALSE"
+                                                        "Keys"
+                                                        {
+                                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_A2FC11F2C26A422EA846602531C67695"
+                                                            {
+                                                            "Name" = "8:Source Control"
+                                                            "Condition" = "8:"
+                                                            "AlwaysCreate" = "11:FALSE"
+                                                            "DeleteAtUninstall" = "11:FALSE"
+                                                            "Transitive" = "11:FALSE"
+                                                                "Keys"
+                                                                {
+                                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_2DD3249891B34434ACA6A307324DF5A4"
+                                                                    {
+                                                                    "Name" = "8:Mercurial Options Page"
+                                                                    "Condition" = "8:"
+                                                                    "AlwaysCreate" = "11:FALSE"
+                                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                                    "Transitive" = "11:FALSE"
+                                                                        "Keys"
+                                                                        {
+                                                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_A6361BC0EAB249CD939209CEE376F128"
+                                                                            {
+                                                                            "Name" = "8:VisibilityCmdUIContexts"
+                                                                            "Condition" = "8:"
+                                                                            "AlwaysCreate" = "11:FALSE"
+                                                                            "DeleteAtUninstall" = "11:FALSE"
+                                                                            "Transitive" = "11:FALSE"
+                                                                                "Keys"
+                                                                                {
+                                                                                }
+                                                                                "Values"
+                                                                                {
+                                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_078AB6EE104747E68CD4FA68E4A75CF2"
+                                                                                    {
+                                                                                    "Name" = "8:{a7f26ca1-0000-4729-896e-0bbe9e380635}"
+                                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                                    "Transitive" = "11:FALSE"
+                                                                                    "ValueTypes" = "3:3"
+                                                                                    "Value" = "3:1"
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        "Values"
+                                                                        {
+                                                                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_03B9519DAFD545B3AEAD66913705B16D"
+                                                                            {
+                                                                            "Name" = "8:"
+                                                                            "Condition" = "8:CHECKBOXVS2010=1"
+                                                                            "Transitive" = "11:FALSE"
+                                                                            "ValueTypes" = "3:1"
+                                                                            "Value" = "8:##107"
+                                                                            }
+                                                                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_B145CB1E428243DCAA593E30B2CFED08"
+                                                                            {
+                                                                            "Name" = "8:Page"
+                                                                            "Condition" = "8:CHECKBOXVS2010=1"
+                                                                            "Transitive" = "11:FALSE"
+                                                                            "ValueTypes" = "3:1"
+                                                                            "Value" = "8:{b0bac05d-111e-4a5b-9834-076cb319ed59}"
+                                                                            }
+                                                                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_BD412450ED144072AA844793A4A98FBD"
+                                                                            {
+                                                                            "Name" = "8:Package"
+                                                                            "Condition" = "8:CHECKBOXVS2010=1"
+                                                                            "Transitive" = "11:FALSE"
+                                                                            "ValueTypes" = "3:1"
+                                                                            "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                                "Values"
+                                                                {
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_2339E521EF164538AD81CE8BA905C509"
+                                                                    {
+                                                                    "Name" = "8:"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:##106"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_F2126C840729462CB9BF86C82B3BAD74"
+                                                                    {
+                                                                    "Name" = "8:Package"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        "Values"
+                                                        {
+                                                        }
+                                                    }
+                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_174DF15CB5044D9C8051C735758FABD1"
+                                                    {
+                                                    "Name" = "8:SolutionPersistence"
+                                                    "Condition" = "8:"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                    "Transitive" = "11:FALSE"
+                                                        "Keys"
+                                                        {
+                                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_51DA7BE0371547B4A24CECECFEFBBDF8"
+                                                            {
+                                                            "Name" = "8:MercurialSourceControlSolutionProperties"
+                                                            "Condition" = "8:"
+                                                            "AlwaysCreate" = "11:FALSE"
+                                                            "DeleteAtUninstall" = "11:FALSE"
+                                                            "Transitive" = "11:FALSE"
+                                                                "Keys"
+                                                                {
+                                                                }
+                                                                "Values"
+                                                                {
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_7C737023E34C4672A5F59478F16FB93F"
+                                                                    {
+                                                                    "Name" = "8:"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        "Values"
+                                                        {
+                                                        }
+                                                    }
+                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_343C1AAF8E4A4730BB809D0D641FAECA"
+                                                    {
+                                                    "Name" = "8:Services"
+                                                    "Condition" = "8:"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                    "Transitive" = "11:FALSE"
+                                                        "Keys"
+                                                        {
+                                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_C174825A0AF648A7A5899CCE22B0F3FF"
+                                                            {
+                                                            "Name" = "8:{a7f26ca1-1000-4729-896e-0bbe9e380635}"
+                                                            "Condition" = "8:"
+                                                            "AlwaysCreate" = "11:FALSE"
+                                                            "DeleteAtUninstall" = "11:FALSE"
+                                                            "Transitive" = "11:FALSE"
+                                                                "Keys"
+                                                                {
+                                                                }
+                                                                "Values"
+                                                                {
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_4D12C17D185241E48C5C5BD043D457DD"
+                                                                    {
+                                                                    "Name" = "8:Name"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:Mercurial Source Control Provider Service"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_E5ACDE0597EB4EEFA9B3D883F9699D0B"
+                                                                    {
+                                                                    "Name" = "8:"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        "Values"
+                                                        {
+                                                        }
+                                                    }
+                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_81F76E23359F4094A2990367729ABD04"
+                                                    {
+                                                    "Name" = "8:Packages"
+                                                    "Condition" = "8:"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                    "Transitive" = "11:FALSE"
+                                                        "Keys"
+                                                        {
+                                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_FC5BF9E8DE1649AB9C6D39EEF274768C"
+                                                            {
+                                                            "Name" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
+                                                            "Condition" = "8:"
+                                                            "AlwaysCreate" = "11:FALSE"
+                                                            "DeleteAtUninstall" = "11:FALSE"
+                                                            "Transitive" = "11:FALSE"
+                                                                "Keys"
+                                                                {
+                                                                }
+                                                                "Values"
+                                                                {
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_0FD334D9DF1B443DA346B472BEBF03B5"
+                                                                    {
+                                                                    "Name" = "8:CompanyName"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:Sergey Antonov"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_1F720E8BA2B246AB88F6EE5BAC31E99C"
+                                                                    {
+                                                                    "Name" = "8:CodeBase"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:[TARGETDIR]HgSccPackage.dll"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_3E796A8102214D35946F87C883AD908B"
+                                                                    {
+                                                                    "Name" = "8:ProductName"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:Mercurial Source Control Package"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_46F63305E4404B6E8A41A483D44283A6"
+                                                                    {
+                                                                    "Name" = "8:ProductVersion"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:1.0"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_47F3AA744C2B49F7A18C69C9C8CDFD0F"
+                                                                    {
+                                                                    "Name" = "8:MinEdition"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:Standard"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_56C83F2BAD38449B99CD824FB09BF73E"
+                                                                    {
+                                                                    "Name" = "8:Class"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:HgSccPackage.SccProvider"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_9F607E3BE2E849BC8FA381993EEC6440"
+                                                                    {
+                                                                    "Name" = "8:ID"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:3"
+                                                                    "Value" = "3:104"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_AE0AC2E30B244E7B995BFF2B02741014"
+                                                                    {
+                                                                    "Name" = "8:InprocServer32"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:[SystemFolder]mscoree.dll"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_CB43A761143C446A97746F39DA15BFC2"
+                                                                    {
+                                                                    "Name" = "8:"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:HgSccPackage.SccProvider, HgSccPackage, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        "Values"
+                                                        {
+                                                        }
+                                                    }
+                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_92A791E68D894FEAB9DF1A822AB0B1C2"
+                                                    {
+                                                    "Name" = "8:AutoLoadPackages"
+                                                    "Condition" = "8:"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                    "Transitive" = "11:FALSE"
+                                                        "Keys"
+                                                        {
+                                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_A5474FE2A2894C049A4D187F06694170"
+                                                            {
+                                                            "Name" = "8:{a7f26ca1-0000-4729-896e-0bbe9e380635}"
+                                                            "Condition" = "8:"
+                                                            "AlwaysCreate" = "11:FALSE"
+                                                            "DeleteAtUninstall" = "11:FALSE"
+                                                            "Transitive" = "11:FALSE"
+                                                                "Keys"
+                                                                {
+                                                                }
+                                                                "Values"
+                                                                {
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_D271A352A0C34EB5B681A632E406CE7B"
+                                                                    {
+                                                                    "Name" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:3"
+                                                                    "Value" = "3:0"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        "Values"
+                                                        {
+                                                        }
+                                                    }
+                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_A4A68F17083B44BF990C618836E7EBE5"
+                                                    {
+                                                    "Name" = "8:Menus"
+                                                    "Condition" = "8:"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                    "Transitive" = "11:FALSE"
+                                                        "Keys"
+                                                        {
+                                                        }
+                                                        "Values"
+                                                        {
+                                                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_DD67B3FAB6974163895EBC34B1470137"
+                                                            {
+                                                            "Name" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
+                                                            "Condition" = "8:CHECKBOXVS2010=1"
+                                                            "Transitive" = "11:FALSE"
+                                                            "ValueTypes" = "3:1"
+                                                            "Value" = "8:, 1000, 1"
+                                                            }
+                                                        }
+                                                    }
+                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_AE080D30EF534F3F95B991A57FE89489"
+                                                    {
+                                                    "Name" = "8:SourceControlProviders"
+                                                    "Condition" = "8:"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                    "Transitive" = "11:FALSE"
+                                                        "Keys"
+                                                        {
+                                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_62CD8FDB90224386BF55DC16EB41A89B"
+                                                            {
+                                                            "Name" = "8:{a7f26ca1-0000-4729-896e-0bbe9e380635}"
+                                                            "Condition" = "8:"
+                                                            "AlwaysCreate" = "11:FALSE"
+                                                            "DeleteAtUninstall" = "11:FALSE"
+                                                            "Transitive" = "11:FALSE"
+                                                                "Keys"
+                                                                {
+                                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_DF409A73E38E4E7788D22DAB453E8E38"
+                                                                    {
+                                                                    "Name" = "8:Name"
+                                                                    "Condition" = "8:"
+                                                                    "AlwaysCreate" = "11:FALSE"
+                                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                                    "Transitive" = "11:FALSE"
+                                                                        "Keys"
+                                                                        {
+                                                                        }
+                                                                        "Values"
+                                                                        {
+                                                                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_1F0C8C4615714B9DBD9DAB6CFBB5C286"
+                                                                            {
+                                                                            "Name" = "8:Package"
+                                                                            "Condition" = "8:CHECKBOXVS2010=1"
+                                                                            "Transitive" = "11:FALSE"
+                                                                            "ValueTypes" = "3:1"
+                                                                            "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
+                                                                            }
+                                                                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_34900B2E3CAD4F489F17E27BCE6D0677"
+                                                                            {
+                                                                            "Name" = "8:"
+                                                                            "Condition" = "8:CHECKBOXVS2010=1"
+                                                                            "Transitive" = "11:FALSE"
+                                                                            "ValueTypes" = "3:1"
+                                                                            "Value" = "8:##100"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                                "Values"
+                                                                {
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_2F2B07BB19624C7EBE606B1AE82EB926"
+                                                                    {
+                                                                    "Name" = "8:"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:Mercurial Source Control Package"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_E8A868260BA840899C5CA36012E4BC47"
+                                                                    {
+                                                                    "Name" = "8:Service"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:{a7f26ca1-1000-4729-896e-0bbe9e380635}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        "Values"
+                                                        {
+                                                        }
+                                                    }
+                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_E69244FE1A57448E827A6A83ABE1A654"
+                                                    {
+                                                    "Name" = "8:InstalledProducts"
+                                                    "Condition" = "8:"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                    "Transitive" = "11:FALSE"
+                                                        "Keys"
+                                                        {
+                                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_4D764303AE6D4176A87DE8547D9FC355"
+                                                            {
+                                                            "Name" = "8:SccProvider"
+                                                            "Condition" = "8:"
+                                                            "AlwaysCreate" = "11:FALSE"
+                                                            "DeleteAtUninstall" = "11:FALSE"
+                                                            "Transitive" = "11:FALSE"
+                                                                "Keys"
+                                                                {
+                                                                }
+                                                                "Values"
+                                                                {
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_52C39CC34D174F1085411CFDDB1BB3A9"
+                                                                    {
+                                                                    "Name" = "8:LogoID"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:##400"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_539EA3CAD3284894977DBFB48D7F0927"
+                                                                    {
+                                                                    "Name" = "8:PID"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:1.0.0.0"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_92D33B4602C34BB99B5E822D214FF5B6"
+                                                                    {
+                                                                    "Name" = "8:"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:##100"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_DECE4CED83BD4A67927EED374DC6EBC4"
+                                                                    {
+                                                                    "Name" = "8:ProductDetails"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:##101"
+                                                                    }
+                                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_F5434EA662914C7AA4418FAF89045BA2"
+                                                                    {
+                                                                    "Name" = "8:Package"
+                                                                    "Condition" = "8:CHECKBOXVS2010=1"
+                                                                    "Transitive" = "11:FALSE"
+                                                                    "ValueTypes" = "3:1"
+                                                                    "Value" = "8:{a7f26ca1-2000-4729-896e-0bbe9e380635}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        "Values"
+                                                        {
                                                         }
                                                     }
                                                 }
@@ -1825,6 +2323,262 @@
                             }
                         }
                     }
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_45E69C7C98B0491FB54ED937D755FBD5"
+                    {
+                    "Sequence" = "3:300"
+                    "DisplayName" = "8:Checkboxes   (A)"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdCustomCheck1Dlg.wid"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "BannerText"
+                            {
+                            "Name" = "8:BannerText"
+                            "DisplayName" = "8:#1014"
+                            "Description" = "8:#1114"
+                            "Type" = "3:3"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:Choose MS Visual Studio"
+                            "DefaultValue" = "8:#1214"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "BodyText"
+                            {
+                            "Name" = "8:BodyText"
+                            "DisplayName" = "8:#1015"
+                            "Description" = "8:#1115"
+                            "Type" = "3:3"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:Choose MS Vistual Studio version to integrate:"
+                            "DefaultValue" = "8:#1215"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox1Label"
+                            {
+                            "Name" = "8:Checkbox1Label"
+                            "DisplayName" = "8:#1034"
+                            "Description" = "8:#1134"
+                            "Type" = "3:3"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:MS Visual Studio 2008"
+                            "DefaultValue" = "8:#1234"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox1Property"
+                            {
+                            "Name" = "8:Checkbox1Property"
+                            "DisplayName" = "8:#1030"
+                            "Description" = "8:#1130"
+                            "Type" = "3:14"
+                            "ContextData" = "8:Public"
+                            "Attributes" = "3:2"
+                            "Setting" = "3:2"
+                            "Value" = "8:CHECKBOXAVS2008"
+                            "DefaultValue" = "8:CHECKBOXA1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox1Value"
+                            {
+                            "Name" = "8:Checkbox1Value"
+                            "DisplayName" = "8:#1038"
+                            "Description" = "8:#1138"
+                            "Type" = "3:2"
+                            "ContextData" = "8:Unchecked=;Checked=1"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:1"
+                            "DefaultValue" = "8:"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox1Visible"
+                            {
+                            "Name" = "8:Checkbox1Visible"
+                            "DisplayName" = "8:#1026"
+                            "Description" = "8:#1126"
+                            "Type" = "3:5"
+                            "ContextData" = "8:1;True=1;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:1"
+                            "DefaultValue" = "3:1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox2Label"
+                            {
+                            "Name" = "8:Checkbox2Label"
+                            "DisplayName" = "8:#1035"
+                            "Description" = "8:#1135"
+                            "Type" = "3:3"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:MS Visual Studio 2010"
+                            "DefaultValue" = "8:#1235"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox2Property"
+                            {
+                            "Name" = "8:Checkbox2Property"
+                            "DisplayName" = "8:#1031"
+                            "Description" = "8:#1131"
+                            "Type" = "3:14"
+                            "ContextData" = "8:Public"
+                            "Attributes" = "3:2"
+                            "Setting" = "3:2"
+                            "Value" = "8:CHECKBOXVS2010"
+                            "DefaultValue" = "8:CHECKBOXA2"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox2Value"
+                            {
+                            "Name" = "8:Checkbox2Value"
+                            "DisplayName" = "8:#1039"
+                            "Description" = "8:#1139"
+                            "Type" = "3:2"
+                            "ContextData" = "8:Unchecked=;Checked=1"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:"
+                            "DefaultValue" = "8:"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox2Visible"
+                            {
+                            "Name" = "8:Checkbox2Visible"
+                            "DisplayName" = "8:#1027"
+                            "Description" = "8:#1127"
+                            "Type" = "3:5"
+                            "ContextData" = "8:1;True=1;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:1"
+                            "DefaultValue" = "3:1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox3Label"
+                            {
+                            "Name" = "8:Checkbox3Label"
+                            "DisplayName" = "8:#1036"
+                            "Description" = "8:#1136"
+                            "Type" = "3:3"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:1"
+                            "Value" = "8:#1236"
+                            "DefaultValue" = "8:#1236"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox3Property"
+                            {
+                            "Name" = "8:Checkbox3Property"
+                            "DisplayName" = "8:#1032"
+                            "Description" = "8:#1132"
+                            "Type" = "3:14"
+                            "ContextData" = "8:Public"
+                            "Attributes" = "3:2"
+                            "Setting" = "3:2"
+                            "Value" = "8:CHECKBOXA3"
+                            "DefaultValue" = "8:CHECKBOXA3"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox3Value"
+                            {
+                            "Name" = "8:Checkbox3Value"
+                            "DisplayName" = "8:#1040"
+                            "Description" = "8:#1140"
+                            "Type" = "3:2"
+                            "ContextData" = "8:Unchecked=;Checked=1"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:"
+                            "DefaultValue" = "8:"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox3Visible"
+                            {
+                            "Name" = "8:Checkbox3Visible"
+                            "DisplayName" = "8:#1028"
+                            "Description" = "8:#1128"
+                            "Type" = "3:5"
+                            "ContextData" = "8:1;True=1;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:0"
+                            "DefaultValue" = "3:1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox4Label"
+                            {
+                            "Name" = "8:Checkbox4Label"
+                            "DisplayName" = "8:#1037"
+                            "Description" = "8:#1137"
+                            "Type" = "3:3"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:1"
+                            "Value" = "8:#1237"
+                            "DefaultValue" = "8:#1237"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox4Property"
+                            {
+                            "Name" = "8:Checkbox4Property"
+                            "DisplayName" = "8:#1033"
+                            "Description" = "8:#1133"
+                            "Type" = "3:14"
+                            "ContextData" = "8:Public"
+                            "Attributes" = "3:2"
+                            "Setting" = "3:2"
+                            "Value" = "8:CHECKBOXA4"
+                            "DefaultValue" = "8:CHECKBOXA4"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox4Value"
+                            {
+                            "Name" = "8:Checkbox4Value"
+                            "DisplayName" = "8:#1041"
+                            "Description" = "8:#1141"
+                            "Type" = "3:2"
+                            "ContextData" = "8:Unchecked=;Checked=1"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:"
+                            "DefaultValue" = "8:"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Checkbox4Visible"
+                            {
+                            "Name" = "8:Checkbox4Visible"
+                            "DisplayName" = "8:#1029"
+                            "Description" = "8:#1129"
+                            "Type" = "3:5"
+                            "ContextData" = "8:1;True=1;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:0"
+                            "DefaultValue" = "3:1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_E11D749ED615489DB7BBBC59D9869545"
                     {
                     "Sequence" = "3:100"
@@ -1875,7 +2629,7 @@
                     }
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_FCD5E9A4EDCB4A82ACEE212C5A68A206"
                     {
-                    "Sequence" = "3:300"
+                    "Sequence" = "3:400"
                     "DisplayName" = "8:Confirm Installation"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"

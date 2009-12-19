@@ -34,15 +34,42 @@ namespace HgSccPackage.RunInstaller
 		{
 			base.Install(stateSaver);
 
-			using (RegistryKey setupKey = Registry.LocalMachine.OpenSubKey(
-				  @"SOFTWARE\Microsoft\VisualStudio\9.0\Setup\VS"))
+			using (var vs2008_hgpkg = Registry.LocalMachine.OpenSubKey(
+				@"SOFTWARE\Microsoft\VisualStudio\9.0\Packages\{a7f26ca1-2000-4729-896e-0bbe9e380635}"))
 			{
-				if (setupKey != null)
+				if (vs2008_hgpkg != null)
 				{
-					string devenv = setupKey.GetValue("EnvironmentPath").ToString();
-					if (!string.IsNullOrEmpty(devenv))
+					using (RegistryKey setupKey = Registry.LocalMachine.OpenSubKey(
+						  @"SOFTWARE\Microsoft\VisualStudio\9.0\Setup\VS"))
 					{
-						Process.Start(devenv, "/setup /nosetupvstemplates").WaitForExit();
+						if (setupKey != null)
+						{
+							string devenv = setupKey.GetValue("EnvironmentPath").ToString();
+							if (!string.IsNullOrEmpty(devenv))
+							{
+								Process.Start(devenv, "/setup /nosetupvstemplates").WaitForExit();
+							}
+						}
+					}
+				}
+			}
+
+			using (var vs2010_hgpkg = Registry.LocalMachine.OpenSubKey(
+				@"SOFTWARE\Microsoft\VisualStudio\10.0\Packages\{a7f26ca1-2000-4729-896e-0bbe9e380635}"))
+			{
+				if (vs2010_hgpkg != null)
+				{
+					using (RegistryKey setupKey = Registry.LocalMachine.OpenSubKey(
+					  @"SOFTWARE\Microsoft\VisualStudio\10.0\Setup\VS"))
+					{
+						if (setupKey != null)
+						{
+							string devenv = setupKey.GetValue("EnvironmentPath").ToString();
+							if (!string.IsNullOrEmpty(devenv))
+							{
+								Process.Start(devenv, "/setup /nosetupvstemplates").WaitForExit();
+							}
+						}
 					}
 				}
 			}
