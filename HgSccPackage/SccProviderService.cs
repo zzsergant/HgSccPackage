@@ -1663,14 +1663,7 @@ namespace HgSccPackage
 			foreach (var f in files)
 			{
 				var found = GetControlledProjectsContainingFile(f);
-				if (found.Count == 1)
-				{
-					nodes.Add(found[0]);
-				}
-				else
-				{
-					Logger.WriteLine("GetCtrlNodes: file = {0}, count = {1}", f, found.Count);
-				}
+				nodes.AddRange(found);
 			}
 
 			return nodes;

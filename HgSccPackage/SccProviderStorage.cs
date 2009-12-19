@@ -104,6 +104,8 @@ namespace HgSccPackage
 			if (!IsValid)
 				return SccErrors.UnknownError;
 
+			files = RemoveDuplicates(files);
+
 			var files_list = new List<string>(files);
 			var status_list = new SourceControlStatus[files_list.Count];
 
@@ -271,6 +273,15 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		private static IEnumerable<string> RemoveDuplicates(IEnumerable<string> items)
+		{
+			var hash_set = new C5.HashSet<string>();
+			foreach (var item in items)
+				hash_set.Add(item);
+			return hash_set.ToArray();
+		}
+
+		//------------------------------------------------------------------
 		public SccErrors Commit(IEnumerable<string> files, out IEnumerable<string> commited_files)
 		{
 			if (!IsValid)
@@ -278,6 +289,8 @@ namespace HgSccPackage
 				commited_files = new List<string>();
 				return SccErrors.UnknownError;
 			}
+
+			files = RemoveDuplicates(files);
 
 			foreach (var f in files)
 			{
@@ -302,6 +315,8 @@ namespace HgSccPackage
 				return SccErrors.UnknownError;
 			}
 
+			files = RemoveDuplicates(files);
+
 			foreach (var f in files)
 			{
 				Logger.WriteLine("Revert: {0}", f);
@@ -322,6 +337,8 @@ namespace HgSccPackage
 		{
 			if (!IsValid)
 				return SccErrors.UnknownError;
+
+			files = RemoveDuplicates(files);
 
 			var error = hgscc.Remove(IntPtr.Zero, files);
 			if (error != SccErrors.Ok)
