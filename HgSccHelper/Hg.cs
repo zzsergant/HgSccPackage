@@ -346,9 +346,6 @@ namespace HgSccHelper
 			args.Append("status");
 			args.Append(" -amrdcC");
 
-			foreach (var f in files)
-				args.Append(" " + f.Quote());
-
 			var cmd_line = new StringBuilder();
 			cmd_line.Append(args.ToString());
 
