@@ -1290,7 +1290,7 @@ namespace HgSccPackage
 				{
 					for (int elemIndex = 0; elemIndex < pathStr[0].cElems; elemIndex++)
 					{
-						IntPtr pathIntPtr = Marshal.ReadIntPtr(pathStr[0].pElems, elemIndex);
+						IntPtr pathIntPtr = Marshal.ReadIntPtr(pathStr[0].pElems, elemIndex * IntPtr.Size);
 						String path = Marshal.PtrToStringAuto(pathIntPtr);
 
 						sccFiles.Add(path);
@@ -1358,7 +1358,7 @@ namespace HgSccPackage
 				{
 					for (int elemIndex = 0; elemIndex < pathStr[0].cElems; elemIndex++)
 					{
-						IntPtr pathIntPtr = Marshal.ReadIntPtr(pathStr[0].pElems, elemIndex);
+						IntPtr pathIntPtr = Marshal.ReadIntPtr(pathStr[0].pElems, elemIndex * IntPtr.Size);
 						String path = Marshal.PtrToStringAuto(pathIntPtr);
 
 						sccFiles.Add(path);
@@ -1375,71 +1375,71 @@ namespace HgSccPackage
 			return sccFiles;
 		}
 
-/*
-		private string GetNodeFileFromItemId(IVsSccProject2 pscp2, uint itemid, uint itemid_to_find)
-		{
-			string node_file = null;
-
-			if (pscp2 != null)
-			{
-				CALPOLESTR[] pathStr = new CALPOLESTR[1];
-				CADWORD[] flags = new CADWORD[1];
-
-				if (pscp2.GetSccFiles(itemid, pathStr, flags) == 0)
+		/*
+				private string GetNodeFileFromItemId(IVsSccProject2 pscp2, uint itemid, uint itemid_to_find)
 				{
-					for (int elemIndex = 0; elemIndex < pathStr[0].cElems; elemIndex++)
+					string node_file = null;
+
+					if (pscp2 != null)
 					{
-						IntPtr pathIntPtr = Marshal.ReadIntPtr(pathStr[0].pElems, elemIndex);
-						String path = Marshal.PtrToStringAuto(pathIntPtr);
+						CALPOLESTR[] pathStr = new CALPOLESTR[1];
+						CADWORD[] flags = new CADWORD[1];
 
-						if (itemid == itemid_to_find)
-							node_file = path;
-
-						if (node_file == null)
+						if (pscp2.GetSccFiles(itemid, pathStr, flags) == 0)
 						{
-							// See if there are special files
-							if (flags.Length > 0 && flags[0].cElems > 0)
+							for (int elemIndex = 0; elemIndex < pathStr[0].cElems; elemIndex++)
 							{
-								int flag = Marshal.ReadInt32(flags[0].pElems, elemIndex);
+								IntPtr pathIntPtr = Marshal.ReadIntPtr(pathStr[0].pElems, elemIndex * IntPtr.Size);
+								String path = Marshal.PtrToStringAuto(pathIntPtr);
 
-								if (flag != 0)
+								if (itemid == itemid_to_find)
+									node_file = path;
+
+								if (node_file == null)
 								{
-									// We have special files
-									CALPOLESTR[] specialFiles = new CALPOLESTR[1];
-									CADWORD[] specialFlags = new CADWORD[1];
-
-									pscp2.GetSccSpecialFiles(itemid, path, specialFiles, specialFlags);
-									for (int i = 0; i < specialFiles[0].cElems; i++)
+									// See if there are special files
+									if (flags.Length > 0 && flags[0].cElems > 0)
 									{
-										IntPtr specialPathIntPtr = Marshal.ReadIntPtr(
-											specialFiles[0].pElems, i*IntPtr.Size);
-										String specialPath = Marshal.PtrToStringAuto(specialPathIntPtr);
+										int flag = Marshal.ReadInt32(flags[0].pElems, elemIndex);
 
-										if (itemid)
-										sccFiles.Add(specialPath);
-										Marshal.FreeCoTaskMem(specialPathIntPtr);
-									}
+										if (flag != 0)
+										{
+											// We have special files
+											CALPOLESTR[] specialFiles = new CALPOLESTR[1];
+											CADWORD[] specialFlags = new CADWORD[1];
 
-									if (specialFiles[0].cElems > 0)
-									{
-										Marshal.FreeCoTaskMem(specialFiles[0].pElems);
+											pscp2.GetSccSpecialFiles(itemid, path, specialFiles, specialFlags);
+											for (int i = 0; i < specialFiles[0].cElems; i++)
+											{
+												IntPtr specialPathIntPtr = Marshal.ReadIntPtr(
+													specialFiles[0].pElems, i*IntPtr.Size);
+												String specialPath = Marshal.PtrToStringAuto(specialPathIntPtr);
+
+												if (itemid)
+												sccFiles.Add(specialPath);
+												Marshal.FreeCoTaskMem(specialPathIntPtr);
+											}
+
+											if (specialFiles[0].cElems > 0)
+											{
+												Marshal.FreeCoTaskMem(specialFiles[0].pElems);
+											}
+										}
 									}
 								}
+
+								Marshal.FreeCoTaskMem(pathIntPtr);
+							}
+							if (pathStr[0].cElems > 0)
+							{
+								Marshal.FreeCoTaskMem(pathStr[0].pElems);
 							}
 						}
+					}
 
-						Marshal.FreeCoTaskMem(pathIntPtr);
-					}
-					if (pathStr[0].cElems > 0)
-					{
-						Marshal.FreeCoTaskMem(pathStr[0].pElems);
-					}
+					return sccFiles;
 				}
-			}
-
-			return sccFiles;
-		}
-*/
+		*/
 
 		/// <summary>
 		/// Refreshes the glyphs of the specified hierarchy nodes
