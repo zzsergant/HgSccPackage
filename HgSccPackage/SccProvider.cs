@@ -256,7 +256,18 @@ namespace HgSccPackage
 			// We will write solution properties only for the solution
 			// A provider may consider writing in the solution project-binding-properties for each controlled project
 			// that could help it locating the projects in the store during operations like OpenFromSourceControl
-			if (!sccService.IsProjectControlled(null))
+			
+			// Check if it is not a solution hierarchy
+			if (pHierarchy != null)
+			{
+				// We have properties only for solution, so return
+				// no props	for other hierarchies
+
+				pqsspSave[0] = VSQUERYSAVESLNPROPS.QSP_HasNoProps;
+				return VSConstants.S_OK;
+			}
+			
+			if (!sccService.IsProjectControlled(pHierarchy))
 			{
 				pqsspSave[0] = VSQUERYSAVESLNPROPS.QSP_HasNoProps;
 			}
@@ -287,6 +298,7 @@ namespace HgSccPackage
 			// When the solution will be reopened, the IDE will call our package to load them back before the projects in the solution are actually open
 			// This could help if the source control package needs to persist information like projects translation tables, that should be read from the suo file
 			// and should be available by the time projects are opened and the shell start calling IVsSccEnlistmentPathTranslation functions.
+
 			pPersistence.SavePackageSolutionProps(1, null, this,
 												  _strSolutionPersistanceKey);
 
