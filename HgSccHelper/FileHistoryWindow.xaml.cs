@@ -16,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Controls;
 using System.Collections.Generic;
 using System.Windows.Data;
+using System;
 
 namespace HgSccHelper
 {
@@ -99,8 +100,10 @@ namespace HgSccHelper
 						left_idx = right_idx++;
 				}
 
-				var history_item = new FileHistoryInfo {
-					ChangeDesc = change, RenameInfo = renames[left_idx] };
+				var history_item = new FileHistoryInfo();
+				history_item.ChangeDesc = change;
+				history_item.RenameInfo = renames[left_idx];
+				history_item.GroupText = String.Format("[{0}]: {1}", renames.Count - left_idx, history_item.RenameInfo.Path);
 
 				history.Add(history_item);
 			}
@@ -110,7 +113,7 @@ namespace HgSccHelper
 				listChanges.SelectedIndex = 0;
 
 			var myView = (CollectionView)CollectionViewSource.GetDefaultView(listChanges.ItemsSource);
-			var groupDescription = new PropertyGroupDescription("RenameInfo.Path");
+			var groupDescription = new PropertyGroupDescription("GroupText");
 			myView.GroupDescriptions.Add(groupDescription);
 		}
 
@@ -265,5 +268,6 @@ namespace HgSccHelper
 	{
 		public ChangeDesc ChangeDesc { get; set; }
 		public RenameInfo RenameInfo { get; set; }
+		public string GroupText { get; set; }
 	}
 }
