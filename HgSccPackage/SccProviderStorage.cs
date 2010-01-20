@@ -486,7 +486,9 @@ namespace HgSccPackage
 			if (!IsValid)
 				return;
 
-			System.Windows.Forms.MessageBox.Show("Update placeholder");			
+			var wnd = new UpdateWindow();
+			wnd.WorkingDir = hgscc.WorkingDir;
+			wnd.ShowDialog();
 		}
 	}
 }
