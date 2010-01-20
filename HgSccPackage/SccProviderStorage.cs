@@ -479,5 +479,14 @@ namespace HgSccPackage
 			wnd.WorkingDir = hgscc.WorkingDir;
 			wnd.ShowDialog();
 		}
+
+		//------------------------------------------------------------------
+		public void Update()
+		{
+			if (!IsValid)
+				return;
+
+			System.Windows.Forms.MessageBox.Show("Update placeholder");			
+		}
 	}
 }

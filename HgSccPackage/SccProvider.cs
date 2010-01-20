@@ -200,6 +200,12 @@ namespace HgSccPackage
 
 				menuCmd = new MenuCommand(Exec_icmdViewChangeLog, cmd);
 				mcs.AddCommand(menuCmd);
+
+				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
+					CommandId.icmdUpdate);
+
+				menuCmd = new MenuCommand(Exec_icmdUpdate, cmd);
+				mcs.AddCommand(menuCmd);
 			}
 
 			// Register the provider with the source control manager
@@ -547,8 +553,9 @@ namespace HgSccPackage
 					cmdf |= QueryStatus_icmdViewChangeLog();
 					break;
 
-
-
+				case CommandId.icmdUpdate:
+					cmdf |= QueryStatus_icmdUpdate();
+					break;
 
 /*
 				case CommandId.icmdViewToolWindow:
@@ -686,6 +693,21 @@ namespace HgSccPackage
 					}
 				}
 			}
+
+			return OLECMDF.OLECMDF_SUPPORTED;
+		}
+
+		private OLECMDF QueryStatus_icmdUpdate()
+		{
+			if (!IsThereASolution())
+			{
+				return OLECMDF.OLECMDF_INVISIBLE;
+			}
+
+			int any_controlled_items = 0;
+			int error_code = sccService.AnyItemsUnderSourceControl(out any_controlled_items);
+			if (error_code == VSConstants.S_OK && any_controlled_items != 0)
+				return OLECMDF.OLECMDF_ENABLED;
 
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
@@ -840,6 +862,19 @@ namespace HgSccPackage
 			if (sccService != null)
 			{
 				sccService.ViewChangeLog();
+			}
+		}
+
+		private void Exec_icmdUpdate(object sender, EventArgs e)
+		{
+			if (!IsThereASolution())
+			{
+				return;
+			}
+
+			if (sccService != null)
+			{
+				sccService.Update();
 			}
 		}
 

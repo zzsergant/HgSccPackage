@@ -148,9 +148,20 @@
           <CommandName>View ChangeLog (SccProvider)</CommandName>
         </Strings>
       </Button>
+      <Button guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x0000" type="Button">
+        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+        <Icon guid="guidSccProviderImages" id="iconUpdate"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <Strings>
+          <ButtonText>Update...</ButtonText>
+          <MenuText>Update...</MenuText>
+          <CommandName>Update (SccProvider)</CommandName>
+        </Strings>
+      </Button>
     </Buttons>
     <Bitmaps>
-      <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, iconSynchronize, iconCompare, icon7, icon8, icon9, icon10, icon11, icon12, icon13, icon14, icon15, icon16, icon17, icon18, icon19, icon20, icon21, icon22, icon23, icon24, icon25, iconViewHistory"/>
+      <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, iconSynchronize, iconCompare, icon7, icon8, icon9, icon10, iconUpdate, icon12, icon13, icon14, icon15, icon16, icon17, icon18, icon19, icon20, icon21, icon22, icon23, icon24, icon25, iconViewHistory"/>
     </Bitmaps>
   </Commands>
 
@@ -226,6 +237,15 @@
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewChangeLog" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+    </CommandPlacement>
     <!-- Also place the scc commands in the toolbar -->
     <CommandPlacement guid="guidSccProviderCmdSet" id="igrpSourceControlCommands" priority="0x0000">
       <Parent guid="guidSccProviderCmdSet" id="itbrSccToolbar"/>
@@ -245,6 +265,7 @@
       <!--<IDSymbol name="icmdViewToolWindow" value="0x105"/>-->
       <IDSymbol name="icmdToolWindowToolbarCommand" value="0x106"/>
       <IDSymbol name="icmdViewChangeLog" value="0x107"/>
+      <IDSymbol name="icmdUpdate" value="0x108"/>
 
       <IDSymbol name="imnuFileSourceControlMenu" value="0x200"/>
       <!--<IDSymbol name="imnuToolWindowToolbarMenu" value="0x201"/> -->
@@ -268,7 +289,7 @@
       <IDSymbol name="icon8" value="8"/>
       <IDSymbol name="icon9" value="9"/>
       <IDSymbol name="icon10" value="10"/>
-      <IDSymbol name="icon11" value="11"/>
+      <IDSymbol name="iconUpdate" value="11"/>
       <IDSymbol name="icon12" value="12"/>
       <IDSymbol name="icon13" value="13"/>
       <IDSymbol name="icon14" value="14"/>

@@ -1955,10 +1955,18 @@ namespace HgSccPackage
 
 		#endregion
 
-		internal void Synchronize()
+		//------------------------------------------------------------------
+		public void Synchronize()
 		{
 			if (storage != null)
 				storage.Synchronize();
+		}
+
+		//------------------------------------------------------------------
+		public void Update()
+		{
+			if (storage != null)
+				storage.Update();
 		}
 	}
 }
