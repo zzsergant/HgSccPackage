@@ -972,6 +972,172 @@ namespace HgSccHelper
 			return renames;
 		}
 
+		//------------------------------------------------------------------
+		/// <summary>
+		/// Identify current revision and check for uncommited changes
+		/// </summary>
+		/// <param name="work_dir"></param>
+		/// <returns>Returns null on error</returns>
+		public IdentifyInfo Identify(string work_dir)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("identify -ni");
+			
+			IdentifyInfo info = null;
+
+			// Identify output looks like:
+			// fb208ffc2324+ 15+
+			// where '+' means, that there are uncommited changes
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				var stream = proc.StandardOutput;
+				var str = stream.ReadLine();
+				if (str != null)
+				{
+					var separators = new char[] { ' ' };
+					var parts = str.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+					if (parts.Length == 2)
+					{
+						string sha1 = parts[0];
+						string rev = parts[1];
+						bool have_uncommited_changes = false;
+
+						if (sha1.EndsWith("+") && rev.EndsWith("+"))
+						{
+							have_uncommited_changes = true;
+							sha1 = sha1.Substring(0, sha1.Length - 1);
+							rev = rev.Substring(0, rev.Length - 1);
+						}
+
+						int revision;
+						if (int.TryParse(rev, out revision))
+						{
+							info = new IdentifyInfo();
+							info.Rev = revision;
+							info.SHA1 = sha1;
+							info.HaveUncommitedChanges = have_uncommited_changes;
+						}
+					}
+				}
+
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return null;
+			}
+
+			return info;
+		}
+
+		//------------------------------------------------------------------
+		public List<TagInfo> Tags(string work_dir)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("tags -v");
+
+			var tags = new List<TagInfo>();
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				var stream = proc.StandardOutput;
+				while (true)
+				{
+					var str = stream.ReadLine();
+					if (str == null)
+						break;
+
+					var tag = new TagInfo();
+					var local_suffix = " local";
+
+					if (str.EndsWith(local_suffix))
+					{
+						tag.IsLocal = true;
+						str = str.Substring(0, str.Length - local_suffix.Length);
+					}
+
+					int rev_start = str.LastIndexOf(' ') + 1;
+					tag.Name = str.Substring(0, rev_start).Trim();
+
+					var separators = new char[] { ':' };
+					var rev_parts = str.Substring(rev_start).Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+					if (rev_parts.Length == 2)
+					{
+						int revision;
+						if (int.TryParse(rev_parts[0], out revision))
+						{
+							tag.Rev = revision;
+							tag.SHA1 = rev_parts[1];
+
+							tags.Add(tag);
+						}
+					}
+				}
+
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return new List<TagInfo>();
+			}
+
+			return tags;
+		}
+
+		//------------------------------------------------------------------
+		public List<BranchInfo> Branches(string work_dir)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("branches -v");
+
+			var branches = new List<BranchInfo>();
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				var stream = proc.StandardOutput;
+				while (true)
+				{
+					var str = stream.ReadLine();
+					if (str == null)
+						break;
+
+					var branch = new BranchInfo();
+					var inactive_suffix = " (inactive)";
+
+					if (str.EndsWith(inactive_suffix))
+					{
+						branch.IsActive = false;
+						str = str.Substring(0, str.Length - inactive_suffix.Length);
+					}
+					else
+					{
+						branch.IsActive = true;
+					}
+
+					int rev_start = str.LastIndexOf(' ') + 1;
+					branch.Name = str.Substring(0, rev_start).Trim();
+
+					var separators = new char[] { ':' };
+					var rev_parts = str.Substring(rev_start).Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+					if (rev_parts.Length == 2)
+					{
+						int revision;
+						if (int.TryParse(rev_parts[0], out revision))
+						{
+							branch.Rev = revision;
+							branch.SHA1 = rev_parts[1];
+
+							branches.Add(branch);
+						}
+					}
+				}
+
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return new List<BranchInfo>();
+			}
+
+			return branches;
+		}
 	}
 
 	//-----------------------------------------------------------------------------
@@ -987,5 +1153,31 @@ namespace HgSccHelper
 	{
 		public string Alias { get; set; }
 		public string Path { get; set; }
+	}
+
+	//------------------------------------------------------------------
+	class IdentifyInfo
+	{
+		public int Rev { get; set; }
+		public string SHA1 { get; set; }
+		public bool HaveUncommitedChanges { get; set; }
+	}
+
+	//------------------------------------------------------------------
+	class TagInfo
+	{
+		public string Name { get; set; }
+		public int Rev { get; set; }
+		public string SHA1 { get; set; }
+		public bool IsLocal { get; set; }
+	}
+
+	//------------------------------------------------------------------
+	class BranchInfo
+	{
+		public string Name { get; set; }
+		public int Rev { get; set; }
+		public string SHA1 { get; set; }
+		public bool IsActive { get; set; }
 	}
 }
