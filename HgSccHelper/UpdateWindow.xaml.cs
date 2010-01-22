@@ -34,6 +34,51 @@ namespace HgSccHelper
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			Hg = new Hg();
+
+			IdentifyInfo info = Hg.Identify(WorkingDir);
+			if (info == null)
+			{
+				// error
+				Close();
+				return;
+			}
+
+			var id = new UpdateComboItem();
+			id.GroupText = "Rev";
+			id.Rev = info.Rev;
+			id.Name = info.Rev.ToString();
+			id.SHA1 = info.SHA1;
+			id.Misc = info.HaveUncommitedChanges ? "Have uncommited changes" : "";
+
+			comboRevision.Items.Add(id);
+			comboRevision.SelectedIndex = 0;
+			comboRevision.Focus();
+
+			var tags = Hg.Tags(WorkingDir);
+			foreach (var tag in tags)
+			{
+				var item = new UpdateComboItem();
+				item.GroupText = "Tag";
+				item.Name = tag.Name;
+				item.Rev = tag.Rev;
+				item.SHA1 = tag.SHA1;
+				item.Misc = tag.IsLocal ? "Local" : "";
+
+				comboRevision.Items.Add(item);
+			}
+
+			var branches = Hg.Branches(WorkingDir);
+			foreach (var branch in branches)
+			{
+				var item = new UpdateComboItem();
+				item.GroupText = "Branch";
+				item.Name = branch.Name;
+				item.Rev = branch.Rev;
+				item.SHA1 = branch.SHA1;
+				item.Misc = branch.IsActive ? "" : "Not Active";
+
+				comboRevision.Items.Add(item);
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -52,7 +97,13 @@ namespace HgSccHelper
 		private void btnOK_Update(object sender, RoutedEventArgs e)
 		{
 			var revision = comboRevision.Text;
-			MessageBox.Show("Update to: " + revision);
+			var msg = "Update to: " + revision;
+			if (comboRevision.SelectedItem != null)
+			{
+				var item = (UpdateComboItem)comboRevision.SelectedItem;
+				msg += "\nSelected Revision: " + item.Rev;
+			}
+			MessageBox.Show(msg);
 		}
 
 		//------------------------------------------------------------------
@@ -60,5 +111,15 @@ namespace HgSccHelper
 		{
 			Close();
 		}
+	}
+
+	//------------------------------------------------------------------
+	class UpdateComboItem
+	{
+		public string GroupText { get; set; }
+		public string Name { get; set; }
+		public int Rev { get; set; }
+		public string SHA1 { get; set; }
+		public string Misc { get; set; }
 	}
 }

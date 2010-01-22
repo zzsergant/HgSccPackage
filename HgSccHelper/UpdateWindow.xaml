@@ -10,6 +10,32 @@
     Unloaded="Window_Unloaded"
     PreviewKeyDown="Window_PreviewKeyDown"
     WindowStartupLocation="CenterScreen" ShowInTaskbar="False" ResizeMode="NoResize">
+    <Window.Resources>
+        <ItemsPanelTemplate x:Key="PathItemsPanelTemplate">
+            <StackPanel Orientation="Vertical"
+                        Grid.IsSharedSizeScope="True"
+                        HorizontalAlignment="Stretch">
+            </StackPanel>
+        </ItemsPanelTemplate>
+        <DataTemplate x:Key="PathComboItemTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition SharedSizeGroup="Name" Width="Auto" />
+                    <ColumnDefinition SharedSizeGroup="GroupText" Width="Auto" />
+                    <ColumnDefinition SharedSizeGroup="Misc" Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Path=Name}"
+                           Grid.Column="0"
+                           Margin="0, 0, 20, 0"
+                           FontWeight="Bold"/>
+                <TextBlock Grid.Column="1"
+                           Margin="0, 0, 10, 0"
+                           Text="{Binding Path=GroupText}" />
+                <TextBlock Grid.Column="2"
+                           Text="{Binding Path=Misc}" />
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
     <Grid>
         <StackPanel>
             <Grid>
@@ -24,7 +50,12 @@
                 <Label Grid.Row="0" Grid.Column="0" Content="Update to:"
                        Margin="5"></Label>
                 <ComboBox Grid.Row="0" Grid.Column="1" Name="comboRevision"
-                      Margin="5" IsEditable="True"></ComboBox>
+                          TextSearch.TextPath="Name"
+                          HorizontalContentAlignment="Stretch"
+                          ItemTemplate="{StaticResource PathComboItemTemplate}"
+                          ItemsPanel="{StaticResource PathItemsPanelTemplate}"
+                          Margin="5" IsEditable="True">
+                </ComboBox>
                 <CheckBox Grid.Row="1" Grid.Column="1" Name="checkDiscardChanges"
                           Content="Discard local changes, no backup"
                           Margin="5,0"></CheckBox>
