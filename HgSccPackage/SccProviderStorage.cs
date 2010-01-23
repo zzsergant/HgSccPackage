@@ -481,14 +481,16 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		public void Update()
+		public bool Update()
 		{
 			if (!IsValid)
-				return;
+				return false;
 
 			var wnd = new UpdateWindow();
 			wnd.WorkingDir = hgscc.WorkingDir;
-			wnd.ShowDialog();
+
+			var result = wnd.ShowDialog();
+			return result == true;
 		}
 	}
 }

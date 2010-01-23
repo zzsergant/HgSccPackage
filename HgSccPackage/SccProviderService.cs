@@ -1955,6 +1955,21 @@ namespace HgSccPackage
 
 		#endregion
 
+		public void RefreshGlyphsForControlledProjects()
+		{
+			// For all the projects added to source control, refresh their source control glyphs
+			var nodes = new List<VSITEMSELECTION>();
+			foreach (IVsHierarchy pHier in _controlledProjects)
+			{
+				VSITEMSELECTION vsItem;
+				vsItem.itemid = VSConstants.VSITEMID_ROOT;
+				vsItem.pHier = pHier;
+				nodes.Add(vsItem);
+			}
+
+			_sccProvider.RefreshNodesGlyphs(nodes);
+		}
+
 		//------------------------------------------------------------------
 		public void Synchronize()
 		{
@@ -1965,8 +1980,17 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void Update()
 		{
-			if (storage != null)
-				storage.Update();
+			if (storage == null)
+				return;
+
+			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
+
+			if (storage.Update())
+			{
+				storage.ReloadCache();
+				RefreshGlyphsForControlledProjects();
+			}
 		}
 	}
 }
