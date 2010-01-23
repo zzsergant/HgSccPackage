@@ -75,6 +75,9 @@ namespace HgSccHelper
 		public bool IsUpdated { get; private set; }
 
 		//------------------------------------------------------------------
+		RevLogStyleFile revlog_style;
+
+		//------------------------------------------------------------------
 		public RevLogControl()
 		{
 			InitializeComponent();
@@ -86,6 +89,7 @@ namespace HgSccHelper
 			VirtualizingStackPanel.SetVirtualizationMode(listViewFiles, VirtualizationMode.Recycling);
 
 			worker = new HgThread();
+			revlog_style = new RevLogStyleFile();
 
 			rev_log_iterator = new RevLogIteratorParser();
 			rev_log_lines_parser = new RevLogLinesPairParser();
@@ -146,6 +150,7 @@ namespace HgSccHelper
 				StopCommand.Execute(sender, e.Source as IInputElement);
 
 			worker.Dispose();
+			revlog_style.Dispose();
 		}
 
 		//------------------------------------------------------------------
@@ -235,8 +240,7 @@ namespace HgSccHelper
 			if (rev.Length > 0)
 				args.Append(" -r " + rev);
 
-			var template = RevLogChangeDesc.Template.Quote();
-			args.Append(" --template " + template);
+			args.Append(" --style " + revlog_style.FileName.Quote());
 
 			p.Args = args.ToString();
 

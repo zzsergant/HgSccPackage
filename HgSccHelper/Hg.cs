@@ -204,15 +204,17 @@ namespace HgSccHelper
 			if (rev.Length > 0)
 				args.Append(" -r " + rev);
 
-			var template = RevLogChangeDesc.Template.Quote();
-			args.Append(" --template " + template);
-
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			using (var revlog_style = new RevLogStyleFile())
 			{
-				var lst = RevLogChangeDesc.ParseChanges(proc.StandardOutput);
-				proc.WaitForExit();
+				args.Append(" --style " + revlog_style.FileName.Quote());
 
-				return lst;
+				using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+				{
+					var lst = RevLogChangeDesc.ParseChanges(proc.StandardOutput);
+					proc.WaitForExit();
+
+					return lst;
+				}
 			}
 		}
 

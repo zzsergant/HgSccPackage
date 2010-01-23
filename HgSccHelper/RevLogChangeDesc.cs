@@ -29,11 +29,13 @@ namespace HgSccHelper
 		public List<string> Parents { get; private set; }
 		public DateTime Date { get; set; }
 		public string Branch { get; set; }
+		public List<string> Tags { get; set; }
 
 		//------------------------------------------------------------------
 		public RevLogChangeDesc()
 		{
 			Parents = new List<string>();
+			Tags = new List<string>();
 		}
 
 		//------------------------------------------------------------------
@@ -139,31 +141,6 @@ namespace HgSccHelper
 			return list;
 		}
 
-		//------------------------------------------------------------------
-		/// <summary>
-		/// Mercurial template string for ParseChanges function
-		/// </summary>
-		public static string Template
-		{
-			get
-			{
-				var builder = new StringBuilder();
-				builder.Append("==:\n");
-				builder.Append("date: {date|isodate}\n");
-				builder.Append("author: {author}\n");
-				builder.Append("desc: {desc|strip|tabindent}\n");
-				builder.Append("rev: {rev}\n");
-				builder.Append("node: {node}\n");
-				builder.Append("branch: {branches}\n");
-				builder.Append("tag: {tags}\n");
-				builder.Append("parents: {parents}\n");
-				builder.Append("::=\n");
-
-				return builder.ToString();
-			}
-		}
-
-
 		//-----------------------------------------------------------------------------
 		public static List<RevLogChangeDesc> ParseChanges(StreamReader reader)
 		{
@@ -184,6 +161,45 @@ namespace HgSccHelper
 			return list;
 		}
 	}
+
+	//==================================================================
+	class RevLogStyleFile : IDisposable
+	{
+		public string FileName { get; private set; }
+
+		//------------------------------------------------------------------
+		public RevLogStyleFile()
+		{
+			FileName = Path.GetTempFileName();
+			//Logger.WriteLine("Creating temp file: " + FileName);
+
+			using (var stream = new StreamWriter(File.OpenWrite(FileName)))
+			{
+				var builder = new StringBuilder();
+				builder.Append(@"==:\n");
+				builder.Append(@"date: {date|isodate}\n");
+				builder.Append(@"author: {author}\n");
+				builder.Append(@"desc: {desc|strip|tabindent}\n");
+				builder.Append(@"rev: {rev}\n");
+				builder.Append(@"node: {node}\n");
+				builder.Append(@"branch: {branches}\n");
+				builder.Append(@"tags: {tags}\n");
+				builder.Append(@"parents: {parents}\n");
+				builder.Append(@"::=\n");
+
+				stream.WriteLine(String.Format("changeset_verbose = '{0}'", builder.ToString()));
+				stream.WriteLine(@"tag = '{tag}:'");
+				stream.WriteLine(@"last_tag = '{tag}'");
+			}
+		}
+
+		//------------------------------------------------------------------
+		public void Dispose()
+		{
+			File.Delete(FileName);
+		}
+	}
+
 
 	//------------------------------------------------------------------
 	public class RevLogChangeDescParser
@@ -266,6 +282,15 @@ namespace HgSccHelper
 				if (cs.Branch.Length == 0)
 					cs.Branch = "default";
 
+				return null;
+			}
+
+			if (str.StartsWith("tags: "))
+			{
+				var tags_str = str.Substring("tags: ".Length);
+				string[] tags = tags_str.Split(new char[] { ':' });
+				foreach (var tag in tags)
+					cs.Tags.Add(tag);
 				return null;
 			}
 
