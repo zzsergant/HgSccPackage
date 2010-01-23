@@ -221,7 +221,6 @@ namespace HgSccHelper
 			args.Append("log");
 			args.Append(" --debug");
 			args.Append(" -v");
-			args.Append(" -f");
 	
 			if (max_count != 0)
 				args.Append(" -l " + max_count);
