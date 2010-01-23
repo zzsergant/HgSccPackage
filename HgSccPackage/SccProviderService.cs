@@ -88,6 +88,8 @@ namespace HgSccPackage
 			// Subscribe to RDT events               
 			rdt.AdviseRunningDocTableEvents(this, out pdwCookie);
 
+			storage.UpdateEvent += UpdateEvent_Handler;
+
 //			file_changes = new SccFileChangesManager(_sccProvider);
 		}
 
@@ -116,6 +118,8 @@ namespace HgSccPackage
 			}
 
 //			file_changes.Dispose();
+
+			storage.UpdateEvent -= UpdateEvent_Handler;
 		}
 
 		#endregion
@@ -1606,10 +1610,13 @@ namespace HgSccPackage
 
 		public void ViewChangeLog()
 		{
-			if (storage != null)
-			{
-				storage.ViewChangeLog();
-			}
+			if (storage == null)
+				return;
+
+			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
+
+			storage.ViewChangeLog();
 		}
 
 
@@ -1973,8 +1980,13 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void Synchronize()
 		{
-			if (storage != null)
-				storage.Synchronize();
+			if (storage == null)
+				return;
+
+			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
+
+			storage.Synchronize();
 		}
 
 		//------------------------------------------------------------------
@@ -1986,11 +1998,14 @@ namespace HgSccPackage
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
-			if (storage.Update())
-			{
-				storage.ReloadCache();
-				RefreshGlyphsForControlledProjects();
-			}
+			storage.Update();
+		}
+
+		//------------------------------------------------------------------
+		private void UpdateEvent_Handler(object sender, EventArgs e)
+		{
+			storage.ReloadCache();
+			RefreshGlyphsForControlledProjects();
 		}
 	}
 }

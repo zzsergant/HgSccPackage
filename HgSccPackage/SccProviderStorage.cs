@@ -41,6 +41,16 @@ namespace HgSccPackage
 		private HgScc hgscc;
 		private HashDictionary<string, HgFileInfo> cache;
 
+		public event EventHandler UpdateEvent;
+
+		//------------------------------------------------------------------
+		private void RaiseUpdateEvent()
+		{
+			var e = UpdateEvent;
+			if (e != null)
+				e(this, EventArgs.Empty);
+		}
+
 		//------------------------------------------------------------------
 		public SccProviderStorage()
 		{
@@ -467,6 +477,9 @@ namespace HgSccPackage
 			RevLogWindow wnd = new RevLogWindow();
 			wnd.WorkingDir = hgscc.WorkingDir;
 			wnd.ShowDialog();
+
+			if (wnd.IsUpdated)
+				RaiseUpdateEvent();
 		}
 
 		//------------------------------------------------------------------
@@ -489,8 +502,10 @@ namespace HgSccPackage
 			var wnd = new UpdateWindow();
 			wnd.WorkingDir = hgscc.WorkingDir;
 
-			var result = wnd.ShowDialog();
-			return result == true;
+			var updated = wnd.ShowDialog() == true;
+			if (updated)
+				RaiseUpdateEvent();
+			return updated;
 		}
 	}
 }
