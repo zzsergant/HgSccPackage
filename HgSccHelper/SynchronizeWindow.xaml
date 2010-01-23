@@ -9,7 +9,7 @@
     Unloaded="Window_Unloaded"
     PreviewKeyDown="Window_PreviewKeyDown"
     x:Name="root"
-    WindowStartupLocation="CenterOwner">
+    WindowStartupLocation="CenterScreen">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static local:SynchronizeWindow.IncomingCommand}"
                         CanExecute="Incoming_CanExecute"
