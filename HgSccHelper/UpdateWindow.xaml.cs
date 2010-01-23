@@ -160,9 +160,13 @@ namespace HgSccHelper
 
 			var sha1_short = Target.SHA1.Substring(0, 12);
 			var desc = String.Format("Rev:\t{0} ({1})", Target.Rev, sha1_short);
+
 			if (!String.IsNullOrEmpty(Target.Branch))
-			{
 				desc += String.Format("\nBranch:\t{0}", Target.Branch);
+
+			foreach (var tag in Target.Tags)
+			{
+				desc += String.Format("\nTag:\t{0}", tag);
 			}
 
 			desc += String.Format("\nDesc:\t{0}", Target.OneLineDesc);
