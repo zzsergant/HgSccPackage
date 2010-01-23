@@ -160,7 +160,7 @@ namespace HgSccHelper
 					}
 
 					str = str.Substring(2);
-					string[] files = str.Split(new char[] { ':' });
+					string[] files = str.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
 					foreach (var f in files)
 					{
 						switch(status)

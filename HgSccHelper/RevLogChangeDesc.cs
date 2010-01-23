@@ -288,7 +288,7 @@ namespace HgSccHelper
 			if (str.StartsWith("tags: "))
 			{
 				var tags_str = str.Substring("tags: ".Length);
-				string[] tags = tags_str.Split(new char[] { ':' });
+				string[] tags = tags_str.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
 				foreach (var tag in tags)
 					cs.Tags.Add(tag);
 				return null;
