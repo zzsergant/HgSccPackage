@@ -395,6 +395,8 @@ namespace HgSccPackage
 			wnd.FileName = relative_path.Replace('\\', '/');
 
 			wnd.ShowDialog();
+			if (wnd.IsUpdated)
+				RaiseUpdateEvent();
 		}
 
 		//------------------------------------------------------------------

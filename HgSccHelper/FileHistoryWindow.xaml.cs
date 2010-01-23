@@ -37,6 +37,10 @@ namespace HgSccHelper
 		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
 			"FileHistory", typeof(FileHistoryWindow));
 
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand UpdateCommand = new RoutedUICommand("Update to Revision",
+			"Update", typeof(FileHistoryWindow));
+
 		List<FileHistoryInfo> history;
 
 		//------------------------------------------------------------------
@@ -56,6 +60,9 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		Hg Hg { get; set; }
+
+		//------------------------------------------------------------------
+		public bool IsUpdated { get; private set; }
 
 		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -243,6 +250,7 @@ namespace HgSccHelper
 			wnd.FileName = file_info.Path;
 
 			wnd.ShowDialog();
+			IsUpdated = IsUpdated || wnd.IsUpdated;
 		}
 
 		//------------------------------------------------------------------
@@ -260,6 +268,36 @@ namespace HgSccHelper
 
 			DiffTwoRevisions(f1, f2);
 			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Update_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (listChanges != null)
+			{
+				if (listChanges.SelectedItems.Count == 1)
+				{
+					var change = listChanges.SelectedItems[0] as FileHistoryInfo;
+					if (change != null)
+						e.CanExecute = true;
+				}
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Update_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var change = (FileHistoryInfo)listChanges.SelectedItems[0];
+
+			UpdateWindow wnd = new UpdateWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.TargetRevision = change.ChangeDesc.Rev.ToString();
+			var updated = wnd.ShowDialog() == true;
+			IsUpdated = IsUpdated || updated;
 		}
 	}
 

@@ -289,6 +289,7 @@ namespace HgSccHelper
 			wnd.FileName = file_info.Path;
 
 			wnd.ShowDialog();
+			IsUpdated = IsUpdated || wnd.IsUpdated;
 		}
 
 		//------------------------------------------------------------------

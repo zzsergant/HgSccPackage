@@ -9,6 +9,12 @@
     Unloaded="Window_Unloaded"
     PreviewKeyDown="Window_PreviewKeyDown"
     WindowStartupLocation="CenterScreen">
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
+                        CanExecute="Update_CanExecute"
+                        Executed="Update_Executed">
+        </CommandBinding>
+    </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -27,6 +33,10 @@
                 <Separator />
                 <Button Content="File History"
                         Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Update to Revision"
+                        Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
@@ -48,6 +58,8 @@
                             Modifiers="Control" Key="D" />
                 <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
                             Modifiers="Control" Key="T" />
+                <KeyBinding Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
+                            Modifiers="Control" Key="U" />
             </ListView.InputBindings>
             <ListView.ContextMenu>
                 <ContextMenu>
@@ -55,6 +67,8 @@
                               InputGestureText="Ctrl + D"></MenuItem>
                     <MenuItem Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
                               InputGestureText="Ctrl + T"></MenuItem>
+                    <MenuItem Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
+                              InputGestureText="Ctrl + U"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.GroupStyle>
