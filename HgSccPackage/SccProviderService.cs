@@ -2005,7 +2005,11 @@ namespace HgSccPackage
 		private void UpdateEvent_Handler(object sender, EventArgs e)
 		{
 			storage.ReloadCache();
-			RefreshGlyphsForControlledProjects();
+
+			// FIXME: Need a better way to handle updates, than reloading solution
+			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+			sol.OpenSolutionFile((uint)__VSSLNOPENOPTIONS.SLNOPENOPT_Silent,
+				 _sccProvider.GetSolutionFileName());
 		}
 	}
 }
