@@ -216,6 +216,22 @@ namespace HgSccHelper
 			}
 		}
 
+		//------------------------------------------------------------------
+		/// <summary>
+		/// Returns revision description
+		/// </summary>
+		/// <param name="work_dir"></param>
+		/// <param name="revision"></param>
+		/// <returns>null on error</returns>
+		public RevLogChangeDesc GetRevisionDesc(string work_dir, string revision)
+		{
+			var list = RevLog(work_dir, revision, 1);
+			if (list.Count == 0)
+				return null;
+
+			return list[0];
+		}
+
 		//-----------------------------------------------------------------------------
 /*
 		public List<FileInfo> FilesInfo(string work_dir, int revision)
@@ -1138,6 +1154,47 @@ namespace HgSccHelper
 
 			return branches;
 		}
+
+		//-----------------------------------------------------------------------------
+		public bool Update(string work_dir, string revision, HgUpdateOptions options)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("update");
+
+			switch (options)
+			{
+				case HgUpdateOptions.None:
+					break;
+				case HgUpdateOptions.Clean:
+					{
+						args.Append(" -C");
+						break;
+					}
+				default:
+					{
+						throw new ArgumentException("Unknown update option"); 
+					}
+			}
+
+			if (revision.Length != 0)
+				args.Append(" " + revision);
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return false;
+			}
+
+			return true;
+		}
+	}
+
+	//------------------------------------------------------------------
+	enum HgUpdateOptions
+	{
+		None,
+		Clean
 	}
 
 	//-----------------------------------------------------------------------------

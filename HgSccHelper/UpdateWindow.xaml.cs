@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace HgSccHelper
 {
@@ -22,12 +23,40 @@ namespace HgSccHelper
 		public string WorkingDir { get; set; }
 
 		//------------------------------------------------------------------
+		public string TargetRevision { get; set; }
+
+		//------------------------------------------------------------------
 		Hg Hg { get; set; }
+
+		DispatcherTimer timer;
+		RevLogChangeDesc Target { get; set; }
+		IdentifyInfo CurrentRevision { get; set; }
 
 		//------------------------------------------------------------------
 		public UpdateWindow()
 		{
 			InitializeComponent();
+
+			// Since WPF combo box does not provide TextChanged event
+			// register it from edit text box through combo box template
+
+			comboRevision.Loaded += delegate
+			{
+				TextBox editTextBox = comboRevision.Template.FindName("PART_EditableTextBox", comboRevision) as TextBox;
+				if (editTextBox != null)
+				{
+					editTextBox.TextChanged += OnComboTextChanged;
+				}
+			};
+
+			comboRevision.Unloaded += delegate
+			{
+				TextBox editTextBox = comboRevision.Template.FindName("PART_EditableTextBox", comboRevision) as TextBox;
+				if (editTextBox != null)
+				{
+					editTextBox.TextChanged -= OnComboTextChanged;
+				}
+			};
 		}
 
 		//------------------------------------------------------------------
@@ -35,24 +64,46 @@ namespace HgSccHelper
 		{
 			Hg = new Hg();
 
-			IdentifyInfo info = Hg.Identify(WorkingDir);
-			if (info == null)
+			timer = new DispatcherTimer();
+			timer.Interval = TimeSpan.FromMilliseconds(200);
+			timer.Tick += OnTimerTick;
+
+			CurrentRevision = Hg.Identify(WorkingDir);
+			if (CurrentRevision == null)
 			{
 				// error
 				Close();
 				return;
 			}
 
+			if (!string.IsNullOrEmpty(TargetRevision))
+			{
+				var target_dec = Hg.GetRevisionDesc(WorkingDir, TargetRevision);
+				if (target_dec == null)
+				{
+					// error
+					Close();
+					return;
+				}
+
+				var item = new UpdateComboItem();
+				item.GroupText = "Rev";
+				item.Rev = target_dec.Rev;
+				item.Name = target_dec.Rev.ToString();
+				item.SHA1 = target_dec.SHA1;
+				item.Misc = "Target";
+
+				comboRevision.Items.Add(item);
+			}
+
 			var id = new UpdateComboItem();
 			id.GroupText = "Rev";
-			id.Rev = info.Rev;
-			id.Name = info.Rev.ToString();
-			id.SHA1 = info.SHA1;
-			id.Misc = info.HaveUncommitedChanges ? "Have uncommited changes" : "";
+			id.Rev = CurrentRevision.Rev;
+			id.Name = CurrentRevision.Rev.ToString();
+			id.SHA1 = CurrentRevision.SHA1;
+			id.Misc = CurrentRevision.HaveUncommitedChanges ? "Have uncommited changes" : "";
 
 			comboRevision.Items.Add(id);
-			comboRevision.SelectedIndex = 0;
-			comboRevision.Focus();
 
 			var tags = Hg.Tags(WorkingDir);
 			foreach (var tag in tags)
@@ -79,11 +130,37 @@ namespace HgSccHelper
 
 				comboRevision.Items.Add(item);
 			}
+
+			comboRevision.SelectedIndex = 0;
+			comboRevision.Focus();
+		}
+
+		//------------------------------------------------------------------
+		private void RefreshTarget()
+		{
+			var revision = comboRevision.Text;
+			if (comboRevision.SelectedItem != null)
+			{
+				var item = (UpdateComboItem)comboRevision.SelectedItem;
+				revision = item.SHA1;
+			}
+
+			Target = Hg.GetRevisionDesc(WorkingDir, revision);
+			btnUpdate.IsEnabled = (Target != null);
+		}
+
+		//------------------------------------------------------------------
+		private void OnTimerTick(object o, EventArgs e)
+		{
+			timer.Stop();
+			RefreshTarget();
 		}
 
 		//------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
+			timer.Stop();
+			timer.Tick -= OnTimerTick;
 		}
 
 		//------------------------------------------------------------------
@@ -96,20 +173,49 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void btnOK_Update(object sender, RoutedEventArgs e)
 		{
-			var revision = comboRevision.Text;
-			var msg = "Update to: " + revision;
-			if (comboRevision.SelectedItem != null)
+			if (Target == null)
 			{
-				var item = (UpdateComboItem)comboRevision.SelectedItem;
-				msg += "\nSelected Revision: " + item.Rev;
+				MessageBox.Show("Invalid revision");
+				return;
 			}
-			MessageBox.Show(msg);
+
+			bool discard_changes = checkDiscardChanges.IsChecked == true;
+
+			if (CurrentRevision.HaveUncommitedChanges
+				&& !discard_changes)
+			{
+				var result = MessageBox.Show("There are uncommited changed.\nAre you sure to discard them ?",
+					"Warning", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+				
+				if (result != MessageBoxResult.OK)
+					return;
+
+				discard_changes = true;
+			}
+
+			var options = discard_changes ? HgUpdateOptions.Clean : HgUpdateOptions.None;
+
+			if (!Hg.Update(WorkingDir, Target.SHA1, options))
+			{
+				MessageBox.Show("An error occured while update", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				return;
+			}
+
+			DialogResult = true;
+			Close();
 		}
 
 		//------------------------------------------------------------------
 		private void Cancel_Click(object sender, RoutedEventArgs e)
 		{
 			Close();
+		}
+
+		//------------------------------------------------------------------
+		private void OnComboTextChanged(object sender, TextChangedEventArgs e)
+		{
+			timer.Start();
+			btnUpdate.IsEnabled = false;
 		}
 	}
 
