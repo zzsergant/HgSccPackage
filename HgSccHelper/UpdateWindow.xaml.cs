@@ -133,6 +133,8 @@ namespace HgSccHelper
 
 			comboRevision.SelectedIndex = 0;
 			comboRevision.Focus();
+
+			RefreshTarget();
 		}
 
 		//------------------------------------------------------------------

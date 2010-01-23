@@ -37,6 +37,9 @@ namespace HgSccHelper
 		public string WorkingDir { get; set; }
 
 		//------------------------------------------------------------------
+		public bool IsUpdated { get { return revLogControl1.IsUpdated; } }
+
+		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			Title = string.Format("ChangeLog: '{0}'", WorkingDir);

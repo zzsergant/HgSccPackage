@@ -17,6 +17,10 @@
                         CanExecute="FileHistory_CanExecute"
                         Executed="FileHistory_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:RevLogControl.UpdateCommand}"
+                        CanExecute="Update_CanExecute"
+                        Executed="Update_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static local:RevLogControl.ReadNextCommand}"
                         CanExecute="ReadNext_CanExecute"
                         Executed="ReadNext_Executed">
@@ -92,6 +96,9 @@
                 <Button Content="File History"
                         Command="{x:Static local:RevLogControl.FileHistoryCommand}"
                         MinWidth="75" />
+                <Button Content="Update to Revision"
+                        Command="{x:Static local:RevLogControl.UpdateCommand}"
+                        MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
         <ListView x:Name="graphView"
@@ -164,6 +171,8 @@
                             Modifiers="Control" Key="D" />
                 <KeyBinding Command="{x:Static local:RevLogControl.FileHistoryCommand}"
                             Modifiers="Control" Key="H" />
+                <KeyBinding Command="{x:Static local:RevLogControl.UpdateCommand}"
+                            Modifiers="Control" Key="U" />
             </ListView.InputBindings>
             <ListView.ContextMenu>
                 <ContextMenu>
@@ -171,6 +180,8 @@
                               InputGestureText="Ctrl + D"></MenuItem>
                     <MenuItem Command="{x:Static local:RevLogControl.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
+                    <MenuItem Command="{x:Static local:RevLogControl.UpdateCommand}"
+                              InputGestureText="Ctrl + U"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.View>

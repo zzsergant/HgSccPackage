@@ -47,6 +47,10 @@ namespace HgSccHelper
 			"FileHistory", typeof(RevLogControl));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand UpdateCommand = new RoutedUICommand("Update to Revision",
+			"Update", typeof(RevLogControl));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand ReadNextCommand = new RoutedUICommand("Read Next",
 			"ReadNext", typeof(RevLogControl));
 
@@ -66,6 +70,9 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		Cursor prev_cursor;
+
+		//------------------------------------------------------------------
+		public bool IsUpdated { get; private set; }
 
 		//------------------------------------------------------------------
 		public RevLogControl()
@@ -323,6 +330,33 @@ namespace HgSccHelper
 
 			if (graphView.SelectedIndex == -1 && graphView.Items.Count > 0)
 				graphView.SelectedIndex = 0;
+		}
+
+		//------------------------------------------------------------------
+		private void Update_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (listViewFiles != null)
+			{
+				var change = listViewFiles.DataContext as ChangeDesc;
+				if (change != null)
+					e.CanExecute = true;
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Update_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var change = (ChangeDesc)listViewFiles.DataContext;
+
+			UpdateWindow wnd = new UpdateWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.TargetRevision = change.Rev.ToString();
+			var updated = wnd.ShowDialog() == true;
+			IsUpdated = IsUpdated || updated;
 		}
 	}
 }
