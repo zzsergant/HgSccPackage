@@ -48,6 +48,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Content="Update to:"
                        Margin="5"></Label>
@@ -61,6 +62,12 @@
                 <CheckBox Grid.Row="1" Grid.Column="1" Name="checkDiscardChanges"
                           Content="Discard local changes, no backup"
                           Margin="5,0"></CheckBox>
+                <Label Grid.Row="2" Grid.Column="0" Content="Target:"
+                       Margin="5"></Label>
+                <TextBox Grid.Row="2" Grid.Column="1"
+                         Margin="5"
+                         Name="targetDesc" IsReadOnly="True">
+                </TextBox>
             </Grid>
             <StackPanel HorizontalAlignment="Right"
                         Orientation="Horizontal">

@@ -148,7 +148,25 @@ namespace HgSccHelper
 			}
 
 			Target = Hg.GetRevisionDesc(WorkingDir, revision);
+			targetDesc.Text = GetTargetDescription();
 			btnUpdate.IsEnabled = (Target != null);
+		}
+
+		//------------------------------------------------------------------
+		public string GetTargetDescription()
+		{
+			if (Target == null)
+				return String.Empty;
+
+			var sha1_short = Target.SHA1.Substring(0, 12);
+			var desc = String.Format("Rev:\t{0} ({1})", Target.Rev, sha1_short);
+			if (!String.IsNullOrEmpty(Target.Branch))
+			{
+				desc += String.Format("\nBranch:\t{0}", Target.Branch);
+			}
+
+			desc += String.Format("\nDesc:\t{0}", Target.OneLineDesc);
+			return desc;
 		}
 
 		//------------------------------------------------------------------
