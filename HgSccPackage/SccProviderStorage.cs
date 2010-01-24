@@ -17,6 +17,7 @@ using System.Text;
 using System.IO;
 using HgSccHelper;
 using C5;
+using System.Diagnostics;
 
 namespace HgSccPackage
 {
@@ -389,14 +390,26 @@ namespace HgSccPackage
 				return;
 			}
 
-
-			FileHistoryWindow wnd = new FileHistoryWindow();
+			var wnd = new FileHistoryForm();
 			wnd.WorkingDir = hgscc.WorkingDir;
 			wnd.FileName = relative_path.Replace('\\', '/');
-
 			wnd.ShowDialog();
+
 			if (wnd.IsUpdated)
 				RaiseUpdateEvent();
+
+			//FileHistoryWindow wnd = new FileHistoryWindow();
+			//wnd.WorkingDir = hgscc.WorkingDir;
+			//wnd.FileName = relative_path.Replace('\\', '/');
+
+			//var helper = new System.Windows.Interop.WindowInteropHelper(wnd);
+			//Process procs = Process.GetCurrentProcess();
+			//IntPtr hwnd = procs.MainWindowHandle;
+			//helper.Owner = hwnd;
+
+			//wnd.ShowDialog();
+			//if (wnd.IsUpdated)
+			//    RaiseUpdateEvent();
 		}
 
 		//------------------------------------------------------------------
@@ -476,12 +489,25 @@ namespace HgSccPackage
 			if (!IsValid)
 				return;
 
-			RevLogWindow wnd = new RevLogWindow();
+			var wnd = new RevLogForm();
 			wnd.WorkingDir = hgscc.WorkingDir;
 			wnd.ShowDialog();
 
 			if (wnd.IsUpdated)
 				RaiseUpdateEvent();
+
+			//RevLogWindow wnd = new RevLogWindow();
+			//wnd.WorkingDir = hgscc.WorkingDir;
+
+			//var helper = new System.Windows.Interop.WindowInteropHelper(wnd);
+			//Process procs = Process.GetCurrentProcess();
+			//IntPtr hwnd = procs.MainWindowHandle;
+			//helper.Owner = hwnd;
+
+			//wnd.ShowDialog();
+
+			//if (wnd.IsUpdated)
+			//    RaiseUpdateEvent();
 		}
 
 		//------------------------------------------------------------------
@@ -490,9 +516,19 @@ namespace HgSccPackage
 			if (!IsValid)
 				return;
 
-			var wnd = new SynchronizeWindow();
+			var wnd = new SynchronizeForm();
 			wnd.WorkingDir = hgscc.WorkingDir;
 			wnd.ShowDialog();
+
+			//var wnd = new SynchronizeWindow();
+			//wnd.WorkingDir = hgscc.WorkingDir;
+
+			//var helper = new System.Windows.Interop.WindowInteropHelper(wnd);
+			//Process procs = Process.GetCurrentProcess();
+			//IntPtr hwnd = procs.MainWindowHandle;
+			//helper.Owner = hwnd;
+
+			//wnd.ShowDialog();
 		}
 
 		//------------------------------------------------------------------
@@ -501,13 +537,29 @@ namespace HgSccPackage
 			if (!IsValid)
 				return false;
 
-			var wnd = new UpdateWindow();
+			var wnd = new UpdateForm();
 			wnd.WorkingDir = hgscc.WorkingDir;
+			wnd.ShowDialog();
 
-			var updated = wnd.ShowDialog() == true;
-			if (updated)
+			if (wnd.IsUpdated)
 				RaiseUpdateEvent();
-			return updated;
+
+			return wnd.IsUpdated;
+
+			/*
+						var wnd = new UpdateWindow();
+						wnd.WorkingDir = hgscc.WorkingDir;
+
+						//var helper = new System.Windows.Interop.WindowInteropHelper(wnd);
+						//Process procs = Process.GetCurrentProcess();
+						//IntPtr hwnd = procs.MainWindowHandle;
+						//helper.Owner = hwnd;
+			
+						wnd.ShowDialog();
+						if (wnd.IsUpdated)
+							RaiseUpdateEvent();
+						return updated;
+			*/
 		}
 	}
 }

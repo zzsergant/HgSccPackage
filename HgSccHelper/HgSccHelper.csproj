@@ -53,6 +53,9 @@
     <Reference Include="WindowsBase">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="WindowsFormsIntegration">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChangeDesc.cs" />
@@ -61,6 +64,15 @@
     </Compile>
     <Compile Include="CommitForm.designer.cs">
       <DependentUpon>CommitForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FileHistoryControl.xaml.cs">
+      <DependentUpon>FileHistoryControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FileHistoryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FileHistoryForm.designer.cs">
+      <DependentUpon>FileHistoryForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FileHistoryWindow.xaml.cs">
       <DependentUpon>FileHistoryWindow.xaml</DependentUpon>
@@ -102,14 +114,38 @@
     <Compile Include="RevLogControl.xaml.cs">
       <DependentUpon>RevLogControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RevLogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RevLogForm.designer.cs">
+      <DependentUpon>RevLogForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="RevLogIterator.cs" />
     <Compile Include="RevLogLinesVisual.cs" />
     <Compile Include="RevLogWindow.xaml.cs">
       <DependentUpon>RevLogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SccDefines.cs" />
+    <Compile Include="SynchronizeControl.xaml.cs">
+      <DependentUpon>SynchronizeControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SynchronizeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SynchronizeForm.designer.cs">
+      <DependentUpon>SynchronizeForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SynchronizeWindow.xaml.cs">
       <DependentUpon>SynchronizeWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UpdateControl.xaml.cs">
+      <DependentUpon>UpdateControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UpdateForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UpdateForm.designer.cs">
+      <DependentUpon>UpdateForm.cs</DependentUpon>
     </Compile>
     <Compile Include="UpdateWindow.xaml.cs">
       <DependentUpon>UpdateWindow.xaml</DependentUpon>
@@ -117,7 +153,7 @@
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="SynchronizeWindow.xaml">
+    <Page Include="SynchronizeControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -125,6 +161,9 @@
   <ItemGroup>
     <EmbeddedResource Include="CommitForm.resx">
       <DependentUpon>CommitForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FileHistoryForm.resx">
+      <DependentUpon>FileHistoryForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HgAboutControl.resx">
       <DependentUpon>HgAboutControl.cs</DependentUpon>
@@ -138,9 +177,18 @@
     <EmbeddedResource Include="OptionsForm.resx">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="RevLogForm.resx">
+      <DependentUpon>RevLogForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SynchronizeForm.resx">
+      <DependentUpon>SynchronizeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UpdateForm.resx">
+      <DependentUpon>UpdateForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="FileHistoryWindow.xaml">
+    <Page Include="FileHistoryControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -152,13 +200,25 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="FileHistoryWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="RevLogWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UpdateWindow.xaml">
+    <Page Include="SynchronizeWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UpdateControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UpdateWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>

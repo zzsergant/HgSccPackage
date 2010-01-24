@@ -110,6 +110,8 @@ namespace HgSccHelper
 			{
 				RunRevLogThread(WorkingDir, "", BatchSize);
 			}
+
+			graphView.Focus();
 		}
 
 		//------------------------------------------------------------------
@@ -287,6 +289,7 @@ namespace HgSccHelper
 			wnd.WorkingDir = WorkingDir;
 			wnd.Rev = change.Rev.ToString();
 			wnd.FileName = file_info.Path;
+			wnd.Owner = Window.GetWindow(this);
 
 			wnd.ShowDialog();
 			IsUpdated = IsUpdated || wnd.IsUpdated;
@@ -360,8 +363,30 @@ namespace HgSccHelper
 			UpdateWindow wnd = new UpdateWindow();
 			wnd.WorkingDir = WorkingDir;
 			wnd.TargetRevision = change.Rev.ToString();
-			var updated = wnd.ShowDialog() == true;
-			IsUpdated = IsUpdated || updated;
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
+
+			IsUpdated = IsUpdated || wnd.IsUpdated;
 		}
+
+		//------------------------------------------------------------------
+		public event EventHandler<EventArgs> CloseEvent;
+
+		//------------------------------------------------------------------
+		void RaiseCloseEvent()
+		{
+			var e = CloseEvent;
+			if (e != null)
+				e(this, EventArgs.Empty);
+		}
+
+		//------------------------------------------------------------------
+		private void Control_PreviewKeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Escape)
+				RaiseCloseEvent();
+		}
+
 	}
 }
