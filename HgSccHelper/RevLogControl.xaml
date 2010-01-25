@@ -41,6 +41,22 @@
         	<StackPanel Orientation="Horizontal">
         		<local:RevLogLinesVisual Height="20"
 										 RevLogLines="{Binding}" />
+                <ItemsControl ItemsSource="{Binding Path=Current.ChangeDesc.Tags}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"></StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" VerticalAlignment="Center"
+                                       Background="GreenYellow"
+                                       Foreground="Black"
+                                       Padding="5,1"
+                                       Margin="5,0"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
         		<TextBlock Text="{Binding Current.ChangeDesc.OneLineDesc}" VerticalAlignment="Center" />
         	</StackPanel>
 		</DataTemplate>
