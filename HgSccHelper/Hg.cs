@@ -1190,6 +1190,64 @@ namespace HgSccHelper
 
 			return true;
 		}
+
+		//-----------------------------------------------------------------------------
+		public bool AddTag(string work_dir, string tag, string revision, HgTagOptions options, string commit_message)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("tag");
+
+			if ((options & HgTagOptions.Force) == HgTagOptions.Force)
+				args.Append(" -f");
+
+			if ((options & HgTagOptions.Local) == HgTagOptions.Local)
+				args.Append(" -l");
+
+			if (revision.Length != 0)
+				args.Append(" -r " + revision);
+
+			if (commit_message.Length != 0)
+				args.Append(" -m " + commit_message.Quote());
+
+			args.Append(" " + tag.Quote());
+
+			if (args.Length > MaxCmdLength)
+				throw new ArgumentException("Command line length is too long");
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return false;
+			}
+
+			return true;
+		}
+
+		//-----------------------------------------------------------------------------
+		public bool RemoveTag(string work_dir, string tag, HgTagOptions option)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("tag");
+
+			if ((option & HgTagOptions.Local) == HgTagOptions.Local)
+				args.Append(" -l");
+
+			args.Append(" --remove");
+			args.Append(" " + tag.Quote());
+
+			if (args.Length > MaxCmdLength)
+				throw new ArgumentException("Command line length is too long");
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return false;
+			}
+
+			return true;
+		}
 	}
 
 	//------------------------------------------------------------------
@@ -1197,6 +1255,15 @@ namespace HgSccHelper
 	{
 		None,
 		Clean
+	}
+
+	//------------------------------------------------------------------
+	[Flags]
+	enum HgTagOptions
+	{
+		None	= 0x00,
+		Force	= 0x01,
+		Local	= 0x02
 	}
 
 	//-----------------------------------------------------------------------------
