@@ -5,6 +5,29 @@
     Loaded="Control_Loaded"
     PreviewKeyDown="Control_PreviewKeyDown"
     Unloaded="Control_Unloaded">
+    <UserControl.Resources>
+        <DataTemplate x:Key="myCellTemplateDesc">
+            <StackPanel Orientation="Horizontal">
+                <ItemsControl ItemsSource="{Binding Path=ChangeDesc.Tags}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"></StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" VerticalAlignment="Center"
+                                       Background="Yellow"
+                                       Foreground="Black"
+                                       Padding="5,1"
+                                       Margin="0,0,5,0"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="{Binding ChangeDesc.OneLineDesc}" VerticalAlignment="Center" />
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
     <UserControl.CommandBindings>
         <CommandBinding Command="{x:Static local:FileHistoryControl.UpdateCommand}"
                         CanExecute="Update_CanExecute"
@@ -82,7 +105,7 @@
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding ChangeDesc.Rev}" />
-                    <GridViewColumn Header="Desc" Width="500" DisplayMemberBinding="{Binding ChangeDesc.OneLineDesc}" />
+                    <GridViewColumn Header="Desc" Width="500"  CellTemplate="{StaticResource myCellTemplateDesc}"/>
                     <GridViewColumn Header="Author" Width="250" DisplayMemberBinding="{Binding ChangeDesc.Author}" />
                     <GridViewColumn Header="Date" Width="150" DisplayMemberBinding="{Binding ChangeDesc.Date}" />
                 </GridView>
