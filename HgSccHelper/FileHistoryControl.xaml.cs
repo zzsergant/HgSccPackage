@@ -41,6 +41,10 @@ namespace HgSccHelper
 		public static RoutedUICommand UpdateCommand = new RoutedUICommand("Update to Revision",
 			"Update", typeof(FileHistoryControl));
 
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand TagsCommand = new RoutedUICommand("Add/Remove Tag",
+			"Tags", typeof(RevLogControl));
+
 		List<FileHistoryInfo> history;
 
 		//------------------------------------------------------------------
@@ -297,6 +301,37 @@ namespace HgSccHelper
 			wnd.ShowDialog();
 
 			IsUpdated = IsUpdated || wnd.IsUpdated;
+		}
+
+		//------------------------------------------------------------------
+		private void Tags_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (listChanges != null)
+			{
+				if (listChanges.SelectedItems.Count == 1)
+				{
+					var change = listChanges.SelectedItems[0] as FileHistoryInfo;
+					if (change != null)
+						e.CanExecute = true;
+				}
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Tags_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var change = (FileHistoryInfo)listChanges.SelectedItems[0];
+
+			TagsWindow wnd = new TagsWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.TargetRevision = change.ChangeDesc.Rev.ToString();
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
 		}
 
 		//------------------------------------------------------------------

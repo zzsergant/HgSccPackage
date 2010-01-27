@@ -33,6 +33,10 @@
                         CanExecute="Update_CanExecute"
                         Executed="Update_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:FileHistoryControl.TagsCommand}"
+                        CanExecute="Tags_CanExecute"
+                        Executed="Tags_Executed">
+        </CommandBinding>
     </UserControl.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -57,6 +61,9 @@
                 <Button Content="Update to Revision"
                         Command="{x:Static local:FileHistoryControl.UpdateCommand}"
                         MinWidth="75" />
+                <Button Content="Add/Remove Tag"
+                        Command="{x:Static local:FileHistoryControl.TagsCommand}"
+                        MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
         <ListView x:Name="listChanges"
@@ -79,6 +86,7 @@
                             Modifiers="Control" Key="T" />
                 <KeyBinding Command="{x:Static local:FileHistoryControl.UpdateCommand}"
                             Modifiers="Control" Key="U" />
+                <KeyBinding Command="{x:Static local:FileHistoryControl.TagsCommand}" />
             </ListView.InputBindings>
             <ListView.ContextMenu>
                 <ContextMenu>
@@ -88,6 +96,7 @@
                               InputGestureText="Ctrl + T"></MenuItem>
                     <MenuItem Command="{x:Static local:FileHistoryControl.UpdateCommand}"
                               InputGestureText="Ctrl + U"></MenuItem>
+                    <MenuItem Command="{x:Static local:FileHistoryControl.TagsCommand}"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.GroupStyle>
