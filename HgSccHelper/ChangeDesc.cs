@@ -30,12 +30,14 @@ namespace HgSccHelper
 		public List<FileInfo> FilesAdded { get; set; }
 		public List<FileInfo> FilesModified { get; set; }
 		public List<FileInfo> FilesRemoved { get; set; }
+		public List<string> Tags { get; set; }
 
 		public ChangeDesc()
 		{
 			FilesAdded = new List<FileInfo>();
 			FilesModified = new List<FileInfo>();
 			FilesRemoved = new List<FileInfo>();
+			Tags = new List<string>();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -127,7 +129,16 @@ namespace HgSccHelper
 					cs.SHA1 = str.Substring("node: ".Length);
 					continue;
 				}
-				
+
+				if (str.StartsWith("tags: "))
+				{
+					var tags_str = str.Substring("tags: ".Length);
+					string[] tags = tags_str.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+					foreach (var tag in tags)
+						cs.Tags.Add(tag);
+					continue;
+				}
+
 				if (str.StartsWith("desc: "))
 				{
 					cs.OneLineDesc = str.Substring("desc: ".Length);
@@ -204,13 +215,15 @@ namespace HgSccHelper
 
 			using (var stream = new StreamWriter(File.OpenWrite(FileName)))
 			{
-				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n::=\n'");
+				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\ntags: {tags}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n::=\n'");
 				stream.WriteLine(@"file = '{file}:'");
 				stream.WriteLine(@"last_file = '{file}'");
 				stream.WriteLine(@"file_add = '{file_add}:'");
 				stream.WriteLine(@"last_file_add = '{file_add}'");
 				stream.WriteLine(@"file_del = '{file_del}:'");
 				stream.WriteLine(@"last_file_del = '{file_del}'");
+				stream.WriteLine(@"tag = '{tag}:'");
+				stream.WriteLine(@"last_tag = '{tag}'");
 				// stream.WriteLine(@"branches = '{branches}:'");
 			}
 		}
