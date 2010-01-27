@@ -64,6 +64,19 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void RevLogForm_Load(object sender, EventArgs e)
 		{
+/*
+			Visible = false;
+
+			var wnd = new RevLogWindow();
+			wnd.WorkingDir = WorkingDir;
+
+			System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(wnd);
+			wnd.ShowDialog();
+
+			//RevLogControl.IsUpdated = wnd.IsUpdated;
+			Close();
+			return;
+*/
 			Text = string.Format("ChangeLog: '{0}'", WorkingDir);
 			RevLogControl.CloseEvent += RevLogControl_CloseEvent;
 		}

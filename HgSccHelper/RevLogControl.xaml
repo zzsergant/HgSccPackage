@@ -22,6 +22,10 @@
                         CanExecute="Update_CanExecute"
                         Executed="Update_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:RevLogControl.TagsCommand}"
+                        CanExecute="Tags_CanExecute"
+                        Executed="Tags_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static local:RevLogControl.ReadNextCommand}"
                         CanExecute="ReadNext_CanExecute"
                         Executed="ReadNext_Executed">
@@ -109,12 +113,15 @@
                 <Button Content="Diff Previous"
                         Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
                         MinWidth="75" />
-                <Separator />
                 <Button Content="File History"
                         Command="{x:Static local:RevLogControl.FileHistoryCommand}"
                         MinWidth="75" />
+                <Separator />
                 <Button Content="Update to Revision"
                         Command="{x:Static local:RevLogControl.UpdateCommand}"
+                        MinWidth="75" />
+                <Button Content="Add/Remove Tag"
+                        Command="{x:Static local:RevLogControl.TagsCommand}"
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
@@ -127,11 +134,15 @@
             <ListView.InputBindings>
                 <KeyBinding Command="{x:Static local:RevLogControl.UpdateCommand}"
                             Modifiers="Control" Key="U" />
+                <KeyBinding Command="{x:Static local:RevLogControl.TagsCommand}"
+                            Modifiers="Control" Key="T" />
             </ListView.InputBindings>
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Command="{x:Static local:RevLogControl.UpdateCommand}"
                               InputGestureText="Ctrl + U"></MenuItem>
+                    <MenuItem Command="{x:Static local:RevLogControl.TagsCommand}"
+                              InputGestureText="Ctrl + T"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.View>

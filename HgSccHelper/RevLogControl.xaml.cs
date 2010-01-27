@@ -51,6 +51,10 @@ namespace HgSccHelper
 			"Update", typeof(RevLogControl));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand TagsCommand = new RoutedUICommand("Add/Remove Tag",
+			"Tags", typeof(RevLogControl));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand ReadNextCommand = new RoutedUICommand("Read Next",
 			"ReadNext", typeof(RevLogControl));
 
@@ -386,6 +390,34 @@ namespace HgSccHelper
 		{
 			if (e.Key == Key.Escape)
 				RaiseCloseEvent();
+		}
+
+		//------------------------------------------------------------------
+		private void Tags_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (listViewFiles != null)
+			{
+				var change = listViewFiles.DataContext as ChangeDesc;
+				if (change != null)
+					e.CanExecute = true;
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Tags_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var change = (ChangeDesc)listViewFiles.DataContext;
+
+			TagsWindow wnd = new TagsWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.TargetRevision = change.Rev.ToString();
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
 		}
 
 	}
