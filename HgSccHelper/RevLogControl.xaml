@@ -54,10 +54,10 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding}" VerticalAlignment="Center"
-                                       Background="GreenYellow"
+                                       Background="Yellow"
                                        Foreground="Black"
                                        Padding="5,1"
-                                       Margin="5,0"/>
+                                       Margin="0,0,5,0"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
