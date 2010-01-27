@@ -561,5 +561,16 @@ namespace HgSccPackage
 						return updated;
 			*/
 		}
+
+		//------------------------------------------------------------------
+		public void Tags()
+		{
+			if (!IsValid)
+				return;
+
+			var wnd = new TagsForm();
+			wnd.WorkingDir = hgscc.WorkingDir;
+			wnd.ShowDialog();
+		}
 	}
 }

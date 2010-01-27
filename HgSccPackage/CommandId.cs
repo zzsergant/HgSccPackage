@@ -36,6 +36,7 @@ namespace HgSccPackage
 // 		public const int icmdToolWindowToolbarCommand   = 0x107;
 		public const int icmdViewChangeLog				= 0x107;
 		public const int icmdUpdate						= 0x108;
+        public const int icmdTags                       = 0x109;
 
 		// Define the list of icons (use decimal numbers here, to match the resource IDs)
 		public const int iiconProductIcon				= 400;

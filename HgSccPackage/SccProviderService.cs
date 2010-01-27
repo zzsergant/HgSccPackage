@@ -2002,6 +2002,15 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		public void Tags()
+		{
+			if (storage == null)
+				return;
+
+			storage.Tags();
+		}
+
+		//------------------------------------------------------------------
 		private void UpdateEvent_Handler(object sender, EventArgs e)
 		{
 			storage.ReloadCache();

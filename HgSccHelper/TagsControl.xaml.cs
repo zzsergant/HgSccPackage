@@ -259,17 +259,15 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void btnAdd_Click(object sender, RoutedEventArgs e)
 		{
-			var owner = Window.GetWindow(this);
-
 			if (String.IsNullOrEmpty(comboTag.Text))
 			{
-				MessageBox.Show(owner, "Invalid tag name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show("Invalid tag name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;
 			}
 
 			if (RevDesc == null)
 			{
-				MessageBox.Show(owner, "Invalid revision", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show("Invalid revision", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;
 			}
 
@@ -282,8 +280,7 @@ namespace HgSccHelper
 				)
 			{
 				var msg = String.Format("A tag named '{0}' allready exists.\nAre you sure to replace it ?", tag_name);
-				var result = MessageBox.Show(owner, msg,
-					"Question", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+				var result = MessageBox.Show(msg, "Question", MessageBoxButton.OKCancel, MessageBoxImage.Question);
 				
 				if (result != MessageBoxResult.OK)
 					return;
@@ -310,12 +307,12 @@ namespace HgSccHelper
 			if (!Hg.AddTag(WorkingDir, tag_name, RevDesc.SHA1, options, commit_message))
 			{
 				var msg = String.Format("An error occured while adding tag '{0}'", tag_name);
-				MessageBox.Show(owner, msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			else
 			{
 				var msg = String.Format("Tag '{0}' has been added", tag_name);
-				MessageBox.Show(owner, msg, "Information", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
+				MessageBox.Show(msg, "Information", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
 				UpdateTags();
 				RefreshTag();
 				RefreshRev();
@@ -339,11 +336,9 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void btnRemove_Click(object sender, RoutedEventArgs e)
 		{
-			var owner = Window.GetWindow(this);
-
 			if (TagDesc == null)
 			{
-				MessageBox.Show(owner, "Invalid tag name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show("Invalid tag name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;
 			}
 
@@ -357,7 +352,7 @@ namespace HgSccHelper
 			if (!Hg.RemoveTag(WorkingDir, tag_name, options))
 			{
 				var msg = String.Format("An error occured while removing tag '{0}'", tag_name);
-				MessageBox.Show(owner, msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			else
 			{
