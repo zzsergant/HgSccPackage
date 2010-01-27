@@ -83,20 +83,22 @@
                 <KeyBinding Command="{x:Static local:FileHistoryControl.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
                 <KeyBinding Command="{x:Static local:FileHistoryControl.DiffTwoRevisionsCommand}"
-                            Modifiers="Control" Key="T" />
+                            Modifiers="Shift" Key="D" />
                 <KeyBinding Command="{x:Static local:FileHistoryControl.UpdateCommand}"
                             Modifiers="Control" Key="U" />
-                <KeyBinding Command="{x:Static local:FileHistoryControl.TagsCommand}" />
+                <KeyBinding Command="{x:Static local:FileHistoryControl.TagsCommand}"
+                            Modifiers="Control" Key="T" />
             </ListView.InputBindings>
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Command="{x:Static local:FileHistoryControl.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
                     <MenuItem Command="{x:Static local:FileHistoryControl.DiffTwoRevisionsCommand}"
-                              InputGestureText="Ctrl + T"></MenuItem>
+                              InputGestureText="Shift + D"></MenuItem>
                     <MenuItem Command="{x:Static local:FileHistoryControl.UpdateCommand}"
                               InputGestureText="Ctrl + U"></MenuItem>
-                    <MenuItem Command="{x:Static local:FileHistoryControl.TagsCommand}"></MenuItem>
+                    <MenuItem Command="{x:Static local:FileHistoryControl.TagsCommand}"
+                              InputGestureText="Ctrl + T"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.GroupStyle>
