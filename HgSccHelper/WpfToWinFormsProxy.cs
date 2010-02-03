@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Interop;
 
 namespace HgSccHelper
 {
@@ -44,6 +45,8 @@ namespace HgSccHelper
 		{
 			base.OnLoad(e);
 
+			// Set the WPF window owner to this windows forms dialog
+			new System.Windows.Interop.WindowInteropHelper(Wnd).Owner = this.Handle;
 			Wnd.ShowDialog();
 
 			Close();
