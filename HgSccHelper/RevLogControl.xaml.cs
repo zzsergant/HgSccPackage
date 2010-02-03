@@ -375,24 +375,6 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		public event EventHandler<EventArgs> CloseEvent;
-
-		//------------------------------------------------------------------
-		void RaiseCloseEvent()
-		{
-			var e = CloseEvent;
-			if (e != null)
-				e(this, EventArgs.Empty);
-		}
-
-		//------------------------------------------------------------------
-		private void Control_PreviewKeyDown(object sender, KeyEventArgs e)
-		{
-			if (e.Key == Key.Escape)
-				RaiseCloseEvent();
-		}
-
-		//------------------------------------------------------------------
 		private void Tags_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;

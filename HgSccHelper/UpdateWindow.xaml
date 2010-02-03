@@ -14,8 +14,70 @@
     WindowStartupLocation="CenterScreen"
     ShowInTaskbar="False"
     ResizeMode="NoResize">
+    <Window.Resources>
+        <ItemsPanelTemplate x:Key="PathItemsPanelTemplate">
+            <StackPanel Orientation="Vertical"
+                        Grid.IsSharedSizeScope="True"
+                        HorizontalAlignment="Stretch">
+            </StackPanel>
+        </ItemsPanelTemplate>
+        <DataTemplate x:Key="PathComboItemTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition SharedSizeGroup="Name" Width="Auto" />
+                    <ColumnDefinition SharedSizeGroup="GroupText" Width="Auto" />
+                    <ColumnDefinition SharedSizeGroup="Misc" Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Path=Name}"
+                           Grid.Column="0"
+                           Margin="0, 0, 20, 0"
+                           FontWeight="Bold"/>
+                <TextBlock Grid.Column="1"
+                           Margin="0, 0, 10, 0"
+                           Text="{Binding Path=GroupText}" />
+                <TextBlock Grid.Column="2"
+                           Text="{Binding Path=Misc}" />
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
     <Grid>
-        <local:UpdateControl x:Name="updateControl1">
-        </local:UpdateControl>
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Content="Update to:"
+                       Margin="5"></Label>
+                <ComboBox Grid.Row="0" Grid.Column="1" Name="comboRevision"
+                          TextSearch.TextPath="Name"
+                          HorizontalContentAlignment="Stretch"
+                          ItemTemplate="{StaticResource PathComboItemTemplate}"
+                          ItemsPanel="{StaticResource PathItemsPanelTemplate}"
+                          Margin="5" IsEditable="True">
+                </ComboBox>
+                <CheckBox Grid.Row="1" Grid.Column="1" Name="checkDiscardChanges"
+                          Content="Discard local changes, no backup"
+                          Margin="5,0"></CheckBox>
+                <Label Grid.Row="2" Grid.Column="0" Content="Target:"
+                       Margin="5"></Label>
+                <TextBox Grid.Row="2" Grid.Column="1"
+                         Margin="5"
+                         Name="targetDesc" IsReadOnly="True">
+                </TextBox>
+            </Grid>
+            <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <Button Name="btnUpdate" Height="23" Width="75"
+                        Content="Update" IsDefault="True" Click="btnOK_Update"></Button>
+                <Button Name="Cancel" Height="23" Width="75"
+                        Content="Cancel" Margin="5" IsCancel="True" Click="Cancel_Click"></Button>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Window>

@@ -6,7 +6,6 @@
              xmlns:local="clr-namespace:HgSccHelper"
              mc:Ignorable="d"
              d:DesignHeight="317" d:DesignWidth="476"
-             PreviewKeyDown="Control_PreviewKeyDown"
              Loaded="UserControl_Loaded"
              Unloaded="UserControl_Unloaded">
     <UserControl.CommandBindings>
