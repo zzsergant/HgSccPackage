@@ -390,26 +390,17 @@ namespace HgSccPackage
 				return;
 			}
 
-			var wnd = new FileHistoryForm();
-			wnd.WorkingDir = hgscc.WorkingDir;
-			wnd.FileName = relative_path.Replace('\\', '/');
-			wnd.ShowDialog();
+			using (var proxy = new WpfToWinFormsProxy<FileHistoryWindow>())
+			{
+				var wnd = proxy.Wnd;
+				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.FileName = relative_path.Replace('\\', '/');
 
-			if (wnd.IsUpdated)
-				RaiseUpdateEvent();
+				proxy.ShowDialog();
 
-			//FileHistoryWindow wnd = new FileHistoryWindow();
-			//wnd.WorkingDir = hgscc.WorkingDir;
-			//wnd.FileName = relative_path.Replace('\\', '/');
-
-			//var helper = new System.Windows.Interop.WindowInteropHelper(wnd);
-			//Process procs = Process.GetCurrentProcess();
-			//IntPtr hwnd = procs.MainWindowHandle;
-			//helper.Owner = hwnd;
-
-			//wnd.ShowDialog();
-			//if (wnd.IsUpdated)
-			//    RaiseUpdateEvent();
+				if (wnd.IsUpdated)
+					RaiseUpdateEvent();
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -489,25 +480,16 @@ namespace HgSccPackage
 			if (!IsValid)
 				return;
 
-			var wnd = new RevLogForm();
-			wnd.WorkingDir = hgscc.WorkingDir;
-			wnd.ShowDialog();
+			using (var proxy = new WpfToWinFormsProxy<RevLogWindow>())
+			{
+				var wnd = proxy.Wnd;
+				wnd.WorkingDir = hgscc.WorkingDir;
 
-			if (wnd.IsUpdated)
-				RaiseUpdateEvent();
+				proxy.ShowDialog();
 
-			//RevLogWindow wnd = new RevLogWindow();
-			//wnd.WorkingDir = hgscc.WorkingDir;
-
-			//var helper = new System.Windows.Interop.WindowInteropHelper(wnd);
-			//Process procs = Process.GetCurrentProcess();
-			//IntPtr hwnd = procs.MainWindowHandle;
-			//helper.Owner = hwnd;
-
-			//wnd.ShowDialog();
-
-			//if (wnd.IsUpdated)
-			//    RaiseUpdateEvent();
+				if (wnd.IsUpdated)
+					RaiseUpdateEvent();
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -516,19 +498,13 @@ namespace HgSccPackage
 			if (!IsValid)
 				return;
 
-			var wnd = new SynchronizeForm();
-			wnd.WorkingDir = hgscc.WorkingDir;
-			wnd.ShowDialog();
+			using (var proxy = new WpfToWinFormsProxy<SynchronizeWindow>())
+			{
+				var wnd = proxy.Wnd;
+				wnd.WorkingDir = hgscc.WorkingDir;
 
-			//var wnd = new SynchronizeWindow();
-			//wnd.WorkingDir = hgscc.WorkingDir;
-
-			//var helper = new System.Windows.Interop.WindowInteropHelper(wnd);
-			//Process procs = Process.GetCurrentProcess();
-			//IntPtr hwnd = procs.MainWindowHandle;
-			//helper.Owner = hwnd;
-
-			//wnd.ShowDialog();
+				proxy.ShowDialog();
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -537,29 +513,18 @@ namespace HgSccPackage
 			if (!IsValid)
 				return false;
 
-			var wnd = new UpdateForm();
-			wnd.WorkingDir = hgscc.WorkingDir;
-			wnd.ShowDialog();
+			using (var proxy = new WpfToWinFormsProxy<UpdateWindow>())
+			{
+				var wnd = proxy.Wnd;
+				wnd.WorkingDir = hgscc.WorkingDir;
+				
+				proxy.ShowDialog();
 
-			if (wnd.IsUpdated)
-				RaiseUpdateEvent();
+				if (wnd.IsUpdated)
+					RaiseUpdateEvent();
 
-			return wnd.IsUpdated;
-
-			/*
-						var wnd = new UpdateWindow();
-						wnd.WorkingDir = hgscc.WorkingDir;
-
-						//var helper = new System.Windows.Interop.WindowInteropHelper(wnd);
-						//Process procs = Process.GetCurrentProcess();
-						//IntPtr hwnd = procs.MainWindowHandle;
-						//helper.Owner = hwnd;
-			
-						wnd.ShowDialog();
-						if (wnd.IsUpdated)
-							RaiseUpdateEvent();
-						return updated;
-			*/
+				return wnd.IsUpdated;
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -568,9 +533,13 @@ namespace HgSccPackage
 			if (!IsValid)
 				return;
 
-			var wnd = new TagsForm();
-			wnd.WorkingDir = hgscc.WorkingDir;
-			wnd.ShowDialog();
+			using (var proxy = new WpfToWinFormsProxy<TagsWindow>())
+			{
+				var wnd = proxy.Wnd;
+				wnd.WorkingDir = hgscc.WorkingDir;
+
+				proxy.ShowDialog();
+			}
 		}
 	}
 }
