@@ -178,7 +178,7 @@ namespace HgSccHelper
 					TagDesc = Hg.GetRevisionDesc(WorkingDir, item.SHA1);
 			}
 
-			textTagDesc.Text = GetDescription(TagDesc);
+			textTagDesc.Text = TagDesc.GetDescription();
 
 			bool is_tip = (tag_name == "tip");
 			btnAdd.IsEnabled = (!String.IsNullOrEmpty(tag_name)	&& !is_tip);
@@ -189,33 +189,12 @@ namespace HgSccHelper
 		private void RefreshRev()
 		{
 			RevDesc = Hg.GetRevisionDesc(WorkingDir, textRev.Text);
-			textRevDesc.Text = GetDescription(RevDesc);
+			textRevDesc.Text = RevDesc.GetDescription();
 
 			var tag_name = comboTag.Text;
 			bool is_tip = (tag_name == "tip");
 
 			btnAdd.IsEnabled = (!String.IsNullOrEmpty(tag_name) && !is_tip);
-		}
-
-		//------------------------------------------------------------------
-		private static string GetDescription(RevLogChangeDesc change_desc)
-		{
-			if (change_desc == null)
-				return String.Empty;
-
-			var sha1_short = change_desc.SHA1.Substring(0, 12);
-			var desc = String.Format("Rev:\t{0} ({1})", change_desc.Rev, sha1_short);
-
-			if (!String.IsNullOrEmpty(change_desc.Branch))
-				desc += String.Format("\nBranch:\t{0}", change_desc.Branch);
-
-			foreach (var tag in change_desc.Tags)
-			{
-				desc += String.Format("\nTag:\t{0}", tag);
-			}
-
-			desc += String.Format("\nDesc:\t{0}", change_desc.OneLineDesc);
-			return desc;
 		}
 
 		//------------------------------------------------------------------
