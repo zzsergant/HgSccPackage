@@ -41,16 +41,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool GetRelativePath(string path, out string relative)
 		{
-			relative = string.Empty;
-			string f = path.ToLower();
-			if (!f.StartsWith(WorkingDir))
-				return false;
-
-			if (path.Length == WorkingDir.Length)
-				relative = "";
-			else
-				relative = path.Substring(WorkingDir.Length + 1);
-			return true;
+			return Util.GetRelativePath(WorkingDir, path, out relative);
 		}
 
 		//-----------------------------------------------------------------------------

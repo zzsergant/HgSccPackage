@@ -60,6 +60,22 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public static bool GetRelativePath(string working_dir, string path, out string relative)
+		{
+			relative = string.Empty;
+			string f = path.ToLower();
+			if (!f.StartsWith(working_dir))
+				return false;
+
+			if (path.Length == working_dir.Length)
+				relative = "";
+			else
+				relative = path.Substring(working_dir.Length + 1);
+			return true;
+		}
+
+
+		//-----------------------------------------------------------------------------
 		public static void HandleHgDiffException()
 		{
 			System.Windows.Forms.MessageBox.Show("You should set the diff tool in Tools->Options->Source Control->Mercurial Options Page and retry the operation",
