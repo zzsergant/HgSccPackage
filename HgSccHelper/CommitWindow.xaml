@@ -1,0 +1,103 @@
+﻿<Window x:Class="HgSccHelper.CommitWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="CommitWindow"
+    Height="Auto"
+    Width="Auto"
+    xmlns:my="clr-namespace:HgSccHelper"
+    x:Name="root"
+    Loaded="Window_Loaded"
+    Unloaded="Window_Unloaded"
+    PreviewKeyDown="Window_PreviewKeyDown"
+    WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <DataTemplate x:Key="CheckBoxCell">
+            <CheckBox IsChecked="{Binding Path=IsChecked}"></CheckBox>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+            <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+                <Button Content="Diff Previous"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="File History"
+                        MinWidth="75" />
+                <Separator />
+            </ToolBar>
+        </ToolBarTray>
+        <StackPanel Grid.Row="1"
+                    Margin="5">
+            <Label Content="Commit Message:"></Label>
+            <TextBox Name="textCommitMessage"
+                     Text="{Binding CommitMessage}"
+                     MinLines="2" MaxLines="5"
+                     TextWrapping="WrapWithOverflow"
+                     AcceptsReturn="True"
+                     VerticalScrollBarVisibility="Auto"></TextBox>
+        </StackPanel>
+        <StackPanel Grid.Row="2"
+                    Margin="5">
+            <Label Content="Parent:"></Label>
+            <StackPanel>
+                <ItemsControl Name="parentsList">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" >
+                            </StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Mode=OneWay}"
+                                     Padding="5,1"
+                                     IsReadOnly="True"
+                                     Margin="0,0,5,0">
+                            </TextBox>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </StackPanel>
+        <Grid Grid.Row="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Content="Files:"></Label>
+            <ListView Grid.Row="1"
+                      Name="listFiles"
+                      MinHeight="75">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="X" Width="Auto" CellTemplate="{StaticResource CheckBoxCell}" />
+                        <GridViewColumn Header="Status" Width="Auto" DisplayMemberBinding="{Binding FileInfo.Status}" />
+                        <GridViewColumn Header="Merge" Width="Auto" DisplayMemberBinding="{Binding MergeStatus}" />
+                        <GridViewColumn Header="Path" Width="500" DisplayMemberBinding="{Binding PathViewString}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <CheckBox Grid.Row="2"
+                      Content="Check/Uncheck All"
+                      Name="checkAll"
+                      Margin="5"
+                      Checked="checkAll_Checked"
+                      Unchecked="checkAll_Unchecked"></CheckBox>
+        </Grid>
+        <StackPanel Grid.Row="4"
+                    Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Commit" MinWidth="75" MinHeight="25" Margin="0,5"
+                    Name="btnCommit"></Button>
+            <Button Content="Cancel" MinWidth="75" MinHeight="25" Margin="5"
+                    Name="btnCancel" IsCancel="True"></Button>
+        </StackPanel>
+    </Grid>
+</Window>

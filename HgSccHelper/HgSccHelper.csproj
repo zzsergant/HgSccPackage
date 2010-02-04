@@ -65,6 +65,9 @@
     <Compile Include="CommitForm.designer.cs">
       <DependentUpon>CommitForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="CommitWindow.xaml.cs">
+      <DependentUpon>CommitWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="FileHistoryWindow.xaml.cs">
       <DependentUpon>FileHistoryWindow.xaml</DependentUpon>
     </Compile>
@@ -149,6 +152,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="CommitWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="FileHistoryWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
