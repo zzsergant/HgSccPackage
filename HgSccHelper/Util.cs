@@ -14,17 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-/*
- * Uncomment to get support of extension methods on .Net FW 2.0 (in VS 2008)
-namespace System.Runtime.CompilerServices
-{
-	class ExtensionAttribute : Attribute
-	{
-
-	}
-}
-*/
-
 namespace HgSccHelper
 {
 	static class Util
