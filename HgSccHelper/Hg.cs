@@ -1006,6 +1006,12 @@ namespace HgSccHelper
 			// Identify output looks like:
 			// fb208ffc2324+ 15+
 			// where '+' means, that there are uncommited changes
+			//
+			// If there are active merge, then output will looks like:
+			// 1c12a72d2c7e+1df046e40fa9+ 1+2+
+
+			// FIXME: by default it shows short 6 bytes sha1
+			// to get full sha1 the --debug arg should be specified
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
@@ -1028,13 +1034,32 @@ namespace HgSccHelper
 							rev = rev.Substring(0, rev.Length - 1);
 						}
 
-						int revision;
-						if (int.TryParse(rev, out revision))
+						var sha1_items = sha1.Split(new char[] { '+' },
+							StringSplitOptions.RemoveEmptyEntries);
+
+						var rev_items = rev.Split(new char[] { '+' },
+							StringSplitOptions.RemoveEmptyEntries);
+
+						if (	sha1_items.Length == rev_items.Length
+							&&	sha1_items.Length > 0
+							)
 						{
-							info = new IdentifyInfo();
-							info.Rev = revision;
-							info.SHA1 = sha1;
-							info.HaveUncommitedChanges = have_uncommited_changes;
+							var ids = new List<IdentifyData>();
+							for(int i = 0; i < rev_items.Length; ++i)
+							{
+								int revision;
+								if (int.TryParse(rev_items[i], out revision))
+								{
+									ids.Add(new IdentifyData { Rev = revision, SHA1 = sha1_items[i] });
+								}
+							}
+
+							if (ids.Count > 0)
+							{
+								info = new IdentifyInfo();
+								info.HaveUncommitedChanges = have_uncommited_changes;
+								info.Parents = ids;
+							}
 						}
 					}
 				}
@@ -1282,11 +1307,35 @@ namespace HgSccHelper
 	}
 
 	//------------------------------------------------------------------
-	class IdentifyInfo
+	class IdentifyData
 	{
 		public int Rev { get; set; }
 		public string SHA1 { get; set; }
+	}
+
+	//------------------------------------------------------------------
+	class IdentifyInfo
+	{
+		public List<IdentifyData> Parents { get; set; }
 		public bool HaveUncommitedChanges { get; set; }
+		
+		//-----------------------------------------------------------------------------
+		public int Rev
+		{
+			get
+			{
+				return Parents[0].Rev;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		public string SHA1
+		{
+			get
+			{
+				return Parents[0].SHA1;
+			}
+		}
 	}
 
 	//------------------------------------------------------------------

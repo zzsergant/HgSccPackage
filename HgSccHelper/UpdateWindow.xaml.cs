@@ -109,14 +109,29 @@ namespace HgSccHelper
 				comboRevision.Items.Add(item);
 			}
 
-			var id = new UpdateComboItem();
-			id.GroupText = "Rev";
-			id.Rev = CurrentRevision.Rev;
-			id.Name = CurrentRevision.Rev.ToString();
-			id.SHA1 = CurrentRevision.SHA1;
-			id.Misc = CurrentRevision.HaveUncommitedChanges ? "Have uncommited changes" : "";
+			for (int i = 0; i < CurrentRevision.Parents.Count; ++i)
+			{
+				var parent = CurrentRevision.Parents[i];
 
-			comboRevision.Items.Add(id);
+				var id = new UpdateComboItem();
+				id.GroupText = "Rev";
+				id.Rev = parent.Rev;
+				id.Name = parent.Rev.ToString();
+				id.SHA1 = parent.SHA1;
+
+				var misc = new StringBuilder();
+				misc.Append("Parent");
+
+				if (CurrentRevision.Parents.Count > 1)
+					misc.Append((i + 1).ToString());
+
+				if (CurrentRevision.HaveUncommitedChanges)
+					misc.Append(" (Have uncommited changes)");
+
+				id.Misc = misc.ToString();
+
+				comboRevision.Items.Add(id);
+			}
 
 			var tags = Hg.Tags(WorkingDir);
 			foreach (var tag in tags)
