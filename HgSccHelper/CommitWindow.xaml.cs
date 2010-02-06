@@ -20,6 +20,14 @@ namespace HgSccHelper
 	/// </summary>
 	public partial class CommitWindow : Window
 	{
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand DiffPreviousCommand = new RoutedUICommand("Diff Previous",
+			"DiffPrevious", typeof(CommitWindow));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
+			"FileHistory", typeof(CommitWindow));
+
 		ObservableCollection<CommitItem> commit_items;
 		ObservableCollection<string> parents;
 
@@ -289,6 +297,87 @@ namespace HgSccHelper
 					Close();
 				}
 			}
+		}
+		
+		//------------------------------------------------------------------
+		private void DiffPrevious_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (listFiles != null && listFiles.SelectedItems.Count == 1)
+			{
+				var item = (CommitItem)listFiles.SelectedItem;
+				if (item.FileInfo.Status == HgFileStatus.Added
+					&& !String.IsNullOrEmpty(item.FileInfo.CopiedFrom))
+				{
+					e.CanExecute = true;
+				}
+				else if (item.FileInfo.Status == HgFileStatus.Modified)
+				{
+					e.CanExecute = true;
+				}
+			}
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void DiffPrevious_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var item = (CommitItem)listFiles.SelectedItem;
+
+			bool is_different = true;
+
+			try
+			{
+				Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
+
+			if (!is_different)
+			{
+				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
+					MessageBoxButton.OK, MessageBoxImage.Information);
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void ListFiles_MouseDoubleClick(object sender, MouseEventArgs e)
+		{
+			if (DiffPreviousCommand != null)
+			{
+				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
+					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void FileHistory_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+			if (listFiles != null && (listFiles.SelectedItems.Count == 1))
+				e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void FileHistory_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var item = (CommitItem)listFiles.SelectedItem;
+
+			FileHistoryWindow wnd = new FileHistoryWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.Rev = CurrentRevision.Rev.ToString();
+			wnd.FileName = item.FileInfo.File;
+			wnd.Owner = Window.GetWindow(this);
+
+			// TODO: Handle updates from file history dialog
+			wnd.ShowDialog();
+			// IsUpdated = IsUpdated || wnd.IsUpdated;
 		}
 	}
 

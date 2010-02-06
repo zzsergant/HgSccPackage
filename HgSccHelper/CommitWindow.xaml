@@ -4,12 +4,22 @@
     Title="CommitWindow"
     Height="Auto"
     Width="Auto"
-    xmlns:my="clr-namespace:HgSccHelper"
+    xmlns:local="clr-namespace:HgSccHelper"
     x:Name="root"
     Loaded="Window_Loaded"
     Unloaded="Window_Unloaded"
     PreviewKeyDown="Window_PreviewKeyDown"
     WindowStartupLocation="CenterScreen">
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
+                        CanExecute="DiffPrevious_CanExecute"
+                        Executed="DiffPrevious_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.FileHistoryCommand}"
+                        CanExecute="FileHistory_CanExecute"
+                        Executed="FileHistory_Executed">
+        </CommandBinding>
+    </Window.CommandBindings>
     <Window.Resources>
         <DataTemplate x:Key="CheckBoxCell">
             <CheckBox IsChecked="{Binding Path=IsChecked}"></CheckBox>
@@ -26,9 +36,11 @@
         <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
             <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                 <Button Content="Diff Previous"
+                        Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
                         MinWidth="75" />
                 <Separator />
                 <Button Content="File History"
+                        Command="{x:Static local:CommitWindow.FileHistoryCommand}"
                         MinWidth="75" />
                 <Separator />
             </ToolBar>
@@ -84,6 +96,27 @@
                         <GridViewColumn Header="Path" Width="500" DisplayMemberBinding="{Binding PathViewString}" />
                     </GridView>
                 </ListView.View>
+                <ListView.InputBindings>
+                    <KeyBinding Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
+                            Modifiers="Control" Key="D" />
+                    <KeyBinding Command="{x:Static local:CommitWindow.FileHistoryCommand}"
+                            Modifiers="Control" Key="H" />
+                </ListView.InputBindings>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
+                              InputGestureText="Ctrl + D"></MenuItem>
+                        <MenuItem Command="{x:Static local:CommitWindow.FileHistoryCommand}"
+                              InputGestureText="Ctrl + H"></MenuItem>
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                <ListView.Resources>
+                    <Style TargetType="ListViewItem">
+                        <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                        <EventSetter Event="MouseDoubleClick"
+                                 Handler="ListFiles_MouseDoubleClick" />
+                    </Style>
+                </ListView.Resources>
             </ListView>
             <CheckBox Grid.Row="2"
                       Content="Check/Uncheck All"
