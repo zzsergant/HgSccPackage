@@ -59,12 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChangeDesc.cs" />
-    <Compile Include="CommitForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CommitForm.designer.cs">
-      <DependentUpon>CommitForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="CommitWindow.xaml.cs">
       <DependentUpon>CommitWindow.xaml</DependentUpon>
     </Compile>
@@ -90,12 +84,6 @@
     <Compile Include="HgScc.cs" />
     <Compile Include="HgSccOptions.cs" />
     <Compile Include="HgThread.cs" />
-    <Compile Include="HistoryForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="HistoryForm.designer.cs">
-      <DependentUpon>HistoryForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Logger.cs" />
     <Compile Include="OptionsForm.cs">
       <SubType>Form</SubType>
@@ -129,17 +117,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="CommitForm.resx">
-      <DependentUpon>CommitForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="HgAboutControl.resx">
       <DependentUpon>HgAboutControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HgDiffOptionsControl.resx">
       <DependentUpon>HgDiffOptionsControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HistoryForm.resx">
-      <DependentUpon>HistoryForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="OptionsForm.resx">
       <DependentUpon>OptionsForm.cs</DependentUpon>
