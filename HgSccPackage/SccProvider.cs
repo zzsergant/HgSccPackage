@@ -665,7 +665,8 @@ namespace HgSccPackage
 
 			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
 
-			if (sccService.GetFileStatus(files[0]) != SourceControlStatus.scsUncontrolled)
+			if (files.Count == 1
+				&& sccService.GetFileStatus(files[0]) != SourceControlStatus.scsUncontrolled)
 			{
 				return OLECMDF.OLECMDF_ENABLED;
 			}
@@ -818,7 +819,8 @@ namespace HgSccPackage
 
 			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
 
-			if (sccService.GetFileStatus(files[0]) == SourceControlStatus.scsCheckedOut)
+			if (files.Count == 1
+				&& sccService.GetFileStatus(files[0]) == SourceControlStatus.scsCheckedOut)
 			{
 				return OLECMDF.OLECMDF_ENABLED;
 			}
