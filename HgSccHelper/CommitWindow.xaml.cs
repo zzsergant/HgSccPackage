@@ -48,7 +48,10 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public IEnumerable<string> ItemsToCheck { set; get; }
+		public IEnumerable<string> FilesToCommit { set; get; }
+
+		//------------------------------------------------------------------
+		public List<string> CommitedFiles { private set; get; }
 
 		//-----------------------------------------------------------------------------
 		private Hg Hg { get; set; }
@@ -150,9 +153,9 @@ namespace HgSccHelper
 			}
 
 			var dict = new C5.HashDictionary<string, HgFileStatus>();
-			if (ItemsToCheck != null)
+			if (FilesToCommit != null)
 			{
-				foreach (var f in ItemsToCheck)
+				foreach (var f in FilesToCommit)
 				{
 					string file;
 					if (!Util.GetRelativePath(WorkingDir, f, out file))
@@ -202,57 +205,11 @@ namespace HgSccHelper
 				}
 			}
 
+			// Check all items if FilesToCommit is empty
+			if (dict.Count == 0)
+				checkAll.IsChecked = true;
+
 			return true;
-
-/*
-				form.SetItems(commit_files);
-
-				if (form.ShowDialog() == DialogResult.OK)
-				{
-					var checked_files = form.GetCheckedItems();
-					if (checked_files.Count == 0)
-						return SccErrors.Ok;
-
-					Logger.WriteLine("Checked: {0}, Commit: {1}, Status: {2}",
-						checked_files.Count, commit_files.Count, files_status_dict.Count);
-
-					SccErrors error = SccErrors.UnknownError;
-
-					var to_commit_files = new List<string>();
-					foreach (var commit_item in checked_files)
-					{
-						to_commit_files.Add(commit_item.FileInfo.File);
-					}
-
-					if (checked_files.Count == commit_files.Count)
-					{
-						error = CommitAll(hwnd, form.Comment);
-					}
-					else if (to_commit_files.Count > 0)
-					{
-						error = CheckInInternal(hwnd, to_commit_files, form.Comment);
-					}
-					else
-					{
-						return SccErrors.Ok;
-					}
-
-					if (error == SccErrors.Ok)
-					{
-						foreach (var f in to_commit_files)
-						{
-							commited_files_list.Add(Path.GetFullPath(Path.Combine(WorkingDir, f)));
-						}
-					}
-
-					return error;
-				}
-				else
-				{
-					return SccErrors.I_OperationCanceled;
-				}
-			}
-*/
 		}
 
 		//------------------------------------------------------------------
@@ -260,6 +217,78 @@ namespace HgSccHelper
 		{
 			if (e.Key == Key.Escape)
 				Close();
+		}
+
+		//------------------------------------------------------------------
+		private void btnCommit_Click(object sender, RoutedEventArgs e)
+		{
+			if (String.IsNullOrEmpty(CommitMessage))
+			{
+				MessageBox.Show("You should specify commit message", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+				return;
+			}
+
+			if (IsMergeActive)
+			{
+				MessageBox.Show("Commit for merges is not yet supported", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+				return;
+			}
+			else
+			{
+				var checked_items = from item in commit_items
+									where item.IsChecked
+									select item;
+
+				var checked_list = checked_items.ToList();
+				if (checked_list.Count == 0)
+				{
+					DialogResult = false;
+					Close();
+				}
+
+				var to_commit_files = new List<string>();
+				foreach (var commit_item in checked_list)
+				{
+					to_commit_files.Add(commit_item.FileInfo.File);
+				}
+
+				bool result = false;
+
+				if (checked_list.Count == commit_items.Count)
+				{
+					result = Hg.CommitAll(WorkingDir, CommitMessage);
+				}
+				else if (to_commit_files.Count > 0)
+				{
+					try
+					{
+						result = Hg.Commit(WorkingDir, to_commit_files, CommitMessage);
+					}
+					catch (HgCommandLineException)
+					{
+						MessageBox.Show("Resulted command line for hg.exe is too long. In this situation you can only commit all changed files (which is equivalent to invoking hg.exe without specified files).", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+						return;
+					}					
+				}
+				else
+				{
+					return;
+				}
+
+				if (result)
+				{
+					CommitedFiles = new List<string>();
+
+					foreach (var f in to_commit_files)
+					{
+						CommitedFiles.Add(System.IO.Path.GetFullPath(
+							System.IO.Path.Combine(WorkingDir, f)));
+					}
+
+					DialogResult = true;
+					Close();
+				}
+			}
 		}
 	}
 
