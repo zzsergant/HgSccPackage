@@ -308,13 +308,24 @@ namespace HgSccPackage
 				Logger.WriteLine("Commit: {0}", f);
 			}
 
-
-			var error = hgscc.Commit(IntPtr.Zero, files, "", out commited_files);
-			if (error == SccErrors.Ok)
+			using (var proxy = new WpfToWinFormsProxy<CommitWindow>())
 			{
-				UpdateCache(commited_files);
+				var wnd = proxy.Wnd;
+				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.FilesToCommit = files;
+
+				proxy.ShowDialog();
+
+				if (wnd.DialogResult == true)
+				{
+					commited_files = wnd.CommitedFiles;
+					UpdateCache(commited_files);
+					return SccErrors.Ok;
+				}
 			}
-			return error;
+
+			commited_files = new List<string>();
+			return SccErrors.OpNotPerformed;
 		}
 
 		//------------------------------------------------------------------
