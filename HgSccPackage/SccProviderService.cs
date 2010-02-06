@@ -1713,15 +1713,11 @@ namespace HgSccPackage
 				if (err != VSConstants.S_OK || doc_data == IntPtr.Zero)
 					continue;
 
-				try
+				var doc = Marshal.GetObjectForIUnknown(doc_data) as IVsPersistDocData;
+				if (doc != null)
 				{
-					var doc = (IVsPersistDocData) Marshal.GetObjectForIUnknown(doc_data);
 					doc_list.Add(doc);
 					fileChange.IgnoreFile(0, f, 1);
-				}
-				catch(InvalidCastException)
-				{
-//					Logger.WriteLine("Ex: {0}, {1}", f, ex.ToString());
 				}
 			}
 
