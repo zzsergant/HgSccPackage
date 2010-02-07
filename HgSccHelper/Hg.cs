@@ -1250,6 +1250,35 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public bool Copy(string work_dir, string dest_path, string src_path, HgCopyOptions options)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("copy");
+
+			if ((options & HgCopyOptions.Force) == HgCopyOptions.Force)
+				args.Append(" -f");
+
+			if ((options & HgCopyOptions.After) == HgCopyOptions.After)
+				args.Append(" -A");
+
+			args.Append(" " + src_path.Quote());
+			args.Append(" " + dest_path.Quote());
+
+
+			if (args.Length > MaxCmdLength)
+				throw new ArgumentException("Command line length is too long");
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return false;
+			}
+
+			return true;
+		}
+
+		//-----------------------------------------------------------------------------
 		public bool RemoveTag(string work_dir, string tag, HgTagOptions option)
 		{
 			StringBuilder args = new StringBuilder();
@@ -1289,6 +1318,15 @@ namespace HgSccHelper
 		None	= 0x00,
 		Force	= 0x01,
 		Local	= 0x02
+	}
+
+	//------------------------------------------------------------------
+	[Flags]
+	enum HgCopyOptions
+	{
+		None = 0x00,
+		Force = 0x01,
+		After = 0x02
 	}
 
 	//-----------------------------------------------------------------------------
