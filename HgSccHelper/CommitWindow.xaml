@@ -27,6 +27,14 @@
                         CanExecute="DiffParent_CanExecute"
                         Executed="DiffParent2_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.MarkResolvedCommand}"
+                        CanExecute="MarkResolved_CanExecute"
+                        Executed="MarkResolved_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.MarkUnresolvedCommand}"
+                        CanExecute="MarkUnresolved_CanExecute"
+                        Executed="MarkUnresolved_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
     <Window.Resources>
         <DataTemplate x:Key="CheckBoxCell">
@@ -54,11 +62,16 @@
                 <Button Content="Diff Parent 1"
                         Command="{x:Static local:CommitWindow.DiffParent1Command}"
                         MinWidth="75" />
-                <Separator />
                 <Button Content="Diff Parent 2"
                         Command="{x:Static local:CommitWindow.DiffParent2Command}"
                         MinWidth="75" />
                 <Separator />
+                <Button Content="Mark Resolved"
+                        Command="{x:Static local:CommitWindow.MarkResolvedCommand}"
+                        MinWidth="75" />
+                <Button Content="Mark Unresolved"
+                        Command="{x:Static local:CommitWindow.MarkUnresolvedCommand}"
+                        MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
         <StackPanel Grid.Row="1"
@@ -123,9 +136,15 @@
                               InputGestureText="Ctrl + D"></MenuItem>
                         <MenuItem Command="{x:Static local:CommitWindow.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
+                        <Separator />
                         <MenuItem Command="{x:Static local:CommitWindow.DiffParent1Command}"
                               ></MenuItem>
                         <MenuItem Command="{x:Static local:CommitWindow.DiffParent2Command}"
+                              ></MenuItem>
+                        <Separator />
+                        <MenuItem Command="{x:Static local:CommitWindow.MarkResolvedCommand}"
+                              ></MenuItem>
+                        <MenuItem Command="{x:Static local:CommitWindow.MarkUnresolvedCommand}"
                               ></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>

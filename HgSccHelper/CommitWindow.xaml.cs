@@ -36,6 +36,14 @@ namespace HgSccHelper
 		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
 			"FileHistory", typeof(CommitWindow));
 
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand MarkResolvedCommand = new RoutedUICommand("Mark Resolved",
+			"MarkResolved", typeof(CommitWindow));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand MarkUnresolvedCommand = new RoutedUICommand("Mark Unresolved",
+			"MarkUnresolved", typeof(CommitWindow));
+
 		ObservableCollection<CommitItem> commit_items;
 		ObservableCollection<string> parents;
 
@@ -448,6 +456,68 @@ namespace HgSccHelper
 			{
 				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
 					MessageBoxButton.OK, MessageBoxImage.Information);
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void MarkResolved_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (listFiles != null && listFiles.SelectedItems.Count == 1)
+			{
+				if (IsMergeActive)
+				{
+					var item = (CommitItem)listFiles.SelectedItem;
+					if (item.ResolveStatus == ResolveStatus.Unresolved)
+						e.CanExecute = true;
+				}
+			}
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void MarkResolved_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var item = (CommitItem)listFiles.SelectedItem;
+
+			var hg_resolve = new HgResolve();
+			if (hg_resolve.MarkAsResolved(WorkingDir, new[] { item.FileInfo.File }))
+			{
+				item.ResolveStatus = ResolveStatus.Resolved;
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void MarkUnresolved_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (listFiles != null && listFiles.SelectedItems.Count == 1)
+			{
+				if (IsMergeActive)
+				{
+					var item = (CommitItem)listFiles.SelectedItem;
+					if (item.ResolveStatus == ResolveStatus.Resolved)
+						e.CanExecute = true;
+				}
+			}
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void MarkUnresolved_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var item = (CommitItem)listFiles.SelectedItem;
+
+			var hg_resolve = new HgResolve();
+			if (hg_resolve.MarkAsUnresolved(WorkingDir, new[] { item.FileInfo.File }))
+			{
+				item.ResolveStatus = ResolveStatus.Unresolved;
 			}
 
 			e.Handled = true;
