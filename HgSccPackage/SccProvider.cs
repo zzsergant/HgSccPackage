@@ -1805,7 +1805,7 @@ namespace HgSccPackage
 				pHier.GetProperty(itemid, (int) __VSHPROPID.VSHPROPID_Name, out property) ==
 				VSConstants.S_OK)
 			{
-				Logger.WriteLine("Walking hierarchy node: {0}", (string) property);
+				//Logger.WriteLine("Walking hierarchy node: {0}", (string) property);
 			}
 		}
 
