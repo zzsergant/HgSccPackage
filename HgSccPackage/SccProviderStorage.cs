@@ -244,7 +244,7 @@ namespace HgSccPackage
 				{
 					file.Status = FromHgStatus(info.Status);
 				}
-				Logger.WriteLine("GetFileStatus: {0} = {1}", file.File, file.Status);
+				//Logger.WriteLine("GetFileStatus: {0} = {1}", file.File, file.Status);
 			}
 
 			return SccErrors.Ok;
@@ -277,7 +277,7 @@ namespace HgSccPackage
 					statuses[i] = FromHgStatus(info.Status);
 				}
 
-				Logger.WriteLine("GetFileStatus: {0} = {1}", files[i], statuses[i]);
+				//Logger.WriteLine("GetFileStatus: {0} = {1}", files[i], statuses[i]);
 			}
 
 			return SccErrors.Ok;
@@ -551,6 +551,30 @@ namespace HgSccPackage
 
 				proxy.ShowDialog();
 			}
+		}
+
+		//------------------------------------------------------------------
+		public bool IsPathUnderRoot(string path)
+		{
+			if (!IsValid)
+				return false;
+
+			return path.ToLower().StartsWith(hgscc.WorkingDir.ToLower());
+		}
+
+		//------------------------------------------------------------------
+		public bool Copy(string new_path, string old_path)
+		{
+			if (!IsValid)
+				return false;
+
+			bool is_after_copy_occured = true;
+			var err = hgscc.Copy(IntPtr.Zero, new_path, old_path, is_after_copy_occured);
+			if (err == SccErrors.Ok)
+			{
+				UpdateCache(new []{new_path});
+			}
+			return err == SccErrors.Ok;
 		}
 	}
 }

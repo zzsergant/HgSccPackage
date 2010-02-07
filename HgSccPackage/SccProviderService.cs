@@ -63,6 +63,7 @@ namespace HgSccPackage
 
 		private IVsRunningDocumentTable rdt;
 
+		private readonly C5.HashDictionary<string, string> add_origin = new C5.HashDictionary<string, string>();
 //		private SccFileChangesManager file_changes;
 
 		#region SccProvider Service initialization/unitialization
@@ -1074,6 +1075,8 @@ namespace HgSccPackage
 		public int OnAfterAddFilesEx([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSADDFILEFLAGS[] rgFlags)
 		{
 			var files = new List<string>();
+			var copy_files = new C5.HashDictionary<string, string>();
+
 			var selected_items = new List<VSITEMSELECTION>();
 
 			// Start by iterating through all projects calling this function
@@ -1098,10 +1101,36 @@ namespace HgSccPackage
 				// Now that we know which files belong to this project, iterate the project files
 				for (int iFile = iProjectFilesStart; iFile < iNextProjecFilesStart; iFile++)
 				{
+					
+					string old_name;
+					if (add_origin.Find(rgpszMkDocuments[iFile], out old_name))
+					{
+						copy_files[rgpszMkDocuments[iFile]] = old_name;
+						add_origin.Remove(rgpszMkDocuments[iFile]);
+					}
+					else
+					{
+						files.Add(rgpszMkDocuments[iFile]);
+					}
+
 					// Refresh the solution explorer glyphs for all projects containing this file
 					System.Collections.Generic.IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgpszMkDocuments[iFile]);
-					files.Add(rgpszMkDocuments[iFile]);
 					selected_items.AddRange(nodes);
+				}
+			}
+
+			foreach (var pair in copy_files)
+			{
+				var new_path = pair.Key;
+				var old_path = pair.Value;
+
+				Logger.WriteLine("Copying file: {0} from {1}",
+					new_path, old_path);
+
+				if (!storage.Copy(new_path, old_path))
+				{
+					Logger.WriteLine("Copy failed");
+					files.Add(new_path);
 				}
 			}
 
@@ -1115,6 +1144,18 @@ namespace HgSccPackage
 			{
 				// If saving the files failed, don't continue with the checkin
 				//				return;
+			}
+
+			if (add_origin.Count != 0)
+			{
+				foreach (var pair in copy_files)
+				{
+					var new_path = pair.Key;
+					var old_path = pair.Value;
+
+					Logger.WriteLine("Origin for file: {0} from {1}",
+						new_path, old_path);
+				}
 			}
 
 			return VSConstants.S_OK;
@@ -1809,8 +1850,76 @@ namespace HgSccPackage
 		/// <param name="rgResults">[out] An array that is to be filled in with the status of each file. Each status is a value from the <see cref="T:Microsoft.VisualStudio.Shell.Interop.VSQUERYADDFILERESULTS" /> enumeration.</param>
 		public int OnQueryAddFilesEx(IVsProject pProject, int cFiles, string[] rgpszNewMkDocuments, string[] rgpszSrcMkDocuments, VSQUERYADDFILEFLAGS[] rgFlags, VSQUERYADDFILERESULTS[] pSummaryResult, VSQUERYADDFILERESULTS[] rgResults)
 		{
-			Logger.WriteLine("OnQueryAddFilesEx");
-			return VSConstants.E_NOTIMPL;
+			pSummaryResult[0] = VSQUERYADDFILERESULTS.VSQUERYADDFILERESULTS_AddOK;
+			if (rgResults != null)
+			{
+				for (int iFile = 0; iFile < cFiles; iFile++)
+				{
+					Logger.WriteLine("OnQueryAddFilesEx: [{0}]: {1} to {2}",
+						iFile, rgpszSrcMkDocuments[iFile], rgpszNewMkDocuments[iFile]);
+					rgResults[iFile] = VSQUERYADDFILERESULTS.VSQUERYADDFILERESULTS_AddOK;
+				}
+			}
+
+			try
+			{
+				var sccProject = pProject as IVsSccProject2;
+				var pHier = pProject as IVsHierarchy;
+				string projectName = null;
+				if (sccProject == null)
+				{
+					// This is the solution calling
+					pHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
+					projectName = _sccProvider.GetSolutionFileName();
+				}
+				else
+				{
+					// If the project doesn't support source control, it will be skipped
+					if (sccProject != null)
+					{
+						projectName = _sccProvider.GetProjectFileName(sccProject);
+					}
+				}
+
+				if (projectName != null)
+				{
+					for (int iFile = 0; iFile < cFiles; iFile++)
+					{
+						if (storage != null && rgpszSrcMkDocuments[iFile] != rgpszNewMkDocuments[iFile])
+						{
+							SourceControlStatus status = storage.GetFileStatus(rgpszSrcMkDocuments[iFile]);
+							if (status != SourceControlStatus.scsUncontrolled)
+							{
+								if (storage.IsPathUnderRoot(rgpszNewMkDocuments[iFile]))
+								{
+									Logger.WriteLine("Add origin: {0} from {1}",
+										rgpszNewMkDocuments[iFile], rgpszSrcMkDocuments[iFile]);
+
+									var new_path = System.IO.Path.Combine(rgpszNewMkDocuments[iFile],
+										System.IO.Path.GetFileName(rgpszSrcMkDocuments[iFile]));
+
+									add_origin[new_path] = rgpszSrcMkDocuments[iFile];
+								}
+							}
+						}
+					}
+				}
+			}
+			catch (Exception)
+			{
+				add_origin.Clear();
+
+				pSummaryResult[0] = VSQUERYADDFILERESULTS.VSQUERYADDFILERESULTS_AddNotOK;
+				if (rgResults != null)
+				{
+					for (int iFile = 0; iFile < cFiles; iFile++)
+					{
+						rgResults[iFile] = VSQUERYADDFILERESULTS.VSQUERYADDFILERESULTS_AddNotOK;
+					}
+				}
+			}
+
+			return VSConstants.S_OK;
 		}
 
 		/// <summary>
@@ -1825,7 +1934,11 @@ namespace HgSccPackage
 		public int HandsOffFiles(uint grfRequiredAccess, int cFiles, string[] rgpszMkDocuments)
 		{
 			Logger.WriteLine("HandsOffFiles");
-			return VSConstants.E_NOTIMPL;
+			foreach (var f in rgpszMkDocuments)
+			{
+				Logger.WriteLine("HOff: {0}", f);
+			}
+			return VSConstants.S_OK;
 		}
 
 		/// <summary>
@@ -1839,7 +1952,12 @@ namespace HgSccPackage
 		public int HandsOnFiles(int cFiles, string[] rgpszMkDocuments)
 		{
 			Logger.WriteLine("HandsOnFiles");
-			return VSConstants.E_NOTIMPL;
+			foreach (var f in rgpszMkDocuments)
+			{
+				Logger.WriteLine("HOn: {0}", f);
+			}
+
+			return VSConstants.S_OK;
 		}
 
 		#endregion

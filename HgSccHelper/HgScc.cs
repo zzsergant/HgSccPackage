@@ -298,6 +298,25 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public SccErrors Copy(IntPtr hwnd, string dest_path, string src_path, bool is_after_copy_occured)
+		{
+			string local_dest;
+			string local_src;
+			
+			if (!GetRelativePath(src_path, out local_src))
+				return SccErrors.InvalidFilePath;
+
+			if (!GetRelativePath(dest_path, out local_dest))
+				return SccErrors.InvalidFilePath;
+
+			var options = is_after_copy_occured ? HgCopyOptions.After : HgCopyOptions.None;
+			if (!hg.Copy(WorkingDir, local_dest, local_src, options))
+				return SccErrors.OpNotPerformed;
+
+			return SccErrors.Ok;
+		}
+
+		//-----------------------------------------------------------------------------
 		public SccErrors CommitAll(IntPtr hwnd, string comment)
 		{
 			if (!hg.CommitAll(WorkingDir, comment))
