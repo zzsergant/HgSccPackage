@@ -70,10 +70,15 @@ namespace HgSccHelper
 					case 'I': info.Status = HgFileStatus.Ignored; break;
 					case ' ':
 						{
-							if (prev != null && prev.Status == HgFileStatus.Added)
+							if (prev != null)
 							{
-								prev.CopiedFrom = file_path;
-//								Logger.WriteLine(String.Format("File: {0} copied from {1}", prev.File, prev.CopiedFrom));
+								if (	prev.Status == HgFileStatus.Added
+									||	prev.Status == HgFileStatus.Modified
+									)
+								{
+									prev.CopiedFrom = file_path;
+									// Logger.WriteLine(String.Format("File: {0} copied from {1}", prev.File, prev.CopiedFrom));
+								}
 							}
 
 							prev = null;
