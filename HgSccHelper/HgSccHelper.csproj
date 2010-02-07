@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="HgFileStatus.cs" />
     <Compile Include="HgOptionsHelper.cs" />
+    <Compile Include="HgResolve.cs" />
     <Compile Include="HgScc.cs" />
     <Compile Include="HgSccOptions.cs" />
     <Compile Include="HgThread.cs" />

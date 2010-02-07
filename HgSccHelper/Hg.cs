@@ -417,7 +417,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private bool RunHg(string work_dir, string args)
+		public bool RunHg(string work_dir, string args)
 		{
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
