@@ -122,7 +122,21 @@ namespace HgSccHelper
 			}
 
 			listFiles.ItemsSource = commit_items;
-			parentsList.ItemsSource = parents;
+
+			if (IsMergeActive)
+			{
+				textParent1.Text = parents[0];
+				textParent2.Text = parents[1];
+			}
+			else
+			{
+				parentsGrid.ColumnDefinitions.RemoveAt(1);
+				
+				// FIXME: It should be textParent1, but
+				// after removing column definition from the grid
+				// it leaves textParent2 textBox
+				textParent2.Text = parents[0];
+			}
 			textCommitMessage.Focus();
 		}
 
