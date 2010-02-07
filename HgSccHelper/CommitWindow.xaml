@@ -19,6 +19,14 @@
                         CanExecute="FileHistory_CanExecute"
                         Executed="FileHistory_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.DiffParent1Command}"
+                        CanExecute="DiffParent_CanExecute"
+                        Executed="DiffParent1_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.DiffParent2Command}"
+                        CanExecute="DiffParent_CanExecute"
+                        Executed="DiffParent2_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
     <Window.Resources>
         <DataTemplate x:Key="CheckBoxCell">
@@ -41,6 +49,14 @@
                 <Separator />
                 <Button Content="File History"
                         Command="{x:Static local:CommitWindow.FileHistoryCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Diff Parent 1"
+                        Command="{x:Static local:CommitWindow.DiffParent1Command}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Diff Parent 2"
+                        Command="{x:Static local:CommitWindow.DiffParent2Command}"
                         MinWidth="75" />
                 <Separator />
             </ToolBar>
@@ -107,6 +123,10 @@
                               InputGestureText="Ctrl + D"></MenuItem>
                         <MenuItem Command="{x:Static local:CommitWindow.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
+                        <MenuItem Command="{x:Static local:CommitWindow.DiffParent1Command}"
+                              ></MenuItem>
+                        <MenuItem Command="{x:Static local:CommitWindow.DiffParent2Command}"
+                              ></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.Resources>

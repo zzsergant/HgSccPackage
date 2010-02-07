@@ -25,6 +25,14 @@ namespace HgSccHelper
 			"DiffPrevious", typeof(CommitWindow));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand DiffParent1Command = new RoutedUICommand("Diff Parent 1",
+			"DiffParent1", typeof(CommitWindow));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand DiffParent2Command = new RoutedUICommand("Diff Parent 2",
+			"DiffParent2", typeof(CommitWindow));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
 			"FileHistory", typeof(CommitWindow));
 
@@ -361,6 +369,75 @@ namespace HgSccHelper
 			try
 			{
 				Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
+
+			if (!is_different)
+			{
+				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
+					MessageBoxButton.OK, MessageBoxImage.Information);
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void DiffParent_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (listFiles != null && listFiles.SelectedItems.Count == 1)
+			{
+				if (IsMergeActive)
+				{
+					var item = (CommitItem)listFiles.SelectedItem;
+					if (item.ResolveStatus != ResolveStatus.None)
+						e.CanExecute = true;
+				}
+			}
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void DiffParent1_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var item = (CommitItem)listFiles.SelectedItem;
+
+			bool is_different = true;
+
+			try
+			{
+				Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
+					CurrentRevision.Parents[0].SHA1, out is_different);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
+
+			if (!is_different)
+			{
+				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
+					MessageBoxButton.OK, MessageBoxImage.Information);
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void DiffParent2_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var item = (CommitItem)listFiles.SelectedItem;
+
+			bool is_different = true;
+
+			try
+			{
+				Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
+					CurrentRevision.Parents[1].SHA1, out is_different);
 			}
 			catch (HgDiffException)
 			{

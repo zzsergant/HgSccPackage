@@ -294,7 +294,16 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<string> Manifest(string work_dir)
 		{
+			return Manifest(work_dir, "");
+		}
+
+		//-----------------------------------------------------------------------------
+		public List<string> Manifest(string work_dir, string revision)
+		{
 			string args = "manifest";
+			if (revision.Length != 0)
+				args += " -r " + revision;
+
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args)))
 			{
 				var reader = proc.StandardOutput;
@@ -606,6 +615,69 @@ namespace HgSccHelper
 			}
 		}
 */
+		//-----------------------------------------------------------------------------
+		/// <summary>
+		/// Call diff tool for a file in workspace to compare with parent_revision
+		/// </summary>
+		public bool DiffWithRevision(string work_dir, string file, string parent_revision, out bool is_different)
+		{
+			is_different = true;
+
+			var files = Status(work_dir, file);
+			if (files.Count != 1)
+				return false;
+
+			var file_info = files[0];
+			if (String.IsNullOrEmpty(file_info.CopiedFrom))
+			{
+				string temp1 = Path.GetTempFileName();
+				try
+				{
+					if (!CheckoutFile(work_dir, file_info.File, parent_revision, temp1))
+					{
+						return false;
+					}
+
+					return RunDiffTool(temp1, Path.Combine(work_dir, file));
+				}
+				finally
+				{
+					File.Delete(temp1);
+				}
+			}
+			else
+			{
+				var hg_files = Manifest(work_dir, parent_revision);
+				
+				var file_manifest_compatible = file_info.File.Replace('\\', '/');
+				var file_copied_from = file_info.CopiedFrom.Replace('\\', '/');
+				
+				string parent_filename = null;
+				if (hg_files.Contains(file_manifest_compatible))
+					parent_filename = file_info.File;
+				else
+					if (hg_files.Contains(file_copied_from))
+						parent_filename = file_info.CopiedFrom;
+					else
+						return false;
+
+				string temp1 = Path.GetTempFileName();
+				try
+				{
+					if (!CheckoutFile(work_dir, parent_filename, parent_revision, temp1))
+					{
+						return false;
+					}
+
+					return RunDiffTool(temp1, Path.Combine(work_dir, file));
+				}
+				finally
+				{
+					File.Delete(temp1);
+				}
+			}
+		}
+
 
 		//-----------------------------------------------------------------------------
 		public bool Diff(string work_dir, string file, out bool is_different)
@@ -613,16 +685,9 @@ namespace HgSccHelper
 			is_different = true;
 
 			var files = Status(work_dir, file);
-/*
-			Logger.WriteLine("KDiff, files count = " + files.Count);
-			foreach (var f in files)
-			{
-				Logger.WriteLine(String.Format("[File = {0}, Status = {1}, CopiedFrom = {2}]", f.File, f.Status, f.CopiedFrom));
-			}
-*/
 
 			if (	files.Count == 1
-				&&	files[0].Status == HgFileStatus.Added
+				&&	(files[0].Status == HgFileStatus.Added || files[0].Status == HgFileStatus.Modified)
 				&&	files[0].CopiedFrom != null)
 			{
 				var file_info = files[0];
@@ -636,7 +701,6 @@ namespace HgSccHelper
 						return false;
 					}
 
-//					Logger.WriteLine("KDiffing: " + temp1 + ", " + file);
 					return RunDiffTool(temp1, Path.Combine(work_dir, file));
 				}
 				finally
@@ -655,11 +719,11 @@ namespace HgSccHelper
 				{
 					if (!CheckoutFile(work_dir, file_info.File, "", temp1))
 					{
-						//						Logger.WriteLine("Checkout failed: " + file_info.CopiedFrom);
+						// Logger.WriteLine("Checkout failed: " + file_info.CopiedFrom);
 						return false;
 					}
 
-					//					Logger.WriteLine("KDiffing: " + temp1 + ", " + file);
+					// Logger.WriteLine("KDiffing: " + temp1 + ", " + file);
 					return RunDiffTool(temp1, Path.Combine(work_dir, file));
 				}
 				finally
