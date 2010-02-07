@@ -153,6 +153,15 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private bool Prepare()
 		{
+			var resolve_dict = new C5.HashDictionary<string, ResolveStatus>();
+			if (IsMergeActive)
+			{
+				var hg_resolve = new HgResolve();
+				var resolve_list = hg_resolve.List(WorkingDir);
+				foreach (var file in resolve_list)
+					resolve_dict[file.Path.ToLower()] = file.Status;
+			}
+
 			var files_status_dict = new C5.HashDictionary<string, HgFileInfo>();
 
 			foreach (var file_status in Hg.Status(WorkingDir))
@@ -188,6 +197,14 @@ namespace HgSccHelper
 							string lower_f = f.File.ToLower();
 							item.IsChecked = dict.Contains(lower_f);
 							item.FileInfo = f;
+							item.ResolveStatus = ResolveStatus.None;
+
+							if (IsMergeActive)
+							{
+								var resolve_status = ResolveStatus.None;
+								if (resolve_dict.Find(lower_f, out resolve_status))
+									item.ResolveStatus = resolve_status;
+							}
 
 							commit_items.Add(item);
 							if (f.Status == HgFileStatus.Removed)
@@ -399,13 +416,16 @@ namespace HgSccHelper
 		public HgFileInfo FileInfo { get; set; }
 
 		//-----------------------------------------------------------------------------
-		public string MergeStatus
+		public ResolveStatus ResolveStatus
 		{
-			get
-			{
-				return "M";
-			}
+			get { return (ResolveStatus)this.GetValue(ResolveStatusProperty); }
+			set { this.SetValue(ResolveStatusProperty, value); }
 		}
+
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty ResolveStatusProperty =
+			DependencyProperty.Register("ResolveStatus", typeof(ResolveStatus),
+			typeof(CommitItem));
 
 		//-----------------------------------------------------------------------------
 		public string PathViewString
