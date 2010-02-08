@@ -23,6 +23,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Collections.ObjectModel;
 
 namespace HgSccHelper
 {
@@ -44,6 +45,7 @@ namespace HgSccHelper
 		DispatcherTimer timer;
 		RevLogChangeDesc Target { get; set; }
 		IdentifyInfo CurrentRevision { get; set; }
+		ObservableCollection<string> parents;
 
 		//------------------------------------------------------------------
 		public UpdateWindow()
@@ -70,6 +72,9 @@ namespace HgSccHelper
 					editTextBox.TextChanged -= OnComboTextChanged;
 				}
 			};
+
+			parents = new ObservableCollection<string>();
+			listParents.ItemsSource = parents;
 		}
 
 		//------------------------------------------------------------------
@@ -88,6 +93,9 @@ namespace HgSccHelper
 				Close();
 				return;
 			}
+
+			foreach (var parent in CurrentRevision.Parents)
+				parents.Add(Hg.GetRevisionDesc(WorkingDir, parent.SHA1).GetDescription());
 
 			if (!string.IsNullOrEmpty(TargetRevision))
 			{

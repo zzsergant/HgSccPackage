@@ -51,6 +51,7 @@
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Content="Update to:"
                        Margin="5"></Label>
@@ -70,6 +71,22 @@
                          Margin="5"
                          Name="targetDesc" IsReadOnly="True">
                 </TextBox>
+                <Label Grid.Row="3" Grid.Column="0" Content="Parent:"></Label>
+                <ItemsControl Grid.Row="3" Grid.Column="1" Name="listParents">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel></StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBox Margin="5"
+                                     Text="{Binding Mode=OneWay}"
+                                     IsReadOnly="True">
+                            </TextBox>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </Grid>
             <StackPanel HorizontalAlignment="Right"
                         Orientation="Horizontal">
