@@ -53,6 +53,18 @@ namespace HgSccHelper
 			get { return (bool)this.GetValue(IsCurrentProperty); }
 			set { this.SetValue(IsCurrentProperty, value); }
 		}
+
+		//-----------------------------------------------------------------------------
+		public static readonly System.Windows.DependencyProperty BranchInfoProperty =
+			System.Windows.DependencyProperty.Register("BranchInfo", typeof(BranchInfo),
+			typeof(RevLogLinesPair));
+
+		//-----------------------------------------------------------------------------
+		internal BranchInfo BranchInfo
+		{
+			get { return (BranchInfo)this.GetValue(BranchInfoProperty); }
+			set { this.SetValue(BranchInfoProperty, value); }
+		}
 	}
 
 

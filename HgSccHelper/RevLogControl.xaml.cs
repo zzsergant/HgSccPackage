@@ -85,6 +85,9 @@ namespace HgSccHelper
 		IdentifyInfo CurrentRevision { get; set; }
 
 		//------------------------------------------------------------------
+		C5.HashDictionary<string, BranchInfo> Branches { get; set; }
+
+		//------------------------------------------------------------------
 		public RevLogControl()
 		{
 			InitializeComponent();
@@ -109,9 +112,16 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
 		{
-			CurrentRevision = new Hg().Identify(WorkingDir);
+			var hg = new Hg();
+			CurrentRevision = hg.Identify(WorkingDir);
 			if (CurrentRevision == null)
 				return;
+
+			Branches = new C5.HashDictionary<string, BranchInfo>();
+			foreach (var branch in hg.Branches(WorkingDir))
+			{
+				Branches[branch.SHA1] = branch;
+			}
 
 			timer = new DispatcherTimer();
 			timer.Interval = TimeSpan.FromMilliseconds(50);
@@ -357,6 +367,10 @@ namespace HgSccHelper
 					break;
 				}
 			}
+
+			BranchInfo branch_info;
+			if (Branches.Find(sha1, out branch_info))
+				new_lines_pair.BranchInfo = branch_info;
 
 			rev_lines.Add(new_lines_pair);
 
