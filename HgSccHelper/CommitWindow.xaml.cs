@@ -44,6 +44,10 @@ namespace HgSccHelper
 		public static RoutedUICommand MarkUnresolvedCommand = new RoutedUICommand("Mark Unresolved",
 			"MarkUnresolved", typeof(CommitWindow));
 
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand RestartMergeCommand = new RoutedUICommand("Restart Merge",
+			"RestartMerge", typeof(CommitWindow));
+
 		ObservableCollection<CommitItem> commit_items;
 		ObservableCollection<string> parents;
 
@@ -550,6 +554,37 @@ namespace HgSccHelper
 			if (hg_resolve.MarkAsUnresolved(WorkingDir, new[] { item.FileInfo.File }))
 			{
 				item.ResolveStatus = ResolveStatus.Unresolved;
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void RestartMerge_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (listFiles != null && listFiles.SelectedItems.Count == 1)
+			{
+				if (IsMergeActive)
+				{
+					var item = (CommitItem)listFiles.SelectedItem;
+					if (item.ResolveStatus == ResolveStatus.Unresolved)
+						e.CanExecute = true;
+				}
+			}
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void RestartMerge_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var item = (CommitItem)listFiles.SelectedItem;
+
+			var hg_resolve = new HgResolve();
+			if (hg_resolve.Resolve(WorkingDir, item.FileInfo.File))
+			{
+				item.ResolveStatus = ResolveStatus.Resolved;
 			}
 
 			e.Handled = true;

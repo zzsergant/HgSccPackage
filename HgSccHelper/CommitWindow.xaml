@@ -35,6 +35,10 @@
                         CanExecute="MarkUnresolved_CanExecute"
                         Executed="MarkUnresolved_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.RestartMergeCommand}"
+                        CanExecute="RestartMerge_CanExecute"
+                        Executed="RestartMerge_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
     <Window.Resources>
         <DataTemplate x:Key="CheckBoxCell">
@@ -71,6 +75,9 @@
                         MinWidth="75" />
                 <Button Content="Mark Unresolved"
                         Command="{x:Static local:CommitWindow.MarkUnresolvedCommand}"
+                        MinWidth="75" />
+                <Button Content="Restart Merge"
+                        Command="{x:Static local:CommitWindow.RestartMergeCommand}"
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
@@ -155,6 +162,8 @@
                         <MenuItem Command="{x:Static local:CommitWindow.MarkResolvedCommand}"
                               ></MenuItem>
                         <MenuItem Command="{x:Static local:CommitWindow.MarkUnresolvedCommand}"
+                              ></MenuItem>
+                        <MenuItem Command="{x:Static local:CommitWindow.RestartMergeCommand}"
                               ></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
