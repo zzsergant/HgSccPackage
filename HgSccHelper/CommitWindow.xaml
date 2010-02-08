@@ -118,9 +118,19 @@
                       MinHeight="75">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="X" Width="Auto" CellTemplate="{StaticResource CheckBoxCell}" />
-                        <GridViewColumn Header="Status" Width="Auto" DisplayMemberBinding="{Binding FileInfo.Status}" />
-                        <GridViewColumn Header="Merge" Width="Auto" DisplayMemberBinding="{Binding ResolveStatus}" />
+                        <GridViewColumn Width="Auto" CellTemplate="{StaticResource CheckBoxCell}">
+                            <GridViewColumn.HeaderTemplate>
+                                <DataTemplate>
+                                    <CheckBox Name="checkAll"
+                                              IsChecked="{Binding ElementName=root, Path=IsAllChecked}"
+                                              Checked="checkAll_Checked"
+                                              Unchecked="checkAll_Unchecked">
+                                    </CheckBox>
+                                </DataTemplate>
+                            </GridViewColumn.HeaderTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Status" Width="80" DisplayMemberBinding="{Binding FileInfo.Status}" />
+                        <GridViewColumn Header="Merge" Width="80" DisplayMemberBinding="{Binding ResolveStatus}" />
                         <GridViewColumn Header="Path" Width="500" DisplayMemberBinding="{Binding PathViewString}" />
                     </GridView>
                 </ListView.View>
@@ -156,12 +166,6 @@
                     </Style>
                 </ListView.Resources>
             </ListView>
-            <CheckBox Grid.Row="2"
-                      Content="Check/Uncheck All"
-                      Name="checkAll"
-                      Margin="5"
-                      Checked="checkAll_Checked"
-                      Unchecked="checkAll_Unchecked"></CheckBox>
         </Grid>
         <StackPanel Grid.Row="4"
                     Orientation="Horizontal" HorizontalAlignment="Right">

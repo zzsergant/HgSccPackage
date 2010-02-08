@@ -96,6 +96,18 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty IsAllCheckedProperty =
+			DependencyProperty.Register("IsAllChecked", typeof(bool),
+			typeof(CommitWindow));
+
+		//------------------------------------------------------------------
+		private bool IsAllChecked
+		{
+			get { return (bool)this.GetValue(IsAllCheckedProperty); }
+			set { this.SetValue(IsAllCheckedProperty, value); }
+		}
+
+		//-----------------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			Hg = new Hg();
@@ -111,8 +123,6 @@ namespace HgSccHelper
 			if (CurrentRevision.Parents.Count == 2)
 			{
 				IsMergeActive = true;
-				checkAll.Visibility = Visibility.Collapsed;
-
 				var grid_view = (GridView)listFiles.View;
 				grid_view.Columns.RemoveAt(0);
 			}
@@ -262,7 +272,9 @@ namespace HgSccHelper
 
 			// Check all items if FilesToCommit is empty
 			if (dict.Count == 0)
-				checkAll.IsChecked = true;
+			{
+				IsAllChecked = true;
+			}
 
 			return true;
 		}
