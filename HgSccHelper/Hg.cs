@@ -1366,6 +1366,28 @@ namespace HgSccHelper
 
 			return true;
 		}
+
+		//-----------------------------------------------------------------------------
+		public bool Merge(string work_dir, string revision, HgMergeOptions options)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("merge");
+
+			if ((options & HgMergeOptions.Force) == HgMergeOptions.Force)
+				args.Append(" -f");
+
+			if (revision.Length > 0)
+				args.Append(" -r " + revision);
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return false;
+			}
+
+			return true;
+		}
 	}
 
 	//------------------------------------------------------------------
@@ -1373,6 +1395,13 @@ namespace HgSccHelper
 	{
 		None,
 		Clean
+	}
+
+	//------------------------------------------------------------------
+	enum HgMergeOptions
+	{
+		None,
+		Force
 	}
 
 	//------------------------------------------------------------------
