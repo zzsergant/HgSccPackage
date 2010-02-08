@@ -5,6 +5,7 @@
     Height="Auto"
     Width="Auto"
     MinWidth="400"
+    MaxWidth="800"
     SizeToContent="WidthAndHeight"
     xmlns:local="clr-namespace:HgSccHelper"
     Loaded="Window_Loaded"
