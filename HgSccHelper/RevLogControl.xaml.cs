@@ -55,6 +55,10 @@ namespace HgSccHelper
 			"Tags", typeof(RevLogControl));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand MergeCommand = new RoutedUICommand("Merge",
+			"Merge", typeof(RevLogControl));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand ReadNextCommand = new RoutedUICommand("Read Next",
 			"ReadNext", typeof(RevLogControl));
 
@@ -436,5 +440,38 @@ namespace HgSccHelper
 			wnd.ShowDialog();
 		}
 
+		//------------------------------------------------------------------
+		private void Merge_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (listViewFiles != null)
+			{
+				var change = listViewFiles.DataContext as ChangeDesc;
+				if (change != null)
+				{
+					if (CurrentRevision.Parents.Count == 1)
+					{
+						if (change.SHA1 != CurrentRevision.SHA1)
+							e.CanExecute = true;
+					}
+				}
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Merge_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var change = (ChangeDesc)listViewFiles.DataContext;
+
+			var wnd = new MergeWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.TargetRevision = change.Rev.ToString();
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
+		}
 	}
 }

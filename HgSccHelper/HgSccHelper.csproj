@@ -50,6 +50,9 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
     <Reference Include="WindowsBase">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -86,6 +89,9 @@
     <Compile Include="HgSccOptions.cs" />
     <Compile Include="HgThread.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="MergeWindow.xaml.cs">
+      <DependentUpon>MergeWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OptionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -142,6 +148,10 @@
     <Page Include="FileHistoryWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MergeWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RevLogWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

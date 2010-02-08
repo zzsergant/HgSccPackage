@@ -1,0 +1,47 @@
+﻿<Window x:Class="HgSccHelper.MergeWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="MergeWindow"
+    Height="Auto"
+    Width="Auto"
+    MinWidth="400"
+    MaxWidth="800"
+    SizeToContent="WidthAndHeight"
+    xmlns:local="clr-namespace:HgSccHelper"
+    Loaded="Window_Loaded"
+    Unloaded="Window_Unloaded"
+    x:Name="root"
+    PreviewKeyDown="Window_PreviewKeyDown"
+    WindowStartupLocation="CenterScreen"
+    ShowInTaskbar="False"
+    ResizeMode="NoResize">
+    <Window.Resources>
+    </Window.Resources>
+    <Grid>
+        <StackPanel>
+            <GroupBox Header="Merge target (other)"
+                      Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
+                      >
+                <TextBox Text="Target desc"
+                         Margin="5"
+                         Name="targetDesc" IsReadOnly="True">
+                </TextBox>
+            </GroupBox>
+            <GroupBox Header="Current revision (local)"
+                      Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
+                      >
+                <TextBox Text="Current desc"
+                         Margin="5"
+                         Name="currentDesc" IsReadOnly="True">
+                </TextBox>
+            </GroupBox>
+            <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <Button Name="btnMerge" Height="23" Width="75"
+                        Content="Merge" IsDefault="True" Click="Merge_Click"></Button>
+                <Button Name="Cancel" Height="23" Width="75"
+                        Content="Cancel" Margin="5" IsCancel="True" Click="Cancel_Click"></Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

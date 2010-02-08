@@ -25,6 +25,10 @@
                         CanExecute="Tags_CanExecute"
                         Executed="Tags_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:RevLogControl.MergeCommand}"
+                        CanExecute="Merge_CanExecute"
+                        Executed="Merge_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static local:RevLogControl.ReadNextCommand}"
                         CanExecute="ReadNext_CanExecute"
                         Executed="ReadNext_Executed">
@@ -149,6 +153,10 @@
                 <Button Content="Add/Remove Tag"
                         Command="{x:Static local:RevLogControl.TagsCommand}"
                         MinWidth="75" />
+                <Separator />
+                <Button Content="Merge with Revision"
+                        Command="{x:Static local:RevLogControl.MergeCommand}"
+                        MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
         <ListView x:Name="graphView"
@@ -162,6 +170,8 @@
                             Modifiers="Control" Key="U" />
                 <KeyBinding Command="{x:Static local:RevLogControl.TagsCommand}"
                             Modifiers="Control" Key="T" />
+                <KeyBinding Command="{x:Static local:RevLogControl.MergeCommand}"
+                            Modifiers="Control" Key="M" />
             </ListView.InputBindings>
             <ListView.ContextMenu>
                 <ContextMenu>
@@ -169,6 +179,8 @@
                               InputGestureText="Ctrl + U"></MenuItem>
                     <MenuItem Command="{x:Static local:RevLogControl.TagsCommand}"
                               InputGestureText="Ctrl + T"></MenuItem>
+                    <MenuItem Command="{x:Static local:RevLogControl.MergeCommand}"
+                              InputGestureText="Ctrl + M"></MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.View>
