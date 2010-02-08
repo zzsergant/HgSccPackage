@@ -54,6 +54,9 @@ namespace HgSccHelper
 
 			commit_items = new ObservableCollection<CommitItem>();
 			parents = new ObservableCollection<string>();
+
+			VirtualizingStackPanel.SetIsVirtualizing(listFiles, true);
+			VirtualizingStackPanel.SetVirtualizationMode(listFiles, VirtualizationMode.Recycling);
 		}
 
 		//-----------------------------------------------------------------------------
