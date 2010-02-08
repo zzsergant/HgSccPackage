@@ -12,7 +12,22 @@
     <Window.Resources>
         <DataTemplate x:Key="myCellTemplateDesc">
             <StackPanel Orientation="Horizontal">
-                <ItemsControl ItemsSource="{Binding Path=ChangeDesc.Tags}">
+                <TextBlock Text="{Binding Path=BranchInfo.Name}" VerticalAlignment="Center"
+                           Background="GreenYellow"
+                           Foreground="Black"
+                           Padding="5,1"
+                           Margin="0,0,5,0">
+                    <TextBlock.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=BranchInfo}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <ItemsControl ItemsSource="{Binding ChangeDesc.Tags}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"></StackPanel>
@@ -28,7 +43,18 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <TextBlock Text="{Binding ChangeDesc.OneLineDesc}" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding ChangeDesc.OneLineDesc}" VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsCurrent}" Value="True">
+                                    <Setter Property="FontWeight" Value="Bold"></Setter>
+                                    <Setter Property="TextDecorations" Value="Underline"></Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </StackPanel>
         </DataTemplate>
     </Window.Resources>

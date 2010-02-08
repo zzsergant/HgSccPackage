@@ -65,11 +65,27 @@ namespace HgSccHelper
 		public bool IsUpdated { get; private set; }
 
 		//------------------------------------------------------------------
+		IdentifyInfo CurrentRevision { get; set; }
+
+		//------------------------------------------------------------------
+		C5.HashDictionary<string, BranchInfo> Branches { get; set; }
+
+		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			Title = string.Format("File History: '{0}'", FileName);
 
 			Hg = new Hg();
+
+			CurrentRevision = Hg.Identify(WorkingDir);
+			if (CurrentRevision == null)
+				return;
+
+			Branches = new C5.HashDictionary<string, BranchInfo>();
+			foreach (var branch in Hg.Branches(WorkingDir))
+			{
+				Branches[branch.SHA1] = branch;
+			}
 
 			var files = Hg.Status(WorkingDir, FileName, Rev ?? "");
 			if (files.Count == 1
@@ -112,6 +128,19 @@ namespace HgSccHelper
 				history_item.ChangeDesc = change;
 				history_item.RenameInfo = renames[left_idx];
 				history_item.GroupText = String.Format("[{0}]: {1}", renames.Count - left_idx, history_item.RenameInfo.Path);
+
+				foreach (var parent in CurrentRevision.Parents)
+				{
+					if (history_item.ChangeDesc.SHA1 == parent.SHA1)
+					{
+						history_item.IsCurrent = true;
+						break;
+					}
+				}
+
+				BranchInfo branch_info;
+				if (Branches.Find(history_item.ChangeDesc.SHA1, out branch_info))
+					history_item.BranchInfo = branch_info;
 
 				history.Add(history_item);
 			}
@@ -342,10 +371,35 @@ namespace HgSccHelper
 	}
 
 	//==================================================================
-	class FileHistoryInfo
+	class FileHistoryInfo : DependencyObject
 	{
 		public ChangeDesc ChangeDesc { get; set; }
 		public RenameInfo RenameInfo { get; set; }
 		public string GroupText { get; set; }
+
+		//-----------------------------------------------------------------------------
+		public static readonly System.Windows.DependencyProperty IsCurrentProperty =
+			System.Windows.DependencyProperty.Register("IsCurrent", typeof(bool),
+			typeof(FileHistoryInfo));
+
+		//-----------------------------------------------------------------------------
+		public bool IsCurrent
+		{
+			get { return (bool)this.GetValue(IsCurrentProperty); }
+			set { this.SetValue(IsCurrentProperty, value); }
+		}
+
+		//-----------------------------------------------------------------------------
+		public static readonly System.Windows.DependencyProperty BranchInfoProperty =
+			System.Windows.DependencyProperty.Register("BranchInfo", typeof(BranchInfo),
+			typeof(FileHistoryInfo));
+
+		//-----------------------------------------------------------------------------
+		internal BranchInfo BranchInfo
+		{
+			get { return (BranchInfo)this.GetValue(BranchInfoProperty); }
+			set { this.SetValue(BranchInfoProperty, value); }
+		}
+
 	}
 }
