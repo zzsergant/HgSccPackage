@@ -309,8 +309,8 @@ namespace HgSccHelper
 				var checked_list = checked_items.ToList();
 				if (checked_list.Count == 0)
 				{
-					DialogResult = false;
-					Close();
+					MessageBox.Show("There are no files selected to commit", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+					return;
 				}
 
 				var to_commit_files = new List<string>();
