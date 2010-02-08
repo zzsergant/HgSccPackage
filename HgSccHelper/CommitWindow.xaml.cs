@@ -300,8 +300,25 @@ namespace HgSccHelper
 
 			if (IsMergeActive)
 			{
-				MessageBox.Show("Commit for merges is not yet supported", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-				return;
+				if (commit_items.Any(item => item.ResolveStatus == ResolveStatus.Unresolved))
+				{
+					MessageBox.Show("There are files with unresolved status.\nYou must merge them or mark as resolved.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+					return;
+				}
+
+				if (Hg.CommitAll(WorkingDir, CommitMessage))
+				{
+					CommitedFiles = new List<string>();
+
+					foreach (var f in commit_items)
+					{
+						CommitedFiles.Add(System.IO.Path.GetFullPath(
+							System.IO.Path.Combine(WorkingDir, f.FileInfo.File)));
+					}
+
+					DialogResult = true;
+					Close();
+				}
 			}
 			else
 			{
