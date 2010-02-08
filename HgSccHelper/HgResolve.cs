@@ -14,6 +14,17 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		public bool Resolve(string work_dir, string file)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("resolve");
+			args.Append(" " + file.Quote());
+
+			var hg = new Hg();
+			return hg.RunHg(work_dir, args.ToString());
+		}
+
+		//------------------------------------------------------------------
 		public bool MarkAsResolved(string work_dir, IEnumerable<string> files)
 		{
 			StringBuilder args = new StringBuilder();
