@@ -186,7 +186,7 @@ namespace HgSccHelper
 			if (Target == null)
 				return String.Empty;
 
-			var sha1_short = Target.SHA1.Substring(0, 12);
+			var sha1_short = Target.SHA1.ShortSHA1();
 			var desc = String.Format("Rev:\t{0} ({1})", Target.Rev, sha1_short);
 
 			if (!String.IsNullOrEmpty(Target.Branch))

@@ -48,6 +48,12 @@ namespace HgSccHelper
 			return str.Replace("\\\"", "\"");
 		}
 
+		//------------------------------------------------------------------
+		public static string ShortSHA1(this string str)
+		{
+			return str.Substring(0, 12);
+		}
+
 		//-----------------------------------------------------------------------------
 		public static bool GetRelativePath(string working_dir, string path, out string relative)
 		{
@@ -83,7 +89,7 @@ namespace HgSccHelper
 			if (change_desc == null)
 				return String.Empty;
 
-			var sha1_short = change_desc.SHA1.Substring(0, 12);
+			var sha1_short = change_desc.SHA1.ShortSHA1();
 			var desc = String.Format("Rev:\t{0} ({1})", change_desc.Rev, sha1_short);
 
 			if (!String.IsNullOrEmpty(change_desc.Branch))

@@ -150,7 +150,7 @@ namespace HgSccHelper
 					item.GroupText = "Tag";
 					item.Name = tag.Name;
 					item.Rev = tag.Rev;
-					item.SHA1 = tag.SHA1;
+					item.SHA1 = tag.SHA1.ShortSHA1();
 					item.Misc = tag.IsLocal ? "Local" : "";
 
 					comboTag.Items.Add(item);

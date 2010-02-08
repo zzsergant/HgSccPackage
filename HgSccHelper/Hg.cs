@@ -1063,7 +1063,7 @@ namespace HgSccHelper
 		public IdentifyInfo Identify(string work_dir)
 		{
 			StringBuilder args = new StringBuilder();
-			args.Append("identify -ni");
+			args.Append("identify -ni --debug");
 			
 			IdentifyInfo info = null;
 
@@ -1140,7 +1140,7 @@ namespace HgSccHelper
 		public List<TagInfo> Tags(string work_dir)
 		{
 			StringBuilder args = new StringBuilder();
-			args.Append("tags -v");
+			args.Append("tags -v --debug");
 
 			var tags = new List<TagInfo>();
 
@@ -1193,7 +1193,7 @@ namespace HgSccHelper
 		public List<BranchInfo> Branches(string work_dir)
 		{
 			StringBuilder args = new StringBuilder();
-			args.Append("branches -v");
+			args.Append("branches -v --debug");
 
 			var branches = new List<BranchInfo>();
 
