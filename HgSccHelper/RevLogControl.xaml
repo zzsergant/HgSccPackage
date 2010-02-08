@@ -56,12 +56,24 @@
                                        Background="Yellow"
                                        Foreground="Black"
                                        Padding="5,1"
-                                       Margin="0,0,5,0"/>
+                                       Margin="0,0,5,0">
+                            </TextBlock>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-        		<TextBlock Text="{Binding Current.ChangeDesc.OneLineDesc}" VerticalAlignment="Center" />
-        	</StackPanel>
+                <TextBlock Text="{Binding Current.ChangeDesc.OneLineDesc}" VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                    <Setter Property="FontWeight" Value="Bold"></Setter>
+                                    <Setter Property="TextDecorations" Value="Underline"></Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
 		</DataTemplate>
         <Style x:Key="ListViewItemStyle1" TargetType="{x:Type ListViewItem}">
 			<Setter Property="Padding" Value="0" />

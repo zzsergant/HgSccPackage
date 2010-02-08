@@ -82,6 +82,9 @@ namespace HgSccHelper
 		RevLogStyleFile revlog_style;
 
 		//------------------------------------------------------------------
+		IdentifyInfo CurrentRevision { get; set; }
+
+		//------------------------------------------------------------------
 		public RevLogControl()
 		{
 			InitializeComponent();
@@ -106,6 +109,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
 		{
+			CurrentRevision = new Hg().Identify(WorkingDir);
+			if (CurrentRevision == null)
+				return;
+
 			timer = new DispatcherTimer();
 			timer.Interval = TimeSpan.FromMilliseconds(50);
 			timer.Tick += OnTimerTick;
@@ -337,8 +344,21 @@ namespace HgSccHelper
 		void Worker_NewRevLogChangeDesc(RevLogChangeDesc change_desc)
 		{
 			revs.Add(change_desc);
-			rev_lines.Add(rev_log_lines_parser.ParseLogLines(
-				rev_log_iterator.ParseChangeDesc(change_desc)));
+			var new_lines_pair = rev_log_lines_parser.ParseLogLines(
+				rev_log_iterator.ParseChangeDesc(change_desc));
+
+			var sha1 = new_lines_pair.Current.ChangeDesc.SHA1;
+
+			foreach (var parent in CurrentRevision.Parents)
+			{
+				if (parent.SHA1 == sha1)
+				{
+					new_lines_pair.IsCurrent = true;
+					break;
+				}
+			}
+
+			rev_lines.Add(new_lines_pair);
 
 			if (graphView.SelectedIndex == -1 && graphView.Items.Count > 0)
 				graphView.SelectedIndex = 0;

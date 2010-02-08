@@ -37,10 +37,22 @@ namespace HgSccHelper
 	}
 
 	//------------------------------------------------------------------
-	public class RevLogLinesPair
+	public class RevLogLinesPair : System.Windows.DependencyObject
 	{
 		public RevLogLines Prev { get; set; }
 		public RevLogLines Current { get; set; }
+
+		//-----------------------------------------------------------------------------
+		public static readonly System.Windows.DependencyProperty IsCurrentProperty =
+			System.Windows.DependencyProperty.Register("IsCurrent", typeof(bool),
+			typeof(RevLogLinesPair));
+
+		//-----------------------------------------------------------------------------
+		public bool IsCurrent
+		{
+			get { return (bool)this.GetValue(IsCurrentProperty); }
+			set { this.SetValue(IsCurrentProperty, value); }
+		}
 	}
 
 
