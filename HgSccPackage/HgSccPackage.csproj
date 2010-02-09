@@ -106,6 +106,7 @@
     <Compile Include="SccProviderToolWindowControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Vs\VsRunningDocumentTable.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DlgQueryEditCheckedInFile.resx">

@@ -24,6 +24,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
 using System.Windows.Forms;
+using HgSccPackage.Vs;
 
 namespace HgSccPackage
 {
@@ -37,7 +38,6 @@ namespace HgSccPackage
 		IVsQueryEditQuerySave2,     // Required to allow editing of controlled files 
 		IVsTrackProjectDocumentsEvents2,  // Usefull to track project changes (add, renames, deletes, etc)
 		IVsTrackProjectDocumentsEvents3,
-		IVsRunningDocTableEvents,
 		IDisposable 
 	{
 		// Whether the provider is active or not
@@ -59,9 +59,7 @@ namespace HgSccPackage
 		private string _solutionLocation;
 		// The list of files approved for in-memory edit
 		private readonly C5.HashSet<string> _approvedForInMemoryEdit = new C5.HashSet<string>();
-		uint pdwCookie;
-
-		private IVsRunningDocumentTable rdt;
+		private VsRunningDocumentTable Rdt { get; set; }
 
 		private readonly C5.HashDictionary<string, string> add_origin = new C5.HashDictionary<string, string>();
 //		private SccFileChangesManager file_changes;
@@ -85,15 +83,17 @@ namespace HgSccPackage
 
 			// Get RDT service 
 
-			rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
-			// Subscribe to RDT events               
-			rdt.AdviseRunningDocTableEvents(this, out pdwCookie);
+			Rdt = new VsRunningDocumentTable((IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable)));
+
+			Rdt.AfterAttributeChangeEvent += Rdt_AfterAttributeChangeEvent;
+			Rdt.AfterSaveEvent += Rdt_AfterSaveEvent;
 
 			storage.UpdateEvent += UpdateEvent_Handler;
 
 //			file_changes = new SccFileChangesManager(_sccProvider);
 		}
 
+		//------------------------------------------------------------------
 		public void Dispose()
 		{
 			// Unregister from receiving solution events
@@ -112,10 +112,13 @@ namespace HgSccPackage
 				_tpdTrackProjectDocumentsCookie = VSConstants.VSCOOKIE_NIL;
 			}
 
-			if (pdwCookie != VSConstants.VSCOOKIE_NIL)
+			if (Rdt != null)
 			{
-//				IVsRunningDocumentTable rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
-				rdt.UnadviseRunningDocTableEvents(pdwCookie);
+				Rdt.AfterAttributeChangeEvent -= Rdt_AfterAttributeChangeEvent;
+				Rdt.AfterSaveEvent -= Rdt_AfterSaveEvent;
+
+				Rdt.Dispose();
+				Rdt = null;
 			}
 
 //			file_changes.Dispose();
@@ -1745,16 +1748,11 @@ namespace HgSccPackage
 
 			foreach (var f in files)
 			{
-				IVsHierarchy h;
-				uint cookie;
-				uint itemid;
-				IntPtr doc_data;
-				var err = rdt.FindAndLockDocument((uint)_VSRDTFLAGS.RDT_NoLock, f, out h, out itemid, out doc_data, out cookie);
-
-				if (err != VSConstants.S_OK || doc_data == IntPtr.Zero)
+				var doc_info = Rdt.FindAndLockDocument(f, _VSRDTFLAGS.RDT_NoLock);
+				if (doc_info == null || doc_info.DocData == IntPtr.Zero)
 					continue;
 
-				var doc = Marshal.GetObjectForIUnknown(doc_data) as IVsPersistDocData;
+				var doc = Marshal.GetObjectForIUnknown(doc_info.DocData) as IVsPersistDocData;
 				if (doc != null)
 				{
 					doc_list.Add(doc);
@@ -1962,82 +1960,10 @@ namespace HgSccPackage
 
 		#endregion
 
-		#region Implementation of IVsRunningDocTableEvents
-
-		public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
+		//------------------------------------------------------------------
+		void Rdt_AfterSaveEvent(object sender, RdtAfterSaveEventArgs e)
 		{
-			return VSConstants.S_OK;
-		}
-
-		public int OnBeforeLastDocumentUnlock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
-		{
-			return VSConstants.S_OK;
-		}
-
-		public int OnAfterSave(uint docCookie)
-		{
-			// Retrieve document info
-
-			uint pgrfRDTFlags;
-			uint pdwReadLocks;
-			uint pdwEditLocks;
-			string pbstrMkDocument;
-			IVsHierarchy ppHier;
-			uint pitemid;
-			IntPtr ppunkDocData;
-
-//			var rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable)); 
-			var err = rdt.GetDocumentInfo(
-				docCookie, out pgrfRDTFlags, out pdwReadLocks, out pdwEditLocks,
-				out pbstrMkDocument, out ppHier, out pitemid, out ppunkDocData);
-
-			Logger.WriteLine("OnAfterSave: {0}", pbstrMkDocument);
-
-/*
-			// Get automation-object Document and work with it
-
-			ProjectItem prjItem = DTE.Solution.FindProjectItem(pbstrMkDocument);
-			if (prjItem != null)
-				OnDocumentSaved(prjItem.Document);
-*/
-			if (storage.IsValid)
-			{
-				var status = storage.GetFileStatus(pbstrMkDocument);
-				if (status != SourceControlStatus.scsUncontrolled)
-				{
-					storage.UpdateFileCache(pbstrMkDocument);
-
-					System.Collections.Generic.IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new []{pbstrMkDocument});
-					if (lst.Count != 0)
-					{
-						_sccProvider.RefreshNodesGlyphs(lst);
-					}
-				}
-			}
-
-			return VSConstants.S_OK;
-		}
-
-		public int OnAfterAttributeChange(uint docCookie, uint grfAttribs)
-		{
-			// Retrieve document info
-
-			uint pgrfRDTFlags;
-			uint pdwReadLocks;
-			uint pdwEditLocks;
-			string pbstrMkDocument;
-			IVsHierarchy ppHier;
-			uint pitemid;
-			IntPtr ppunkDocData;
-
-//			var rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
-			var err = rdt.GetDocumentInfo(
-				docCookie, out pgrfRDTFlags, out pdwReadLocks, out pdwEditLocks,
-				out pbstrMkDocument, out ppHier, out pitemid, out ppunkDocData);
-
-			Logger.WriteLine("OnAfterAttributeChange: {0}, {1:X}", pbstrMkDocument, grfAttribs);
-			if ((grfAttribs & (uint)__VSRDTATTRIB.RDTA_DocDataReloaded) != (uint)__VSRDTATTRIB.RDTA_DocDataReloaded)
-				return VSConstants.S_OK;
+			Logger.WriteLine("OnAfterSave: {0}", e.DocInfo.MkDocument);
 
 			/*
 						// Get automation-object Document and work with it
@@ -2048,33 +1974,53 @@ namespace HgSccPackage
 			*/
 			if (storage.IsValid)
 			{
-				var status = storage.GetFileStatus(pbstrMkDocument);
+				var status = storage.GetFileStatus(e.DocInfo.MkDocument);
 				if (status != SourceControlStatus.scsUncontrolled)
 				{
-					storage.UpdateFileCache(pbstrMkDocument);
+					storage.UpdateFileCache(e.DocInfo.MkDocument);
 
-					System.Collections.Generic.IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new[] { pbstrMkDocument });
+					System.Collections.Generic.IList<VSITEMSELECTION> lst =
+						GetControlledProjectsContainingFiles(new[] { e.DocInfo.MkDocument });
+
 					if (lst.Count != 0)
 					{
 						_sccProvider.RefreshNodesGlyphs(lst);
 					}
 				}
 			}
-
-			return VSConstants.S_OK;
 		}
 
-		public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame)
+		//------------------------------------------------------------------
+		void Rdt_AfterAttributeChangeEvent(object sender, RdtAfterAttributeChangeEventArgs e)
 		{
-			return VSConstants.S_OK;
-		}
+			Logger.WriteLine("OnAfterAttributeChange: {0}, {1}",
+				e.DocInfo.MkDocument, e.Attributes);
 
-		public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame)
-		{
-			return VSConstants.S_OK;
-		}
+			if ((e.Attributes & __VSRDTATTRIB.RDTA_DocDataReloaded) != __VSRDTATTRIB.RDTA_DocDataReloaded)
+				return;
 
-		#endregion
+			/*
+						// Get automation-object Document and work with it
+
+						ProjectItem prjItem = DTE.Solution.FindProjectItem(pbstrMkDocument);
+						if (prjItem != null)
+							OnDocumentSaved(prjItem.Document);
+			*/
+			if (storage.IsValid)
+			{
+				var status = storage.GetFileStatus(e.DocInfo.MkDocument);
+				if (status != SourceControlStatus.scsUncontrolled)
+				{
+					storage.UpdateFileCache(e.DocInfo.MkDocument);
+
+					System.Collections.Generic.IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new[] { e.DocInfo.MkDocument});
+					if (lst.Count != 0)
+					{
+						_sccProvider.RefreshNodesGlyphs(lst);
+					}
+				}
+			}
+		}
 
 		public void RefreshGlyphsForControlledProjects()
 		{
