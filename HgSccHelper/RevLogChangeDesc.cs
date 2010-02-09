@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Collections.ObjectModel;
 
 //==================================================================
 namespace HgSccHelper
@@ -26,16 +27,16 @@ namespace HgSccHelper
 		public string OneLineDesc { get; set; }
 		public int Rev { get; set; }
 		public string SHA1 { get; set; }
-		public List<string> Parents { get; private set; }
+		public ObservableCollection<string> Parents { get; private set; }
 		public DateTime Date { get; set; }
 		public string Branch { get; set; }
-		public List<string> Tags { get; set; }
+		public ObservableCollection<string> Tags { get; set; }
 
 		//------------------------------------------------------------------
 		public RevLogChangeDesc()
 		{
-			Parents = new List<string>();
-			Tags = new List<string>();
+			Parents = new ObservableCollection<string>();
+			Tags = new ObservableCollection<string>();
 		}
 
 		//------------------------------------------------------------------

@@ -409,7 +409,7 @@ namespace HgSccPackage
 
 				proxy.ShowDialog();
 
-				if (wnd.IsUpdated)
+				if (wnd.UpdateContext.IsParentChanged)
 					RaiseUpdateEvent();
 			}
 		}
@@ -498,7 +498,7 @@ namespace HgSccPackage
 
 				proxy.ShowDialog();
 
-				if (wnd.IsUpdated)
+				if (wnd.UpdateContext.IsParentChanged)
 					RaiseUpdateEvent();
 			}
 		}
@@ -531,10 +531,10 @@ namespace HgSccPackage
 				
 				proxy.ShowDialog();
 
-				if (wnd.IsUpdated)
+				if (wnd.UpdateContext.IsParentChanged)
 					RaiseUpdateEvent();
 
-				return wnd.IsUpdated;
+				return wnd.UpdateContext.IsParentChanged;
 			}
 		}
 

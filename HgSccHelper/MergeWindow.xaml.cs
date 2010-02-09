@@ -25,6 +25,9 @@ namespace HgSccHelper
 		public string TargetRevision { get; set; }
 
 		//------------------------------------------------------------------
+		public UpdateContext UpdateContext { get; private set; }
+
+		//------------------------------------------------------------------
 		Hg Hg { get; set; }
 
 		RevLogChangeDesc Target { get; set; }
@@ -34,6 +37,8 @@ namespace HgSccHelper
 		public MergeWindow()
 		{
 			InitializeComponent();
+
+			UpdateContext = new UpdateContext();
 		}
 
 		//------------------------------------------------------------------
@@ -109,9 +114,14 @@ namespace HgSccHelper
 
 			if (!Hg.Merge(WorkingDir, Target.SHA1, options))
 			{
+				// Merge can fail with unresolved conflicts, but parents will change
+				UpdateContext.IsParentChanged = true;
+
 				MessageBox.Show("An error occured while merge", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;
 			}
+
+			UpdateContext.IsParentChanged = true;
 
 			DialogResult = true;
 			Close();

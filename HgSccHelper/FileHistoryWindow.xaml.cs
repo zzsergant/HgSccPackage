@@ -43,12 +43,6 @@ namespace HgSccHelper
 
 		List<FileHistoryInfo> history;
 
-		//------------------------------------------------------------------
-		public FileHistoryWindow()
-		{
-			InitializeComponent();
-		}
-
 		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
 
@@ -59,16 +53,41 @@ namespace HgSccHelper
 		public string Rev { get; set; }
 
 		//------------------------------------------------------------------
-		Hg Hg { get; set; }
+		public UpdateContext UpdateContext { get; private set; }
 
 		//------------------------------------------------------------------
-		public bool IsUpdated { get; private set; }
+		Hg Hg { get; set; }
 
 		//------------------------------------------------------------------
 		IdentifyInfo CurrentRevision { get; set; }
 
 		//------------------------------------------------------------------
+		/// <summary>
+		/// SHA1 -> BranchInfo map
+		/// </summary>
 		C5.HashDictionary<string, BranchInfo> Branches { get; set; }
+
+		//------------------------------------------------------------------
+		/// <summary>
+		/// Tag Name -> TagInfo map
+		/// </summary>
+		C5.HashDictionary<string, TagInfo> Tags { get; set; }
+
+		//------------------------------------------------------------------
+		/// <summary>
+		/// SHA1 -> FileHistoryInfo map
+		/// </summary>
+		C5.HashDictionary<string, FileHistoryInfo> file_history_map;
+
+
+		//------------------------------------------------------------------
+		public FileHistoryWindow()
+		{
+			InitializeComponent();
+
+			UpdateContext = new UpdateContext();
+			file_history_map = new C5.HashDictionary<string, FileHistoryInfo>();
+		}
 
 		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -86,6 +105,13 @@ namespace HgSccHelper
 			{
 				Branches[branch.SHA1] = branch;
 			}
+
+			Tags = new C5.HashDictionary<string, TagInfo>();
+			foreach (var tag in Hg.Tags(WorkingDir))
+			{
+				Tags[tag.Name] = tag;
+			}
+
 
 			var files = Hg.Status(WorkingDir, FileName, Rev ?? "");
 			if (files.Count == 1
@@ -141,6 +167,8 @@ namespace HgSccHelper
 				BranchInfo branch_info;
 				if (Branches.Find(history_item.ChangeDesc.SHA1, out branch_info))
 					history_item.BranchInfo = branch_info;
+
+				file_history_map[history_item.ChangeDesc.SHA1] = history_item;
 
 				history.Add(history_item);
 			}
@@ -278,7 +306,17 @@ namespace HgSccHelper
 			wnd.Owner = Window.GetWindow(this);
 
 			wnd.ShowDialog();
-			IsUpdated = IsUpdated || wnd.IsUpdated;
+
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			if (wnd.UpdateContext.IsBranchChanged)
+				HandleBranchChanges();
+
+			if (wnd.UpdateContext.IsTagsChanged)
+				HandleTagsChanges();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
 
 		//------------------------------------------------------------------
@@ -328,7 +366,10 @@ namespace HgSccHelper
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
 
-			IsUpdated = IsUpdated || wnd.IsUpdated;
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
 
 		//------------------------------------------------------------------
@@ -360,6 +401,109 @@ namespace HgSccHelper
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
+
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			if (wnd.UpdateContext.IsBranchChanged)
+				HandleBranchChanges();
+
+			if (wnd.UpdateContext.IsTagsChanged)
+				HandleTagsChanges();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//------------------------------------------------------------------
+		private void HandleParentChange()
+		{
+			var hg = new Hg();
+			var new_current = hg.Identify(WorkingDir);
+
+			foreach (var parent in CurrentRevision.Parents)
+			{
+				FileHistoryInfo file_history;
+				if (file_history_map.Find(parent.SHA1, out file_history))
+					file_history.IsCurrent = false;
+			}
+
+			CurrentRevision = new_current;
+			foreach (var parent in CurrentRevision.Parents)
+			{
+				FileHistoryInfo file_history;
+				if (file_history_map.Find(parent.SHA1, out file_history))
+					file_history.IsCurrent = true;
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void HandleBranchChanges()
+		{
+			var hg = new Hg();
+			var new_branches = new C5.HashDictionary<string, BranchInfo>();
+			var branch_list = hg.Branches(WorkingDir);
+
+			foreach (var branch_info in branch_list)
+			{
+				new_branches[branch_info.SHA1] = branch_info;
+				Branches.Remove(branch_info.SHA1);
+			}
+
+			foreach (var branch_info in Branches.Values)
+			{
+				// removing old branch info
+				FileHistoryInfo file_history;
+				if (file_history_map.Find(branch_info.SHA1, out file_history))
+					file_history.BranchInfo = null;
+			}
+
+			Branches = new_branches;
+
+			foreach (var branch_info in Branches.Values)
+			{
+				// adding or updating branch info
+				FileHistoryInfo file_history;
+				if (file_history_map.Find(branch_info.SHA1, out file_history))
+					file_history.BranchInfo = branch_info;
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void HandleTagsChanges()
+		{
+			var hg = new Hg();
+			var new_tags = new C5.HashDictionary<string, TagInfo>();
+			var tags_list = hg.Tags(WorkingDir);
+
+			foreach (var tag in tags_list)
+			{
+				new_tags[tag.Name] = tag;
+			}
+
+			foreach (var tag in Tags.Values)
+			{
+				// removing old tags
+				FileHistoryInfo file_history;
+				if (file_history_map.Find(tag.SHA1, out file_history))
+				{
+					var change_desc = file_history.ChangeDesc;
+					change_desc.Tags.Remove(tag.Name);
+				}
+			}
+
+			Tags = new_tags;
+
+			foreach (var tag in Tags.Values)
+			{
+				// adding or updating tags
+				FileHistoryInfo file_history;
+				if (file_history_map.Find(tag.SHA1, out file_history))
+				{
+					var change_desc = file_history.ChangeDesc;
+					if (!change_desc.Tags.Contains(tag.Name))
+						change_desc.Tags.Add(tag.Name);
+				}
+			}
 		}
 
 		//------------------------------------------------------------------

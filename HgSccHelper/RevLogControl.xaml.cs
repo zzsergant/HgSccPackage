@@ -74,13 +74,13 @@ namespace HgSccHelper
 		public string WorkingDir { get; set; }
 
 		//------------------------------------------------------------------
+		public UpdateContext UpdateContext { get; private set; }
+
+		//------------------------------------------------------------------
 		HgThread worker;
 
 		//------------------------------------------------------------------
 		Cursor prev_cursor;
-
-		//------------------------------------------------------------------
-		public bool IsUpdated { get; private set; }
 
 		//------------------------------------------------------------------
 		RevLogStyleFile revlog_style;
@@ -89,7 +89,22 @@ namespace HgSccHelper
 		IdentifyInfo CurrentRevision { get; set; }
 
 		//------------------------------------------------------------------
+		/// <summary>
+		/// SHA1 -> BranchInfo map
+		/// </summary>
 		C5.HashDictionary<string, BranchInfo> Branches { get; set; }
+
+		//------------------------------------------------------------------
+		/// <summary>
+		/// Tag Name -> TagInfo map
+		/// </summary>
+		C5.HashDictionary<string, TagInfo> Tags { get; set; }
+
+		//------------------------------------------------------------------
+		/// <summary>
+		/// SHA1 -> RevLogLinesPair map
+		/// </summary>
+		C5.HashDictionary<string, RevLogLinesPair> rev_log_hash_map;
 
 		//------------------------------------------------------------------
 		public RevLogControl()
@@ -111,6 +126,10 @@ namespace HgSccHelper
 			revs = new List<RevLogChangeDesc>();
 			rev_lines = new ObservableCollection<RevLogLinesPair>();
 			graphView.ItemsSource = rev_lines;
+
+			UpdateContext = new UpdateContext();
+
+			rev_log_hash_map = new C5.HashDictionary<string, RevLogLinesPair>();
 		}
 
 		//------------------------------------------------------------------
@@ -125,6 +144,12 @@ namespace HgSccHelper
 			foreach (var branch in hg.Branches(WorkingDir))
 			{
 				Branches[branch.SHA1] = branch;
+			}
+
+			Tags = new C5.HashDictionary<string, TagInfo>();
+			foreach (var tag in hg.Tags(WorkingDir))
+			{
+				Tags[tag.Name] = tag;
 			}
 
 			timer = new DispatcherTimer();
@@ -317,7 +342,17 @@ namespace HgSccHelper
 			wnd.Owner = Window.GetWindow(this);
 
 			wnd.ShowDialog();
-			IsUpdated = IsUpdated || wnd.IsUpdated;
+
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			if (wnd.UpdateContext.IsBranchChanged)
+				HandleBranchChanges();
+
+			if (wnd.UpdateContext.IsTagsChanged)
+				HandleTagsChanges();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
 
 		//------------------------------------------------------------------
@@ -377,6 +412,7 @@ namespace HgSccHelper
 				new_lines_pair.BranchInfo = branch_info;
 
 			rev_lines.Add(new_lines_pair);
+			rev_log_hash_map[new_lines_pair.Current.ChangeDesc.SHA1] = new_lines_pair;
 
 			if (graphView.SelectedIndex == -1 && graphView.Items.Count > 0)
 				graphView.SelectedIndex = 0;
@@ -409,7 +445,102 @@ namespace HgSccHelper
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
 
-			IsUpdated = IsUpdated || wnd.IsUpdated;
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//------------------------------------------------------------------
+		private void HandleParentChange()
+		{
+			var hg = new Hg();
+			var new_current = hg.Identify(WorkingDir);
+
+			foreach (var parent in CurrentRevision.Parents)
+			{
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.Find(parent.SHA1, out lines_pair))
+					lines_pair.IsCurrent = false;
+			}
+
+			CurrentRevision = new_current;
+			foreach (var parent in CurrentRevision.Parents)
+			{
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.Find(parent.SHA1, out lines_pair))
+					lines_pair.IsCurrent = true;
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void HandleBranchChanges()
+		{
+			var hg = new Hg();
+			var new_branches = new C5.HashDictionary<string, BranchInfo>();
+			var branch_list = hg.Branches(WorkingDir);
+
+			foreach (var branch_info in branch_list)
+			{
+				new_branches[branch_info.SHA1] = branch_info;
+				Branches.Remove(branch_info.SHA1);
+			}
+
+			foreach (var branch_info in Branches.Values)
+			{
+				// removing old branch info
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.Find(branch_info.SHA1, out lines_pair))
+					lines_pair.BranchInfo = null;
+			}
+
+			Branches = new_branches;
+
+			foreach (var branch_info in Branches.Values)
+			{
+				// adding or updating branch info
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.Find(branch_info.SHA1, out lines_pair))
+					lines_pair.BranchInfo = branch_info;
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void HandleTagsChanges()
+		{
+			var hg = new Hg();
+			var new_tags = new C5.HashDictionary<string, TagInfo>();
+			var tags_list = hg.Tags(WorkingDir);
+
+			foreach (var tag in tags_list)
+			{
+				new_tags[tag.Name] = tag;
+			}
+
+			foreach (var tag in Tags.Values)
+			{
+				// removing old tags
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.Find(tag.SHA1, out lines_pair))
+				{
+					var change_desc = lines_pair.Current.ChangeDesc;
+					change_desc.Tags.Remove(tag.Name);
+				}
+			}
+
+			Tags = new_tags;
+
+			foreach (var tag in Tags.Values)
+			{
+				// adding or updating tags
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.Find(tag.SHA1, out lines_pair))
+				{
+					var change_desc = lines_pair.Current.ChangeDesc;
+					if (!change_desc.Tags.Contains(tag.Name))
+						change_desc.Tags.Add(tag.Name);
+				}
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -438,6 +569,17 @@ namespace HgSccHelper
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
+
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			if (wnd.UpdateContext.IsBranchChanged)
+				HandleBranchChanges();
+
+			if (wnd.UpdateContext.IsTagsChanged)
+				HandleTagsChanges();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
 
 		//------------------------------------------------------------------
@@ -472,6 +614,14 @@ namespace HgSccHelper
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
+
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			if (wnd.UpdateContext.IsBranchChanged)
+				HandleBranchChanges();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
 	}
 }

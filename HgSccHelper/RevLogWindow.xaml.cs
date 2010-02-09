@@ -37,7 +37,7 @@ namespace HgSccHelper
 		public string WorkingDir { get; set; }
 
 		//------------------------------------------------------------------
-		public bool IsUpdated { get { return revLogControl1.IsUpdated; } }
+		public UpdateContext UpdateContext { get { return revLogControl1.UpdateContext; } }
 
 		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)

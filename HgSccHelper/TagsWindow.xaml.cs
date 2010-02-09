@@ -35,6 +35,9 @@ namespace HgSccHelper
 		public string TargetRevision { get; set; }
 
 		//------------------------------------------------------------------
+		public UpdateContext UpdateContext { get; private set; }
+
+		//------------------------------------------------------------------
 		Hg Hg { get; set; }
 
 		DispatcherTimer tag_timer;
@@ -72,6 +75,7 @@ namespace HgSccHelper
 			};
 
 			tag_map = new C5.HashDictionary<string, TagInfo>();
+			UpdateContext = new UpdateContext();
 		}
 
 		//------------------------------------------------------------------
@@ -278,6 +282,14 @@ namespace HgSccHelper
 			{
 				var msg = String.Format("Tag '{0}' has been added", tag_name);
 				MessageBox.Show(msg, "Information", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
+
+				UpdateContext.IsTagsChanged = true;
+				if ((options & HgTagOptions.Local) != HgTagOptions.Local)
+				{
+					UpdateContext.IsParentChanged = true;
+					UpdateContext.IsBranchChanged = true;
+				}
+
 				UpdateTags();
 				RefreshTag();
 				RefreshRev();
@@ -323,6 +335,14 @@ namespace HgSccHelper
 			{
 				var msg = String.Format("Tag '{0}' has been removed", tag_name);
 				MessageBox.Show(msg, "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+
+				UpdateContext.IsTagsChanged = true;
+				if ((options & HgTagOptions.Local) != HgTagOptions.Local)
+				{
+					UpdateContext.IsParentChanged = true;
+					UpdateContext.IsBranchChanged = true;
+				}
+
 				UpdateTags();
 				RefreshTag();
 				RefreshRev();

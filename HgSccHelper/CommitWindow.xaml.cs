@@ -61,10 +61,15 @@ namespace HgSccHelper
 
 			VirtualizingStackPanel.SetIsVirtualizing(listFiles, true);
 			VirtualizingStackPanel.SetVirtualizationMode(listFiles, VirtualizationMode.Recycling);
+
+			UpdateContext = new UpdateContext();
 		}
 
 		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
+
+		//------------------------------------------------------------------
+		public UpdateContext UpdateContext { get; private set; }
 
 		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty CommitMessageProperty =
@@ -320,6 +325,10 @@ namespace HgSccHelper
 							System.IO.Path.Combine(WorkingDir, f.FileInfo.File)));
 					}
 
+					UpdateContext.IsParentChanged = true;
+					UpdateContext.IsCommited = true;
+					UpdateContext.IsBranchChanged = true;
+
 					DialogResult = true;
 					Close();
 				}
@@ -375,6 +384,10 @@ namespace HgSccHelper
 						CommitedFiles.Add(System.IO.Path.GetFullPath(
 							System.IO.Path.Combine(WorkingDir, f)));
 					}
+
+					UpdateContext.IsParentChanged = true;
+					UpdateContext.IsCommited = true;
+					UpdateContext.IsBranchChanged = true;
 
 					DialogResult = true;
 					Close();
@@ -622,7 +635,8 @@ namespace HgSccHelper
 
 			// TODO: Handle updates from file history dialog
 			wnd.ShowDialog();
-			// IsUpdated = IsUpdated || wnd.IsUpdated;
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
 	}
 

@@ -37,7 +37,7 @@ namespace HgSccHelper
 		public string TargetRevision { get; set; }
 
 		//------------------------------------------------------------------
-		public bool IsUpdated { get; set; }
+		public UpdateContext UpdateContext { get; private set; }
 
 		//------------------------------------------------------------------
 		Hg Hg { get; set; }
@@ -75,6 +75,8 @@ namespace HgSccHelper
 
 			parents = new ObservableCollection<string>();
 			listParents.ItemsSource = parents;
+
+			UpdateContext = new UpdateContext();
 		}
 
 		//------------------------------------------------------------------
@@ -254,7 +256,7 @@ namespace HgSccHelper
 				return;
 			}
 
-			IsUpdated = true;
+			UpdateContext.IsParentChanged = true;
 			Close();
 		}
 

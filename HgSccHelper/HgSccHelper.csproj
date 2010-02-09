@@ -115,6 +115,7 @@
     <Compile Include="TagsWindow.xaml.cs">
       <DependentUpon>TagsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UpdateContext.cs" />
     <Compile Include="UpdateWindow.xaml.cs">
       <DependentUpon>UpdateWindow.xaml</DependentUpon>
     </Compile>

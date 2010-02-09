@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using C5;
+using System.Collections.ObjectModel;
 
 namespace HgSccHelper
 {
@@ -30,14 +31,14 @@ namespace HgSccHelper
 		public List<FileInfo> FilesAdded { get; set; }
 		public List<FileInfo> FilesModified { get; set; }
 		public List<FileInfo> FilesRemoved { get; set; }
-		public List<string> Tags { get; set; }
+		public ObservableCollection<string> Tags { get; set; }
 
 		public ChangeDesc()
 		{
 			FilesAdded = new List<FileInfo>();
 			FilesModified = new List<FileInfo>();
 			FilesRemoved = new List<FileInfo>();
-			Tags = new List<string>();
+			Tags = new ObservableCollection<string>();
 		}
 
 		//-----------------------------------------------------------------------------
