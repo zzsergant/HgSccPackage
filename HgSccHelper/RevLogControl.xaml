@@ -63,7 +63,8 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <ItemsControl ItemsSource="{Binding Path=Current.ChangeDesc.Tags}">
+                <ItemsControl ItemsSource="{Binding Path=Current.ChangeDesc.Tags}"
+                              Focusable="False">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"></StackPanel>
@@ -128,17 +129,11 @@
         </Style>
     </UserControl.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="300" />
-            <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <ToolBarTray Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+        <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
             <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                 <Button Content="Diff Previous"
                         Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
@@ -159,116 +154,127 @@
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
-        <ListView x:Name="graphView"
-                  Grid.Row="1"
+        <Grid Grid.Row="1" KeyboardNavigation.TabNavigation="Cycle">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="300" />
+                <RowDefinition Height="Auto" MinHeight="70" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ListView x:Name="graphView"
+                  Grid.Row="0"
                   Grid.Column="0"
                   Margin="0, 0, 0, 5"
                   ItemContainerStyle="{DynamicResource ListViewItemStyle1}"
                   SelectionChanged="graphView_SelectionChanged">
-            <ListView.InputBindings>
-                <KeyBinding Command="{x:Static local:RevLogControl.UpdateCommand}"
+                <ListView.InputBindings>
+                    <KeyBinding Command="{x:Static local:RevLogControl.UpdateCommand}"
                             Modifiers="Control" Key="U" />
-                <KeyBinding Command="{x:Static local:RevLogControl.TagsCommand}"
+                    <KeyBinding Command="{x:Static local:RevLogControl.TagsCommand}"
                             Modifiers="Control" Key="T" />
-                <KeyBinding Command="{x:Static local:RevLogControl.MergeCommand}"
+                    <KeyBinding Command="{x:Static local:RevLogControl.MergeCommand}"
                             Modifiers="Control" Key="M" />
-            </ListView.InputBindings>
-            <ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Command="{x:Static local:RevLogControl.UpdateCommand}"
+                </ListView.InputBindings>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="{x:Static local:RevLogControl.UpdateCommand}"
                               InputGestureText="Ctrl + U"></MenuItem>
-                    <MenuItem Command="{x:Static local:RevLogControl.TagsCommand}"
+                        <MenuItem Command="{x:Static local:RevLogControl.TagsCommand}"
                               InputGestureText="Ctrl + T"></MenuItem>
-                    <MenuItem Command="{x:Static local:RevLogControl.MergeCommand}"
+                        <MenuItem Command="{x:Static local:RevLogControl.MergeCommand}"
                               InputGestureText="Ctrl + M"></MenuItem>
-                </ContextMenu>
-            </ListView.ContextMenu>
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding Current.ChangeDesc.Rev}" />
-                    <GridViewColumn Header="Desc" Width="450"  CellTemplate="{StaticResource myCellTemplateDesc}"/>
-                    <!--<GridViewColumn Header="Desc" Width="250" DisplayMemberBinding="{Binding Current.ChangeDesc.OneLineDesc}" />-->
-                    <GridViewColumn Header="Author" Width="250" DisplayMemberBinding="{Binding Current.ChangeDesc.Author}" />
-                    <GridViewColumn Header="Date" Width="150" DisplayMemberBinding="{Binding Current.ChangeDesc.Date}" />
-                </GridView>
-            </ListView.View>
-        </ListView>
-        <StackPanel Grid.Row="1"
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding Current.ChangeDesc.Rev}" />
+                        <GridViewColumn Header="Desc" Width="450"  CellTemplate="{StaticResource myCellTemplateDesc}"/>
+                        <!--<GridViewColumn Header="Desc" Width="250" DisplayMemberBinding="{Binding Current.ChangeDesc.OneLineDesc}" />-->
+                        <GridViewColumn Header="Author" Width="250" DisplayMemberBinding="{Binding Current.ChangeDesc.Author}" />
+                        <GridViewColumn Header="Date" Width="150" DisplayMemberBinding="{Binding Current.ChangeDesc.Date}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <StackPanel Grid.Row="0"
                     Grid.Column="1" VerticalAlignment="Top">
-            <Button Content="Stop"
+                <Button Content="Stop"
                     Command="{x:Static local:RevLogControl.StopCommand}"
                     Margin="5" Padding="5, 0" Focusable="False" IsTabStop="False">
-            </Button>
-        </StackPanel>
-        <StackPanel Grid.Row="1"
+                </Button>
+            </StackPanel>
+            <StackPanel Grid.Row="0"
                     Grid.Column="1" VerticalAlignment="Bottom">
-            <Button Content="+500"
+                <Button Content="+500"
                     Command="{x:Static local:RevLogControl.ReadNextCommand}"
                     Margin="5" Padding="5, 0" Focusable="False" IsTabStop="False">
-            </Button>
-            <Button Content="All"
+                </Button>
+                <Button Content="All"
                     Command="{x:Static local:RevLogControl.ReadAllCommand}"
                     Margin="5, 0, 5, 5" Padding="5, 0" Focusable="False" IsTabStop="False">
-            </Button>
-        </StackPanel>
-        <GridSplitter Grid.Row="1" Margin="0"
+                </Button>
+            </StackPanel>
+            <GridSplitter Grid.Row="0" Margin="0"
                       Grid.Column="0"
                       Grid.ColumnSpan="2"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-        <ScrollViewer Grid.Row="2"
+            <ScrollViewer Grid.Row="1"
                       Grid.ColumnSpan="2"
                       CanContentScroll="True" VerticalScrollBarVisibility="Auto">
-            <StackPanel DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}" CanVerticallyScroll="True">
-                <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 5">
-                    <Label Content="Changeset:" />
-                    <TextBox Text="{Binding Path=Rev}" IsReadOnly="True" Margin="5, 0" MinWidth="70"/>
-                    <Label Content=":" />
-                    <TextBox Text="{Binding Path=SHA1}" IsReadOnly="True" Margin="5, 0" MinWidth="120"/>
-                    <Label Content="Author:" />
-                    <TextBox Text="{Binding Path=Author}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
-                    <Label Content="Date:" />
-                    <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
-                </StackPanel>
-                <TextBox Text="{Binding Path=Desc}" TextWrapping="Wrap"
+                <StackPanel DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}" CanVerticallyScroll="True">
+                    <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 5">
+                        <Label Content="Changeset:" />
+                        <TextBox Text="{Binding Path=Rev}" IsReadOnly="True" Margin="5, 0" MinWidth="70"/>
+                        <Label Content=":" />
+                        <TextBox Text="{Binding Path=SHA1}" IsReadOnly="True" Margin="5, 0" MinWidth="120"/>
+                        <Label Content="Author:" />
+                        <TextBox Text="{Binding Path=Author}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
+                        <Label Content="Date:" />
+                        <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
+                    </StackPanel>
+                    <TextBox Text="{Binding Path=Desc}" TextWrapping="Wrap"
                          IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
-                </TextBox>
-            </StackPanel>
-        </ScrollViewer>
-        <GridSplitter Grid.Row="2" Margin="0"
+                    </TextBox>
+                </StackPanel>
+            </ScrollViewer>
+            <GridSplitter Grid.Row="1" Margin="0"
                       Grid.Column="0"
                       Grid.ColumnSpan="2"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-        <ListView Grid.Row="3" Name="listViewFiles"
+            <ListView Grid.Row="2" Name="listViewFiles"
                   Grid.Column="0"
                   Grid.ColumnSpan="2"
                   ItemsSource="{Binding Path=Files}">
-            <ListView.InputBindings>
-                <KeyBinding Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+                <ListView.InputBindings>
+                    <KeyBinding Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
-                <KeyBinding Command="{x:Static local:RevLogControl.FileHistoryCommand}"
+                    <KeyBinding Command="{x:Static local:RevLogControl.FileHistoryCommand}"
                             Modifiers="Control" Key="H" />
-            </ListView.InputBindings>
-            <ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+                </ListView.InputBindings>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
-                    <MenuItem Command="{x:Static local:RevLogControl.FileHistoryCommand}"
+                        <MenuItem Command="{x:Static local:RevLogControl.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
-                </ContextMenu>
-            </ListView.ContextMenu>
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding Status}" />
-                    <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding Path}" />
-                </GridView>
-            </ListView.View>
-            <ListView.Resources>
-                <Style TargetType="ListViewItem">
-                    <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
-                    <EventSetter Event="MouseDoubleClick"
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding Status}" />
+                        <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding Path}" />
+                    </GridView>
+                </ListView.View>
+                <ListView.Resources>
+                    <Style TargetType="ListViewItem">
+                        <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                        <EventSetter Event="MouseDoubleClick"
                                  Handler="ListViewFiles_MouseDoubleClick" />
-                </Style>
-            </ListView.Resources>
-        </ListView>
+                    </Style>
+                </ListView.Resources>
+            </ListView>
+        </Grid>
     </Grid>
 </UserControl>

@@ -42,16 +42,13 @@
     </Window.CommandBindings>
     <Window.Resources>
         <DataTemplate x:Key="CheckBoxCell">
-            <CheckBox IsChecked="{Binding Path=IsChecked}"></CheckBox>
+            <CheckBox IsChecked="{Binding Path=IsChecked}" Focusable="False"></CheckBox>
         </DataTemplate>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
             <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
@@ -81,107 +78,118 @@
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
-        <StackPanel Grid.Row="1"
+        <Grid Grid.Row="1" KeyboardNavigation.TabNavigation="Cycle">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0"
                     Margin="5">
-            <Label Content="Commit Message:"></Label>
-            <TextBox Name="textCommitMessage"
+                <Label Content="Commit Message:"></Label>
+                <TextBox Name="textCommitMessage"
                      Text="{Binding Path=CommitMessage, ElementName=root}"
                      MinLines="2" MaxLines="5"
                      TextWrapping="WrapWithOverflow"
                      AcceptsReturn="True"
                      VerticalScrollBarVisibility="Auto"></TextBox>
-        </StackPanel>
-        <StackPanel Grid.Row="2"
+            </StackPanel>
+            <StackPanel Grid.Row="1"
                     Margin="5">
-            <Label Content="Parent:"></Label>
-            <Grid Name="parentsGrid">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0"
+                <Label Content="Parent:"></Label>
+                <Grid Name="parentsGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
                          Name="textParent1"
                          Padding="5,1"
                          IsReadOnly="True"
+                         IsTabStop="False"
                          Margin="0,0,5,0">
-                </TextBox>
-                <TextBox Grid.Column="1"
+                    </TextBox>
+                    <TextBox Grid.Column="1"
                          Name="textParent2"
                          Padding="5,1"
                          IsReadOnly="True"
+                         IsTabStop="False"
                          Margin="0,0,5,0">
-                </TextBox>
-            </Grid>
-        </StackPanel>
-        <Grid Grid.Row="3">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Label Grid.Row="0" Content="Files:"></Label>
-            <ListView Grid.Row="1"
+                    </TextBox>
+                </Grid>
+            </StackPanel>
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Content="Files:"></Label>
+                <ListView Grid.Row="1"
                       Name="listFiles"
                       MinHeight="75">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Width="Auto" CellTemplate="{StaticResource CheckBoxCell}">
-                            <GridViewColumn.HeaderTemplate>
-                                <DataTemplate>
-                                    <CheckBox Name="checkAll"
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="Auto" CellTemplate="{StaticResource CheckBoxCell}">
+                                <GridViewColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Name="checkAll"
                                               IsChecked="{Binding ElementName=root, Path=IsAllChecked}"
                                               Checked="checkAll_Checked"
+                                              Focusable="False"
                                               Unchecked="checkAll_Unchecked">
-                                    </CheckBox>
-                                </DataTemplate>
-                            </GridViewColumn.HeaderTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Status" Width="80" DisplayMemberBinding="{Binding FileInfo.Status}" />
-                        <GridViewColumn Header="Merge" Width="80" DisplayMemberBinding="{Binding ResolveStatus}" />
-                        <GridViewColumn Header="Path" Width="500" DisplayMemberBinding="{Binding PathViewString}" />
-                    </GridView>
-                </ListView.View>
-                <ListView.InputBindings>
-                    <KeyBinding Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
+                                        </CheckBox>
+                                    </DataTemplate>
+                                </GridViewColumn.HeaderTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Status" Width="80" DisplayMemberBinding="{Binding FileInfo.Status}" />
+                            <GridViewColumn Header="Merge" Width="80" DisplayMemberBinding="{Binding ResolveStatus}" />
+                            <GridViewColumn Header="Path" Width="500" DisplayMemberBinding="{Binding PathViewString}" />
+                        </GridView>
+                    </ListView.View>
+                    <ListView.InputBindings>
+                        <KeyBinding Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
-                    <KeyBinding Command="{x:Static local:CommitWindow.FileHistoryCommand}"
+                        <KeyBinding Command="{x:Static local:CommitWindow.FileHistoryCommand}"
                             Modifiers="Control" Key="H" />
-                </ListView.InputBindings>
-                <ListView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
+                    </ListView.InputBindings>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
-                        <MenuItem Command="{x:Static local:CommitWindow.FileHistoryCommand}"
+                            <MenuItem Command="{x:Static local:CommitWindow.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
-                        <Separator />
-                        <MenuItem Command="{x:Static local:CommitWindow.DiffParent1Command}"
+                            <Separator />
+                            <MenuItem Command="{x:Static local:CommitWindow.DiffParent1Command}"
                               ></MenuItem>
-                        <MenuItem Command="{x:Static local:CommitWindow.DiffParent2Command}"
+                            <MenuItem Command="{x:Static local:CommitWindow.DiffParent2Command}"
                               ></MenuItem>
-                        <Separator />
-                        <MenuItem Command="{x:Static local:CommitWindow.MarkResolvedCommand}"
+                            <Separator />
+                            <MenuItem Command="{x:Static local:CommitWindow.MarkResolvedCommand}"
                               ></MenuItem>
-                        <MenuItem Command="{x:Static local:CommitWindow.MarkUnresolvedCommand}"
+                            <MenuItem Command="{x:Static local:CommitWindow.MarkUnresolvedCommand}"
                               ></MenuItem>
-                        <MenuItem Command="{x:Static local:CommitWindow.RestartMergeCommand}"
+                            <MenuItem Command="{x:Static local:CommitWindow.RestartMergeCommand}"
                               ></MenuItem>
-                    </ContextMenu>
-                </ListView.ContextMenu>
-                <ListView.Resources>
-                    <Style TargetType="ListViewItem">
-                        <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
-                        <EventSetter Event="MouseDoubleClick"
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                    <ListView.Resources>
+                        <Style TargetType="ListViewItem">
+                            <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                            <EventSetter Event="MouseDoubleClick"
                                  Handler="ListFiles_MouseDoubleClick" />
-                    </Style>
-                </ListView.Resources>
-            </ListView>
-        </Grid>
-        <StackPanel Grid.Row="4"
+                        </Style>
+                    </ListView.Resources>
+                </ListView>
+            </Grid>
+            <StackPanel Grid.Row="3"
                     Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Commit" MinWidth="75" MinHeight="25" Margin="0,5"
+                <Button Content="Commit" MinWidth="75" MinHeight="25" Margin="0,5"
                     Name="btnCommit" Click="btnCommit_Click"></Button>
-            <Button Content="Cancel" MinWidth="75" MinHeight="25" Margin="5"
+                <Button Content="Cancel" MinWidth="75" MinHeight="25" Margin="5"
                     Name="btnCancel" IsCancel="True"></Button>
-        </StackPanel>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

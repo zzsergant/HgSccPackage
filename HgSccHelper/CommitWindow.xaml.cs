@@ -160,6 +160,8 @@ namespace HgSccHelper
 			}
 
 			listFiles.ItemsSource = commit_items;
+			if (listFiles.Items.Count > 0)
+				listFiles.SelectedIndex = 0;
 
 			if (IsMergeActive)
 			{

@@ -175,7 +175,11 @@ namespace HgSccHelper
 				var hg = new Hg();
 				var cs_list = hg.ChangesFull(WorkingDir, "", rev_pair.Current.ChangeDesc.SHA1);
 				if (cs_list.Count == 1)
+				{
 					listViewFiles.DataContext = cs_list[0];
+					if (listViewFiles.Items.Count > 0)
+						listViewFiles.SelectedIndex = 0;
+				}
 
 				return;
 			}

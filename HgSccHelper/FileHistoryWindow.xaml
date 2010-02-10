@@ -27,7 +27,8 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <ItemsControl ItemsSource="{Binding ChangeDesc.Tags}">
+                <ItemsControl ItemsSource="{Binding ChangeDesc.Tags}"
+                              Focusable="False">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"></StackPanel>
@@ -71,8 +72,6 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="300" />
-            <RowDefinition Height="Auto" MinHeight="70" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
@@ -96,130 +95,137 @@
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
-        <ListView x:Name="listChanges"
-                  Grid.Row="1"
+        <Grid KeyboardNavigation.TabNavigation="Cycle" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="300" />
+                <RowDefinition Height="Auto" MinHeight="70" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ListView x:Name="listChanges"
+                  Grid.Row="0"
+                  SelectionChanged="listChanges_SelectionChanged"
                   Margin="0, 0, 0, 5">
-            <ListView.CommandBindings>
-                <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                <ListView.CommandBindings>
+                    <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                         CanExecute="HistoryDiffPrevious_CanExecute"
                         Executed="HistoryDiffPrevious_Executed">
-                </CommandBinding>
-                <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
+                    </CommandBinding>
+                    <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
                         CanExecute="HistoryDiffTwoRevisions_CanExecute"
                         Executed="HistoryDiffTwoRevisions_Executed">
-                </CommandBinding>
-            </ListView.CommandBindings>
-            <ListView.InputBindings>
-                <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                    </CommandBinding>
+                </ListView.CommandBindings>
+                <ListView.InputBindings>
+                    <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
-                <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
+                    <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
                             Modifiers="Shift" Key="D" />
-                <KeyBinding Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
+                    <KeyBinding Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
                             Modifiers="Control" Key="U" />
-                <KeyBinding Command="{x:Static local:FileHistoryWindow.TagsCommand}"
+                    <KeyBinding Command="{x:Static local:FileHistoryWindow.TagsCommand}"
                             Modifiers="Control" Key="T" />
-            </ListView.InputBindings>
-            <ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                </ListView.InputBindings>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
-                    <MenuItem Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
+                        <MenuItem Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
                               InputGestureText="Shift + D"></MenuItem>
-                    <MenuItem Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
+                        <MenuItem Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
                               InputGestureText="Ctrl + U"></MenuItem>
-                    <MenuItem Command="{x:Static local:FileHistoryWindow.TagsCommand}"
+                        <MenuItem Command="{x:Static local:FileHistoryWindow.TagsCommand}"
                               InputGestureText="Ctrl + T"></MenuItem>
-                </ContextMenu>
-            </ListView.ContextMenu>
-            <ListView.GroupStyle>
-                <GroupStyle>
-                    <GroupStyle.HeaderTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <TextBlock Text="{Binding Name}" Margin="5" FontWeight="Bold" />
-                                <Rectangle Stroke="#bbb" VerticalAlignment="Bottom" Height="2" />
-                            </Grid>
-                        </DataTemplate>
-                    </GroupStyle.HeaderTemplate>
-                </GroupStyle>
-            </ListView.GroupStyle>
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding ChangeDesc.Rev}" />
-                    <GridViewColumn Header="Desc" Width="500"  CellTemplate="{StaticResource myCellTemplateDesc}"/>
-                    <GridViewColumn Header="Author" Width="250" DisplayMemberBinding="{Binding ChangeDesc.Author}" />
-                    <GridViewColumn Header="Date" Width="150" DisplayMemberBinding="{Binding ChangeDesc.Date}" />
-                </GridView>
-            </ListView.View>
-            <ListView.Resources>
-                <Style TargetType="ListViewItem">
-                    <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
-                    <EventSetter Event="MouseDoubleClick"
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                <ListView.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock Text="{Binding Name}" Margin="5" FontWeight="Bold" />
+                                    <Rectangle Stroke="#bbb" VerticalAlignment="Bottom" Height="2" />
+                                </Grid>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ListView.GroupStyle>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding ChangeDesc.Rev}" />
+                        <GridViewColumn Header="Desc" Width="500"  CellTemplate="{StaticResource myCellTemplateDesc}"/>
+                        <GridViewColumn Header="Author" Width="250" DisplayMemberBinding="{Binding ChangeDesc.Author}" />
+                        <GridViewColumn Header="Date" Width="150" DisplayMemberBinding="{Binding ChangeDesc.Date}" />
+                    </GridView>
+                </ListView.View>
+                <ListView.Resources>
+                    <Style TargetType="ListViewItem">
+                        <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                        <EventSetter Event="MouseDoubleClick"
                                  Handler="ListChanges_MouseDoubleClick" />
-                </Style>
-            </ListView.Resources>
-        </ListView>
-        <GridSplitter Grid.Row="1" Margin="0"
+                    </Style>
+                </ListView.Resources>
+            </ListView>
+            <GridSplitter Grid.Row="0" Margin="0"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-        <ScrollViewer Grid.Row="2"
+            <ScrollViewer Grid.Row="1"
                       CanContentScroll="True" VerticalScrollBarVisibility="Auto">
-            <StackPanel DataContext="{Binding Path=SelectedItem.ChangeDesc, ElementName=listChanges, Mode=OneWay}" CanVerticallyScroll="True">
-                <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 5">
-                    <Label Content="Changeset:" />
-                    <TextBox Text="{Binding Path=Rev}" IsReadOnly="True" Margin="5, 0" MinWidth="70"/>
-                    <Label Content=":" />
-                    <TextBox Text="{Binding Path=SHA1}" IsReadOnly="True" Margin="5, 0" MinWidth="120"/>
-                    <Label Content="Author:" />
-                    <TextBox Text="{Binding Path=Author}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
-                    <Label Content="Date:" />
-                    <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
-                </StackPanel>
-                <TextBox Text="{Binding Path=Desc}" TextWrapping="Wrap"
+                <StackPanel DataContext="{Binding Path=SelectedItem.ChangeDesc, ElementName=listChanges, Mode=OneWay}" CanVerticallyScroll="True">
+                    <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 5">
+                        <Label Content="Changeset:" />
+                        <TextBox Text="{Binding Path=Rev}" IsReadOnly="True" Margin="5, 0" MinWidth="70"/>
+                        <Label Content=":" />
+                        <TextBox Text="{Binding Path=SHA1}" IsReadOnly="True" Margin="5, 0" MinWidth="120"/>
+                        <Label Content="Author:" />
+                        <TextBox Text="{Binding Path=Author}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
+                        <Label Content="Date:" />
+                        <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
+                    </StackPanel>
+                    <TextBox Text="{Binding Path=Desc}" TextWrapping="Wrap"
                          IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
-                </TextBox>
-            </StackPanel>
-        </ScrollViewer>
-        <GridSplitter Grid.Row="2" Margin="0"
+                    </TextBox>
+                </StackPanel>
+            </ScrollViewer>
+            <GridSplitter Grid.Row="1" Margin="0"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-        <ListView Grid.Row="3" Name="listViewFiles"
-                  ItemsSource="{Binding Path=SelectedItem.ChangeDesc.Files, ElementName=listChanges, Mode=OneWay}">
-            <ListView.CommandBindings>
-                <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+            <ListView Grid.Row="2" Name="listViewFiles">
+                <ListView.CommandBindings>
+                    <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                         CanExecute="FilesDiffPrevious_CanExecute"
                         Executed="FilesDiffPrevious_Executed">
-                </CommandBinding>
-                <CommandBinding Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                    </CommandBinding>
+                    <CommandBinding Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
                         CanExecute="FileHistory_CanExecute"
                         Executed="FileHistory_Executed">
-                </CommandBinding>
-            </ListView.CommandBindings>
-            <ListView.InputBindings>
-                <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                    </CommandBinding>
+                </ListView.CommandBindings>
+                <ListView.InputBindings>
+                    <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
-                <KeyBinding Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                    <KeyBinding Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
                             Modifiers="Control" Key="H" />
-            </ListView.InputBindings>
-            <ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                </ListView.InputBindings>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
-                    <MenuItem Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                        <MenuItem Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
-                </ContextMenu>
-            </ListView.ContextMenu>
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding Status}" />
-                    <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding Path}" />
-                </GridView>
-            </ListView.View>
-            <ListView.Resources>
-                <Style TargetType="ListViewItem">
-                    <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
-                    <EventSetter Event="MouseDoubleClick"
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding Status}" />
+                        <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding Path}" />
+                    </GridView>
+                </ListView.View>
+                <ListView.Resources>
+                    <Style TargetType="ListViewItem">
+                        <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                        <EventSetter Event="MouseDoubleClick"
                                  Handler="ListViewFiles_MouseDoubleClick" />
-                </Style>
-            </ListView.Resources>
-        </ListView>
+                    </Style>
+                </ListView.Resources>
+            </ListView>
+        </Grid>
     </Grid>
 </Window>

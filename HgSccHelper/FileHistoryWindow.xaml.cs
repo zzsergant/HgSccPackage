@@ -512,6 +512,20 @@ namespace HgSccHelper
 			if (e.Key == Key.Escape)
 				Close();
 		}
+
+		//------------------------------------------------------------------
+		private void listChanges_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+		{
+			listViewFiles.DataContext = null;
+
+			if (listChanges.SelectedItems.Count == 1)
+			{
+				var file_history = (FileHistoryInfo)listChanges.SelectedItem;
+				listViewFiles.ItemsSource = file_history.ChangeDesc.Files;
+				if (listViewFiles.Items.Count > 0)
+					listViewFiles.SelectedIndex = 0;
+			}
+		}
 	}
 
 	//==================================================================
