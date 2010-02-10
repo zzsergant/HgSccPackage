@@ -128,6 +128,7 @@
                 <Label Grid.Row="0" Content="Files:"></Label>
                 <ListView Grid.Row="1"
                       Name="listFiles"
+                      PreviewKeyDown="ListFiles_PreviewKeyDown"
                       MinHeight="75">
                     <ListView.View>
                         <GridView>

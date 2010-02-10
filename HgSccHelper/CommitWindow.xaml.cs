@@ -640,6 +640,33 @@ namespace HgSccHelper
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
+
+		//------------------------------------------------------------------
+		private void ListFiles_PreviewKeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Space && !IsMergeActive)
+			{
+				if (listFiles.SelectedItems.Count > 0)
+				{
+					int checked_count = 0;
+					foreach (CommitItem item in listFiles.SelectedItems)
+						if (item.IsChecked)
+							checked_count++;
+
+					// if none or some items checked, then we will check all
+					bool new_checked_state = true;
+
+					if (checked_count == listFiles.SelectedItems.Count)
+					{
+						// if all selected items are checked, then uncheck them
+						new_checked_state = false;
+					}
+
+					foreach (CommitItem item in listFiles.SelectedItems)
+						item.IsChecked = new_checked_state;
+				}
+			}
+		}
 	}
 
 	//==================================================================
