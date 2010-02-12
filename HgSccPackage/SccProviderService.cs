@@ -1652,6 +1652,7 @@ namespace HgSccPackage
 			}
 		}
 
+		//------------------------------------------------------------------
 		public void ViewChangeLog()
 		{
 			if (storage == null)
@@ -1660,7 +1661,11 @@ namespace HgSccPackage
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
-			storage.ViewChangeLog();
+			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, _controlledProjects))
+			{
+				storage.ViewChangeLog();
+				sln_prj_reloader.ReloadIfNeed();
+			}
 		}
 
 
@@ -2046,7 +2051,11 @@ namespace HgSccPackage
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
-			storage.Synchronize();
+			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, _controlledProjects))
+			{
+				storage.Synchronize();
+				sln_prj_reloader.ReloadIfNeed();
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -2058,7 +2067,11 @@ namespace HgSccPackage
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
-			storage.Update();
+			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, _controlledProjects))
+			{
+				storage.Update();
+				sln_prj_reloader.ReloadIfNeed();
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -2074,11 +2087,7 @@ namespace HgSccPackage
 		private void UpdateEvent_Handler(object sender, EventArgs e)
 		{
 			storage.ReloadCache();
-
-			// FIXME: Need a better way to handle updates, than reloading solution
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			sol.OpenSolutionFile((uint)__VSSLNOPENOPTIONS.SLNOPENOPT_Silent,
-				 _sccProvider.GetSolutionFileName());
+			RefreshGlyphsForControlledProjects();
 		}
 	}
 }

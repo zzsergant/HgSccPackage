@@ -86,6 +86,8 @@ namespace HgSccPackage
 		{
 			if (!IsValid)
 				return;
+
+			Logger.WriteLine("Reloading storage cache");
 			
 			ResetCache();
 			
