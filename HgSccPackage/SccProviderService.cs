@@ -1665,7 +1665,6 @@ namespace HgSccPackage
 			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, _controlledProjects))
 			{
 				storage.ViewChangeLog();
-				sln_prj_reloader.ReloadIfNeed();
 			}
 		}
 
@@ -2055,7 +2054,6 @@ namespace HgSccPackage
 			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, _controlledProjects))
 			{
 				storage.Synchronize();
-				sln_prj_reloader.ReloadIfNeed();
 			}
 		}
 
@@ -2072,7 +2070,6 @@ namespace HgSccPackage
 			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, _controlledProjects))
 			{
 				storage.Update();
-				sln_prj_reloader.ReloadIfNeed();
 			}
 		}
 

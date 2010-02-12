@@ -67,7 +67,7 @@ namespace HgSccPackage.Vs
 		}
 
 		//------------------------------------------------------------------
-		public void ReloadIfNeed()
+		private void ReloadIfNeed()
 		{
 			if (sln_prj_monitor.CheckForUpdates())
 			{
@@ -126,6 +126,8 @@ namespace HgSccPackage.Vs
 		//------------------------------------------------------------------
 		void IDisposable.Dispose()
 		{
+			ReloadIfNeed();
+
 			foreach (var filename in sln_prj_monitor.MonitoredFiles)
 			{
 				change.SyncFile(filename);
