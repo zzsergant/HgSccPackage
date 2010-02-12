@@ -1662,6 +1662,7 @@ namespace HgSccPackage
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, _controlledProjects))
+			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, _controlledProjects))
 			{
 				storage.ViewChangeLog();
 				sln_prj_reloader.ReloadIfNeed();
@@ -2052,6 +2053,7 @@ namespace HgSccPackage
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, _controlledProjects))
+			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, _controlledProjects))
 			{
 				storage.Synchronize();
 				sln_prj_reloader.ReloadIfNeed();
@@ -2068,6 +2070,7 @@ namespace HgSccPackage
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, _controlledProjects))
+			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, _controlledProjects))
 			{
 				storage.Update();
 				sln_prj_reloader.ReloadIfNeed();

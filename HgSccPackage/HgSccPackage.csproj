@@ -106,6 +106,7 @@
     <Compile Include="SccProviderToolWindowControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Vs\RdtFilesReloader.cs" />
     <Compile Include="Vs\FilesChangeMonitor.cs" />
     <Compile Include="Vs\SlnOrProjectReloader.cs" />
     <Compile Include="Vs\VsFileChangeEx.cs" />
