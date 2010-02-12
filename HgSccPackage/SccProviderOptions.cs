@@ -63,7 +63,7 @@ namespace HgSccPackage
         /// </devdoc>
         protected override void OnActivate(CancelEventArgs e)
         {
-            Trace.WriteLine(string.Format("In OnActivate"));
+            Logger.WriteLine("In OnActivate");
             base.OnActivate(e);
 
 // 			if (page != null)
@@ -76,7 +76,7 @@ namespace HgSccPackage
         /// </devdoc>
         protected override void OnClosed(EventArgs e)
         {
-            Trace.WriteLine(string.Format("In OnClosed"));
+            Logger.WriteLine("In OnClosed");
             base.OnClosed(e);
         }
 
@@ -88,7 +88,7 @@ namespace HgSccPackage
         /// </devdoc>
         protected override void OnDeactivate(CancelEventArgs e)
         {
-            Trace.WriteLine(string.Format("In OnDeactivate"));
+			Logger.WriteLine("In OnDeactivate");
 
             base.OnDeactivate(e);
         }
@@ -100,7 +100,7 @@ namespace HgSccPackage
         /// </devdoc>
 		protected override void OnApply(PageApplyEventArgs e)
         {
-            Trace.WriteLine(string.Format("In OnApply"));
+			Logger.WriteLine("In OnApply");
 
 			if (page != null)
 			{
@@ -128,33 +128,33 @@ namespace HgSccPackage
 			}
 			
 			base.OnApply(e);
-/*
-            string messageText = Resources.ResourceManager.GetString("ApplyProviderOptions");
-            string messageCaption = Resources.ResourceManager.GetString("ProviderName");
+			/*
+						string messageText = Resources.ResourceManager.GetString("ApplyProviderOptions");
+						string messageCaption = Resources.ResourceManager.GetString("ProviderName");
 
-            IVsUIShell uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
-            Guid clsid = Guid.Empty;
-            int result = VSConstants.S_OK;
-            if (uiShell.ShowMessageBox(0, ref clsid,
-                                messageCaption,
-                                messageText,
-                                string.Empty,
-                                0,
-                                OLEMSGBUTTON.OLEMSGBUTTON_OKCANCEL,
-                                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
-                                OLEMSGICON.OLEMSGICON_QUERY,
-                                0,        // false = application modal; true would make it system modal
-                                out result) != VSConstants.S_OK
-                || result != (int)DialogResult.OK)
-            {
-                Trace.WriteLine(string.Format("Cancelled the OnApply event"));
-                e.ApplyBehavior = ApplyKind.Cancel;
-            }
-            else
-            {
-                base.OnApply(e);
-            }
-*/
-        }
+						IVsUIShell uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
+						Guid clsid = Guid.Empty;
+						int result = VSConstants.S_OK;
+						if (uiShell.ShowMessageBox(0, ref clsid,
+											messageCaption,
+											messageText,
+											string.Empty,
+											0,
+											OLEMSGBUTTON.OLEMSGBUTTON_OKCANCEL,
+											OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
+											OLEMSGICON.OLEMSGICON_QUERY,
+											0,        // false = application modal; true would make it system modal
+											out result) != VSConstants.S_OK
+							|| result != (int)DialogResult.OK)
+						{
+							Logger.WriteLine("Cancelled the OnApply event");
+							e.ApplyBehavior = ApplyKind.Cancel;
+						}
+						else
+						{
+							base.OnApply(e);
+						}
+			*/
+		}
     }
 }

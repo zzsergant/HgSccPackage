@@ -137,7 +137,7 @@ namespace HgSccPackage
 		// Make visible and enable if necessary scc related menu commands
 		public int SetActive()
 		{
-			Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Provider set active"));
+			Logger.WriteLine("Provider set active");
 
 			_active = true;
 			_sccProvider.OnActiveStateChange();
@@ -149,7 +149,7 @@ namespace HgSccPackage
 		// Hides and disable scc related menu commands
 		public int SetInactive()
 		{
-			Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Provider set inactive"));
+			Logger.WriteLine("Provider set inactive");
 
 			_active = false;
 			_sccProvider.OnActiveStateChange();

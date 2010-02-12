@@ -104,7 +104,7 @@ namespace HgSccPackage.Vs
 					{
 						foreach (var filename in sln_prj_monitor.ChangedFiles)
 						{
-							Trace.WriteLine("Reloading project: {0}", filename);
+							Logger.WriteLine("Reloading project: {0}", filename);
 							IVsSccProject2 scc_project;
 							if (proj_map.Find(filename.ToLower(), out scc_project))
 							{
