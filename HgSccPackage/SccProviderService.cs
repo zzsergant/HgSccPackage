@@ -1777,7 +1777,6 @@ namespace HgSccPackage
 				foreach (var doc in doc_list)
 				{
 					doc.ReloadDocData((uint) _VSRELOADDOCDATA.RDD_IgnoreNextFileChange);
-					Marshal.ReleaseComObject(doc);
 				}
 
 				foreach (var f in files)

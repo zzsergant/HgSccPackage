@@ -71,14 +71,8 @@ namespace HgSccPackage.Vs
 				if (rdt_doc_list.Find(filename.ToLower(), out doc))
 				{
 					doc.ReloadDocData((uint) _VSRELOADDOCDATA.RDD_IgnoreNextFileChange);
-					Marshal.ReleaseComObject(doc);
 					rdt_doc_list.Remove(filename.ToLower());
 				}
-			}
-
-			foreach (var doc in rdt_doc_list.Values)
-			{
-				Marshal.ReleaseComObject(doc);
 			}
 
 			foreach (var filename in rdt_files_monitor.MonitoredFiles)
