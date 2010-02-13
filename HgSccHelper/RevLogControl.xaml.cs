@@ -705,18 +705,17 @@ namespace HgSccHelper
 		{
 			SelectedParentFile = null;
 
-			var tab_item = tabParentsDiff.ItemContainerGenerator.ContainerFromIndex(
-				tabParentsDiff.SelectedIndex) as TabItem;
+			var parent_diff = tabParentsDiff.SelectedItem as ParentFilesDiff;
 			var list_view = e.OriginalSource as ListView;
 
-			if (tab_item != null && list_view != null)
+			if (parent_diff != null && list_view != null)
 			{
 				if (list_view.SelectedItems.Count == 1)
 				{
 					SelectedParentFile = new SelectedParentFile
 					{
 						FileInfo = list_view.SelectedItem as HgFileInfo,
-						ParentFilesDiff = tab_item.Content as ParentFilesDiff
+						ParentFilesDiff = parent_diff
 					};
 				}
 			}
