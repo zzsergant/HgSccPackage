@@ -529,6 +529,24 @@ namespace HgSccHelper
 			}
 		}
 
+		//------------------------------------------------------------------
+		public bool Revert(string work_dir, string revision, HgRevertOptions options)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("revert");
+
+			if ((options & HgRevertOptions.All) == HgRevertOptions.All)
+				args.Append(" -a ");
+
+			if ((options & HgRevertOptions.NoBackup) == HgRevertOptions.NoBackup)
+				args.Append(" --no-backup");
+
+			if (revision.Length > 0)
+				args.Append(" -r " + revision);
+
+			return RunHg(work_dir, args.ToString());
+		}
+
 		//-----------------------------------------------------------------------------
 		public bool Revert(string work_dir, IEnumerable<string> files)
 		{
@@ -1420,6 +1438,15 @@ namespace HgSccHelper
 		None = 0x00,
 		Force = 0x01,
 		After = 0x02
+	}
+
+	//------------------------------------------------------------------
+	[Flags]
+	enum HgRevertOptions
+	{
+		None = 0x00,
+		All = 0x01,
+		NoBackup = 0x02
 	}
 
 	//-----------------------------------------------------------------------------

@@ -99,6 +99,9 @@
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RevertWindow.xaml.cs">
+      <DependentUpon>RevertWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="RevLogChangeDesc.cs" />
     <Compile Include="RevLogControl.xaml.cs">
       <DependentUpon>RevLogControl.xaml</DependentUpon>
@@ -151,6 +154,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="MergeWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RevertWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

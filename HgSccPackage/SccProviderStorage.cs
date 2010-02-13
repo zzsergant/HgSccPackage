@@ -346,13 +346,24 @@ namespace HgSccPackage
 				Logger.WriteLine("Revert: {0}", f);
 			}
 
-
-			var error = hgscc.Revert(IntPtr.Zero, files, out reverted_files);
-			if (error == SccErrors.Ok)
+			using (var proxy = new WpfToWinFormsProxy<RevertWindow>())
 			{
-				RaiseUpdateEvent();
+				var wnd = proxy.Wnd;
+				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.FilesToRevert = files;
+
+				proxy.ShowDialog();
+
+				if (wnd.DialogResult == true)
+				{
+					reverted_files = wnd.RevertedFiles;
+					UpdateCache(reverted_files);
+					return SccErrors.Ok;
+				}
 			}
-			return error;
+
+			reverted_files = new List<string>();
+			return SccErrors.OpNotPerformed;
 		}
 
 		//------------------------------------------------------------------
