@@ -190,7 +190,11 @@ namespace HgSccHelper
 				var parents_diff = new List<ParentFilesDiff>();
 
 				var hg = new Hg();
-				foreach (var parent in SelectedChangeset.Current.ChangeDesc.Parents)
+				var parents = SelectedChangeset.Current.ChangeDesc.Parents;
+				if (parents.Count == 0)
+					parents = new ObservableCollection<string>(new[] { "null" });
+
+				foreach (var parent in parents)
 				{
 					var options = HgStatusOptions.Added | HgStatusOptions.Deleted
 						| HgStatusOptions.Modified
@@ -209,7 +213,7 @@ namespace HgSccHelper
 						parents_diff.Add(parent_diff);
 					}
 				}
-
+				
 				tabParentsDiff.ItemsSource = parents_diff;
 				if (tabParentsDiff.Items.Count > 0)
 				{
@@ -249,40 +253,6 @@ namespace HgSccHelper
 
 			worker.Dispose();
 			revlog_style.Dispose();
-		}
-
-		//------------------------------------------------------------------
-		// Enumerate all the descendants of the visual object.
-		static IEnumerable<Visual> EnumVisual(Visual myVisual)
-		{
-			for (int i = 0; i < VisualTreeHelper.GetChildrenCount(myVisual); i++)
-			{
-				// Retrieve child visual at specified index value.
-				Visual childVisual = (Visual)VisualTreeHelper.GetChild(myVisual, i);
-				yield return childVisual;
-
-				foreach (var v in EnumVisual(childVisual))
-					yield return v;
-			}
-		}
-
-		//------------------------------------------------------------------
-		private childItem FindVisualChild<childItem>(DependencyObject obj)
-			where childItem : DependencyObject
-		{
-			for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
-			{
-				DependencyObject child = VisualTreeHelper.GetChild(obj, i);
-				if (child != null && child is childItem)
-					return (childItem)child;
-				else
-				{
-					childItem childOfChild = FindVisualChild<childItem>(child);
-					if (childOfChild != null)
-						return childOfChild;
-				}
-			}
-			return null;
 		}
 
 		//------------------------------------------------------------------
