@@ -35,6 +35,23 @@ namespace HgSccHelper
 		public string CopiedFrom { get; set; }
 		public HgFileStatus Status { get; set; }
 
+		public string FileViewString
+		{
+			get
+			{
+				var str = File;
+
+				if (Status == HgFileStatus.Added || Status == HgFileStatus.Modified)
+				{
+					if (!String.IsNullOrEmpty(CopiedFrom))
+						str += String.Format("\n[copied from: {0}]", CopiedFrom);
+				}
+
+				return str;
+			}
+		}
+
+
 		//-----------------------------------------------------------------------------
 		public static List<HgFileInfo> ParseFileInfo(StreamReader reader)
 		{

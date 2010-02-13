@@ -703,15 +703,7 @@ namespace HgSccHelper
 		{
 			get
 			{
-				var str = FileInfo.File;
-
-				if (FileInfo.Status == HgFileStatus.Added
-					&& !String.IsNullOrEmpty(FileInfo.CopiedFrom))
-				{
-					str += String.Format("\n[copied from: {0}]", FileInfo.CopiedFrom);
-				}
-
-				return str;
+				return FileInfo.FileViewString;
 			}
 		}
 	}
