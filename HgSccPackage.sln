@@ -2,40 +2,24 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HgSccPackage", "HgSccPackage\HgSccPackage.csproj", "{ADECE07A-5D80-4950-9DA5-A681CE2F5106}"
-	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
-		SolutionIsControlled = True
-		SolutionBindings = <Solution Location In Database>
-	EndGlobalSection
 	ProjectSection(ProjectDependencies) = postProject
 		{D70489CD-ABDA-48FF-BD1E-BE3F7495BE71} = {D70489CD-ABDA-48FF-BD1E-BE3F7495BE71}
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F1894F5D-DAFA-4323-9F22-C9BF70CDBC94}"
-	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
-		SolutionIsControlled = True
-		SolutionBindings = <Solution Location In Database>
-	EndGlobalSection
 	ProjectSection(SolutionItems) = preProject
 		Overview.xml = Overview.xml
 	EndProjectSection
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "HgSccPackageSetup", "HgSccPackageSetup\HgSccPackageSetup.vdproj", "{7A39C9EB-4AE6-4BBA-958C-5E270B9AC834}"
-	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
-		SolutionIsControlled = True
-		SolutionBindings = <Solution Location In Database>
-	EndGlobalSection
+	ProjectSection(ProjectDependencies) = postProject
+		{172BA27D-ACC4-4294-A57C-C09895599EEA} = {172BA27D-ACC4-4294-A57C-C09895599EEA}
+		{D70489CD-ABDA-48FF-BD1E-BE3F7495BE71} = {D70489CD-ABDA-48FF-BD1E-BE3F7495BE71}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "C5", "C5\C5.csproj", "{D70489CD-ABDA-48FF-BD1E-BE3F7495BE71}"
-	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
-		SolutionIsControlled = True
-		SolutionBindings = <Solution Location In Database>
-	EndGlobalSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HgSccHelper", "HgSccHelper\HgSccHelper.csproj", "{172BA27D-ACC4-4294-A57C-C09895599EEA}"
-	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
-		SolutionIsControlled = True
-		SolutionBindings = <Solution Location In Database>
-	EndGlobalSection
 EndProject
 Global
 	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
@@ -73,8 +57,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityAddIns) = postSolution
-		DebugSamples90.Connect = 1;Configure Project for VSIP Experimental Environment;ConfigVSIPDebug
 	EndGlobalSection
 EndGlobal
