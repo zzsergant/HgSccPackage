@@ -1633,8 +1633,11 @@ namespace HgSccPackage
 				SourceControlStatus status = storage.GetFileStatus(file);
 				if (status != SourceControlStatus.scsUncontrolled)
 				{
-					storage.ViewHistory(file);
-					return;
+					using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, _controlledProjects))
+					using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, _controlledProjects))
+					{
+						storage.ViewHistory(file);
+					}
 				}
 			}
 		}
@@ -1730,69 +1733,32 @@ namespace HgSccPackage
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
-			IEnumerable<string> commited_files;
-			storage.Commit(files, out commited_files);
-
-			var list = GetControlledProjectsContainingFiles(commited_files);
-			if (list.Count != 0)
+			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, _controlledProjects))
+			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, _controlledProjects))
 			{
-				// now refresh the selected nodes' glyphs
-				_sccProvider.RefreshNodesGlyphs(list);
+				IEnumerable<string> commited_files;
+				storage.Commit(files, out commited_files);
+
+				var list = GetControlledProjectsContainingFiles(commited_files);
+				if (list.Count != 0)
+				{
+					// now refresh the selected nodes' glyphs
+					_sccProvider.RefreshNodesGlyphs(list);
+				}
 			}
 		}
 
+		//------------------------------------------------------------------
 		public void RevertFiles(IEnumerable<string> files)
 		{
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
-			var fileChange = (IVsFileChangeEx)_sccProvider.GetService(typeof(SVsFileChangeEx));
-//			var rdt = (IVsRunningDocumentTable)_sccProvider.GetService(typeof(SVsRunningDocumentTable));
-
-			var doc_list = new List<IVsPersistDocData>();
-
-			foreach (var f in files)
+			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, _controlledProjects))
+			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, _controlledProjects))
 			{
-				var doc_info = Rdt.FindAndLockDocument(f, _VSRDTFLAGS.RDT_NoLock);
-				if (doc_info == null || doc_info.DocData == IntPtr.Zero)
-					continue;
-
-				var doc = Marshal.GetObjectForIUnknown(doc_info.DocData) as IVsPersistDocData;
-				if (doc != null)
-				{
-					doc_list.Add(doc);
-					fileChange.IgnoreFile(0, f, 1);
-				}
-			}
-
-			IEnumerable<string> reverted_files = null;
-			try
-			{
+				IEnumerable<string> reverted_files = null;
 				storage.Revert(files, out reverted_files);
-
-			}
-			finally
-			{
-				foreach (var doc in doc_list)
-				{
-					doc.ReloadDocData((uint) _VSRELOADDOCDATA.RDD_IgnoreNextFileChange);
-				}
-
-				foreach (var f in files)
-				{
-					fileChange.SyncFile(f);
-					fileChange.IgnoreFile(0, f, 0);
-				}
-
-				if (reverted_files != null)
-				{
-					var list = GetControlledProjectsContainingFiles(reverted_files);
-					if (list.Count != 0)
-					{
-						// now refresh the selected nodes' glyphs
-						_sccProvider.RefreshNodesGlyphs(list);
-					}
-				}
 			}
 		}
 		#endregion
