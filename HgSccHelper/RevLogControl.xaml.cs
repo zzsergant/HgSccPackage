@@ -291,6 +291,12 @@ namespace HgSccHelper
 			e.CanExecute = false;
 			if (SelectedParentFile != null)
 			{
+				if (SelectedParentFile.FileInfo.Status == HgFileStatus.Added
+					&& !String.IsNullOrEmpty(SelectedParentFile.FileInfo.CopiedFrom))
+				{
+					e.CanExecute = true;
+				}
+
 				if (SelectedParentFile.FileInfo.Status == HgFileStatus.Modified)
 					e.CanExecute = true;
 			}
@@ -308,8 +314,14 @@ namespace HgSccHelper
 			try
 			{
 				var hg = new Hg();
-				hg.Diff(WorkingDir, file_info.File, parent_diff.Desc.SHA1, file_info.File,
-				    SelectedChangeset.Current.ChangeDesc.SHA1);
+
+				var child_file = file_info.File;
+				var parent_file = file_info.File;
+				if (!String.IsNullOrEmpty(file_info.CopiedFrom))
+					parent_file = file_info.CopiedFrom;
+
+				hg.Diff(WorkingDir, parent_file, parent_diff.Desc.SHA1,
+					child_file,	SelectedChangeset.Current.ChangeDesc.SHA1);
 			}
 			catch (HgDiffException)
 			{
