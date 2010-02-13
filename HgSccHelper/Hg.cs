@@ -218,6 +218,29 @@ namespace HgSccHelper
 			}
 		}
 
+		//-----------------------------------------------------------------------------
+		public List<RevLogChangeDesc> Parents(string work_dir, string rev)
+		{
+			var args = new StringBuilder();
+			args.Append("parents");
+			args.Append(" --debug");
+			if (rev.Length > 0)
+				args.Append(" -r " + rev);
+
+			using (var revlog_style = new RevLogStyleFile())
+			{
+				args.Append(" --style " + revlog_style.FileName.Quote());
+
+				using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+				{
+					var lst = RevLogChangeDesc.ParseChanges(proc.StandardOutput);
+					proc.WaitForExit();
+
+					return lst;
+				}
+			}
+		}
+
 		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns revision description
@@ -340,15 +363,53 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<HgFileInfo> Status(string work_dir, string path, string rev)
 		{
+			var options = HgStatusOptions.Added | HgStatusOptions.Clean
+				| HgStatusOptions.Deleted | HgStatusOptions.Modified
+				| HgStatusOptions.Copies | HgStatusOptions.Removed;
+
+			return Status(work_dir, options, path, rev, "");
+		}
+
+		//-----------------------------------------------------------------------------
+		public List<HgFileInfo> Status(string work_dir, HgStatusOptions options, string path, string rev1, string rev2)
+		{
 			var args = new StringBuilder();
 			args.Append("status");
-			args.Append(" -amrdcC");
-			
+
+			if (options == HgStatusOptions.All)
+				args.Append(" -A");
+			else
+			{
+				var opts = new StringBuilder();
+				if ((options & HgStatusOptions.Modified) == HgStatusOptions.Modified)
+					opts.Append("m");
+				if ((options & HgStatusOptions.Added) == HgStatusOptions.Added)
+					opts.Append("a");
+				if ((options & HgStatusOptions.Removed) == HgStatusOptions.Removed)
+					opts.Append("r");
+				if ((options & HgStatusOptions.Deleted) == HgStatusOptions.Deleted)
+					opts.Append("d");
+				if ((options & HgStatusOptions.Copies) == HgStatusOptions.Copies)
+					opts.Append("C");
+				if ((options & HgStatusOptions.Clean) == HgStatusOptions.Clean)
+					opts.Append("c");
+				if ((options & HgStatusOptions.Unknown) == HgStatusOptions.Unknown)
+					opts.Append("u");
+				if ((options & HgStatusOptions.Ignored) == HgStatusOptions.Ignored)
+					opts.Append("i");
+
+				if (opts.Length > 0)
+					args.Append(" -" + opts.ToString());
+			}
+
 			if (path.Length > 0)
 				args.Append(" " + path.Quote());
 
-			if (rev.Length > 0)
-				args.Append(" -r " + rev);
+			if (rev1.Length > 0)
+				args.Append(" --rev " + rev1);
+
+			if (rev2.Length > 0)
+				args.Append(" --rev " + rev2);
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
@@ -868,13 +929,19 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool Diff(string work_dir, string file1, int rev1, string file2, int rev2)
 		{
+			return Diff(work_dir, file1, rev1.ToString(), file2, rev2.ToString());
+		}
+
+		//-----------------------------------------------------------------------------
+		public bool Diff(string work_dir, string file1, string rev1, string file2, string rev2)
+		{
 			string temp1 = Path.GetTempFileName();
 			string temp2 = Path.GetTempFileName();
 
 			try
 			{
-				if (	!CheckoutFile(work_dir, file1, rev1, temp1)
-					||	!CheckoutFile(work_dir, file2, rev2, temp2))
+				if (!CheckoutFile(work_dir, file1, rev1, temp1)
+					|| !CheckoutFile(work_dir, file2, rev2, temp2))
 				{
 					return false;
 				}
@@ -1447,6 +1514,22 @@ namespace HgSccHelper
 		None = 0x00,
 		All = 0x01,
 		NoBackup = 0x02
+	}
+
+	//------------------------------------------------------------------
+	[Flags]
+	enum HgStatusOptions
+	{
+		None = 0x00,
+		All = 0x01,
+		Modified = 0x02,
+		Added = 0x04,
+		Removed = 0x08,
+		Deleted = 0x10,
+		Clean = 0x20,
+		Unknown = 0x40,
+		Ignored = 0x80,
+		Copies = 0x100,
 	}
 
 	//-----------------------------------------------------------------------------
