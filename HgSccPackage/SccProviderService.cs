@@ -1759,6 +1759,13 @@ namespace HgSccPackage
 			{
 				IEnumerable<string> reverted_files = null;
 				storage.Revert(files, out reverted_files);
+
+				var list = GetControlledProjectsContainingFiles(reverted_files);
+				if (list.Count != 0)
+				{
+					// now refresh the selected nodes' glyphs
+					_sccProvider.RefreshNodesGlyphs(list);
+				}
 			}
 		}
 		#endregion

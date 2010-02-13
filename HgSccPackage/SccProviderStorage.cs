@@ -354,6 +354,9 @@ namespace HgSccPackage
 
 				proxy.ShowDialog();
 
+				if (wnd.UpdateContext.IsParentChanged)
+					RaiseUpdateEvent();
+
 				if (wnd.DialogResult == true)
 				{
 					reverted_files = wnd.RevertedFiles;
