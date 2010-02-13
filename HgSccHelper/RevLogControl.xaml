@@ -243,38 +243,56 @@
                       Grid.Column="0"
                       Grid.ColumnSpan="2"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-            <ListView Grid.Row="2" Name="listViewFiles"
-                  Grid.Column="0"
-                  Grid.ColumnSpan="2"
-                  ItemsSource="{Binding Path=Files}">
-                <ListView.InputBindings>
-                    <KeyBinding Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
-                            Modifiers="Control" Key="D" />
-                    <KeyBinding Command="{x:Static local:RevLogControl.FileHistoryCommand}"
-                            Modifiers="Control" Key="H" />
-                </ListView.InputBindings>
-                <ListView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
-                              InputGestureText="Ctrl + D"></MenuItem>
-                        <MenuItem Command="{x:Static local:RevLogControl.FileHistoryCommand}"
-                              InputGestureText="Ctrl + H"></MenuItem>
-                    </ContextMenu>
-                </ListView.ContextMenu>
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding Status}" />
-                        <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding Path}" />
-                    </GridView>
-                </ListView.View>
-                <ListView.Resources>
-                    <Style TargetType="ListViewItem">
-                        <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
-                        <EventSetter Event="MouseDoubleClick"
-                                 Handler="ListViewFiles_MouseDoubleClick" />
+            <TabControl Grid.Row="2" Name="tabParentsDiff"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        >
+                <TabControl.ItemContainerStyle>
+                    <Style TargetType="{x:Type TabItem}">
+                        <Setter Property="Header">
+                            <Setter.Value>
+                                <Binding Path="HeaderString"/>
+                            </Setter.Value>
+                        </Setter>
                     </Style>
-                </ListView.Resources>
-            </ListView>
+                </TabControl.ItemContainerStyle>
+                <TabControl.ContentTemplate>
+                    <DataTemplate>
+                        <ListView ItemsSource="{Binding Path=Files}"
+                                  SelectionChanged="listFiles_SelectionChanged"
+                                  VirtualizingStackPanel.IsVirtualizing="True"
+                                  VirtualizingStackPanel.VirtualizationMode="Recycling">
+                            <ListView.InputBindings>
+                                <KeyBinding Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+                                    Modifiers="Control" Key="D" />
+                                <KeyBinding Command="{x:Static local:RevLogControl.FileHistoryCommand}"
+                                    Modifiers="Control" Key="H" />
+                            </ListView.InputBindings>
+                            <ListView.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+                                        InputGestureText="Ctrl + D"></MenuItem>
+                                    <MenuItem Command="{x:Static local:RevLogControl.FileHistoryCommand}"
+                                        InputGestureText="Ctrl + H"></MenuItem>
+                                </ContextMenu>
+                            </ListView.ContextMenu>
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding Status}" />
+                                    <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding FileViewString}" />
+                                </GridView>
+                            </ListView.View>
+                            <ListView.Resources>
+                                <Style TargetType="ListViewItem">
+                                    <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                                    <EventSetter Event="MouseDoubleClick"
+                                 Handler="ListViewFiles_MouseDoubleClick" />
+                                </Style>
+                            </ListView.Resources>
+                        </ListView>
+                    </DataTemplate>
+                </TabControl.ContentTemplate>
+            </TabControl>
         </Grid>
     </Grid>
 </UserControl>

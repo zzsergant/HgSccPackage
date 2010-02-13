@@ -19,6 +19,7 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Windows.Media;
 
 namespace HgSccHelper
 {
@@ -88,6 +89,21 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		IdentifyInfo CurrentRevision { get; set; }
 
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty SelectedChangesetProperty =
+			DependencyProperty.Register("SelectedChangeset", typeof(RevLogLinesPair),
+			typeof(RevLogControl));
+
+		//-----------------------------------------------------------------------------
+		private RevLogLinesPair SelectedChangeset
+		{
+			get { return (RevLogLinesPair)this.GetValue(SelectedChangesetProperty); }
+			set { this.SetValue(SelectedChangesetProperty, value); }
+		}
+
+		//------------------------------------------------------------------
+		SelectedParentFile SelectedParentFile { get; set; }
+
 		//------------------------------------------------------------------
 		/// <summary>
 		/// SHA1 -> BranchInfo map
@@ -113,9 +129,6 @@ namespace HgSccHelper
 
 			VirtualizingStackPanel.SetIsVirtualizing(graphView, true);
 			VirtualizingStackPanel.SetVirtualizationMode(graphView, VirtualizationMode.Recycling);
-
-			VirtualizingStackPanel.SetIsVirtualizing(listViewFiles, true);
-			VirtualizingStackPanel.SetVirtualizationMode(listViewFiles, VirtualizationMode.Recycling);
 
 			worker = new HgThread();
 			revlog_style = new RevLogStyleFile();
@@ -172,13 +185,41 @@ namespace HgSccHelper
 			if (graphView.SelectedItems.Count == 1)
 			{
 				var rev_pair = (RevLogLinesPair)graphView.SelectedItem;
+				SelectedChangeset = rev_pair;
+
+				var parents_diff = new List<ParentFilesDiff>();
+
 				var hg = new Hg();
-				var cs_list = hg.ChangesFull(WorkingDir, "", rev_pair.Current.ChangeDesc.SHA1);
-				if (cs_list.Count == 1)
+				foreach (var parent in SelectedChangeset.Current.ChangeDesc.Parents)
 				{
-					listViewFiles.DataContext = cs_list[0];
-					if (listViewFiles.Items.Count > 0)
-						listViewFiles.SelectedIndex = 0;
+					var options = HgStatusOptions.Added | HgStatusOptions.Deleted
+						| HgStatusOptions.Modified
+						| HgStatusOptions.Copies | HgStatusOptions.Removed;
+
+					var files = hg.Status(WorkingDir, options, "", parent,
+						SelectedChangeset.Current.ChangeDesc.SHA1);
+
+					var desc = hg.GetRevisionDesc(WorkingDir, parent);
+					if (desc != null)
+					{
+						var parent_diff = new ParentFilesDiff();
+						parent_diff.Desc = desc;
+						parent_diff.Files = files;
+
+						parents_diff.Add(parent_diff);
+					}
+				}
+
+				tabParentsDiff.ItemsSource = parents_diff;
+				if (tabParentsDiff.Items.Count > 0)
+				{
+					tabParentsDiff.SelectedIndex = 0;
+					var list_view = tabParentsDiff.ItemContainerGenerator.ContainerFromIndex(0) as ListView;
+					if (list_view != null)
+					{
+						if (list_view.Items.Count > 0)
+							list_view.SelectedIndex = 0;
+					}
 				}
 
 				return;
@@ -188,7 +229,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void graphView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			listViewFiles.DataContext = null;
+			SelectedChangeset = null;
+			tabParentsDiff.ItemsSource = null;
 			timer.Stop();
 
 			if (graphView.SelectedItems.Count == 1)
@@ -210,13 +252,46 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		// Enumerate all the descendants of the visual object.
+		static IEnumerable<Visual> EnumVisual(Visual myVisual)
+		{
+			for (int i = 0; i < VisualTreeHelper.GetChildrenCount(myVisual); i++)
+			{
+				// Retrieve child visual at specified index value.
+				Visual childVisual = (Visual)VisualTreeHelper.GetChild(myVisual, i);
+				yield return childVisual;
+
+				foreach (var v in EnumVisual(childVisual))
+					yield return v;
+			}
+		}
+
+		//------------------------------------------------------------------
+		private childItem FindVisualChild<childItem>(DependencyObject obj)
+			where childItem : DependencyObject
+		{
+			for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+			{
+				DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+				if (child != null && child is childItem)
+					return (childItem)child;
+				else
+				{
+					childItem childOfChild = FindVisualChild<childItem>(child);
+					if (childOfChild != null)
+						return childOfChild;
+				}
+			}
+			return null;
+		}
+
+		//------------------------------------------------------------------
 		private void DiffPrevious_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;
-			if (listViewFiles != null && listViewFiles.SelectedItems.Count == 1)
+			if (SelectedParentFile != null)
 			{
-				var file_info = (FileInfo)listViewFiles.SelectedItem;
-				if (file_info.Status == FileStatus.Modified)
+				if (SelectedParentFile.FileInfo.Status == HgFileStatus.Modified)
 					e.CanExecute = true;
 			}
 			e.Handled = true;
@@ -227,13 +302,14 @@ namespace HgSccHelper
 		{
 			e.Handled = true;
 
-			var cs = (ChangeDesc)listViewFiles.DataContext;
-			var file_info = (FileInfo)listViewFiles.SelectedItem;
+			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
+			var file_info = SelectedParentFile.FileInfo;
 
 			try
 			{
 				var hg = new Hg();
-				hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
+				hg.Diff(WorkingDir, file_info.File, parent_diff.Desc.SHA1, file_info.File,
+				    SelectedChangeset.Current.ChangeDesc.SHA1);
 			}
 			catch (HgDiffException)
 			{
@@ -328,21 +404,23 @@ namespace HgSccHelper
 		private void FileHistory_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;
-			if (listViewFiles != null && (listViewFiles.SelectedItems.Count == 1))
-				e.CanExecute = true;
+
+			if (SelectedParentFile != null)
+					e.CanExecute = true;
+
 			e.Handled = true;
 		}
 
 		//------------------------------------------------------------------
 		private void FileHistory_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var change = (ChangeDesc)listViewFiles.DataContext;
-			var file_info = (FileInfo)listViewFiles.SelectedItem;
+			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
+			var file_info = SelectedParentFile.FileInfo;
 
 			FileHistoryWindow wnd = new FileHistoryWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.Rev = change.Rev.ToString();
-			wnd.FileName = file_info.Path;
+			wnd.Rev = SelectedChangeset.Current.ChangeDesc.SHA1;
+			wnd.FileName = file_info.File;
 			wnd.Owner = Window.GetWindow(this);
 
 			wnd.ShowDialog();
@@ -427,12 +505,8 @@ namespace HgSccHelper
 		{
 			e.CanExecute = false;
 
-			if (listViewFiles != null)
-			{
-				var change = listViewFiles.DataContext as ChangeDesc;
-				if (change != null)
-					e.CanExecute = true;
-			}
+			if (SelectedChangeset != null)
+				e.CanExecute = true;
 
 			e.Handled = true;
 		}
@@ -440,11 +514,9 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Update_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var change = (ChangeDesc)listViewFiles.DataContext;
-
 			UpdateWindow wnd = new UpdateWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.TargetRevision = change.Rev.ToString();
+			wnd.TargetRevision = SelectedChangeset.Current.ChangeDesc.SHA1;
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
@@ -552,12 +624,8 @@ namespace HgSccHelper
 		{
 			e.CanExecute = false;
 
-			if (listViewFiles != null)
-			{
-				var change = listViewFiles.DataContext as ChangeDesc;
-				if (change != null)
-					e.CanExecute = true;
-			}
+			if (SelectedChangeset != null)
+				e.CanExecute = true;
 
 			e.Handled = true;
 		}
@@ -565,11 +633,9 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Tags_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var change = (ChangeDesc)listViewFiles.DataContext;
-
 			TagsWindow wnd = new TagsWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.TargetRevision = change.Rev.ToString();
+			wnd.TargetRevision = SelectedChangeset.Current.ChangeDesc.SHA1;
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
@@ -591,16 +657,12 @@ namespace HgSccHelper
 		{
 			e.CanExecute = false;
 
-			if (listViewFiles != null)
+			if (SelectedChangeset != null)
 			{
-				var change = listViewFiles.DataContext as ChangeDesc;
-				if (change != null)
+				if (CurrentRevision.Parents.Count == 1)
 				{
-					if (CurrentRevision.Parents.Count == 1)
-					{
-						if (change.SHA1 != CurrentRevision.SHA1)
-							e.CanExecute = true;
-					}
+					if (SelectedChangeset.Current.ChangeDesc.SHA1 != CurrentRevision.SHA1)
+						e.CanExecute = true;
 				}
 			}
 
@@ -610,11 +672,9 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Merge_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var change = (ChangeDesc)listViewFiles.DataContext;
-
 			var wnd = new MergeWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.TargetRevision = change.Rev.ToString();
+			wnd.TargetRevision = SelectedChangeset.Current.ChangeDesc.SHA1;
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
@@ -627,5 +687,49 @@ namespace HgSccHelper
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
+
+		//------------------------------------------------------------------
+		private void listFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			SelectedParentFile = null;
+
+			var tab_item = tabParentsDiff.ItemContainerGenerator.ContainerFromIndex(
+				tabParentsDiff.SelectedIndex) as TabItem;
+			var list_view = e.OriginalSource as ListView;
+
+			if (tab_item != null && list_view != null)
+			{
+				if (list_view.SelectedItems.Count == 1)
+				{
+					SelectedParentFile = new SelectedParentFile
+					{
+						FileInfo = list_view.SelectedItem as HgFileInfo,
+						ParentFilesDiff = tab_item.Content as ParentFilesDiff
+					};
+				}
+			}
+		}
+	}
+
+	//==================================================================
+	class ParentFilesDiff
+	{
+		public RevLogChangeDesc Desc { get; set; }
+		public List<HgFileInfo> Files { get; set; }
+		public string HeaderString
+		{
+			get
+			{
+				return String.Format("Diff with Parent {0} ({1})",
+					Desc.Rev, Desc.SHA1.ShortSHA1());
+			}
+		}
+	}
+
+	//==================================================================
+	class SelectedParentFile
+	{
+		public ParentFilesDiff ParentFilesDiff { get; set; }
+		public HgFileInfo FileInfo { get; set; }
 	}
 }
