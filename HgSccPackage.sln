@@ -15,11 +15,14 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "HgSccPackageSetup", "HgSccP
 	ProjectSection(ProjectDependencies) = postProject
 		{172BA27D-ACC4-4294-A57C-C09895599EEA} = {172BA27D-ACC4-4294-A57C-C09895599EEA}
 		{D70489CD-ABDA-48FF-BD1E-BE3F7495BE71} = {D70489CD-ABDA-48FF-BD1E-BE3F7495BE71}
+		{5CF359D0-B6CA-4653-ADD4-9E2AA7705903} = {5CF359D0-B6CA-4653-ADD4-9E2AA7705903}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "C5", "C5\C5.csproj", "{D70489CD-ABDA-48FF-BD1E-BE3F7495BE71}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HgSccHelper", "HgSccHelper\HgSccHelper.csproj", "{172BA27D-ACC4-4294-A57C-C09895599EEA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HgSccInstaller", "HgSccInstaller\HgSccInstaller.csproj", "{5CF359D0-B6CA-4653-ADD4-9E2AA7705903}"
 EndProject
 Global
 	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
@@ -54,6 +57,12 @@ Global
 		{172BA27D-ACC4-4294-A57C-C09895599EEA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{172BA27D-ACC4-4294-A57C-C09895599EEA}.ReleaseDeploy|Any CPU.ActiveCfg = Release|Any CPU
 		{172BA27D-ACC4-4294-A57C-C09895599EEA}.ReleaseDeploy|Any CPU.Build.0 = Release|Any CPU
+		{5CF359D0-B6CA-4653-ADD4-9E2AA7705903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CF359D0-B6CA-4653-ADD4-9E2AA7705903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CF359D0-B6CA-4653-ADD4-9E2AA7705903}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CF359D0-B6CA-4653-ADD4-9E2AA7705903}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CF359D0-B6CA-4653-ADD4-9E2AA7705903}.ReleaseDeploy|Any CPU.ActiveCfg = Release|Any CPU
+		{5CF359D0-B6CA-4653-ADD4-9E2AA7705903}.ReleaseDeploy|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

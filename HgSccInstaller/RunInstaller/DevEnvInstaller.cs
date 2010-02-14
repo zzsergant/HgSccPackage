@@ -16,8 +16,7 @@ using System.Configuration.Install;
 using System.Diagnostics;
 using Microsoft.Win32;
 
-
-namespace HgSccPackage.RunInstaller
+namespace HgSccInstaller.RunInstaller
 {
 	//==================================================================
 	[RunInstaller(true)]

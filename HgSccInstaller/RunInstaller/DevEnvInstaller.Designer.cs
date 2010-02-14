@@ -1,4 +1,4 @@
-﻿namespace HgSccPackage.RunInstaller
+﻿namespace HgSccInstaller.RunInstaller
 {
 	partial class DevEnvInstaller
 	{
