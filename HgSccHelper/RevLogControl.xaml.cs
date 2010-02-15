@@ -208,21 +208,25 @@ namespace HgSccHelper
 					{
 						var parent_diff = new ParentFilesDiff();
 						parent_diff.Desc = desc;
-						parent_diff.Files = files;
+						parent_diff.Files = new List<ParentDiffHgFileInfo>();
+
+						foreach (var file in files)
+							parent_diff.Files.Add(new ParentDiffHgFileInfo { FileInfo = file });
 
 						parents_diff.Add(parent_diff);
 					}
 				}
 				
 				tabParentsDiff.ItemsSource = parents_diff;
-				if (tabParentsDiff.Items.Count > 0)
+				if (parents_diff.Count > 0)
 				{
-					tabParentsDiff.SelectedIndex = 0;
-					var list_view = tabParentsDiff.ItemContainerGenerator.ContainerFromIndex(0) as ListView;
-					if (list_view != null)
+					var first_parent = parents_diff[0];
+					first_parent.IsSelected = true;
+
+					foreach (var parent in parents_diff)
 					{
-						if (list_view.Items.Count > 0)
-							list_view.SelectedIndex = 0;
+						if (parent.Files.Count > 0)
+							parent.Files[0].IsSelected = true;
 					}
 				}
 
@@ -684,7 +688,7 @@ namespace HgSccHelper
 				{
 					SelectedParentFile = new SelectedParentFile
 					{
-						FileInfo = list_view.SelectedItem as HgFileInfo,
+						FileInfo = ((ParentDiffHgFileInfo)list_view.SelectedItem).FileInfo,
 						ParentFilesDiff = parent_diff
 					};
 				}
@@ -693,10 +697,12 @@ namespace HgSccHelper
 	}
 
 	//==================================================================
-	class ParentFilesDiff
+	class ParentFilesDiff : DependencyObject
 	{
 		public RevLogChangeDesc Desc { get; set; }
-		public List<HgFileInfo> Files { get; set; }
+		public List<ParentDiffHgFileInfo> Files { get; set; }
+
+		//-----------------------------------------------------------------------------
 		public string HeaderString
 		{
 			get
@@ -704,6 +710,37 @@ namespace HgSccHelper
 				return String.Format("Diff with Parent {0} ({1})",
 					Desc.Rev, Desc.SHA1.ShortSHA1());
 			}
+		}
+
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty IsSelectedProperty =
+			DependencyProperty.Register("IsSelected", typeof(bool),
+			typeof(ParentFilesDiff));
+
+		//-----------------------------------------------------------------------------
+		public bool IsSelected
+		{
+			get { return (bool)this.GetValue(IsSelectedProperty); }
+			set { this.SetValue(IsSelectedProperty, value); }
+		}
+	}
+
+	//=============================================================================
+	class ParentDiffHgFileInfo : DependencyObject
+	{
+		//-----------------------------------------------------------------------------
+		public HgFileInfo FileInfo { get; set; }
+
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty IsSelectedProperty =
+			DependencyProperty.Register("IsSelected", typeof(bool),
+			typeof(ParentDiffHgFileInfo));
+
+		//-----------------------------------------------------------------------------
+		public bool IsSelected
+		{
+			get { return (bool)this.GetValue(IsSelectedProperty); }
+			set { this.SetValue(IsSelectedProperty, value); }
 		}
 	}
 

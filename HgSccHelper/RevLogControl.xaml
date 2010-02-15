@@ -249,11 +249,8 @@
                         >
                 <TabControl.ItemContainerStyle>
                     <Style TargetType="{x:Type TabItem}">
-                        <Setter Property="Header">
-                            <Setter.Value>
-                                <Binding Path="HeaderString"/>
-                            </Setter.Value>
-                        </Setter>
+                        <Setter Property="Header" Value="{Binding Path=HeaderString, Mode=OneWay}" />
+                        <Setter Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
                     </Style>
                 </TabControl.ItemContainerStyle>
                 <TabControl.ContentTemplate>
@@ -278,15 +275,15 @@
                             </ListView.ContextMenu>
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding Status}" />
-                                    <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding FileViewString}" />
+                                    <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding FileInfo.Status}" />
+                                    <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding FileInfo.FileViewString}" />
                                 </GridView>
                             </ListView.View>
                             <ListView.Resources>
                                 <Style TargetType="ListViewItem">
                                     <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
-                                    <EventSetter Event="MouseDoubleClick"
-                                 Handler="ListViewFiles_MouseDoubleClick" />
+                                    <EventSetter Event="MouseDoubleClick" Handler="ListViewFiles_MouseDoubleClick" />
+                                    <Setter Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
                                 </Style>
                             </ListView.Resources>
                         </ListView>
