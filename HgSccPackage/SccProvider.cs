@@ -168,6 +168,12 @@ namespace HgSccPackage
 				mcs.AddCommand(menuCmd);
 
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
+					CommandId.icmdClone);
+
+				menuCmd = new MenuCommand(Exec_icmdClone, cmd);
+				mcs.AddCommand(menuCmd);
+
+				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 					CommandId.icmdSynchronize);
 
 				menuCmd = new MenuCommand(Exec_icmdSynchronize, cmd);
@@ -535,6 +541,10 @@ namespace HgSccPackage
 					cmdf |= QueryStatus_icmdAddToSourceControl();
 					break;
 
+				case CommandId.icmdClone:
+					cmdf |= QueryStatus_icmdClone();
+					break;
+
 				case CommandId.icmdSynchronize:
 					cmdf |= QueryStatus_icmdSynchronize();
 					break;
@@ -772,6 +782,11 @@ namespace HgSccPackage
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
+		private OLECMDF QueryStatus_icmdClone()
+		{
+			return OLECMDF.OLECMDF_ENABLED;
+		}
+
 		private OLECMDF QueryStatus_icmdSynchronize()
 		{
 			if (!IsThereASolution())
@@ -947,6 +962,11 @@ namespace HgSccPackage
 
 			sccService.AddProjectsToSourceControl(hashUncontrolledProjects,
 												  isSolutionSelected);
+		}
+
+		private void Exec_icmdClone(object sender, EventArgs e)
+		{
+			sccService.Clone();
 		}
 
 		private void Exec_icmdSynchronize(object sender, EventArgs e)

@@ -67,6 +67,15 @@ namespace HgSccPackage
 			}
 		}
 
+		//-----------------------------------------------------------------------------
+		public string WorkingDir
+		{
+			get
+			{
+				return IsValid ? hgscc.WorkingDir : string.Empty;
+			}
+		}
+
 		//------------------------------------------------------------------
 		public SccErrors Init(string work_dir, SccOpenProjectFlags flags)
 		{

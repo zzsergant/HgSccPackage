@@ -2031,6 +2031,26 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		public void Clone()
+		{
+			string source_path = null;
+
+			if (storage != null && storage.IsValid)
+			{
+				source_path = storage.WorkingDir;
+			}
+
+			using (var proxy = new WpfToWinFormsProxy<CloneWindow>())
+			{
+				var wnd = proxy.Wnd;
+				if (!String.IsNullOrEmpty(source_path))
+					wnd.SourcePath = Path.GetFullPath(source_path);
+	
+				proxy.ShowDialog();
+			}
+		}
+
+		//------------------------------------------------------------------
 		public void Update()
 		{
 			if (storage == null)
