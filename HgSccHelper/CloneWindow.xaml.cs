@@ -93,6 +93,8 @@ namespace HgSccHelper
 				textSourcePath.Text = SourcePath;
 				textDestPath.Text = SourcePath;
 			}
+
+			textSourcePath.Focus();
 		}
 
 		//------------------------------------------------------------------

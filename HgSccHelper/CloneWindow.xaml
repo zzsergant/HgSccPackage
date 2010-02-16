@@ -106,6 +106,7 @@
                  VerticalContentAlignment="Stretch"
                  VerticalScrollBarVisibility="Visible"
                  HorizontalScrollBarVisibility="Visible"
+                 IsTabStop="False"
                  MinHeight="150"
                  FontFamily="Courier New"
                  IsReadOnly="True">
