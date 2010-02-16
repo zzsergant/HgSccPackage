@@ -149,7 +149,7 @@ namespace HgSccHelper
 
 			if (CloneToRevision)
 			{
-				builder.Append(" --rev " + textRevision.Text.Quote());
+				builder.Append(" --rev " + textRevision.Text);
 			}
 
 			if (NoUpdate)
