@@ -62,6 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChangeDesc.cs" />
+    <Compile Include="CloneWindow.xaml.cs">
+      <DependentUpon>CloneWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CommitWindow.xaml.cs">
       <DependentUpon>CommitWindow.xaml</DependentUpon>
     </Compile>
@@ -145,6 +148,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="CloneWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CommitWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
