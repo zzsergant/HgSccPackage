@@ -92,6 +92,9 @@ namespace HgSccHelper
 			{
 				textSourcePath.Text = SourcePath;
 				textDestPath.Text = SourcePath;
+
+				textSourcePath.SelectAll();
+				textDestPath.SelectAll();
 			}
 
 			textSourcePath.Focus();
