@@ -61,6 +61,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BranchNameWindow.xaml.cs">
+      <DependentUpon>BranchNameWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ChangeDesc.cs" />
     <Compile Include="CloneWindow.xaml.cs">
       <DependentUpon>CloneWindow.xaml</DependentUpon>
@@ -79,6 +82,7 @@
     <Compile Include="HgAboutControl.Designer.cs">
       <DependentUpon>HgAboutControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="HgBranch.cs" />
     <Compile Include="HgDiffOptionsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -148,6 +152,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="BranchNameWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CloneWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

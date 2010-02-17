@@ -48,8 +48,16 @@ namespace HgSccHelper
 		public static RoutedUICommand RestartMergeCommand = new RoutedUICommand("Restart Merge",
 			"RestartMerge", typeof(CommitWindow));
 
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand SetBranchNameCommand = new RoutedUICommand("Set Branch Name",
+			"SetBranchName", typeof(CommitWindow));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand ResetBranchNameCommand = new RoutedUICommand("Reset Branch Name",
+			"ResetBranchName", typeof(CommitWindow));
+
 		ObservableCollection<CommitItem> commit_items;
-		ObservableCollection<string> parents;
+		ObservableCollection<RevLogChangeDesc> parents;
 
 		//-----------------------------------------------------------------------------
 		public CommitWindow()
@@ -57,7 +65,7 @@ namespace HgSccHelper
 			InitializeComponent();
 
 			commit_items = new ObservableCollection<CommitItem>();
-			parents = new ObservableCollection<string>();
+			parents = new ObservableCollection<RevLogChangeDesc>();
 
 			VirtualizingStackPanel.SetIsVirtualizing(listFiles, true);
 			VirtualizingStackPanel.SetVirtualizationMode(listFiles, VirtualizationMode.Recycling);
@@ -120,6 +128,30 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty IsNewBranchProperty =
+			DependencyProperty.Register("IsNewBranch", typeof(bool),
+			typeof(CommitWindow));
+
+		//------------------------------------------------------------------
+		private bool IsNewBranch
+		{
+			get { return (bool)this.GetValue(IsNewBranchProperty); }
+			set { this.SetValue(IsNewBranchProperty, value); }
+		}
+
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty BranchNameProperty =
+			DependencyProperty.Register("BranchName", typeof(string),
+			typeof(CommitWindow));
+
+		//-----------------------------------------------------------------------------
+		private string BranchName
+		{
+			get { return (string)this.GetValue(BranchNameProperty); }
+			set { this.SetValue(BranchNameProperty, value); }
+		}
+
+		//-----------------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			Hg = new Hg();
@@ -145,7 +177,7 @@ namespace HgSccHelper
 			}
 
 			foreach (var parent in CurrentRevision.Parents)
-				parents.Add(Hg.GetRevisionDesc(WorkingDir, parent.SHA1).GetDescription());
+				parents.Add(Hg.GetRevisionDesc(WorkingDir, parent.SHA1));
 
 			if (!Prepare())
 			{
@@ -165,8 +197,8 @@ namespace HgSccHelper
 
 			if (IsMergeActive)
 			{
-				textParent1.Text = parents[0];
-				textParent2.Text = parents[1];
+				textParent1.Text = parents[0].GetDescription();
+				textParent2.Text = parents[1].GetDescription();
 			}
 			else
 			{
@@ -175,9 +207,22 @@ namespace HgSccHelper
 				// FIXME: It should be textParent1, but
 				// after removing column definition from the grid
 				// it leaves textParent2 textBox
-				textParent2.Text = parents[0];
+				textParent2.Text = parents[0].GetDescription();
 			}
+
+			UpdateBranchName();
+
 			textCommitMessage.Focus();
+		}
+
+		//------------------------------------------------------------------
+		void UpdateBranchName()
+		{
+			var hg_branch = new HgBranch();
+			BranchName = hg_branch.GetBranchName(WorkingDir);
+
+			// FIXME: Comparing only with first parent ?
+			IsNewBranch = (parents[0].Branch != BranchName);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -666,6 +711,74 @@ namespace HgSccHelper
 						item.IsChecked = new_checked_state;
 				}
 			}
+		}
+
+		//------------------------------------------------------------------
+		private void btnCancel_Click(object sender, RoutedEventArgs e)
+		{
+			Close();
+		}
+
+		//------------------------------------------------------------------
+		private void SetBranchName_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = !IsNewBranch;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void SetBranchName_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var wnd = new BranchNameWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.Owner = Window.GetWindow(this);
+
+			if (wnd.ShowDialog() == true)
+			{
+				var hg = new Hg();
+				var branches = hg.Branches(WorkingDir);
+				if (branches.Count == 0)
+					return;
+
+				bool is_forced = false;
+				if (branches.Any(branch => branch.Name == wnd.BranchName))
+				{
+					var msg = String.Format("The branch with name '{0}' is allready exists.\nAre you sure to force branch name change ?", wnd.BranchName);
+					var result = MessageBox.Show(msg, "Question", MessageBoxButton.YesNo, MessageBoxImage.Question);
+					if (result != MessageBoxResult.Yes)
+						return;
+
+					is_forced = true;
+				}
+
+				var options = HgBranchOptions.None;
+				if (is_forced)
+					options = HgBranchOptions.Force;
+
+				var hg_branch = new HgBranch();
+				if (!hg_branch.SetBranchName(WorkingDir, wnd.BranchName, options))
+				{
+					MessageBox.Show("Unable to set branch name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+					return;
+				}
+				
+				UpdateBranchName();
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void ResetBranchName_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = IsNewBranch;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void ResetBranchName_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var hg_branch = new HgBranch();
+			hg_branch.ResetBranchName(WorkingDir);
+			UpdateBranchName();
 		}
 	}
 

@@ -1,0 +1,23 @@
+﻿<Window x:Class="HgSccHelper.BranchNameWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="BranchNameWindow"
+    Loaded="Window_Loaded"
+    WindowStartupLocation="CenterScreen"
+    SizeToContent="WidthAndHeight"
+    MaxWidth="500"
+    Height="Auto"
+    Width="Auto">
+    <StackPanel>
+        <Label Content="Enter branch name:" Margin="5, 0"/>
+        <TextBox Name="textBranchName"
+                 MinWidth="400" Margin="5"></TextBox>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="OK" MinWidth="75" MinHeight="25" Margin="0,5"
+                    IsDefault="True"
+                    Name="btnOK" Click="btnOK_Click"></Button>
+            <Button Content="Cancel" MinWidth="75" MinHeight="25" Margin="5"
+                    IsCancel="True"></Button>
+        </StackPanel>
+    </StackPanel>
+</Window>

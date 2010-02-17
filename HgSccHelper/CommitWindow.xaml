@@ -39,6 +39,14 @@
                         CanExecute="RestartMerge_CanExecute"
                         Executed="RestartMerge_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.SetBranchNameCommand}"
+                        CanExecute="SetBranchName_CanExecute"
+                        Executed="SetBranchName_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.ResetBranchNameCommand}"
+                        CanExecute="ResetBranchName_CanExecute"
+                        Executed="ResetBranchName_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
     <Window.Resources>
         <DataTemplate x:Key="CheckBoxCell">
@@ -75,6 +83,10 @@
                         MinWidth="75" />
                 <Button Content="Restart Merge"
                         Command="{x:Static local:CommitWindow.RestartMergeCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Set Branch Name"
+                        Command="{x:Static local:CommitWindow.SetBranchNameCommand}"
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
@@ -184,13 +196,45 @@
                     </ListView.Resources>
                 </ListView>
             </Grid>
-            <StackPanel Grid.Row="3"
-                    Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Commit" MinWidth="75" MinHeight="25" Margin="0,5"
-                    Name="btnCommit" Click="btnCommit_Click"></Button>
-                <Button Content="Cancel" MinWidth="75" MinHeight="25" Margin="5"
-                    Name="btnCancel" IsCancel="True"></Button>
-            </StackPanel>
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" HorizontalAlignment="Left" Orientation="Horizontal">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsNewBranch, ElementName=root}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <Label Content="New branch:" HorizontalAlignment="Center"
+                           Margin="5">
+                    </Label>
+                    <TextBox Text="{Binding ElementName=root, Path=BranchName}"
+                             MinWidth="100"
+                             MaxWidth="500"
+                             MinHeight="25" Margin="0,5" TextAlignment="Center"
+                             IsReadOnly="True" IsTabStop="False"
+                             HorizontalAlignment="Left"/>
+                    <Button HorizontalAlignment="Left" Content="Reset Branch Name"
+                            Padding="10, 0"
+                            Command="{x:Static local:CommitWindow.ResetBranchNameCommand}"
+                            MinWidth="75" MinHeight="25" Margin="5"></Button>
+                </StackPanel>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button Content="Commit" MinWidth="75" MinHeight="25" Margin="0,5"
+                            HorizontalAlignment="Right"
+                            Name="btnCommit" Click="btnCommit_Click"></Button>
+                    <Button Content="Cancel" MinWidth="75" MinHeight="25" Margin="5"
+                            HorizontalAlignment="Right"
+                            Click="btnCancel_Click"
+                            Name="btnCancel"></Button>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
