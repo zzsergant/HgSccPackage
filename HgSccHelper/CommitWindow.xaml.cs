@@ -56,6 +56,14 @@ namespace HgSccHelper
 		public static RoutedUICommand ResetBranchNameCommand = new RoutedUICommand("Reset Branch Name",
 			"ResetBranchName", typeof(CommitWindow));
 
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand CloseNamedBranchCommand = new RoutedUICommand("Close Named Branch",
+			"CloseNamedBranch", typeof(CommitWindow));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand ClearPendingBranchCloseCommand = new RoutedUICommand("Clear Pending Branch Close",
+			"ClearPendingBranchClose", typeof(CommitWindow));
+
 		ObservableCollection<CommitItem> commit_items;
 		ObservableCollection<RevLogChangeDesc> parents;
 
@@ -71,6 +79,9 @@ namespace HgSccHelper
 			VirtualizingStackPanel.SetVirtualizationMode(listFiles, VirtualizationMode.Recycling);
 
 			UpdateContext = new UpdateContext();
+
+			NamedBranchOp = new NamedBranchOperation();
+			branchPanel.DataContext = NamedBranchOp;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -127,29 +138,8 @@ namespace HgSccHelper
 			set { this.SetValue(IsAllCheckedProperty, value); }
 		}
 
-		//-----------------------------------------------------------------------------
-		public static readonly DependencyProperty IsNewBranchProperty =
-			DependencyProperty.Register("IsNewBranch", typeof(bool),
-			typeof(CommitWindow));
-
 		//------------------------------------------------------------------
-		private bool IsNewBranch
-		{
-			get { return (bool)this.GetValue(IsNewBranchProperty); }
-			set { this.SetValue(IsNewBranchProperty, value); }
-		}
-
-		//-----------------------------------------------------------------------------
-		public static readonly DependencyProperty BranchNameProperty =
-			DependencyProperty.Register("BranchName", typeof(string),
-			typeof(CommitWindow));
-
-		//-----------------------------------------------------------------------------
-		private string BranchName
-		{
-			get { return (string)this.GetValue(BranchNameProperty); }
-			set { this.SetValue(BranchNameProperty, value); }
-		}
+		NamedBranchOperation NamedBranchOp { get; set; }
 
 		//-----------------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -219,10 +209,10 @@ namespace HgSccHelper
 		void UpdateBranchName()
 		{
 			var hg_branch = new HgBranch();
-			BranchName = hg_branch.GetBranchName(WorkingDir);
+			NamedBranchOp.BranchName = hg_branch.GetBranchName(WorkingDir);
 
 			// FIXME: Comparing only with first parent ?
-			IsNewBranch = (parents[0].Branch != BranchName);
+			NamedBranchOp.IsNewBranch = (parents[0].Branch != NamedBranchOp.BranchName);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -354,6 +344,10 @@ namespace HgSccHelper
 				return;
 			}
 
+			var options = HgCommitOptions.None;
+			if (NamedBranchOp.IsClosingNamedBranch)
+				options |= HgCommitOptions.CloseBranch;
+
 			if (IsMergeActive)
 			{
 				if (commit_items.Any(item => item.ResolveStatus == ResolveStatus.Unresolved))
@@ -362,7 +356,8 @@ namespace HgSccHelper
 					return;
 				}
 
-				if (Hg.CommitAll(WorkingDir, CommitMessage))
+
+				if (Hg.CommitAll(WorkingDir, options, CommitMessage))
 				{
 					CommitedFiles = new List<string>();
 
@@ -403,13 +398,13 @@ namespace HgSccHelper
 
 				if (checked_list.Count == commit_items.Count)
 				{
-					result = Hg.CommitAll(WorkingDir, CommitMessage);
+					result = Hg.CommitAll(WorkingDir, options, CommitMessage);
 				}
 				else if (to_commit_files.Count > 0)
 				{
 					try
 					{
-						result = Hg.Commit(WorkingDir, to_commit_files, CommitMessage);
+						result = Hg.Commit(WorkingDir, options, to_commit_files, CommitMessage);
 					}
 					catch (HgCommandLineException)
 					{
@@ -722,7 +717,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void SetBranchName_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = !IsNewBranch;
+			if (NamedBranchOp != null)
+			{
+				e.CanExecute = !NamedBranchOp.IsNewBranch;
+			}
 			e.Handled = true;
 		}
 
@@ -769,7 +767,9 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ResetBranchName_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = IsNewBranch;
+			if (NamedBranchOp != null)
+				e.CanExecute = NamedBranchOp.IsNewBranch;
+
 			e.Handled = true;
 		}
 
@@ -779,6 +779,35 @@ namespace HgSccHelper
 			var hg_branch = new HgBranch();
 			hg_branch.ResetBranchName(WorkingDir);
 			UpdateBranchName();
+		}
+
+		//------------------------------------------------------------------
+		private void CloseNamedBranch_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			if (NamedBranchOp != null)
+				e.CanExecute = !NamedBranchOp.IsClosingNamedBranch;
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void CloseNamedBranch_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			NamedBranchOp.IsClosingNamedBranch = true;
+		}
+
+		//------------------------------------------------------------------
+		private void ClearPendingBranchClose_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			if (NamedBranchOp != null)
+				e.CanExecute = NamedBranchOp.IsClosingNamedBranch;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void ClearPendingBranchClose_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			NamedBranchOp.IsClosingNamedBranch = false;
 		}
 	}
 
@@ -819,5 +848,45 @@ namespace HgSccHelper
 				return FileInfo.FileViewString;
 			}
 		}
+	}
+
+	//==================================================================
+	internal class NamedBranchOperation : DependencyObject
+	{
+		//-----------------------------------------------------------------------------
+		public bool IsNewBranch
+		{
+			get { return (bool)this.GetValue(IsNewBranchProperty); }
+			set { this.SetValue(IsNewBranchProperty, value); }
+		}
+
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty IsNewBranchProperty =
+			DependencyProperty.Register("IsNewBranch", typeof(bool),
+			typeof(NamedBranchOperation));
+
+		//-----------------------------------------------------------------------------
+		public bool IsClosingNamedBranch
+		{
+			get { return (bool)this.GetValue(IsClosingNamedBranchProperty); }
+			set { this.SetValue(IsClosingNamedBranchProperty, value); }
+		}
+
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty IsClosingNamedBranchProperty =
+			DependencyProperty.Register("IsClosingNamedBranch", typeof(bool),
+			typeof(NamedBranchOperation));
+
+		//-----------------------------------------------------------------------------
+		public string BranchName
+		{
+			get { return (string)this.GetValue(BranchNameProperty); }
+			set { this.SetValue(BranchNameProperty, value); }
+		}
+
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty BranchNameProperty =
+			DependencyProperty.Register("BranchName", typeof(string),
+			typeof(NamedBranchOperation));
 	}
 }

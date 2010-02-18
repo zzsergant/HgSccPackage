@@ -47,6 +47,14 @@
                         CanExecute="ResetBranchName_CanExecute"
                         Executed="ResetBranchName_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.CloseNamedBranchCommand}"
+                        CanExecute="CloseNamedBranch_CanExecute"
+                        Executed="CloseNamedBranch_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.ClearPendingBranchCloseCommand}"
+                        CanExecute="ClearPendingBranchClose_CanExecute"
+                        Executed="ClearPendingBranchClose_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
     <Window.Resources>
         <DataTemplate x:Key="CheckBoxCell">
@@ -87,6 +95,9 @@
                 <Separator />
                 <Button Content="Set Branch Name"
                         Command="{x:Static local:CommitWindow.SetBranchNameCommand}"
+                        MinWidth="75" />
+                <Button Content="Close Named Branch"
+                        Command="{x:Static local:CommitWindow.CloseNamedBranchCommand}"
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
@@ -201,29 +212,60 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" HorizontalAlignment="Left" Orientation="Horizontal">
+                <StackPanel Name="branchPanel" Grid.Column="0"
+                            HorizontalAlignment="Left" Orientation="Horizontal">
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=IsNewBranch, ElementName=root}" Value="False">
-                                    <Setter Property="Visibility" Value="Collapsed"></Setter>
-                                </DataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding Path=IsNewBranch}" Value="False">
+                                        </Condition>
+                                        <Condition Binding="{Binding Path=IsClosingNamedBranch}" Value="False">
+                                        </Condition>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="StackPanel.Visibility" Value="Collapsed"></Setter>
+                                </MultiDataTrigger>
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-                    <Label Content="New branch:" HorizontalAlignment="Center"
+                    <Label Content="Branch Name:" HorizontalAlignment="Center"
                            Margin="5">
                     </Label>
-                    <TextBox Text="{Binding ElementName=root, Path=BranchName}"
+                    <TextBox Text="{Binding Path=BranchName}"
                              MinWidth="100"
-                             MaxWidth="500"
+                             MaxWidth="400"
                              MinHeight="25" Margin="0,5" TextAlignment="Center"
                              IsReadOnly="True" IsTabStop="False"
                              HorizontalAlignment="Left"/>
                     <Button HorizontalAlignment="Left" Content="Reset Branch Name"
                             Padding="10, 0"
                             Command="{x:Static local:CommitWindow.ResetBranchNameCommand}"
-                            MinWidth="75" MinHeight="25" Margin="5"></Button>
+                            MinWidth="75" MinHeight="25" Margin="5,5,0,5">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsNewBranch}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                    </Button>
+                    <Button HorizontalAlignment="Left" Content="Clear Pending Branch Close"
+                            Padding="10, 0"
+                            Command="{x:Static local:CommitWindow.ClearPendingBranchCloseCommand}"
+                            MinWidth="75" MinHeight="25" Margin="5,5,0,5">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsClosingNamedBranch}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                    </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Content="Commit" MinWidth="75" MinHeight="25" Margin="0,5"

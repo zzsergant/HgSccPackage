@@ -533,12 +533,15 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public bool Commit(string work_dir, IEnumerable<string> files, string comment)
+		public bool Commit(string work_dir, HgCommitOptions options, IEnumerable<string> files, string comment)
 		{
 			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
 				StringBuilder args = new StringBuilder();
 				args.Append("commit");
+				if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
+					args.Append(" --close-branch");
+
 				args.Append(" -l " + commit_msg_file.FileName.Quote());
 
 				var cmd_line = new StringBuilder();
@@ -564,12 +567,15 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public bool CommitAll(string work_dir, string comment)
+		public bool CommitAll(string work_dir, HgCommitOptions options, string comment)
 		{
 			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
 				StringBuilder args = new StringBuilder();
 				args.Append("commit");
+				if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
+					args.Append(" --close-branch");
+
 				args.Append(" -l " + commit_msg_file.FileName.Quote());
 
 				return RunHg(work_dir, args.ToString());
@@ -577,12 +583,15 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public bool CommitAll(string work_dir, string comment, string date_str)
+		public bool CommitAll(string work_dir, HgCommitOptions options, string comment, string date_str)
 		{
 			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
 				StringBuilder args = new StringBuilder();
 				args.Append("commit");
+				if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
+					args.Append(" --close-branch");
+
 				args.Append(" -l " + commit_msg_file.FileName.Quote());
 				args.Append(" -d " + date_str.Quote());
 
@@ -1487,6 +1496,14 @@ namespace HgSccHelper
 	{
 		None,
 		Force
+	}
+
+	//------------------------------------------------------------------
+	[Flags]
+	enum HgCommitOptions
+	{
+		None			= 0x00,
+		CloseBranch		= 0x01
 	}
 
 	//------------------------------------------------------------------

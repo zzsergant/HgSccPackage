@@ -319,7 +319,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public SccErrors CommitAll(IntPtr hwnd, string comment)
 		{
-			if (!hg.CommitAll(WorkingDir, comment))
+			if (!hg.CommitAll(WorkingDir, HgCommitOptions.None, comment))
 				return SccErrors.OpNotPerformed;
 
 			return SccErrors.Ok;
@@ -328,7 +328,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public SccErrors CommitAll(IntPtr hwnd, string comment, string date_str)
 		{
-			if (!hg.CommitAll(WorkingDir, comment, date_str))
+			if (!hg.CommitAll(WorkingDir, HgCommitOptions.None, comment, date_str))
 				return SccErrors.OpNotPerformed;
 
 			return SccErrors.Ok;
