@@ -3,8 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="CloneWindow"
     xmlns:local="clr-namespace:HgSccHelper"
-    MaxHeight="500"
-    MaxWidth="800"
     x:Name="root"
     Loaded="Window_Loaded"
     Unloaded="Window_Unloaded"
