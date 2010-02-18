@@ -4,6 +4,8 @@
     Title="CloneWindow"
     xmlns:local="clr-namespace:HgSccHelper"
     x:Name="root"
+    Height="600"
+    Width="1026"
     Loaded="Window_Loaded"
     Unloaded="Window_Unloaded"
     PreviewKeyDown="Window_PreviewKeyDown"
