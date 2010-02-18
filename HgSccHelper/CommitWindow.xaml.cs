@@ -210,9 +210,19 @@ namespace HgSccHelper
 		{
 			var hg_branch = new HgBranch();
 			NamedBranchOp.BranchName = hg_branch.GetBranchName(WorkingDir);
+			NamedBranchOp.IsNewBranch = false;
 
 			// FIXME: Comparing only with first parent ?
-			NamedBranchOp.IsNewBranch = (parents[0].Branch != NamedBranchOp.BranchName);
+			if (parents[0] == null && NamedBranchOp.BranchName != "default")
+			{
+				// If the branch name changed from the very first commit
+				NamedBranchOp.IsNewBranch = true;
+			}
+			else
+				if (parents[0] != null && parents[0].Branch != NamedBranchOp.BranchName)
+				{
+					NamedBranchOp.IsNewBranch = true;
+				}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -735,8 +745,6 @@ namespace HgSccHelper
 			{
 				var hg = new Hg();
 				var branches = hg.Branches(WorkingDir, HgBranchesOptions.Closed);
-				if (branches.Count == 0)
-					return;
 
 				bool is_forced = false;
 				if (branches.Any(branch => branch.Name == wnd.BranchName))
