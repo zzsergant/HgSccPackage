@@ -41,13 +41,13 @@ namespace HgSccPackage.Vs
 		//------------------------------------------------------------------
 		public bool Add(string filename)
 		{
-			var file_info = new FileInfo(filename);
-			if (!file_info.Exists)
+			if (!File.Exists(filename))
 			{
 				Logger.WriteLine("FilesChangeMonitor.Add - file {0} is not exists", filename);
 				return false;
 			}
 
+			var file_info = new FileInfo(filename);
 			files.Add(new FileUpdateInfo { FileName = filename, LastWriteTime = file_info.LastWriteTime });
 			return true;
 		}
@@ -62,15 +62,16 @@ namespace HgSccPackage.Vs
 			changed_files.Clear();
 			foreach (var file in files)
 			{
-				var file_info = new FileInfo(file.FileName);
-				if (!file_info.Exists)
+				if (!File.Exists(file.FileName))
 				{
 					// file is not exists anymore
 					changed_files.Add(file.FileName.ToLower());
 				}
-				else if (file_info.LastWriteTime.CompareTo(file.LastWriteTime) != 0)
+				else
 				{
-					changed_files.Add(file.FileName.ToLower());
+					var file_info = new FileInfo(file.FileName);
+					if (file_info.LastWriteTime.CompareTo(file.LastWriteTime) != 0)
+						changed_files.Add(file.FileName.ToLower());
 				}
 			}
 
