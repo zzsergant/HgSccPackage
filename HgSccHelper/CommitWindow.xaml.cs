@@ -734,7 +734,7 @@ namespace HgSccHelper
 			if (wnd.ShowDialog() == true)
 			{
 				var hg = new Hg();
-				var branches = hg.Branches(WorkingDir);
+				var branches = hg.Branches(WorkingDir, HgBranchesOptions.Closed);
 				if (branches.Count == 0)
 					return;
 

@@ -1284,10 +1284,14 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		public List<BranchInfo> Branches(string work_dir)
+		public List<BranchInfo> Branches(string work_dir, HgBranchesOptions options)
 		{
 			StringBuilder args = new StringBuilder();
-			args.Append("branches -v --debug");
+			args.Append("branches --debug -v");
+			if ((options & HgBranchesOptions.Active) == HgBranchesOptions.Active)
+				args.Append(" -a");
+			if ((options & HgBranchesOptions.Closed) == HgBranchesOptions.Closed)
+				args.Append(" -c");
 
 			var branches = new List<BranchInfo>();
 
@@ -1302,6 +1306,7 @@ namespace HgSccHelper
 
 					var branch = new BranchInfo();
 					var inactive_suffix = " (inactive)";
+					var closed_suffix = " (closed)";
 
 					if (str.EndsWith(inactive_suffix))
 					{
@@ -1311,6 +1316,16 @@ namespace HgSccHelper
 					else
 					{
 						branch.IsActive = true;
+					}
+
+					if (str.EndsWith(closed_suffix))
+					{
+						branch.IsClosed = true;
+						str = str.Substring(0, str.Length - closed_suffix.Length);
+					}
+					else
+					{
+						branch.IsClosed = false;
 					}
 
 					int rev_start = str.LastIndexOf(' ') + 1;
@@ -1535,6 +1550,15 @@ namespace HgSccHelper
 
 	//------------------------------------------------------------------
 	[Flags]
+	enum HgBranchesOptions
+	{
+		None = 0x00,
+		Active = 0x01,
+		Closed = 0x02,
+	}
+
+	//------------------------------------------------------------------
+	[Flags]
 	enum HgStatusOptions
 	{
 		None = 0x00,
@@ -1612,5 +1636,6 @@ namespace HgSccHelper
 		public int Rev { get; set; }
 		public string SHA1 { get; set; }
 		public bool IsActive { get; set; }
+		public bool IsClosed { get; set; }
 	}
 }

@@ -156,7 +156,7 @@ namespace HgSccHelper
 				comboRevision.Items.Add(item);
 			}
 
-			var branches = Hg.Branches(WorkingDir);
+			var branches = Hg.Branches(WorkingDir, HgBranchesOptions.Closed);
 			foreach (var branch in branches)
 			{
 				var item = new UpdateComboItem();
@@ -164,7 +164,12 @@ namespace HgSccHelper
 				item.Name = branch.Name;
 				item.Rev = branch.Rev;
 				item.SHA1 = branch.SHA1;
-				item.Misc = branch.IsActive ? "" : "Not Active";
+				item.Misc = "";
+				if (!branch.IsActive)
+					item.Misc = "Not Active";
+				else
+					if (branch.IsClosed)
+						item.Misc = "Closed";
 
 				comboRevision.Items.Add(item);
 			}

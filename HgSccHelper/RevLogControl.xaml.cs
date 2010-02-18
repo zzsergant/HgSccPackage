@@ -154,7 +154,7 @@ namespace HgSccHelper
 				return;
 
 			Branches = new C5.HashDictionary<string, BranchInfo>();
-			foreach (var branch in hg.Branches(WorkingDir))
+			foreach (var branch in hg.Branches(WorkingDir, HgBranchesOptions.Closed))
 			{
 				Branches[branch.SHA1] = branch;
 			}
@@ -540,7 +540,7 @@ namespace HgSccHelper
 		{
 			var hg = new Hg();
 			var new_branches = new C5.HashDictionary<string, BranchInfo>();
-			var branch_list = hg.Branches(WorkingDir);
+			var branch_list = hg.Branches(WorkingDir, HgBranchesOptions.Closed);
 
 			foreach (var branch_info in branch_list)
 			{
