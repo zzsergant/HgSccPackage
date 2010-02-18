@@ -6,6 +6,7 @@
     WindowStartupLocation="CenterScreen"
     SizeToContent="WidthAndHeight"
     MaxWidth="500"
+    ResizeMode="NoResize"
     Height="Auto"
     Width="Auto">
     <StackPanel>
