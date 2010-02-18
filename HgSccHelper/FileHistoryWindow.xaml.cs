@@ -41,6 +41,10 @@ namespace HgSccHelper
 		public static RoutedUICommand TagsCommand = new RoutedUICommand("Add/Remove Tag",
 			"Tags", typeof(FileHistoryWindow));
 
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand ArchiveCommand = new RoutedUICommand("Archive",
+			"Archive", typeof(FileHistoryWindow));
+
 		List<FileHistoryInfo> history;
 
 		//-----------------------------------------------------------------------------
@@ -371,6 +375,38 @@ namespace HgSccHelper
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
+
+		//-----------------------------------------------------------------------------
+		private void Archive_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (listChanges != null)
+			{
+				if (listChanges.SelectedItems.Count == 1)
+				{
+					var change = listChanges.SelectedItems[0] as FileHistoryInfo;
+					if (change != null)
+						e.CanExecute = true;
+				}
+			}
+
+			e.Handled = true;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void Archive_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var change = (FileHistoryInfo)listChanges.SelectedItems[0];
+
+			var wnd = new ArchiveWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.ArchiveRevision = change.ChangeDesc.Rev.ToString();
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
+		}
+
 
 		//------------------------------------------------------------------
 		private void Tags_CanExecute(object sender, CanExecuteRoutedEventArgs e)

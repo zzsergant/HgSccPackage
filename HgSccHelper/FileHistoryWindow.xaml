@@ -68,6 +68,10 @@
                         CanExecute="Tags_CanExecute"
                         Executed="Tags_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:FileHistoryWindow.ArchiveCommand}"
+                        CanExecute="Archive_CanExecute"
+                        Executed="Archive_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -92,6 +96,10 @@
                         MinWidth="75" />
                 <Button Content="Add/Remove Tag"
                         Command="{x:Static local:FileHistoryWindow.TagsCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Archive Revision"
+                        Command="{x:Static local:FileHistoryWindow.ArchiveCommand}"
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
@@ -133,6 +141,8 @@
                               InputGestureText="Shift + D"></MenuItem>
                         <MenuItem Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
                               InputGestureText="Ctrl + U"></MenuItem>
+                        <MenuItem Command="{x:Static local:FileHistoryWindow.ArchiveCommand}"
+                              ></MenuItem>
                         <MenuItem Command="{x:Static local:FileHistoryWindow.TagsCommand}"
                               InputGestureText="Ctrl + T"></MenuItem>
                     </ContextMenu>

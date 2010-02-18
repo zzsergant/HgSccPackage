@@ -60,6 +60,10 @@ namespace HgSccHelper
 			"Merge", typeof(RevLogControl));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand ArchiveCommand = new RoutedUICommand("Archive",
+			"Archive", typeof(RevLogControl));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand ReadNextCommand = new RoutedUICommand("Read Next",
 			"ReadNext", typeof(RevLogControl));
 
@@ -511,6 +515,28 @@ namespace HgSccHelper
 				HandleParentChange();
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//-----------------------------------------------------------------------------
+		private void Archive_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (SelectedChangeset != null)
+				e.CanExecute = true;
+
+			e.Handled = true;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void Archive_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var wnd = new ArchiveWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.ArchiveRevision = SelectedChangeset.Current.ChangeDesc.Rev.ToString();
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
 		}
 
 		//------------------------------------------------------------------

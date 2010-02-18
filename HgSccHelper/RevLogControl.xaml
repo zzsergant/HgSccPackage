@@ -29,6 +29,10 @@
                         CanExecute="Merge_CanExecute"
                         Executed="Merge_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:RevLogControl.ArchiveCommand}"
+                        CanExecute="Archive_CanExecute"
+                        Executed="Archive_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static local:RevLogControl.ReadNextCommand}"
                         CanExecute="ReadNext_CanExecute"
                         Executed="ReadNext_Executed">
@@ -152,6 +156,9 @@
                 <Button Content="Merge with Revision"
                         Command="{x:Static local:RevLogControl.MergeCommand}"
                         MinWidth="75" />
+                <Button Content="Archive Revision"
+                        Command="{x:Static local:RevLogControl.ArchiveCommand}"
+                        MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
         <Grid Grid.Row="1" KeyboardNavigation.TabNavigation="Cycle">
@@ -186,6 +193,7 @@
                               InputGestureText="Ctrl + T"></MenuItem>
                         <MenuItem Command="{x:Static local:RevLogControl.MergeCommand}"
                               InputGestureText="Ctrl + M"></MenuItem>
+                        <MenuItem Command="{x:Static local:RevLogControl.ArchiveCommand}"></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.View>
