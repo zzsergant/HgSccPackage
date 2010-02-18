@@ -64,6 +64,10 @@ namespace HgSccHelper
 			"Archive", typeof(RevLogControl));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand BundleCommand = new RoutedUICommand("Bundle",
+			"Bundle", typeof(RevLogControl));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand ReadNextCommand = new RoutedUICommand("Read Next",
 			"ReadNext", typeof(RevLogControl));
 
@@ -698,6 +702,62 @@ namespace HgSccHelper
 				HandleBranchChanges();
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//------------------------------------------------------------------
+		private void Bundle_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (graphView != null)
+			{
+				if (graphView.SelectedItems.Count == 1 || graphView.SelectedItems.Count == 2)
+					e.CanExecute = true;
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Bundle_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			string base_rev = "null";
+			string target_rev = "tip";
+
+			if (graphView.SelectedItems.Count == 1)
+			{
+				var change = (RevLogLinesPair)graphView.SelectedItem;
+				base_rev = change.Current.ChangeDesc.Rev.ToString();
+			}
+
+			if (graphView.SelectedItems.Count == 2)
+			{
+				var change1 = (RevLogLinesPair)graphView.SelectedItems[0];
+				var change2 = (RevLogLinesPair)graphView.SelectedItems[1];
+
+				var rev1 = change1.Current.ChangeDesc.Rev;
+				var rev2 = change2.Current.ChangeDesc.Rev;
+
+				if (rev1 < rev2)
+				{
+					base_rev = rev1.ToString();
+					target_rev = rev2.ToString();
+				}
+				else
+				{
+					base_rev = rev2.ToString();
+					target_rev = rev1.ToString();
+				}
+			}
+			
+
+			var wnd = new BundleWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.BaseRevision = base_rev;
+			wnd.TargetRevision = target_rev;
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
 		}
 
 		//------------------------------------------------------------------
