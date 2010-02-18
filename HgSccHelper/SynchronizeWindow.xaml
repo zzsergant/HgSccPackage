@@ -81,19 +81,34 @@
             </ToolBar>
         </ToolBarTray>
         <StackPanel Grid.Row="1">
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Repository path:" Padding="5, 0" />
-                <ComboBox Name="comboBoxPaths" MinWidth="500"
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="Repository path:" Margin="5" />
+                <ComboBox Grid.Column="1" Name="comboBoxPaths" MinWidth="500"
                           ItemTemplate="{StaticResource PathComboItemTemplate}"
                           HorizontalContentAlignment="Stretch"
                           TextSearch.TextPath="Path"
+                          Margin="5,5,0,5"
                           ItemsPanel="{StaticResource PathItemsPanelTemplate}"
                           ItemsSource="{Binding}" IsEditable="True">
                 </ComboBox>
-                <Button Content="Browse..." MinWidth="75"
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Stretch">
+                    <Button Content="Browse..." MinWidth="75" MinHeight="23"
+                        Margin="5"
+                        Padding="10,0"
                         Click="Browse_Click"
                         ></Button>
-            </StackPanel>
+                    <Button Content="Browse for Bundle..." MinWidth="75" MinHeight="23"
+                        Margin="0,5,5,5"
+                        Padding="10,0"
+                        Click="BrowseForBundle_Click"
+                        ></Button>
+                </StackPanel>
+            </Grid>
             <StackPanel Orientation="Horizontal">
                 <GroupBox Header="Incoming/Outgoing options:"
                           Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
