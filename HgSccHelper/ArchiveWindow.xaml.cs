@@ -57,6 +57,12 @@ namespace HgSccHelper
 			DependencyProperty.Register("DestinationPath", typeof(string),
 			typeof(ArchiveWindow));
 
+		//-----------------------------------------------------------------------------
+		string ArchiveDirPart { get; set; }
+
+		//-----------------------------------------------------------------------------
+		string ArchiveRevisionPart { get; set; }
+
 		//------------------------------------------------------------------
 		public ArchiveWindow()
 		{
@@ -102,6 +108,9 @@ namespace HgSccHelper
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			Hg = new Hg();
+
+			ArchiveDirPart = WorkingDir;
+			ArchiveRevisionPart = ArchiveRevision;
 
 			timer = new DispatcherTimer();
 			timer.Interval = TimeSpan.FromMilliseconds(200);
@@ -189,6 +198,7 @@ namespace HgSccHelper
 			{
 				revisionDesc.Text = Target.GetDescription();
 				btnArchive.IsEnabled = true;
+				ArchiveRevisionPart = comboRevision.Text;
 			}
 
 			UpdateDestinationPath();
@@ -257,15 +267,9 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void UpdateDestinationPath()
 		{
-			var rev_string = "";
-			if (Target != null)
-			{
-				rev_string = comboRevision.Text;
-			}
-
 			var archive_type = (ArchiveTypeInfo)comboArchiveType.SelectedItem;
 
-			DestinationPath = String.Format("{0}_{1}{2}", WorkingDir, rev_string,
+			DestinationPath = String.Format("{0}_{1}{2}", ArchiveDirPart, ArchiveRevisionPart,
 				archive_type.Extension);
 
 			textDestPath.SelectAll();
@@ -294,6 +298,7 @@ namespace HgSccHelper
 					if (result == System.Windows.Forms.DialogResult.OK)
 					{
 						DestinationPath = dlg.SelectedPath;
+						ArchiveDirPart = DestinationPath;
 						textDestPath.SelectAll();
 					}
 				}
@@ -313,6 +318,7 @@ namespace HgSccHelper
 				if (result == true)
 				{
 					DestinationPath = dlg.FileName;
+					ArchiveDirPart = System.IO.Path.GetDirectoryName(DestinationPath);
 					textDestPath.SelectAll();
 				}
 			}
