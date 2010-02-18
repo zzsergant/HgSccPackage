@@ -52,7 +52,7 @@ namespace HgSccHelper
 
 			if (!is_root_exist)
 			{
-				if ((flags | SccOpenProjectFlags.CreateIfNew) == SccOpenProjectFlags.CreateIfNew)
+				if ((flags & SccOpenProjectFlags.CreateIfNew) == SccOpenProjectFlags.CreateIfNew)
 				{
 					if (!hg.CreateRepository(local_proj_path))
 						return SccErrors.CouldNotCreateProject;
@@ -61,7 +61,7 @@ namespace HgSccHelper
 				}
 				else
 				{
-					if ((flags | SccOpenProjectFlags.SilentOpen) == SccOpenProjectFlags.SilentOpen)
+					if ((flags & SccOpenProjectFlags.SilentOpen) == SccOpenProjectFlags.SilentOpen)
 						return SccErrors.UnknownProject;
 
 					return SccErrors.NonSpecificError;
