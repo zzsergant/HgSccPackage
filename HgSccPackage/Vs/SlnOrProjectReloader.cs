@@ -23,7 +23,7 @@ namespace HgSccPackage.Vs
 {
 	class SlnOrProjectReloader : IDisposable
 	{
-		List<IVsHierarchy> controlled_projects;
+		List<IVsHierarchy> projects;
 		SccProvider scc_provider;
 		IVsFileChangeEx change;
 		FilesChangeMonitor sln_prj_monitor;
@@ -31,10 +31,10 @@ namespace HgSccPackage.Vs
 		IVsSolution solution;
 
 		//------------------------------------------------------------------
-		public SlnOrProjectReloader(SccProvider scc_provider, IEnumerable<IVsHierarchy> controlled_projects)
+		public SlnOrProjectReloader(SccProvider scc_provider, IEnumerable<IVsHierarchy> projects)
 		{
 			this.scc_provider = scc_provider;
-			this.controlled_projects = new List<IVsHierarchy>(controlled_projects);
+			this.projects = new List<IVsHierarchy>(projects);
 			change = (IVsFileChangeEx)scc_provider.GetService(typeof(SVsFileChangeEx));
 			rdt = new VsRunningDocumentTable((IVsRunningDocumentTable)scc_provider.GetService(typeof(SVsRunningDocumentTable)));
 			solution = (IVsSolution)scc_provider.GetService(typeof(SVsSolution));
@@ -45,14 +45,17 @@ namespace HgSccPackage.Vs
 
 			// TODO: check if solution or project was renamed
 
-			foreach (var project_hier in controlled_projects)
+			foreach (var project_hier in projects)
 			{
-				var scc_project = project_hier as IVsSccProject2;
-				if (scc_project != null)
+				var project = project_hier as IVsProject;
+				if (project != null)
 				{
-					var project_path = scc_provider.GetProjectFileName(scc_project);
-					sln_prj_monitor.Add(project_path);
-					change.IgnoreFile(0, project_path, 1);
+					var project_path = scc_provider.GetProjectFileName(project);
+					if (project_path != null)
+					{
+						sln_prj_monitor.Add(project_path);
+						change.IgnoreFile(0, project_path, 1);
+					}
 				}
 				else
 				{
@@ -87,15 +90,18 @@ namespace HgSccPackage.Vs
 				}
 				else
 				{
-					var proj_map = new C5.HashDictionary<string, IVsSccProject2>();
+					var proj_map = new C5.HashDictionary<string, IVsProject>();
 
-					foreach (var project_hier in controlled_projects)
+					foreach (var project_hier in projects)
 					{
-						var scc_project = project_hier as IVsSccProject2;
+						var scc_project = project_hier as IVsProject;
 						if (scc_project != null)
 						{
 							var project_path = scc_provider.GetProjectFileName(scc_project);
-							proj_map[project_path.ToLower()] = scc_project;
+							if (project_path != null)
+							{
+								proj_map[project_path.ToLower()] = scc_project;
+							}
 						}
 					}
 
@@ -105,7 +111,7 @@ namespace HgSccPackage.Vs
 						foreach (var filename in sln_prj_monitor.ChangedFiles)
 						{
 							Logger.WriteLine("Reloading project: {0}", filename);
-							IVsSccProject2 scc_project;
+							IVsProject scc_project;
 							if (proj_map.Find(filename.ToLower(), out scc_project))
 							{
 								var doc_info = rdt.FindAndLockDocument(filename, _VSRDTFLAGS.RDT_NoLock);

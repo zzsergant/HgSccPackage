@@ -691,28 +691,9 @@ namespace HgSccPackage
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			System.Collections.Generic.IList<VSITEMSELECTION> sel = GetSelectedNodes();
-			bool isSolutionSelected = false;
-			var hash = GetSelectedHierarchies(sel, out isSolutionSelected);
-
-			// The command is enabled when the solution is selected and is controlled
-			// or when an controlled project is selected
-			if (isSolutionSelected)
+			if (sccService.IsValidStorage())
 			{
-				if (sccService.IsProjectControlled(null))
-				{
-					return OLECMDF.OLECMDF_ENABLED;
-				}
-			}
-			else
-			{
-				foreach (IVsHierarchy pHier in hash)
-				{
-					if (sccService.IsProjectControlled(pHier))
-					{
-						return OLECMDF.OLECMDF_ENABLED;
-					}
-				}
+				return OLECMDF.OLECMDF_ENABLED;
 			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
@@ -725,10 +706,10 @@ namespace HgSccPackage
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			int any_controlled_items = 0;
-			int error_code = sccService.AnyItemsUnderSourceControl(out any_controlled_items);
-			if (error_code == VSConstants.S_OK && any_controlled_items != 0)
+			if (sccService.IsValidStorage())
+			{
 				return OLECMDF.OLECMDF_ENABLED;
+			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
@@ -740,10 +721,10 @@ namespace HgSccPackage
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			int any_controlled_items = 0;
-			int error_code = sccService.AnyItemsUnderSourceControl(out any_controlled_items);
-			if (error_code == VSConstants.S_OK && any_controlled_items != 0)
+			if (sccService.IsValidStorage())
+			{
 				return OLECMDF.OLECMDF_ENABLED;
+			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
@@ -794,28 +775,9 @@ namespace HgSccPackage
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			System.Collections.Generic.IList<VSITEMSELECTION> sel = GetSelectedNodes();
-			bool isSolutionSelected = false;
-			var hash = GetSelectedHierarchies(sel, out isSolutionSelected);
-
-			// The command is enabled when the solution is selected and is controlled
-			// or when an controlled project is selected
-			if (isSolutionSelected)
+			if (sccService.IsValidStorage())
 			{
-				if (sccService.IsProjectControlled(null))
-				{
-					return OLECMDF.OLECMDF_ENABLED;
-				}
-			}
-			else
-			{
-				foreach (IVsHierarchy pHier in hash)
-				{
-					if (sccService.IsProjectControlled(pHier))
-					{
-						return OLECMDF.OLECMDF_ENABLED;
-					}
-				}
+				return OLECMDF.OLECMDF_ENABLED;
 			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
@@ -901,10 +863,7 @@ namespace HgSccPackage
 				return;
 			}
 
-			if (sccService != null)
-			{
-				sccService.ViewChangeLog();
-			}
+			sccService.ViewChangeLog();
 		}
 
 		private void Exec_icmdUpdate(object sender, EventArgs e)
@@ -914,10 +873,7 @@ namespace HgSccPackage
 				return;
 			}
 
-			if (sccService != null)
-			{
-				sccService.Update();
-			}
+			sccService.Update();
 		}
 
 		private void Exec_icmdTags(object sender, EventArgs e)
@@ -927,10 +883,7 @@ namespace HgSccPackage
 				return;
 			}
 
-			if (sccService != null)
-			{
-				sccService.Tags();
-			}
+			sccService.Tags();
 		}
 
 		private void Exec_icmdAddToSourceControl(object sender, EventArgs e)
@@ -960,8 +913,10 @@ namespace HgSccPackage
 				}
 			}
 
+			// FIXME: Here the solution is forced to add to the source control
+
 			sccService.AddProjectsToSourceControl(hashUncontrolledProjects,
-												  isSolutionSelected);
+												  true);
 		}
 
 		private void Exec_icmdClone(object sender, EventArgs e)
@@ -1772,19 +1727,29 @@ namespace HgSccPackage
 				return sccFiles[0];
 			}
 
-			// If that failed, attempt to get a name from the IVsProject interface
+			return GetProjectFileName(project);
+		}
+
+		/// <summary>
+		/// Returns the filename of the specified controllable project 
+		/// </summary>
+		public string GetProjectFileName(IVsProject project)
+		{
+			var hierProject = (IVsHierarchy)project;
+
+			// Attempt to get a name from the IVsProject interface
 			string bstrMKDocument;
-			if (	project.GetMkDocument(VSConstants.VSITEMID_ROOT, out bstrMKDocument) == VSConstants.S_OK
-				&&	!string.IsNullOrEmpty(bstrMKDocument))
+			if (project.GetMkDocument(VSConstants.VSITEMID_ROOT, out bstrMKDocument) == VSConstants.S_OK
+				&& !string.IsNullOrEmpty(bstrMKDocument))
 			{
 				return bstrMKDocument;
 			}
 
 			// If that failes, attempt to get the filename from the solution
-			var sol = (IVsSolution) GetService(typeof (SVsSolution));
+			var sol = (IVsSolution)GetService(typeof(SVsSolution));
 			string uniqueName;
-			if (	sol.GetUniqueNameOfProject(hierProject, out uniqueName) == VSConstants.S_OK
-				&&	!string.IsNullOrEmpty(uniqueName))
+			if (sol.GetUniqueNameOfProject(hierProject, out uniqueName) == VSConstants.S_OK
+				&& !string.IsNullOrEmpty(uniqueName))
 			{
 				// uniqueName may be a full-path or may be relative to the solution's folder
 				if (uniqueName.Length > 2 && uniqueName[1] == ':')

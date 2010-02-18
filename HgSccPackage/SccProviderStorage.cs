@@ -265,7 +265,11 @@ namespace HgSccPackage
 		public SccErrors GetStatusForFiles(string[] files, SourceControlStatus[] statuses)
 		{
 			if (!IsValid)
-				return SccErrors.UnknownError;
+			{
+				for (int i = 0; i < statuses.Length; ++i)
+					statuses[i] = SourceControlStatus.scsUncontrolled;
+				return SccErrors.Ok;
+			}
 
 			var not_in_cache = new List<string>();
 
