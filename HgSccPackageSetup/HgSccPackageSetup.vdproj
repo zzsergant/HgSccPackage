@@ -88,12 +88,6 @@
         "Entry"
         {
         "MsmKey" = "8:_3D761CA6B7B183B3243F36A9DCA3674E"
-        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3D761CA6B7B183B3243F36A9DCA3674E"
         "OwnerKey" = "8:_229E4D45386C43D584CB206BA0430E04"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -101,6 +95,12 @@
         {
         "MsmKey" = "8:_3D761CA6B7B183B3243F36A9DCA3674E"
         "OwnerKey" = "8:_0F3149A3920FEEC3C218143700A53C45"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3D761CA6B7B183B3243F36A9DCA3674E"
+        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -286,12 +286,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_229E4D45386C43D584CB206BA0430E04"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_FC98F52F727142218FE70C4535709C94"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -311,12 +305,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_0F3149A3920FEEC3C218143700A53C45"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3D761CA6B7B183B3243F36A9DCA3674E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -377,6 +365,18 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_70A807D41BD59C206887472863C027E5"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_229E4D45386C43D584CB206BA0430E04"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_3D761CA6B7B183B3243F36A9DCA3674E"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -584,7 +584,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:HgSccHelper, Version=1.0.6.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:HgSccHelper, Version=1.0.7.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_0F3149A3920FEEC3C218143700A53C45"
@@ -1028,14 +1028,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Mercurial Source Control Package"
-        "ProductCode" = "8:{E3FFFB61-3163-49D6-B7FE-91BCCA7513FA}"
-        "PackageCode" = "8:{4AA0CEB3-9CBD-4BDD-BA1D-C30FFE23C491}"
+        "ProductCode" = "8:{7A30AFAA-19C5-411B-9A76-F3818A975EFB}"
+        "PackageCode" = "8:{D4C348DC-83E1-4364-82AD-700FE974F9AD}"
         "UpgradeCode" = "8:{92680898-E5B3-43AF-9D81-3E07DA507EBC}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.6"
+        "ProductVersion" = "8:1.0.7"
         "Manufacturer" = "8:Sergey Antonov"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
