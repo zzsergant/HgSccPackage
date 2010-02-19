@@ -651,7 +651,7 @@ namespace HgSccHelper
 		{
 			TagsWindow wnd = new TagsWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.TargetRevision = SelectedChangeset.Current.ChangeDesc.SHA1;
+			wnd.TargetRevision = SelectedChangeset.Current.ChangeDesc.Rev.ToString();
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
