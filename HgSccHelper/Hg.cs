@@ -21,7 +21,7 @@ using Microsoft.Win32;
 namespace HgSccHelper
 {
 	//=============================================================================
-	class HgDiffException : Exception
+	public class HgDiffException : Exception
 	{
 		//-----------------------------------------------------------------------------
 		public HgDiffException()			
@@ -38,7 +38,7 @@ namespace HgSccHelper
 	}
 
 	//=============================================================================
-	class HgCommandLineException : Exception
+	public class HgCommandLineException : Exception
 	{
 		//-----------------------------------------------------------------------------
 		public HgCommandLineException()
@@ -55,7 +55,7 @@ namespace HgSccHelper
 	}
 
 	//==================================================================
-	class CommitMessageFile : IDisposable
+	public class CommitMessageFile : IDisposable
 	{
 		public string FileName { get; private set; }
 
@@ -82,7 +82,7 @@ namespace HgSccHelper
 	}
 
 	//=============================================================================
-	class Hg
+	public class Hg
 	{
 		public const int MaxCmdLength = 2000 - 300;
 
@@ -1500,14 +1500,14 @@ namespace HgSccHelper
 	}
 
 	//------------------------------------------------------------------
-	enum HgUpdateOptions
+	public enum HgUpdateOptions
 	{
 		None,
 		Clean
 	}
 
 	//------------------------------------------------------------------
-	enum HgMergeOptions
+	public enum HgMergeOptions
 	{
 		None,
 		Force
@@ -1515,7 +1515,7 @@ namespace HgSccHelper
 
 	//------------------------------------------------------------------
 	[Flags]
-	enum HgCommitOptions
+	public enum HgCommitOptions
 	{
 		None			= 0x00,
 		CloseBranch		= 0x01
@@ -1523,7 +1523,7 @@ namespace HgSccHelper
 
 	//------------------------------------------------------------------
 	[Flags]
-	enum HgTagOptions
+	public enum HgTagOptions
 	{
 		None	= 0x00,
 		Force	= 0x01,
@@ -1532,7 +1532,7 @@ namespace HgSccHelper
 
 	//------------------------------------------------------------------
 	[Flags]
-	enum HgCopyOptions
+	public enum HgCopyOptions
 	{
 		None = 0x00,
 		Force = 0x01,
@@ -1541,7 +1541,7 @@ namespace HgSccHelper
 
 	//------------------------------------------------------------------
 	[Flags]
-	enum HgRevertOptions
+	public enum HgRevertOptions
 	{
 		None = 0x00,
 		All = 0x01,
@@ -1550,7 +1550,7 @@ namespace HgSccHelper
 
 	//------------------------------------------------------------------
 	[Flags]
-	enum HgBranchesOptions
+	public enum HgBranchesOptions
 	{
 		None = 0x00,
 		Active = 0x01,
@@ -1559,7 +1559,7 @@ namespace HgSccHelper
 
 	//------------------------------------------------------------------
 	[Flags]
-	enum HgStatusOptions
+	public enum HgStatusOptions
 	{
 		None = 0x00,
 		All = 0x01,
@@ -1574,7 +1574,7 @@ namespace HgSccHelper
 	}
 
 	//-----------------------------------------------------------------------------
-	class RenameInfo
+	public class RenameInfo
 	{
 		public string Path { get; set; }
 		public int Rev { get; set; }
@@ -1582,21 +1582,21 @@ namespace HgSccHelper
 	}
 
 	//------------------------------------------------------------------
-	class PathAlias
+	public class PathAlias
 	{
 		public string Alias { get; set; }
 		public string Path { get; set; }
 	}
 
 	//------------------------------------------------------------------
-	class IdentifyData
+	public class IdentifyData
 	{
 		public int Rev { get; set; }
 		public string SHA1 { get; set; }
 	}
 
 	//------------------------------------------------------------------
-	class IdentifyInfo
+	public class IdentifyInfo
 	{
 		public List<IdentifyData> Parents { get; set; }
 		public bool HaveUncommitedChanges { get; set; }
@@ -1621,7 +1621,7 @@ namespace HgSccHelper
 	}
 
 	//------------------------------------------------------------------
-	class TagInfo
+	public class TagInfo
 	{
 		public string Name { get; set; }
 		public int Rev { get; set; }
@@ -1630,7 +1630,7 @@ namespace HgSccHelper
 	}
 
 	//------------------------------------------------------------------
-	class BranchInfo
+	public class BranchInfo
 	{
 		public string Name { get; set; }
 		public int Rev { get; set; }

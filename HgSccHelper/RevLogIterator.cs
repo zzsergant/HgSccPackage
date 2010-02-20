@@ -69,7 +69,7 @@ namespace HgSccHelper
 
 
 	//==================================================================
-	class RevLogIterator
+	public class RevLogIterator
 	{
 		//------------------------------------------------------------------
 		public static IEnumerable<RevLogLines> GetLines(List<RevLogChangeDesc> revs)
@@ -85,7 +85,7 @@ namespace HgSccHelper
 	}
 
 	//==================================================================
-	class RevLogIteratorParser
+	public class RevLogIteratorParser
 	{
 		List<string> revisions;
 

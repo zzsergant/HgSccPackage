@@ -19,7 +19,7 @@ using System.Text;
 namespace HgSccHelper
 {
 	//=============================================================================
-	class HgBundle
+	public class HgBundle
 	{
 		//------------------------------------------------------------------
 		public bool BundleAll(string work_dir, string destination)

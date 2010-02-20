@@ -164,7 +164,7 @@ namespace HgSccHelper
 	}
 
 	//==================================================================
-	class RevLogStyleFile : IDisposable
+	public class RevLogStyleFile : IDisposable
 	{
 		public string FileName { get; private set; }
 

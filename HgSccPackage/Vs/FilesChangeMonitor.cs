@@ -15,7 +15,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using HgSccHelper;
+
+using Logger = HgSccHelper.Logger;
 
 namespace HgSccPackage.Vs
 {

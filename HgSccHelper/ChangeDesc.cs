@@ -20,7 +20,7 @@ using System.Collections.ObjectModel;
 namespace HgSccHelper
 {
 	//=============================================================================
-	class ChangeDesc
+	public class ChangeDesc
 	{
 		public string Author { get; set; }
 		public string Desc { get; set; }
@@ -204,7 +204,7 @@ namespace HgSccHelper
 	}
 
 	//==================================================================
-	class ChangeSetStyleFile : IDisposable
+	public class ChangeSetStyleFile : IDisposable
 	{
 		public string FileName { get; private set; }
 

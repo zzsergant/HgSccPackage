@@ -19,14 +19,14 @@ using System.Diagnostics;
 namespace HgSccHelper
 {
 	//------------------------------------------------------------------
-	enum HgBranchOptions
+	public enum HgBranchOptions
 	{
 		None,
 		Force
 	}
 
 	//==================================================================
-	class HgBranch
+	public class HgBranch
 	{
 		/// <summary>
 		/// Returns a branch name to commit or null

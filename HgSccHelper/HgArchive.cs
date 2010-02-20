@@ -19,14 +19,14 @@ using System.Text;
 namespace HgSccHelper
 {
 	//------------------------------------------------------------------
-	enum HgArchiveOptions
+	public enum HgArchiveOptions
 	{
 		None,
 		NoDecode
 	}
 
 	//-----------------------------------------------------------------------------
-	enum HgArchiveTypes
+	public enum HgArchiveTypes
 	{
 		Files,		// a directory full of files (default)
 		Tar,		// tar archive, uncompressed
@@ -37,7 +37,7 @@ namespace HgSccHelper
 	}
 
 	//=============================================================================
-	class HgArchive
+	public class HgArchive
 	{
 		//------------------------------------------------------------------
 		public bool Archive(string work_dir, string revision, HgArchiveOptions options,
@@ -67,7 +67,7 @@ namespace HgSccHelper
 	}
 
 	//=============================================================================
-	static class HgArchiveUtil
+	static public class HgArchiveUtil
 	{
 		//-----------------------------------------------------------------------------
 		public static string HgTypeString(this HgArchiveTypes archive_type)

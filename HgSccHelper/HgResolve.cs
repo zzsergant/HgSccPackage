@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace HgSccHelper
 {
-	class HgResolve
+	public class HgResolve
 	{
 		//------------------------------------------------------------------
 		public HgResolve()
@@ -164,7 +164,7 @@ namespace HgSccHelper
 	}
 
 	//------------------------------------------------------------------
-	enum ResolveStatus
+	public enum ResolveStatus
 	{
 		None,
 		Resolved,
@@ -172,7 +172,7 @@ namespace HgSccHelper
 	}
 
 	//-----------------------------------------------------------------------------
-	class ResolveInfo
+	public class ResolveInfo
 	{
 		public string Path { get; set; }
 		public ResolveStatus Status { get; set; }

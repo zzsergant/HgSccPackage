@@ -19,7 +19,7 @@ using System.IO;
 namespace HgSccHelper
 {
 	//-----------------------------------------------------------------------------
-	enum FileStatus
+	public enum FileStatus
 	{
 		None,
 		Added,
@@ -28,7 +28,7 @@ namespace HgSccHelper
 	}
 
 	//-----------------------------------------------------------------------------
-	class CopiesInfo
+	public class CopiesInfo
 	{
 		public string FromFile { get; set; }
 		public string ToFile { get; set; }
@@ -62,7 +62,7 @@ namespace HgSccHelper
 
 
 	//=============================================================================
-	class FileInfo
+	public class FileInfo
 	{
 		public FileStatus Status { get;set; }
 		public string Path { get; set; }

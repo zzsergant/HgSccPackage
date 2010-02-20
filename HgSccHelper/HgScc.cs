@@ -21,7 +21,7 @@ using C5;
 namespace HgSccHelper
 {
 	//-----------------------------------------------------------------------------
-	class FackedCheckoutInfo
+	public class FackedCheckoutInfo
 	{
 		public string File { get; set; }
 	}

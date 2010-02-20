@@ -19,7 +19,7 @@ using System.Windows.Forms;
 
 namespace HgSccHelper
 {
-	static class HgOptionsHelper
+	static public class HgOptionsHelper
 	{
 		//-----------------------------------------------------------------------------
 		public static List<string> DetectDiffTools()

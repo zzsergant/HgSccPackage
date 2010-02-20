@@ -16,7 +16,7 @@ using System.Text;
 
 namespace HgSccHelper
 {
-	static class Util
+	static public class Util
 	{
 		//-----------------------------------------------------------------------------
 		public static string Quote(this string str)

@@ -820,7 +820,7 @@ namespace HgSccHelper
 	}
 
 	//==================================================================
-	internal class CommitItem : DependencyObject
+	class CommitItem : DependencyObject
 	{
 		//-----------------------------------------------------------------------------
 		public bool IsChecked
@@ -859,7 +859,7 @@ namespace HgSccHelper
 	}
 
 	//==================================================================
-	internal class NamedBranchOperation : DependencyObject
+	class NamedBranchOperation : DependencyObject
 	{
 		//-----------------------------------------------------------------------------
 		public bool IsNewBranch

@@ -367,7 +367,7 @@ namespace HgSccHelper
 	}
 
 	//==================================================================
-	internal class RevertItem : DependencyObject
+	class RevertItem : DependencyObject
 	{
 		//-----------------------------------------------------------------------------
 		public bool IsChecked

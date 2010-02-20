@@ -23,7 +23,7 @@ namespace HgSccHelper
 	/// <summary>
 	/// Executes hg in background thread
 	/// </summary>
-	class HgThread : IDisposable
+	public class HgThread : IDisposable
 	{
 		BackgroundWorker worker;
 
@@ -240,7 +240,7 @@ namespace HgSccHelper
 	}
 
 	//==================================================================
-	enum HgThreadStatus
+	public enum HgThreadStatus
 	{
 		Completed,
 		Canceled,
@@ -251,7 +251,7 @@ namespace HgSccHelper
 	/// <summary>
 	/// Result of HgThread execution
 	/// </summary>
-	class HgThreadResult
+	public class HgThreadResult
 	{
 		/// <summary>
 		/// Status of execution
@@ -273,7 +273,7 @@ namespace HgSccHelper
 	/// <summary>
 	/// Parameters for HgThread
 	/// </summary>
-	class HgThreadParams
+	public class HgThreadParams
 	{
 		/// <summary>
 		/// Working directory for hg
