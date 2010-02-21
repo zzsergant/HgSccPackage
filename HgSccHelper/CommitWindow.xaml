@@ -104,21 +104,27 @@
         <Grid Grid.Row="1" KeyboardNavigation.TabNavigation="Cycle">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Name="commitMessageRow" Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0"
-                    Margin="5">
-                <Label Content="Commit Message:"></Label>
-                <TextBox Name="textCommitMessage"
+            <Label Grid.Row="0" Margin="5"  Content="Commit Message:" VerticalAlignment="Stretch"></Label>
+            <TextBox Grid.Row="1" Name="textCommitMessage"
                      Text="{Binding Path=CommitMessage, ElementName=root}"
-                     MinLines="2" MaxLines="5"
+                     MinLines="2" MaxLines="10"
+                     VerticalAlignment="Stretch"
                      TextWrapping="WrapWithOverflow"
                      AcceptsReturn="True"
                      VerticalScrollBarVisibility="Auto"></TextBox>
-            </StackPanel>
-            <StackPanel Grid.Row="1"
+            <GridSplitter Grid.Row="1" Margin="0"
+                          Height="5" Background="Transparent"
+                          IsTabStop="False" Cursor="SizeNS"                          
+                          HorizontalAlignment="Stretch"
+                          ResizeBehavior="CurrentAndNext"
+                          VerticalAlignment="Bottom"
+                          DragDelta="GridSplitter_DragDelta" />
+            <StackPanel Grid.Row="2"
                     Margin="5">
                 <Label Content="Parent:"></Label>
                 <Grid Name="parentsGrid">
@@ -142,7 +148,7 @@
                     </TextBox>
                 </Grid>
             </StackPanel>
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="3">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -207,7 +213,7 @@
                     </ListView.Resources>
                 </ListView>
             </Grid>
-            <Grid Grid.Row="3">
+            <Grid Grid.Row="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto" />
