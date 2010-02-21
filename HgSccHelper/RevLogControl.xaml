@@ -175,7 +175,8 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="300" />
-                <RowDefinition Height="Auto" MinHeight="70" />
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" Name="changeDescRow"/>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <ListView x:Name="graphView"
@@ -236,30 +237,32 @@
                       Grid.Column="0"
                       Grid.ColumnSpan="2"
                       Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-            <ScrollViewer Grid.Row="1"
-                      Grid.ColumnSpan="2"
-                      CanContentScroll="True" VerticalScrollBarVisibility="Auto">
-                <StackPanel DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}" CanVerticallyScroll="True">
-                    <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 5">
-                        <Label Content="Changeset:" />
-                        <TextBox Text="{Binding Path=Rev}" IsReadOnly="True" Margin="5, 0" MinWidth="70"/>
-                        <Label Content=":" />
-                        <TextBox Text="{Binding Path=SHA1}" IsReadOnly="True" Margin="5, 0" MinWidth="120"/>
-                        <Label Content="Author:" />
-                        <TextBox Text="{Binding Path=Author}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
-                        <Label Content="Date:" />
-                        <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
-                    </StackPanel>
-                    <TextBox Text="{Binding Path=Desc}" TextWrapping="Wrap"
-                         IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
-                    </TextBox>
-                </StackPanel>
-            </ScrollViewer>
-            <GridSplitter Grid.Row="1" Margin="0"
-                      Grid.Column="0"
-                      Grid.ColumnSpan="2"
-                      Height="5" Background="Transparent" IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-            <TabControl Grid.Row="2" Name="tabParentsDiff"
+            <StackPanel Grid.Row="1" Grid.ColumnSpan="2"
+                        Orientation="Horizontal" Margin="0, 0, 0, 5"
+                        DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}">
+                <Label Content="Changeset:" />
+                <TextBox Text="{Binding Path=Rev}" IsReadOnly="True" Margin="5, 0" MinWidth="70"/>
+                <Label Content=":" />
+                <TextBox Text="{Binding Path=SHA1}" IsReadOnly="True" Margin="5, 0" MinWidth="120"/>
+                <Label Content="Author:" />
+                <TextBox Text="{Binding Path=Author}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
+                <Label Content="Date:" />
+                <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
+            </StackPanel>
+            <TextBox Name="textChangeDesc"
+                     Grid.Row="2" Grid.ColumnSpan="2"
+                     DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}"
+                     Text="{Binding Path=Desc}" TextWrapping="Wrap"
+                     IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
+            </TextBox>
+            <GridSplitter Grid.Row="2" Margin="0"
+                          Grid.Column="0"
+                          Grid.ColumnSpan="2"
+                          DragDelta="GridSplitter_DragDelta"
+                          Height="5" Background="Transparent" IsTabStop="False"
+                          Cursor="SizeNS" HorizontalAlignment="Stretch"
+                          VerticalAlignment="Bottom" />
+            <TabControl Grid.Row="3" Name="tabParentsDiff"
                         Grid.Column="0"
                         Grid.ColumnSpan="2"
                         >

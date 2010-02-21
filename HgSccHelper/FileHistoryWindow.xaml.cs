@@ -562,6 +562,12 @@ namespace HgSccHelper
 					listViewFiles.SelectedIndex = 0;
 			}
 		}
+
+		//------------------------------------------------------------------
+		private void GridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+		{
+			textChangeDesc.Height = changeDescRow.Height.Value;
+		}
 	}
 
 	//==================================================================
