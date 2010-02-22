@@ -103,6 +103,9 @@
     <Compile Include="HgScc.cs" />
     <Compile Include="HgSccOptions.cs" />
     <Compile Include="HgThread.cs" />
+    <Compile Include="Ini\IniFileElement.cs" />
+    <Compile Include="Ini\IniFileLight.cs" />
+    <Compile Include="Ini\IniFiles.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MergeWindow.xaml.cs">
       <DependentUpon>MergeWindow.xaml</DependentUpon>
