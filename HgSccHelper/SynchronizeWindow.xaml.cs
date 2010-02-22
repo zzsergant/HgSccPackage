@@ -44,6 +44,10 @@ namespace HgSccHelper
 			"Stop", typeof(SynchronizeWindow));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand SynchronizeSettingsCommand = new RoutedUICommand("Settings",
+			"Settings", typeof(SynchronizeWindow));
+
+		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
 
 		//------------------------------------------------------------------
@@ -110,6 +114,12 @@ namespace HgSccHelper
 
 			UpdateAfterPull = true;
 
+			ReloadPaths();
+		}
+
+		//-----------------------------------------------------------------------------
+		void ReloadPaths()
+		{
 			var hg = new Hg();
 			paths = hg.GetPaths(WorkingDir);
 
@@ -426,6 +436,23 @@ namespace HgSccHelper
 			{
 				comboBoxPaths.Text = dlg.FileName;
 			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void SynchronizeSettings_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void SynchronizeSettings_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var wnd = new SynchronizeSettingsWindow();
+			wnd.WorkingDir = WorkingDir;
+
+			if (wnd.ShowDialog() == true)
+				ReloadPaths();
 		}
 	}
 }

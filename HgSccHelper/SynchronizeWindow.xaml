@@ -30,6 +30,10 @@
                         CanExecute="Stop_CanExecute"
                         Executed="Stop_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:SynchronizeWindow.SynchronizeSettingsCommand}"
+                        CanExecute="SynchronizeSettings_CanExecute"
+                        Executed="SynchronizeSettings_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
     <Window.Resources>
         <ItemsPanelTemplate x:Key="PathItemsPanelTemplate">
@@ -77,6 +81,10 @@
                 <Separator />
                 <Button Content="Stop"
                         Command="{x:Static local:SynchronizeWindow.StopCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Settings"
+                        Command="{x:Static local:SynchronizeWindow.SynchronizeSettingsCommand}"
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
