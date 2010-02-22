@@ -190,7 +190,7 @@ namespace HgSccHelper
 
 			try
 			{
-				if (IsValidRemoteUrl(Url))
+				if (Util.IsValidRemoteUrl(Url))
 				{
 					var builder = new UriBuilder(Url);
 					builder.UserName = textUsername.Text;
@@ -209,7 +209,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		void UpdateEnabledStatus()
 		{
-			bool is_valid_remote_url = IsValidRemoteUrl(textUrl.Text);
+			bool is_valid_remote_url = Util.IsValidRemoteUrl(textUrl.Text);
 
 			textUsername.IsEnabled = is_valid_remote_url;
 			passwordBox.IsEnabled = is_valid_remote_url;
@@ -220,29 +220,6 @@ namespace HgSccHelper
 		{
 			UpdateEnabledStatus();
 			Url = textUrl.Text;
-		}
-
-		//-----------------------------------------------------------------------------
-		static bool IsValidRemoteUrl(string url)
-		{
-			try
-			{
-				var uri = new Uri(url);
-				if (!uri.IsFile)
-				{
-					if (	!String.IsNullOrEmpty(uri.Host)
-						&&	!String.IsNullOrEmpty(uri.Scheme)
-						)
-					{
-						return true;
-					}
-				}
-			}
-			catch (UriFormatException)
-			{
-			}
-
-			return false;
 		}
 
 		//-----------------------------------------------------------------------------

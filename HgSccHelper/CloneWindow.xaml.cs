@@ -166,7 +166,22 @@ namespace HgSccHelper
 			if (UseUncompressedTransfer)
 				builder.Append(" --uncompressed");
 
-			builder.Append(" " + textSourcePath.Text.Quote());
+			var source_path = textSourcePath.Text;
+			if (Util.IsValidRemoteUrl(source_path))
+			{
+				try
+				{
+					var uri_builder = new UriBuilder(source_path);
+					uri_builder.UserName = textUsername.Text;
+					uri_builder.Password = passwordBox.Password;
+					source_path = uri_builder.Uri.AbsoluteUri;
+				}
+				catch (UriFormatException)
+				{
+				}
+			}
+
+			builder.Append(" " + source_path.Quote());
 			builder.Append(" " + textDestPath.Text.Quote());
 
 			p.Args = builder.ToString();
@@ -292,6 +307,33 @@ namespace HgSccHelper
 		private void btnCancel_Click(object sender, RoutedEventArgs e)
 		{
 			Close();
+		}
+
+		//------------------------------------------------------------------
+		private void textSourcePath_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			var url = textSourcePath.Text;
+			if (Util.IsValidRemoteUrl(url))
+			{
+				try
+				{
+					var builder = new UriBuilder(url);
+					textUsername.Text = builder.UserName;
+
+					if (!String.IsNullOrEmpty(builder.Password))
+						passwordBox.Password = builder.Password;
+
+					textUsername.IsEnabled = true;
+					passwordBox.IsEnabled = true;
+					return;
+				}
+				catch (UriFormatException)
+				{
+				}
+			}
+
+			textUsername.IsEnabled = false;
+			passwordBox.IsEnabled = false;
 		}
 	}
 }

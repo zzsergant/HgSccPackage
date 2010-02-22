@@ -103,6 +103,59 @@ namespace HgSccHelper
 			desc += String.Format("\nDesc:\t{0}", change_desc.OneLineDesc);
 			return desc;
 		}
+
+		//-----------------------------------------------------------------------------
+		public static bool IsValidRemoteUrl(string url)
+		{
+			try
+			{
+				var uri = new Uri(url);
+				if (!uri.IsFile)
+				{
+					if (!String.IsNullOrEmpty(uri.Host)
+						&& !String.IsNullOrEmpty(uri.Scheme)
+						)
+					{
+						return true;
+					}
+				}
+			}
+			catch (UriFormatException)
+			{
+			}
+
+			return false;
+		}
+
+		//------------------------------------------------------------------
+		public static string MakeRemoteUrl(string url, string username, string password)
+		{
+			try
+			{
+				var uri = new Uri(url);
+				if (!uri.IsFile)
+				{
+					if (!String.IsNullOrEmpty(uri.Host)
+						&& !String.IsNullOrEmpty(uri.Scheme)
+						)
+					{
+						var builder = new UriBuilder(url);
+
+						if (!String.IsNullOrEmpty(username))
+							builder.UserName = username;
+						if (!String.IsNullOrEmpty(password))
+							builder.Password = password;
+
+						return builder.Uri.AbsoluteUri;
+					}
+				}
+			}
+			catch (UriFormatException)
+			{
+			}
+
+			return url;
+		}
 	}
 
 	//==================================================================

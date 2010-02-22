@@ -90,6 +90,10 @@
         </ToolBarTray>
         <StackPanel Grid.Row="1">
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*" />
@@ -116,6 +120,28 @@
                         Click="BrowseForBundle_Click"
                         ></Button>
                 </StackPanel>
+                <Expander Header="Authorization Options"
+                          Grid.Row="1" Grid.Column="1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Grid.Row="0" Content="Username:" Margin="5"></Label>
+                        <TextBox Grid.Column="1" Grid.Row="0"
+                             Name="textUsername"
+                             Margin="5" HorizontalAlignment="Stretch"></TextBox>
+                        <Label Grid.Column="0" Grid.Row="1" Content="Password:" Margin="5"></Label>
+                        <PasswordBox Grid.Column="1" Grid.Row="1"
+                                 Name="passwordBox"
+                                 Margin="5" HorizontalAlignment="Stretch">
+                        </PasswordBox>
+                    </Grid>
+                </Expander>
             </Grid>
             <StackPanel Orientation="Horizontal">
                 <GroupBox Header="Incoming/Outgoing options:"

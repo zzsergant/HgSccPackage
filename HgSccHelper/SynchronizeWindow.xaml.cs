@@ -18,6 +18,7 @@ using System.Windows.Threading;
 using System;
 using System.Collections.Generic;
 using Microsoft.Win32;
+using System.Windows.Controls;
 
 namespace HgSccHelper
 {
@@ -105,6 +106,24 @@ namespace HgSccHelper
 			InitializeComponent();
 
 			worker = new HgThread();
+
+			comboBoxPaths.Loaded += delegate
+			{
+				TextBox editTextBox = comboBoxPaths.Template.FindName("PART_EditableTextBox", comboBoxPaths) as TextBox;
+				if (editTextBox != null)
+				{
+					editTextBox.TextChanged += OnComboTextChanged;
+				}
+			};
+
+			comboBoxPaths.Unloaded += delegate
+			{
+				TextBox editTextBox = comboBoxPaths.Template.FindName("PART_EditableTextBox", comboBoxPaths) as TextBox;
+				if (editTextBox != null)
+				{
+					editTextBox.TextChanged -= OnComboTextChanged;
+				}
+			};
 		}
 
 		//------------------------------------------------------------------
@@ -149,6 +168,26 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private string GetSelectedRepository()
 		{
+			var path = comboBoxPaths.Text;
+			if (Util.IsValidRemoteUrl(path))
+			{
+				try
+				{
+					if (	!String.IsNullOrEmpty(textUsername.Text)
+						&&	!String.IsNullOrEmpty(passwordBox.Password)
+						)
+					{
+						var uri_builder = new UriBuilder(path);
+						uri_builder.UserName = textUsername.Text;
+						uri_builder.Password = passwordBox.Password;
+						return uri_builder.Uri.AbsoluteUri;
+					}
+				}
+				catch (UriFormatException)
+				{
+				}
+			}
+
 			if (comboBoxPaths.SelectedItem != null)
 			{
 				var path_alias = comboBoxPaths.SelectedItem as PathAlias;
@@ -462,6 +501,31 @@ namespace HgSccHelper
 
 			if (wnd.ShowDialog() == true)
 				ReloadPaths();
+		}
+
+		//------------------------------------------------------------------
+		private void OnComboTextChanged(object sender, TextChangedEventArgs e)
+		{
+			var url = comboBoxPaths.Text;
+			if (Util.IsValidRemoteUrl(url))
+			{
+				var builder = new UriBuilder(url);
+				textUsername.Text = builder.UserName;
+
+				if (	!String.IsNullOrEmpty(builder.Password)
+					&&	builder.Password != "***")
+				{
+					passwordBox.Password = builder.Password;
+				}
+
+				textUsername.IsEnabled = true;
+				passwordBox.IsEnabled = true;
+			}
+			else
+			{
+				textUsername.IsEnabled = false;
+				passwordBox.IsEnabled = false;
+			}
 		}
 	}
 }
