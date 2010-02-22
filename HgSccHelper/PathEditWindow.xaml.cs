@@ -44,6 +44,9 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public string Path { get; set; }
 
+		//------------------------------------------------------------------
+		public string WorkingDir { get; set; }
+
 		//-----------------------------------------------------------------------------
 		private string Url
 		{
@@ -250,11 +253,15 @@ namespace HgSccHelper
 				dlg.Description = "Browse for Repository...";
 				dlg.ShowNewFolderButton = false;
 
-				if (	!String.IsNullOrEmpty(Url)
-					&&	System.IO.Directory.Exists(Url)
+				if (!String.IsNullOrEmpty(Url)
+					&& System.IO.Directory.Exists(Url)
 					)
 				{
 					dlg.SelectedPath = textUrl.Text;
+				}
+				else
+				{
+					dlg.SelectedPath = WorkingDir;
 				}
 
 				var result = dlg.ShowDialog();

@@ -191,6 +191,7 @@ namespace HgSccHelper
 				var wnd = new PathEditWindow();
 				wnd.Alias = new_path.Alias;
 				wnd.Path = new_path.Path;
+				wnd.WorkingDir = WorkingDir;
 
 				if (wnd.ShowDialog() != true)
 					return;
