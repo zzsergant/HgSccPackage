@@ -131,6 +131,9 @@ namespace HgSccHelper
 		{
 			Title = string.Format("Synchronize: '{0}'", WorkingDir);
 
+			textUsername.IsEnabled = false;
+			passwordBox.IsEnabled = false;
+
 			UpdateAfterPull = true;
 
 			ReloadPaths();
@@ -516,6 +519,7 @@ namespace HgSccHelper
 					&&	builder.Password != "***")
 				{
 					passwordBox.Password = builder.Password;
+					comboBoxPaths.Text = Util.RemoveUrlPassword(url);
 				}
 
 				textUsername.IsEnabled = true;

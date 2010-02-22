@@ -156,6 +156,62 @@ namespace HgSccHelper
 
 			return url;
 		}
+
+		//------------------------------------------------------------------
+		public static string RemoveUrlPassword(string path)
+		{
+			try
+			{
+				var uri = new Uri(path);
+				if (!uri.IsFile)
+				{
+					if (!String.IsNullOrEmpty(uri.Host)
+						&& !String.IsNullOrEmpty(uri.Scheme)
+						)
+					{
+						var builder = new UriBuilder(path);
+						if (!String.IsNullOrEmpty(builder.Password))
+						{
+							builder.Password = "";
+							return builder.Uri.AbsoluteUri;
+						}
+					}
+				}
+			}
+			catch (UriFormatException)
+			{
+			}
+
+			return path;
+		}
+
+		//-----------------------------------------------------------------------------
+		public static string HideUrlPassword(string path)
+		{
+			try
+			{
+				var uri = new Uri(path);
+				if (!uri.IsFile)
+				{
+					if (!String.IsNullOrEmpty(uri.Host)
+						&& !String.IsNullOrEmpty(uri.Scheme)
+						)
+					{
+						var builder = new UriBuilder(path);
+						if (!String.IsNullOrEmpty(builder.Password))
+						{
+							builder.Password = "***";
+							return builder.Uri.AbsoluteUri;
+						}
+					}
+				}
+			}
+			catch (UriFormatException)
+			{
+			}
+
+			return path;
+		}
 	}
 
 	//==================================================================

@@ -88,6 +88,9 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
+			textUsername.IsEnabled = false;
+			passwordBox.IsEnabled = false;
+
 			if (!String.IsNullOrEmpty(SourcePath))
 			{
 				textSourcePath.Text = SourcePath;
@@ -320,8 +323,13 @@ namespace HgSccHelper
 					var builder = new UriBuilder(url);
 					textUsername.Text = builder.UserName;
 
-					if (!String.IsNullOrEmpty(builder.Password))
+					if (	!String.IsNullOrEmpty(builder.Password)
+						&&	builder.Password != "***"
+						)
+					{
 						passwordBox.Password = builder.Password;
+						textSourcePath.Text = Util.RemoveUrlPassword(url);
+					}
 
 					textUsername.IsEnabled = true;
 					passwordBox.IsEnabled = true;

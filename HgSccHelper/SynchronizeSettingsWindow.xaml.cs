@@ -391,35 +391,7 @@ namespace HgSccHelper
 		static void OnPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs args)
 		{
 			var PathItem = d as PathItem;
-			PathItem.PathView = PathItem.HidePassword(args.NewValue as string);
-		}
-
-		//-----------------------------------------------------------------------------
-		public static string HidePassword(string path)
-		{
-			try
-			{
-				var uri = new Uri(path);
-				if (!uri.IsFile)
-				{
-					if (	!String.IsNullOrEmpty(uri.Host)
-						&&	!String.IsNullOrEmpty(uri.Scheme)
-						)
-					{
-						var builder = new UriBuilder(path);
-						if (!String.IsNullOrEmpty(builder.Password))
-						{
-							builder.Password = "***";
-							return builder.Uri.AbsoluteUri;
-						}
-					}
-				}
-			}
-			catch (UriFormatException)
-			{
-			}
-
-			return path;
+			PathItem.PathView = Util.HideUrlPassword(args.NewValue as string);
 		}
 	}
 }
