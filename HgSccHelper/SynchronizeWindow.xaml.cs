@@ -127,7 +127,16 @@ namespace HgSccHelper
 			{
 				comboBoxPaths.IsEnabled = true;
 				comboBoxPaths.DataContext = paths;
-				comboBoxPaths.SelectedIndex = 0;
+				int default_idx = 0;
+				for (int i = 0; i < paths.Count; ++i)
+				{
+					if (paths[i].Alias == "default")
+					{
+						default_idx = i;
+						break;
+					}
+				}
+				comboBoxPaths.SelectedIndex = default_idx;
 				comboBoxPaths.Focus();
 			}
 			else
