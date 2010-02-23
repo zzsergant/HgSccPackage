@@ -39,6 +39,8 @@ namespace HgSccHelper
 
 		const int BatchSize = 500;
 
+		DeferredCommandExecutor deferred_executor;
+
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand DiffPreviousCommand = new RoutedUICommand("Diff Previous",
 			"DiffPrevious", typeof(RevLogControl));
@@ -151,6 +153,7 @@ namespace HgSccHelper
 			UpdateContext = new UpdateContext();
 
 			rev_log_hash_map = new C5.HashDictionary<string, RevLogLinesPair>();
+			deferred_executor = new DeferredCommandExecutor();
 		}
 
 		//------------------------------------------------------------------
@@ -265,6 +268,7 @@ namespace HgSccHelper
 
 			worker.Dispose();
 			revlog_style.Dispose();
+			deferred_executor.Dispose();
 		}
 
 		//------------------------------------------------------------------
@@ -293,22 +297,25 @@ namespace HgSccHelper
 			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
 			var file_info = SelectedParentFile.FileInfo;
 
-			try
+			deferred_executor.QueueDefferedExecute(() =>
 			{
-				var hg = new Hg();
+				try
+				{
+					var hg = new Hg();
 
-				var child_file = file_info.File;
-				var parent_file = file_info.File;
-				if (!String.IsNullOrEmpty(file_info.CopiedFrom))
-					parent_file = file_info.CopiedFrom;
+					var child_file = file_info.File;
+					var parent_file = file_info.File;
+					if (!String.IsNullOrEmpty(file_info.CopiedFrom))
+						parent_file = file_info.CopiedFrom;
 
-				hg.Diff(WorkingDir, parent_file, parent_diff.Desc.SHA1,
-					child_file,	SelectedChangeset.Current.ChangeDesc.SHA1);
-			}
-			catch (HgDiffException)
-			{
-				Util.HandleHgDiffException();
-			}
+					hg.Diff(WorkingDir, parent_file, parent_diff.Desc.SHA1,
+						child_file, SelectedChangeset.Current.ChangeDesc.SHA1);
+				}
+				catch (HgDiffException)
+				{
+					Util.HandleHgDiffException();
+				}
+			});
 		}
 
 		//------------------------------------------------------------------

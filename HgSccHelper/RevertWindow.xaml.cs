@@ -29,6 +29,7 @@ namespace HgSccHelper
 			"FileHistory", typeof(RevertWindow));
 
 		ObservableCollection<RevertItem> revert_items;
+		DeferredCommandExecutor deferred_executor;
 
 		//-----------------------------------------------------------------------------
 		public RevertWindow()
@@ -41,6 +42,7 @@ namespace HgSccHelper
 			VirtualizingStackPanel.SetVirtualizationMode(listFiles, VirtualizationMode.Recycling);
 
 			UpdateContext = new UpdateContext();
+			deferred_executor = new DeferredCommandExecutor();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -106,7 +108,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
-
+			deferred_executor.Dispose();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -283,22 +285,25 @@ namespace HgSccHelper
 		{
 			var item = (RevertItem)listFiles.SelectedItem;
 
-			bool is_different = true;
+			deferred_executor.QueueDefferedExecute(() =>
+			{
+				bool is_different = true;
 
-			try
-			{
-				Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
-			}
-			catch (HgDiffException)
-			{
-				Util.HandleHgDiffException();
-			}
+				try
+				{
+					Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
+				}
+				catch (HgDiffException)
+				{
+					Util.HandleHgDiffException();
+				}
 
-			if (!is_different)
-			{
-				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
-					MessageBoxButton.OK, MessageBoxImage.Information);
-			}
+				if (!is_different)
+				{
+					MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
+						MessageBoxButton.OK, MessageBoxImage.Information);
+				}
+			});
 
 			e.Handled = true;
 		}

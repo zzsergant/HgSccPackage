@@ -83,6 +83,7 @@ namespace HgSccHelper
 		/// </summary>
 		C5.HashDictionary<string, FileHistoryInfo> file_history_map;
 
+		DeferredCommandExecutor deferred_executor;
 
 		//------------------------------------------------------------------
 		public FileHistoryWindow()
@@ -91,6 +92,8 @@ namespace HgSccHelper
 
 			UpdateContext = new UpdateContext();
 			file_history_map = new C5.HashDictionary<string, FileHistoryInfo>();
+
+			deferred_executor = new DeferredCommandExecutor();
 		}
 
 		//------------------------------------------------------------------
@@ -191,6 +194,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
+			deferred_executor.Dispose();
 		}
 
 		//------------------------------------------------------------------
@@ -211,7 +215,11 @@ namespace HgSccHelper
 			var f1 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex];
 			var f2 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex + 1];
 
-			DiffTwoRevisions(f1, f2);
+			deferred_executor.QueueDefferedExecute(() =>
+			{
+				DiffTwoRevisions(f1, f2);
+			});
+
 			e.Handled = true;
 		}
 
@@ -265,14 +273,17 @@ namespace HgSccHelper
 			var file_info = (FileInfo)listViewFiles.SelectedItem;
 			var cs = file_history.ChangeDesc;
 
-			try
+			deferred_executor.QueueDefferedExecute(() =>
 			{
-				Hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
-			}
-			catch (HgDiffException)
-			{
-				Util.HandleHgDiffException();
-			}
+				try
+				{
+					Hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
+				}
+				catch (HgDiffException)
+				{
+					Util.HandleHgDiffException();
+				}
+			});
 
 			e.Handled = true;
 		}
@@ -336,7 +347,11 @@ namespace HgSccHelper
 			var f1 = (FileHistoryInfo)listChanges.SelectedItems[0];
 			var f2 = (FileHistoryInfo)listChanges.SelectedItems[1];
 
-			DiffTwoRevisions(f1, f2);
+			deferred_executor.QueueDefferedExecute(() =>
+			{
+				DiffTwoRevisions(f1, f2);
+			});
+
 			e.Handled = true;
 		}
 
