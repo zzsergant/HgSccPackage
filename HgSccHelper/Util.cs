@@ -13,6 +13,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Win32;
+using System.Linq;
 
 namespace HgSccHelper
 {
@@ -211,6 +213,67 @@ namespace HgSccHelper
 			}
 
 			return path;
+		}
+
+		//-----------------------------------------------------------------------------
+		static public string LookupRegistry(string reg_key_name, string val_name)
+		{
+			var reg_key = Registry.CurrentUser.OpenSubKey(reg_key_name, RegistryKeyPermissionCheck.ReadSubTree);
+			if (reg_key == null)
+				reg_key = Registry.LocalMachine.OpenSubKey(reg_key_name, RegistryKeyPermissionCheck.ReadSubTree);
+
+			if (reg_key != null)
+			{
+				var val = reg_key.GetValue(val_name);
+				if (val != null)
+					return val.ToString();
+			}
+
+			return "";
+		}
+
+		//-----------------------------------------------------------------------------
+		static public string FindExisting(string pathcommand)
+		{
+			return FindExisting(pathcommand, new[] { "" });
+		}
+
+		//-----------------------------------------------------------------------------
+		static public string FindExisting(string pathcommand, string[] pathexts)
+		{
+			foreach (var ext in pathexts)
+			{
+				var exectutable = pathcommand + ext;
+				if (System.IO.File.Exists(exectutable))
+					return exectutable;
+			}
+
+			return "";
+		}
+
+		//-----------------------------------------------------------------------------
+		static public string FindExe(string command)
+		{
+			var pathext = Environment.GetEnvironmentVariable("PATHEXT") ?? ".COM;.EXE;.BAT;.CMD";
+			var path_sep = new[] { ';' };
+			var pathexts = pathext.ToLower().Split(path_sep, StringSplitOptions.RemoveEmptyEntries);
+
+			var command_ext = System.IO.Path.GetExtension(command).ToLower();
+			if (pathexts.Contains(command_ext))
+				pathexts = new string[] { "" };
+
+			if (command.Contains('/') || command.Contains('\\'))
+				return FindExisting(command, pathexts);
+
+			var path_env = Environment.GetEnvironmentVariable("PATH") ?? "";
+			foreach (var path in path_env.Split(path_sep, StringSplitOptions.RemoveEmptyEntries))
+			{
+				var executable = FindExisting(System.IO.Path.Combine(path, command), pathexts);
+				if (!String.IsNullOrEmpty(executable))
+					return executable;
+			}
+
+			return FindExisting(Environment.ExpandEnvironmentVariables(command), pathexts);
 		}
 	}
 
