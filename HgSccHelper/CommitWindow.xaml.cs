@@ -67,6 +67,7 @@ namespace HgSccHelper
 		ObservableCollection<CommitItem> commit_items;
 		ObservableCollection<RevLogChangeDesc> parents;
 		List<MergeToolInfo> merge_tools;
+		DeferredCommandExecutor deferred_executor;
 
 		//-----------------------------------------------------------------------------
 		public CommitWindow()
@@ -83,6 +84,8 @@ namespace HgSccHelper
 
 			NamedBranchOp = new NamedBranchOperation();
 			branchPanel.DataContext = NamedBranchOp;
+
+			deferred_executor = new DeferredCommandExecutor();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -246,7 +249,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
-
+			deferred_executor.Dispose();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -492,22 +495,25 @@ namespace HgSccHelper
 		{
 			var item = (CommitItem)listFiles.SelectedItem;
 
-			bool is_different = true;
+			deferred_executor.QueueDefferedExecute(() =>
+			{
+				bool is_different = true;
 
-			try
-			{
-				Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
-			}
-			catch (HgDiffException)
-			{
-				Util.HandleHgDiffException();
-			}
+				try
+				{
+					Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
+				}
+				catch (HgDiffException)
+				{
+					Util.HandleHgDiffException();
+				}
 
-			if (!is_different)
-			{
-				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
-					MessageBoxButton.OK, MessageBoxImage.Information);
-			}
+				if (!is_different)
+				{
+					MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
+						MessageBoxButton.OK, MessageBoxImage.Information);
+				}
+			});
 
 			e.Handled = true;
 		}
@@ -534,23 +540,26 @@ namespace HgSccHelper
 		{
 			var item = (CommitItem)listFiles.SelectedItem;
 
-			bool is_different = true;
+			deferred_executor.QueueDefferedExecute(() =>
+			{
+				bool is_different = true;
 
-			try
-			{
-				Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
-					CurrentRevision.Parents[0].SHA1, out is_different);
-			}
-			catch (HgDiffException)
-			{
-				Util.HandleHgDiffException();
-			}
+				try
+				{
+					Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
+						CurrentRevision.Parents[0].SHA1, out is_different);
+				}
+				catch (HgDiffException)
+				{
+					Util.HandleHgDiffException();
+				}
 
-			if (!is_different)
-			{
-				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
-					MessageBoxButton.OK, MessageBoxImage.Information);
-			}
+				if (!is_different)
+				{
+					MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
+						MessageBoxButton.OK, MessageBoxImage.Information);
+				}
+			});
 
 			e.Handled = true;
 		}
@@ -560,23 +569,26 @@ namespace HgSccHelper
 		{
 			var item = (CommitItem)listFiles.SelectedItem;
 
-			bool is_different = true;
+			deferred_executor.QueueDefferedExecute(() =>
+			{
+				bool is_different = true;
 
-			try
-			{
-				Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
-					CurrentRevision.Parents[1].SHA1, out is_different);
-			}
-			catch (HgDiffException)
-			{
-				Util.HandleHgDiffException();
-			}
+				try
+				{
+					Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
+						CurrentRevision.Parents[1].SHA1, out is_different);
+				}
+				catch (HgDiffException)
+				{
+					Util.HandleHgDiffException();
+				}
 
-			if (!is_different)
-			{
-				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
-					MessageBoxButton.OK, MessageBoxImage.Information);
-			}
+				if (!is_different)
+				{
+					MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
+						MessageBoxButton.OK, MessageBoxImage.Information);
+				}
+			});
 
 			e.Handled = true;
 		}
@@ -666,11 +678,14 @@ namespace HgSccHelper
 			var tool_name = e.Parameter as string;
 			var item = (CommitItem)listFiles.SelectedItem;
 
-			var hg_resolve = new HgResolve();
-			if (hg_resolve.Resolve(WorkingDir, item.FileInfo.File, tool_name ?? ""))
+			deferred_executor.QueueDefferedExecute(() =>
 			{
-				item.ResolveStatus = ResolveStatus.Resolved;
-			}
+				var hg_resolve = new HgResolve();
+				if (hg_resolve.Resolve(WorkingDir, item.FileInfo.File, tool_name ?? ""))
+				{
+					item.ResolveStatus = ResolveStatus.Resolved;
+				}
+			});
 
 			e.Handled = true;
 		}

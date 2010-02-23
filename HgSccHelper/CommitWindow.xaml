@@ -185,7 +185,7 @@
                             Modifiers="Control" Key="H" />
                     </ListView.InputBindings>
                     <ListView.ContextMenu>
-                        <ContextMenu Name="listContextMenu">
+                        <ContextMenu>
                             <MenuItem Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
                             <MenuItem Command="{x:Static local:CommitWindow.FileHistoryCommand}"
