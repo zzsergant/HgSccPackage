@@ -185,7 +185,7 @@
                             Modifiers="Control" Key="H" />
                     </ListView.InputBindings>
                     <ListView.ContextMenu>
-                        <ContextMenu>
+                        <ContextMenu Name="listContextMenu">
                             <MenuItem Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
                             <MenuItem Command="{x:Static local:CommitWindow.FileHistoryCommand}"
@@ -202,6 +202,16 @@
                               ></MenuItem>
                             <MenuItem Command="{x:Static local:CommitWindow.RestartMergeCommand}"
                               ></MenuItem>
+                            <MenuItem Header="Restart Merge With..." Name="menuRestartMergeWith">
+                                <MenuItem Header="Accept Local"
+                                          Command="{x:Static local:CommitWindow.RestartMergeCommand}"
+                                          CommandParameter="internal:local"
+                                          ></MenuItem>
+                                <MenuItem Header="Accept Other"
+                                          Command="{x:Static local:CommitWindow.RestartMergeCommand}"
+                                          CommandParameter="internal:other"
+                                          ></MenuItem>
+                            </MenuItem>
                         </ContextMenu>
                     </ListView.ContextMenu>
                     <ListView.Resources>

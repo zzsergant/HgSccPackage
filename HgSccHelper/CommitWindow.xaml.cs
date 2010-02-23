@@ -66,6 +66,7 @@ namespace HgSccHelper
 
 		ObservableCollection<CommitItem> commit_items;
 		ObservableCollection<RevLogChangeDesc> parents;
+		List<MergeToolInfo> merge_tools;
 
 		//-----------------------------------------------------------------------------
 		public CommitWindow()
@@ -189,6 +190,23 @@ namespace HgSccHelper
 			{
 				textParent1.Text = parents[0].GetDescription();
 				textParent2.Text = parents[1].GetDescription();
+
+				var hg_merge_tools = new HgMergeTools();
+				merge_tools = hg_merge_tools.GetMergeTools();
+				if (merge_tools.Count > 0)
+				{
+					menuRestartMergeWith.Items.Add(new Separator());
+
+					foreach (var tool in merge_tools)
+					{
+						var item = new MenuItem();
+						item.Header = tool.Alias;
+						item.Command = RestartMergeCommand;
+						item.CommandParameter = tool.Alias;
+
+						menuRestartMergeWith.Items.Add(item);
+					}
+				}
 			}
 			else
 			{
@@ -645,10 +663,11 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void RestartMerge_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
+			var tool_name = e.Parameter as string;
 			var item = (CommitItem)listFiles.SelectedItem;
 
 			var hg_resolve = new HgResolve();
-			if (hg_resolve.Resolve(WorkingDir, item.FileInfo.File))
+			if (hg_resolve.Resolve(WorkingDir, item.FileInfo.File, tool_name ?? ""))
 			{
 				item.ResolveStatus = ResolveStatus.Resolved;
 			}
