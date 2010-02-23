@@ -1,4 +1,16 @@
-﻿using System;
+﻿//=========================================================================
+// Copyright 2009 Sergey Antonov <sergant_@mail.ru>
+// 
+// This software may be used and distributed according to the terms of the
+// GNU General Public License version 2 as published by the Free Software
+// Foundation.
+// 
+// See the file COPYING.TXT for the full text of the license, or see
+// http://www.gnu.org/licenses/gpl-2.0.txt
+// 
+//=========================================================================
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,8 +28,20 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public bool Resolve(string work_dir, string file)
 		{
+			return Resolve(work_dir, file, "");
+		}
+
+		//------------------------------------------------------------------
+		public bool Resolve(string work_dir, string file, string merge_tool)
+		{
 			StringBuilder args = new StringBuilder();
 			args.Append("resolve");
+			
+			if (merge_tool.Length > 0)
+			{
+				args.Append(" --config ui.merge=" + merge_tool.Quote());
+			}
+
 			args.Append(" " + file.Quote());
 
 			var hg = new Hg();

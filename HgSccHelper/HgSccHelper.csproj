@@ -98,6 +98,7 @@
       <DependentUpon>HgDiffOptionsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="HgFileStatus.cs" />
+    <Compile Include="HgMergeTools.cs" />
     <Compile Include="HgOptionsHelper.cs" />
     <Compile Include="HgResolve.cs" />
     <Compile Include="HgScc.cs" />
