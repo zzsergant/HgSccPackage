@@ -12,12 +12,25 @@
 
 using System.Windows;
 using System.Windows.Input;
+using System.Collections.Generic;
+using System.Windows.Threading;
+using System;
+using System.Text;
 
 namespace HgSccHelper
 {
 	//==================================================================
 	public partial class MergeWindow : Window
 	{
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand StopCommand = new RoutedUICommand("Stop",
+			"Stop", typeof(MergeWindow));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand MergeCommand = new RoutedUICommand("Merge",
+			"Merge", typeof(MergeWindow));
+
+
 		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
 
@@ -32,6 +45,8 @@ namespace HgSccHelper
 
 		RevLogChangeDesc Target { get; set; }
 		IdentifyInfo CurrentRevision { get; set; }
+		HgThread worker;
+		bool is_merge_successful;
 
 		//------------------------------------------------------------------
 		public MergeWindow()
@@ -39,6 +54,7 @@ namespace HgSccHelper
 			InitializeComponent();
 
 			UpdateContext = new UpdateContext();
+			worker = new HgThread();
 		}
 
 		//------------------------------------------------------------------
@@ -80,22 +96,81 @@ namespace HgSccHelper
 				return;
 			}
 
+			var hg_merge_tools = new HgMergeTools();
+			var merge_tools = hg_merge_tools.GetMergeTools();
+			var tools_list = new List<MergeToolComboItem>();
+			
+			tools_list.Add(new MergeToolComboItem
+			{
+				Description = "(Default)",
+				Alias = ""
+			});
+
+			if (merge_tools.Count > 0)
+			{
+				foreach (var tool in merge_tools)
+				{
+					tools_list.Add(new MergeToolComboItem
+					{
+						Description = tool.Alias,
+						Alias = tool.Alias
+					});
+				}
+			}
+
+			comboMergeTools.ItemsSource = tools_list;
+			comboMergeTools.SelectedIndex = 0;
 			targetDesc.Text = Hg.GetRevisionDesc(WorkingDir, Target.SHA1).GetDescription();
 		}
 
 		//------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
+			if (StopCommand.CanExecute(sender, e.Source as IInputElement))
+				StopCommand.Execute(sender, e.Source as IInputElement);
+
+			worker.Dispose();
 		}
 
 		//------------------------------------------------------------------
-		private void Merge_Click(object sender, RoutedEventArgs e)
+		private void Close_Click(object sender, RoutedEventArgs e)
 		{
-			if (Target == null)
+			if (is_merge_successful)
+				DialogResult = true;
+			Close();
+		}
+
+		//------------------------------------------------------------------
+		private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Escape)
+				Close();
+		}
+
+		//------------------------------------------------------------------
+		private void Merge_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.Handled = true;
+
+			if (worker != null && !worker.IsBusy)
 			{
-				MessageBox.Show("Invalid target revision");
-				return;
+				e.CanExecute = (Target != null) && (!UpdateContext.IsParentChanged);
 			}
+		}
+
+		//------------------------------------------------------------------
+		private void Merge_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			textBox.Text = "";
+
+			var p = new HgThreadParams();
+			p.CompleteHandler = Worker_Completed;
+			p.ErrorHandler = Error_Handler;
+			p.OutputHandler = Output_Handler;
+			p.WorkingDir = WorkingDir;
+
+			var builder = new StringBuilder();
+			builder.Append("-v merge");
 
 			bool force_merge = false;
 
@@ -110,34 +185,113 @@ namespace HgSccHelper
 				force_merge = true;
 			}
 
-			var options = force_merge ? HgMergeOptions.Force : HgMergeOptions.None;
+			string merge_tool = "";
 
-			if (!Hg.Merge(WorkingDir, Target.SHA1, options))
+			if (radioAcceptLocal.IsChecked == true)
+				merge_tool = "internal:local";
+
+			if (radioAcceptOther.IsChecked == true)
+				merge_tool = "internal:other";
+
+			if (radioDoNotMerge.IsChecked == true)
+				merge_tool = "internal:fail";
+
+			if (radioMergeWith.IsChecked == true)
 			{
-				// Merge can fail with unresolved conflicts, but parents will change
-				UpdateContext.IsParentChanged = true;
-
-				MessageBox.Show("An error occured while merge", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-				return;
+				merge_tool = (comboMergeTools.SelectedItem as MergeToolComboItem).Alias;
 			}
 
+			if (merge_tool.Length > 0)
+			{
+				builder.Append(" --config ui.merge=" + merge_tool.Quote());
+			}
+
+			var options = force_merge ? HgMergeOptions.Force : HgMergeOptions.None;
+			if ((options & HgMergeOptions.Force) == HgMergeOptions.Force)
+				builder.Append(" -f");
+
+			if (Target.SHA1.Length > 0)
+				builder.Append(" -r " + Target.SHA1);
+
+			p.Args = builder.ToString();
+
+			Worker_NewMsg("[Merge started]\n");
+			worker.Run(p);
+
 			UpdateContext.IsParentChanged = true;
-
-			DialogResult = true;
-			Close();
+			e.Handled = true;
 		}
 
 		//------------------------------------------------------------------
-		private void Cancel_Click(object sender, RoutedEventArgs e)
+		private void Stop_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			Close();
+			e.CanExecute = (worker != null && worker.IsBusy && !worker.CancellationPending);
+			e.Handled = true;
 		}
 
 		//------------------------------------------------------------------
-		private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+		private void Stop_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			if (e.Key == Key.Escape)
-				Close();
+			worker.Cancel();
+			e.Handled = true;
 		}
+		//------------------------------------------------------------------
+		void Worker_NewMsg(string msg)
+		{
+			textBox.AppendText(msg + "\n");
+			textBox.ScrollToEnd();
+		}
+
+		//------------------------------------------------------------------
+		void Worker_Completed(HgThreadResult completed)
+		{
+			Worker_NewMsg("");
+
+			switch (completed.Status)
+			{
+				case HgThreadStatus.Completed:
+					{
+						var msg = String.Format("[Operation completed. Exit code: {0}]", completed.ExitCode);
+						Worker_NewMsg(msg);
+						is_merge_successful = (completed.ExitCode == 0);
+						break;
+					}
+				case HgThreadStatus.Canceled:
+					{
+						Worker_NewMsg("[Operation canceled]");
+						break;
+					}
+				case HgThreadStatus.Error:
+					{
+						Worker_NewMsg("[Error: " + completed.ErrorMessage + "]");
+						break;
+					}
+			}
+
+			// Updating commands state (CanExecute)
+			CommandManager.InvalidateRequerySuggested();
+		}
+
+		//------------------------------------------------------------------
+		void Error_Handler(string msg)
+		{
+			var error_msg = string.Format("[Error: {0}]", msg);
+			Dispatcher.Invoke(DispatcherPriority.Normal,
+					new Action<string>(Worker_NewMsg), error_msg);
+		}
+
+		//------------------------------------------------------------------
+		void Output_Handler(string msg)
+		{
+			Dispatcher.Invoke(DispatcherPriority.Normal,
+				new Action<string>(Worker_NewMsg), msg);
+		}
+	}
+
+	//------------------------------------------------------------------
+	class MergeToolComboItem
+	{
+		public string Description { get; set; }
+		public string Alias { get; set; }
 	}
 }
