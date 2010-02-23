@@ -1497,6 +1497,35 @@ namespace HgSccHelper
 
 			return true;
 		}
+
+		//-----------------------------------------------------------------------------
+		public List<string> ShowConfig(string work_dir)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("showconfig");
+
+			var lines = new List<string>();
+
+			var hg = new Hg();
+
+			using (Process proc = Process.Start(hg.PrepareProcess(work_dir, args.ToString())))
+			{
+				var stream = proc.StandardOutput;
+				while (true)
+				{
+					var str = stream.ReadLine();
+					if (str == null)
+						break;
+
+					lines.Add(str);
+				}
+				proc.WaitForExit();
+				if (proc.ExitCode != 0)
+					return new List<string>();
+			}
+
+			return lines;
+		}
 	}
 
 	//------------------------------------------------------------------
