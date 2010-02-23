@@ -291,6 +291,7 @@ namespace HgSccHelper
 					case HgFileStatus.Added:
 					case HgFileStatus.Modified:
 					case HgFileStatus.Removed:
+					case HgFileStatus.Deleted:
 						{
 							var item = new CommitItem();
 							string lower_f = f.File.ToLower();

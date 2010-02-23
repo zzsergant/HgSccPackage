@@ -160,6 +160,7 @@ namespace HgSccHelper
 					case HgFileStatus.Added:
 					case HgFileStatus.Modified:
 					case HgFileStatus.Removed:
+					case HgFileStatus.Deleted:
 						{
 							var item = new RevertItem();
 							string lower_f = f.File.ToLower();
