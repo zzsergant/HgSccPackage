@@ -132,6 +132,51 @@ namespace HgSccHelper
 			return true;
 		}
 
+		//------------------------------------------------------------------
+		public ResolveStatus GetResolveStatus(string work_dir, string file)
+		{
+			StringBuilder args = new StringBuilder();
+			args.Append("resolve");
+			args.Append(" -l");
+
+			if (file.Length == 0)
+				throw new ApplicationException("Resolve status, invalid filename");
+
+			args.Append(" " + file.Quote());
+
+			var hg = new Hg();
+			using (Process proc = Process.Start(hg.PrepareProcess(work_dir, args.ToString())))
+			{
+				var stream = proc.StandardOutput;
+
+				var resolved_prefix = "R ";
+				var unresolved_prefix = "U ";
+				ResolveStatus resolve_status = ResolveStatus.None;
+
+				while (true)
+				{
+					var str = stream.ReadLine();
+					if (str == null)
+						break;
+
+					if (str.StartsWith(unresolved_prefix))
+					{
+						resolve_status = ResolveStatus.Unresolved;
+						break;
+					}
+					
+					if (str.StartsWith(resolved_prefix))
+					{
+						resolve_status = ResolveStatus.Resolved;
+						break;
+					}
+				}
+
+				proc.WaitForExit();
+				return resolve_status;
+			}
+		}
+
 		//-----------------------------------------------------------------------------
 		public List<ResolveInfo> List(string work_dir)
 		{

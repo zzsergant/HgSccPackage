@@ -683,7 +683,7 @@ namespace HgSccHelper
 				var hg_resolve = new HgResolve();
 				if (hg_resolve.Resolve(WorkingDir, item.FileInfo.File, tool_name ?? ""))
 				{
-					item.ResolveStatus = ResolveStatus.Resolved;
+					item.ResolveStatus = hg_resolve.GetResolveStatus(WorkingDir, item.FileInfo.File);
 				}
 			});
 
