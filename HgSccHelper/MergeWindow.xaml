@@ -10,8 +10,7 @@
     x:Name="root"
     PreviewKeyDown="Window_PreviewKeyDown"
     WindowStartupLocation="CenterScreen"
-    ShowInTaskbar="False"
-    ResizeMode="NoResize">
+    ShowInTaskbar="True">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static local:MergeWindow.MergeCommand}"
                         CanExecute="Merge_CanExecute"

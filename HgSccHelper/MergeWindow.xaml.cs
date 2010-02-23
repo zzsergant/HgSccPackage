@@ -170,7 +170,7 @@ namespace HgSccHelper
 			p.WorkingDir = WorkingDir;
 
 			var builder = new StringBuilder();
-			builder.Append("-v merge");
+			builder.Append("merge");
 
 			bool force_merge = false;
 
