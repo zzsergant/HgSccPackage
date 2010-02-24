@@ -202,6 +202,12 @@ namespace HgSccPackage
 				mcs.AddCommand(menuCmd);
 
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
+					CommandId.icmdAnnotate);
+
+				menuCmd = new MenuCommand(Exec_icmdAnnotate, cmd);
+				mcs.AddCommand(menuCmd);
+
+				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 					CommandId.icmdViewChangeLog);
 
 				menuCmd = new MenuCommand(Exec_icmdViewChangeLog, cmd);
@@ -564,7 +570,11 @@ namespace HgSccPackage
 				case CommandId.icmdViewHistory:
 					cmdf |= QueryStatus_icmdHistory();
 					break;
-    
+
+				case CommandId.icmdAnnotate:
+					cmdf |= QueryStatus_icmdAnnotate();
+					break;
+
 				case CommandId.icmdViewChangeLog:
 					cmdf |= QueryStatus_icmdViewChangeLog();
 					break;
@@ -682,6 +692,11 @@ namespace HgSccPackage
 			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
+		}
+
+		private OLECMDF QueryStatus_icmdAnnotate()
+		{
+			return QueryStatus_icmdHistory();
 		}
 
 		private OLECMDF QueryStatus_icmdViewChangeLog()
@@ -853,6 +868,25 @@ namespace HgSccPackage
 			if (files.Count == 1)
 			{
 				 sccService.ViewHistory(files[0]);
+			}
+		}
+
+		private void Exec_icmdAnnotate(object sender, EventArgs e)
+		{
+			if (!IsThereASolution())
+			{
+				return;
+			}
+
+			var selected_files = GetSelectedNodes();
+			if (selected_files.Count != 1)
+				return;
+
+			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
+
+			if (files.Count == 1)
+			{
+				sccService.Annotate(files[0]);
 			}
 		}
 

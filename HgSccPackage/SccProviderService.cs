@@ -1659,6 +1659,22 @@ namespace HgSccPackage
 			}
 		}
 
+		public void Annotate(string file)
+		{
+			if (storage != null)
+			{
+				SourceControlStatus status = storage.GetFileStatus(file);
+				if (status != SourceControlStatus.scsUncontrolled)
+				{
+					using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
+					using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, all_projects))
+					{
+						storage.Annotate(file);
+					}
+				}
+			}
+		}
+
 		public void Compare(string file)
 		{
 			if (storage != null)

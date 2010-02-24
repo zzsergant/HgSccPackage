@@ -443,6 +443,32 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		public void Annotate(string filename)
+		{
+			if (!IsValid)
+				return;
+
+			string relative_path;
+			if (!hgscc.GetRelativePath(filename, out relative_path))
+			{
+				Logger.WriteLine("Can't get relative path: " + filename);
+				return;
+			}
+
+			using (var proxy = new WpfToWinFormsProxy<AnnotateWindow>())
+			{
+				var wnd = proxy.Wnd;
+				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.FileName = relative_path.Replace('\\', '/');
+
+				proxy.ShowDialog();
+
+				if (wnd.UpdateContext.IsParentChanged)
+					RaiseUpdateEvent();
+			}
+		}
+
+		//------------------------------------------------------------------
 		public void RemoveFile(string filename)
 		{
 			var files = new[] {filename};

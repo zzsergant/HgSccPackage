@@ -33,8 +33,7 @@ namespace HgSccPackage
 		public const int icmdRevert						= 0x104;
 		public const int icmdCompare					= 0x105;
 		public const int icmdViewHistory				= 0x106;
-		public const int icmdViewToolWindow				= 0x107;
-// 		public const int icmdToolWindowToolbarCommand   = 0x107;
+        public const int icmdAnnotate                   = 0x107;
 		public const int icmdViewChangeLog				= 0x108;
 		public const int icmdUpdate						= 0x109;
         public const int icmdTags                       = 0x110;
