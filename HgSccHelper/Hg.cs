@@ -889,13 +889,13 @@ namespace HgSccHelper
 		}
 */
 		//-----------------------------------------------------------------------------
-		private bool CheckoutFile(string work_dir, string file, int rev, string temp_file)
+		public bool CheckoutFile(string work_dir, string file, int rev, string temp_file)
 		{
 			return CheckoutFile(work_dir, file, rev.ToString(), temp_file);
 		}
 
 		//-----------------------------------------------------------------------------
-		private bool CheckoutFile(string work_dir, string file, string rev, string temp_file)
+		public bool CheckoutFile(string work_dir, string file, string rev, string temp_file)
 		{
 			var args = new StringBuilder();
 			args.Append("cat");
