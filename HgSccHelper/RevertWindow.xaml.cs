@@ -28,6 +28,10 @@ namespace HgSccHelper
 		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
 			"FileHistory", typeof(RevertWindow));
 
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand AnnotateCommand = new RoutedUICommand("Annotate",
+			"Annotate", typeof(RevertWindow));
+
 		ObservableCollection<RevertItem> revert_items;
 		DeferredCommandExecutor deferred_executor;
 
@@ -339,6 +343,31 @@ namespace HgSccHelper
 			wnd.Owner = Window.GetWindow(this);
 
 			// TODO: Handle updates from file history dialog
+			wnd.ShowDialog();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//------------------------------------------------------------------
+		private void Annotate_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+			if (listFiles != null && (listFiles.SelectedItems.Count == 1))
+				e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Annotate_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var item = (RevertItem)listFiles.SelectedItem;
+
+			var wnd = new AnnotateWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.Rev = CurrentRevision.Rev.ToString();
+			wnd.FileName = item.FileInfo.File;
+			wnd.Owner = Window.GetWindow(this);
+
 			wnd.ShowDialog();
 
 			UpdateContext.MergeWith(wnd.UpdateContext);

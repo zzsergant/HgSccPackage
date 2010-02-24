@@ -37,6 +37,10 @@ namespace HgSccHelper
 			"FileHistory", typeof(CommitWindow));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand AnnotateCommand = new RoutedUICommand("Annotate",
+			"Annotate", typeof(CommitWindow));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand MarkResolvedCommand = new RoutedUICommand("Mark Resolved",
 			"MarkResolved", typeof(CommitWindow));
 
@@ -721,6 +725,31 @@ namespace HgSccHelper
 			wnd.Owner = Window.GetWindow(this);
 
 			// TODO: Handle updates from file history dialog
+			wnd.ShowDialog();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//------------------------------------------------------------------
+		private void Annotate_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+			if (listFiles != null && (listFiles.SelectedItems.Count == 1))
+				e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Annotate_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var item = (CommitItem)listFiles.SelectedItem;
+
+			var wnd = new AnnotateWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.Rev = CurrentRevision.Rev.ToString();
+			wnd.FileName = item.FileInfo.File;
+			wnd.Owner = Window.GetWindow(this);
+
 			wnd.ShowDialog();
 
 			UpdateContext.MergeWith(wnd.UpdateContext);

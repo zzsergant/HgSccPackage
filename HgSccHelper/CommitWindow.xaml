@@ -19,6 +19,10 @@
                         CanExecute="FileHistory_CanExecute"
                         Executed="FileHistory_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.AnnotateCommand}"
+                        CanExecute="Annotate_CanExecute"
+                        Executed="Annotate_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static local:CommitWindow.DiffParent1Command}"
                         CanExecute="DiffParent_CanExecute"
                         Executed="DiffParent1_Executed">
@@ -74,6 +78,9 @@
                 <Separator />
                 <Button Content="File History"
                         Command="{x:Static local:CommitWindow.FileHistoryCommand}"
+                        MinWidth="75" />
+                <Button Content="Annotate"
+                        Command="{x:Static local:CommitWindow.AnnotateCommand}"
                         MinWidth="75" />
                 <Separator />
                 <Button Content="Diff Parent 1"
@@ -190,6 +197,8 @@
                               InputGestureText="Ctrl + D"></MenuItem>
                             <MenuItem Command="{x:Static local:CommitWindow.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
+                            <MenuItem Command="{x:Static local:CommitWindow.AnnotateCommand}"
+                              ></MenuItem>
                             <Separator />
                             <MenuItem Command="{x:Static local:CommitWindow.DiffParent1Command}"
                               ></MenuItem>

@@ -34,6 +34,10 @@ namespace HgSccHelper
 			"FileHistory", typeof(FileHistoryWindow));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand AnnotateCommand = new RoutedUICommand("Annotate",
+			"Annotate", typeof(FileHistoryWindow));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand UpdateCommand = new RoutedUICommand("Update to Revision",
 			"Update", typeof(FileHistoryWindow));
 
@@ -318,6 +322,41 @@ namespace HgSccHelper
 			wnd.FileName = file_info.Path;
 
 			// FIXME:
+			wnd.Owner = Window.GetWindow(this);
+
+			wnd.ShowDialog();
+
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			if (wnd.UpdateContext.IsBranchChanged)
+				HandleBranchChanges();
+
+			if (wnd.UpdateContext.IsTagsChanged)
+				HandleTagsChanges();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//------------------------------------------------------------------
+		private void Annotate_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = listViewFiles.SelectedItems.Count == 1;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Annotate_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var file_history = (FileHistoryInfo)listChanges.SelectedItem;
+			var file_info = (FileInfo)listViewFiles.SelectedItem;
+			var cs = file_history.ChangeDesc;
+
+			var wnd = new AnnotateWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.Rev = cs.Rev.ToString();
+			wnd.FileName = file_info.Path;
+
 			wnd.Owner = Window.GetWindow(this);
 
 			wnd.ShowDialog();

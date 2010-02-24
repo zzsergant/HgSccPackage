@@ -50,6 +50,10 @@ namespace HgSccHelper
 			"FileHistory", typeof(RevLogControl));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand AnnotateCommand = new RoutedUICommand("Annotate",
+			"Annotate", typeof(RevLogControl));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand UpdateCommand = new RoutedUICommand("Update to Revision",
 			"Update", typeof(RevLogControl));
 
@@ -419,6 +423,43 @@ namespace HgSccHelper
 			var file_info = SelectedParentFile.FileInfo;
 
 			FileHistoryWindow wnd = new FileHistoryWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.Rev = SelectedChangeset.Current.ChangeDesc.SHA1;
+			wnd.FileName = file_info.File;
+			wnd.Owner = Window.GetWindow(this);
+
+			wnd.ShowDialog();
+
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			if (wnd.UpdateContext.IsBranchChanged)
+				HandleBranchChanges();
+
+			if (wnd.UpdateContext.IsTagsChanged)
+				HandleTagsChanges();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//------------------------------------------------------------------
+		private void Annotate_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (SelectedParentFile != null)
+				e.CanExecute = true;
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Annotate_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
+			var file_info = SelectedParentFile.FileInfo;
+
+			var wnd = new AnnotateWindow();
 			wnd.WorkingDir = WorkingDir;
 			wnd.Rev = SelectedChangeset.Current.ChangeDesc.SHA1;
 			wnd.FileName = file_info.File;
