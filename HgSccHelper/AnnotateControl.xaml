@@ -55,8 +55,21 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="SourceTemplate">
-            <TextBlock Text="{Binding Path=Source}"
-                       FontFamily="Courier New"></TextBlock>
+            <TextBlock Text="{Binding Path=Info.Source}"
+                       HorizontalAlignment="Stretch"
+                       FontFamily="Courier New">
+                    <TextBlock.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsSelected}" Value="True">
+                                    <Setter Property="FontWeight" Value="Bold"></Setter>
+                                    <Setter Property="Background" Value="LightCyan"></Setter>
+                                    <Setter Property="Foreground" Value="Black"></Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+            </TextBlock>
         </DataTemplate>
     </UserControl.Resources>
     <UserControl.CommandBindings>
@@ -167,8 +180,8 @@
                           >
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Rev" DisplayMemberBinding="{Binding Rev}" Width="70" />
-                            <GridViewColumn Header="Line" DisplayMemberBinding="{Binding Line}" Width="70" />
+                            <GridViewColumn Header="Rev" DisplayMemberBinding="{Binding Info.Rev}" Width="70" />
+                            <GridViewColumn Header="Line" DisplayMemberBinding="{Binding Info.Line}" Width="70" />
                             <GridViewColumn Header="Source" CellTemplate="{StaticResource SourceTemplate}" Width="600" />
                         </GridView>
                     </ListView.View>

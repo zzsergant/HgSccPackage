@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System;
 using System.Windows.Data;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace HgSccHelper
 {
@@ -77,8 +78,10 @@ namespace HgSccHelper
 		C5.HashDictionary<string, FileHistoryInfo> file_history_map;
 
 		DeferredCommandExecutor deferred_executor;
-		List<AnnotateLineInfo> annotated_lines;
+		List<AnnotateLineView> annotated_lines;
+
 		C5.HashDictionary<int, int> rev_to_change_idx_map;
+		C5.HashDictionary<int, List<AnnotateLineView>> rev_to_line_view;
 
 		//------------------------------------------------------------------
 		public AnnotateControl()
@@ -90,6 +93,7 @@ namespace HgSccHelper
 
 			deferred_executor = new DeferredCommandExecutor();
 			rev_to_change_idx_map = new C5.HashDictionary<int, int>();
+			rev_to_line_view = new C5.HashDictionary<int, List<AnnotateLineView>>();
 		}
 
 		//------------------------------------------------------------------
@@ -123,18 +127,11 @@ namespace HgSccHelper
 				FileName = file_info.CopiedFrom;
 			}
 
-			var hg_annotate = new HgAnnotate();
-			try
+			if (!FillAnnotateInfo())
 			{
-				annotated_lines = hg_annotate.Annotate(WorkingDir, Rev ?? "", FileName);
-			}
-			catch (HgAnnotateBinaryException)
-			{
-				MessageBox.Show("Unable to annotate a binary file", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;
 			}
 
-			listLines.ItemsSource = annotated_lines;
 
 			var rev_range = "";
 			if (!string.IsNullOrEmpty(Rev))
@@ -198,6 +195,56 @@ namespace HgSccHelper
 			var myView = (CollectionView)CollectionViewSource.GetDefaultView(listChanges.ItemsSource);
 			var groupDescription = new PropertyGroupDescription("GroupText");
 			myView.GroupDescriptions.Add(groupDescription);
+		}
+
+		//------------------------------------------------------------------
+		bool FillAnnotateInfo()
+		{
+			var hg_annotate = new HgAnnotate();
+			try
+			{
+				var lines_info = hg_annotate.Annotate(WorkingDir, Rev ?? "", FileName);
+				if (lines_info.Count == 0)
+					return false;
+
+				int prev_rev = lines_info[0].Rev;
+				var even = SystemColors.ControlBrush;
+				var odd = SystemColors.ControlLightBrush;
+				int counter = 0;
+
+				annotated_lines = new List<AnnotateLineView>();
+				foreach (var line_info in lines_info)
+				{
+					var line_view = new AnnotateLineView();
+					line_view.Info = line_info;
+
+					if (prev_rev != line_info.Rev)
+					{
+						counter++;
+						prev_rev = line_info.Rev;
+					}
+
+					line_view.Background = ((counter & 1) == 0) ? odd : even;
+					annotated_lines.Add(line_view);
+
+					List<AnnotateLineView> rev_lines;
+					if (!rev_to_line_view.Find(line_view.Info.Rev, out rev_lines))
+					{
+						rev_lines = new List<AnnotateLineView>();
+						rev_to_line_view[line_view.Info.Rev] = rev_lines;
+					}
+
+					rev_lines.Add(line_view);
+				}
+			}
+			catch (HgAnnotateBinaryException)
+			{
+				MessageBox.Show("Unable to annotate a binary file", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				return false;
+			}
+
+			listLines.ItemsSource = annotated_lines;
+			return true;
 		}
 
 		//------------------------------------------------------------------
@@ -504,16 +551,55 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void listLines_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			var annotate_line = listLines.SelectedItem as AnnotateLineInfo;
+			var removed = e.RemovedItems;
+			foreach (AnnotateLineView removed_line in removed)
+			{
+				foreach (var line_view in rev_to_line_view[removed_line.Info.Rev])
+					line_view.IsSelected = false;
+			}
+
+			var annotate_line = listLines.SelectedItem as AnnotateLineView;
 			if (annotate_line != null)
 			{
 				int idx;
-				if (rev_to_change_idx_map.Find(annotate_line.Rev, out idx))
+				if (rev_to_change_idx_map.Find(annotate_line.Info.Rev, out idx))
 				{
 					listChanges.SelectedIndex = idx;
 					listChanges.ScrollIntoView(listChanges.SelectedItem);
 				}
+
+				foreach (var line_view in rev_to_line_view[annotate_line.Info.Rev])
+					line_view.IsSelected = true;
 			}
 		}
+	}
+
+	//==================================================================
+	class AnnotateLineView : DependencyObject
+	{
+		public AnnotateLineInfo Info { get; set; }
+		
+		//-----------------------------------------------------------------------------
+		public static readonly System.Windows.DependencyProperty BackgroundProperty =
+			System.Windows.DependencyProperty.Register("Background", typeof(Brush),
+			typeof(AnnotateLineView));
+
+		//-----------------------------------------------------------------------------
+		public Brush Background
+		{
+			get { return (Brush)this.GetValue(BackgroundProperty); }
+			set { this.SetValue(BackgroundProperty, value); }
+		}
+
+		//------------------------------------------------------------------
+		public bool IsSelected
+		{
+			get { return (bool)GetValue(IsSelectedProperty); }
+			set { SetValue(IsSelectedProperty, value); }
+		}
+
+		//------------------------------------------------------------------
+		public static readonly DependencyProperty IsSelectedProperty =
+			DependencyProperty.Register("IsSelected", typeof(bool), typeof(AnnotateLineView));
 	}
 }
