@@ -61,6 +61,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnnotateControl.xaml.cs">
+      <DependentUpon>AnnotateControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AnnotateWindow.xaml.cs">
+      <DependentUpon>AnnotateWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ArchiveWindow.xaml.cs">
       <DependentUpon>ArchiveWindow.xaml</DependentUpon>
     </Compile>
@@ -89,6 +95,7 @@
     <Compile Include="HgAboutControl.Designer.cs">
       <DependentUpon>HgAboutControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="HgAnnotate.cs" />
     <Compile Include="HgArchive.cs" />
     <Compile Include="HgBranch.cs" />
     <Compile Include="HgBundle.cs" />
@@ -171,6 +178,14 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="AnnotateControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AnnotateWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ArchiveWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -1,0 +1,15 @@
+﻿<Window x:Class="HgSccHelper.AnnotateWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="AnnotateWindow"
+    Height="600"
+    Width="1026"
+    xmlns:my="clr-namespace:HgSccHelper"
+    Loaded="Window_Loaded"
+    PreviewKeyDown="Window_PreviewKeyDown"
+    WindowStartupLocation="CenterScreen">
+    <Grid>
+        <my:AnnotateControl x:Name="annotateControl1">
+        </my:AnnotateControl>
+    </Grid>
+</Window>
