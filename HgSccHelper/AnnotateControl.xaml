@@ -178,6 +178,12 @@
                           SelectionMode="Single"
                           SelectionChanged="listLines_SelectionChanged"
                           >
+                    <ListView.CommandBindings>
+                        <CommandBinding Command="{x:Static local:AnnotateControl.DiffPreviousCommand}"
+                            CanExecute="HistoryDiffPrevious_CanExecute"
+                            Executed="HistoryDiffPrevious_Executed">
+                        </CommandBinding>
+                    </ListView.CommandBindings>
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Rev" DisplayMemberBinding="{Binding Info.Rev}" Width="70" />
@@ -185,6 +191,25 @@
                             <GridViewColumn Header="Source" CellTemplate="{StaticResource SourceTemplate}" Width="600" />
                         </GridView>
                     </ListView.View>
+                    <ListView.InputBindings>
+                        <KeyBinding Command="{x:Static local:AnnotateControl.DiffPreviousCommand}"
+                            Modifiers="Control" Key="D" />
+                    </ListView.InputBindings>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Command="{x:Static local:AnnotateControl.DiffPreviousCommand}"
+                              InputGestureText="Ctrl + D"></MenuItem>
+                            <MenuItem Command="{x:Static local:AnnotateControl.ArchiveCommand}"
+                              ></MenuItem>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                    <ListView.Resources>
+                        <Style TargetType="ListViewItem">
+                            <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                            <EventSetter Event="MouseDoubleClick"
+                                         Handler="ListChanges_MouseDoubleClick" />
+                        </Style>
+                    </ListView.Resources>
                 </ListView>
                 <StackPanel Grid.Row="1"
                         DataContext="{Binding Path=SelectedItem.ChangeDesc, ElementName=listChanges, Mode=OneWay}"
