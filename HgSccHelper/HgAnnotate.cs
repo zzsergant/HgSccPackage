@@ -93,14 +93,21 @@ namespace HgSccHelper
 						return new List<AnnotateLineInfo>();
 					}
 
-					var str_lines = File.ReadAllLines(temp1);
-					if (str_lines.Length != lines.Count)
-						return new List<AnnotateLineInfo>();
-
-					for (int i = 0; i < str_lines.Length; ++i)
+					using (var stream = new StreamReader(File.OpenRead(temp1), System.Text.Encoding.Default))
 					{
-						lines[i].Source = str_lines[i];
-						lines[i].Line = i + 1;
+						int counter = 0;
+						while (true)
+						{
+							var str = stream.ReadLine();
+							if (str == null)
+								break;
+
+							if (counter >= lines.Count)
+								return new List<AnnotateLineInfo>();
+
+							lines[counter].Source = str;
+							lines[counter].Line = ++counter;
+						}
 					}
 				}
 				finally
