@@ -96,6 +96,7 @@
             </Grid.RowDefinitions>
             <ListView x:Name="listChanges"
                   Grid.Row="0"
+                  SelectionMode="Single"
                   SelectionChanged="listChanges_SelectionChanged"
                   Margin="0, 0, 0, 5">
                 <ListView.CommandBindings>
@@ -160,7 +161,10 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <ListView Grid.Row="0" Name="listLines">
+                <ListView Grid.Row="0" Name="listLines"
+                          SelectionMode="Single"
+                          SelectionChanged="listLines_SelectionChanged"
+                          >
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Rev" DisplayMemberBinding="{Binding Rev}" Width="70" />

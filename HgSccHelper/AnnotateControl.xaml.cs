@@ -77,8 +77,8 @@ namespace HgSccHelper
 		C5.HashDictionary<string, FileHistoryInfo> file_history_map;
 
 		DeferredCommandExecutor deferred_executor;
-
 		List<AnnotateLineInfo> annotated_lines;
+		C5.HashDictionary<int, int> rev_to_change_idx_map;
 
 		//------------------------------------------------------------------
 		public AnnotateControl()
@@ -89,6 +89,7 @@ namespace HgSccHelper
 			file_history_map = new C5.HashDictionary<string, FileHistoryInfo>();
 
 			deferred_executor = new DeferredCommandExecutor();
+			rev_to_change_idx_map = new C5.HashDictionary<int, int>();
 		}
 
 		//------------------------------------------------------------------
@@ -181,6 +182,9 @@ namespace HgSccHelper
 					history_item.BranchInfo = branch_info;
 
 				file_history_map[history_item.ChangeDesc.SHA1] = history_item;
+
+				// the revision -> list index
+				rev_to_change_idx_map[history_item.ChangeDesc.Rev] = history.Count;
 
 				history.Add(history_item);
 			}
@@ -498,9 +502,18 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		//private void GridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-		//{
-		//    textChangeDesc.Height = changeDescRow.Height.Value;
-		//}
+		private void listLines_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			var annotate_line = listLines.SelectedItem as AnnotateLineInfo;
+			if (annotate_line != null)
+			{
+				int idx;
+				if (rev_to_change_idx_map.Find(annotate_line.Rev, out idx))
+				{
+					listChanges.SelectedIndex = idx;
+					listChanges.ScrollIntoView(listChanges.SelectedItem);
+				}
+			}
+		}
 	}
 }
