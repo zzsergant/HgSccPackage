@@ -51,6 +51,8 @@ namespace HgSccHelper
 		{
 			Title = string.Format("ChangeLog: '{0}'", WorkingDir);
 			revLogControl1.WorkingDir = WorkingDir;
+
+			revLogControl1.GraphViewGrid.LoadCfg(RevLogWindow.CfgPath, "GraphViewGrid");
 		}
 
 		//------------------------------------------------------------------
@@ -58,6 +60,12 @@ namespace HgSccHelper
 		{
 			if (e.Key == Key.Escape)
 				Close();
+		}
+
+		//------------------------------------------------------------------
+		private void Window_Unloaded(object sender, RoutedEventArgs e)
+		{
+			revLogControl1.GraphViewGrid.SaveCfg(RevLogWindow.CfgPath, "GraphViewGrid");
 		}
 	}
 }

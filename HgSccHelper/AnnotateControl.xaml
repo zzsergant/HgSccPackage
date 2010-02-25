@@ -151,7 +151,7 @@
                     </GroupStyle>
                 </ListView.GroupStyle>
                 <ListView.View>
-                    <GridView>
+                    <GridView x:Name="listChangesGrid">
                         <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding ChangeDesc.Rev}" />
                         <GridViewColumn Header="Desc" Width="500"  CellTemplate="{StaticResource myCellTemplateDesc}"/>
                         <GridViewColumn Header="Author" Width="250" DisplayMemberBinding="{Binding ChangeDesc.Author}" />
@@ -257,8 +257,8 @@
                     </ListView.ContextMenu>
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding Status}" />
-                            <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding Path}" />
+                            <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding Status}" />
+                            <GridViewColumn Header="File" Width="850"  DisplayMemberBinding="{Binding Path}" />
                         </GridView>
                     </ListView.View>
                     <ListView.Resources>

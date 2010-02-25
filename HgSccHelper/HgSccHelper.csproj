@@ -77,6 +77,7 @@
       <DependentUpon>BundleWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Cfg.cs" />
+    <Compile Include="CfgGridView.cs" />
     <Compile Include="CfgWindowPosition.cs" />
     <Compile Include="ChangeDesc.cs" />
     <Compile Include="CloneWindow.xaml.cs">

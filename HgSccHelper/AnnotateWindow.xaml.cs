@@ -50,6 +50,8 @@ namespace HgSccHelper
 			annotateControl1.WorkingDir = WorkingDir;
 			annotateControl1.FileName = FileName;
 			annotateControl1.Rev = Rev;
+
+			annotateControl1.ListChangesGrid.LoadCfg(AnnotateWindow.CfgPath, "ListChangesGrid");
 		}
 
 		//------------------------------------------------------------------
@@ -57,6 +59,12 @@ namespace HgSccHelper
 		{
 			if (e.Key == Key.Escape)
 				Close();
+		}
+
+		//------------------------------------------------------------------
+		private void Window_Unloaded(object sender, RoutedEventArgs e)
+		{
+			annotateControl1.ListChangesGrid.SaveCfg(AnnotateWindow.CfgPath, "ListChangesGrid");
 		}
 	}
 }

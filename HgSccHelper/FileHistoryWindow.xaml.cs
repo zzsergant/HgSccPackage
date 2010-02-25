@@ -108,6 +108,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
+			listChangesGrid.LoadCfg(FileHistoryWindow.CfgPath, "ListChangesGrid");
+			
 			Title = string.Format("File History: '{0}'", FileName);
 
 			Hg = new Hg();
@@ -203,6 +205,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
+			listChangesGrid.SaveCfg(FileHistoryWindow.CfgPath, "ListChangesGrid");
+
 			deferred_executor.Dispose();
 		}
 

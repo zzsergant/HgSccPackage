@@ -161,6 +161,12 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		public GridView GraphViewGrid
+		{
+			get { return graphViewGrid; }
+		}
+
+		//------------------------------------------------------------------
 		private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
 		{
 			var hg = new Hg();

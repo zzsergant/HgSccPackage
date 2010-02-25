@@ -66,7 +66,7 @@
                       PreviewKeyDown="ListFiles_PreviewKeyDown"
                       MinHeight="75">
                     <ListView.View>
-                        <GridView>
+                        <GridView x:Name="listFilesGrid">
                             <GridViewColumn Width="Auto" CellTemplate="{StaticResource CheckBoxCell}">
                                 <GridViewColumn.HeaderTemplate>
                                     <DataTemplate>
@@ -79,8 +79,8 @@
                                     </DataTemplate>
                                 </GridViewColumn.HeaderTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="Status" Width="80" DisplayMemberBinding="{Binding FileInfo.Status}" />
-                            <GridViewColumn Header="Path" Width="500" DisplayMemberBinding="{Binding PathViewString}" />
+                            <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding FileInfo.Status}" />
+                            <GridViewColumn Header="Path" Width="850" DisplayMemberBinding="{Binding PathViewString}" />
                         </GridView>
                     </ListView.View>
                     <ListView.InputBindings>

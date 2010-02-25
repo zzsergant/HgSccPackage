@@ -87,6 +87,8 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
+			listFilesGrid.LoadCfg(RevertWindow.CfgPath, "ListFilesGrid");
+
 			Hg = new Hg();
 
 			CurrentRevision = Hg.Identify(WorkingDir);
@@ -117,6 +119,8 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
+			listFilesGrid.SaveCfg(RevertWindow.CfgPath, "ListFilesGrid");
+
 			deferred_executor.Dispose();
 		}
 

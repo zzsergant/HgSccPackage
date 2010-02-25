@@ -6,6 +6,7 @@
     Width="1026"
     xmlns:my="clr-namespace:HgSccHelper"
     Loaded="Window_Loaded"
+    Unloaded="Window_Unloaded"
     PreviewKeyDown="Window_PreviewKeyDown"
     WindowStartupLocation="CenterScreen">
     <Grid>

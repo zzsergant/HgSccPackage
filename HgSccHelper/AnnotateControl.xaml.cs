@@ -97,6 +97,12 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		public GridView ListChangesGrid
+		{
+			get { return listChangesGrid; }
+		}
+
+		//------------------------------------------------------------------
 		private void Control_Loaded(object sender, RoutedEventArgs e)
 		{
 			Hg = new Hg();

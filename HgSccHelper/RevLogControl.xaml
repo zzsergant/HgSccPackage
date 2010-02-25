@@ -213,7 +213,7 @@
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.View>
-                    <GridView>
+                    <GridView x:Name="graphViewGrid">
                         <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding Current.ChangeDesc.Rev}" />
                         <GridViewColumn Header="Desc" Width="450"  CellTemplate="{StaticResource myCellTemplateDesc}"/>
                         <!--<GridViewColumn Header="Desc" Width="250" DisplayMemberBinding="{Binding Current.ChangeDesc.OneLineDesc}" />-->
@@ -303,8 +303,8 @@
                             </ListView.ContextMenu>
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn Header="Status" Width="70" DisplayMemberBinding="{Binding FileInfo.Status}" />
-                                    <GridViewColumn Header="File" Width="450"  DisplayMemberBinding="{Binding FileInfo.FileViewString}" />
+                                    <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding FileInfo.Status}" />
+                                    <GridViewColumn Header="File" Width="850"  DisplayMemberBinding="{Binding FileInfo.FileViewString}" />
                                 </GridView>
                             </ListView.View>
                             <ListView.Resources>
