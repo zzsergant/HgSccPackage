@@ -185,7 +185,7 @@
                         </CommandBinding>
                     </ListView.CommandBindings>
                     <ListView.View>
-                        <GridView>
+                        <GridView x:Name="listLinesGrid">
                             <GridViewColumn Header="Rev" DisplayMemberBinding="{Binding Info.Rev}" Width="70" />
                             <GridViewColumn Header="Line" DisplayMemberBinding="{Binding Info.Line}" Width="70" />
                             <GridViewColumn Header="Source" CellTemplate="{StaticResource SourceTemplate}" Width="600" />

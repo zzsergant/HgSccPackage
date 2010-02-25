@@ -103,6 +103,12 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		public GridView ListLinesGrid
+		{
+			get { return listLinesGrid; }
+		}
+
+		//------------------------------------------------------------------
 		private void Control_Loaded(object sender, RoutedEventArgs e)
 		{
 			Hg = new Hg();
