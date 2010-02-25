@@ -557,6 +557,17 @@ namespace HgSccHelper
 				listViewFiles.ItemsSource = file_history.ChangeDesc.Files;
 				if (listViewFiles.Items.Count > 0)
 					listViewFiles.SelectedIndex = 0;
+
+				List<AnnotateLineView> rev_lines;
+				if (rev_to_line_view.Find(file_history.ChangeDesc.Rev, out rev_lines))
+				{
+					if (rev_lines.Count > 0)
+					{
+						int line_number = rev_lines[0].Info.Line - 1;
+						if (line_number < listLines.Items.Count)
+							listLines.SelectedIndex = line_number;
+					}
+				}
 			}
 		}
 
