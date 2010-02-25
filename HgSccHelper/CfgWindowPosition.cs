@@ -20,10 +20,10 @@ using System.Windows;
 namespace HgSccHelper
 {
 	//==================================================================
-	class CfgWindowPosition : IDisposable
+	public class CfgWindowPosition : IDisposable
 	{
 		Window wnd;
-		string cfg_path = @"GUI\RevLogWindow";
+		string cfg_path;
 
 		//------------------------------------------------------------------
 		public CfgWindowPosition(string cfg_path, Window wnd)
