@@ -20,9 +20,16 @@ namespace HgSccHelper
 	/// </summary>
 	public partial class RevLogWindow : Window
 	{
+		public const string CfgPath = @"GUI\RevLogWindow";
+		CfgWindowPosition wnd_cfg;
+
+		//------------------------------------------------------------------
 		public RevLogWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
+
 
 			// FIXME: This hack inform wpf to render DateTime using local culture info
 /*

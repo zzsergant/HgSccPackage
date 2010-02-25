@@ -100,9 +100,14 @@ namespace HgSccHelper
 
 		List<PathAlias> paths;
 
+		public const string CfgPath = @"GUI\SynchronizeWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//------------------------------------------------------------------
 		public SynchronizeWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
 
 			worker = new HgThread();

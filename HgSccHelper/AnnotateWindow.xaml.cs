@@ -20,8 +20,14 @@ namespace HgSccHelper
 	/// </summary>
 	public partial class AnnotateWindow : Window
 	{
+		public const string CfgPath = @"GUI\AnnotateWindow";
+		CfgWindowPosition wnd_cfg;
+
+		//------------------------------------------------------------------
 		public AnnotateWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
 		}
 

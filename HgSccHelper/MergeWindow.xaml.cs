@@ -48,9 +48,14 @@ namespace HgSccHelper
 		HgThread worker;
 		bool is_merge_successful;
 
+		public const string CfgPath = @"GUI\MergeWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//------------------------------------------------------------------
 		public MergeWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
 
 			UpdateContext = new UpdateContext();

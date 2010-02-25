@@ -35,9 +35,14 @@ namespace HgSccHelper
 		ObservableCollection<RevertItem> revert_items;
 		DeferredCommandExecutor deferred_executor;
 
+		public const string CfgPath = @"GUI\RevertWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//-----------------------------------------------------------------------------
 		public RevertWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
 
 			revert_items = new ObservableCollection<RevertItem>();

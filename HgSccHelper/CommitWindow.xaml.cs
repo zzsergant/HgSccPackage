@@ -73,9 +73,14 @@ namespace HgSccHelper
 		List<MergeToolInfo> merge_tools;
 		DeferredCommandExecutor deferred_executor;
 
+		public const string CfgPath = @"GUI\CommitWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//-----------------------------------------------------------------------------
 		public CommitWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
 
 			commit_items = new ObservableCollection<CommitItem>();

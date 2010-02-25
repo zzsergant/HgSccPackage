@@ -58,9 +58,14 @@ namespace HgSccHelper
 		ObservableCollection<PathItem> paths;
 		IniFile hgrc;
 
+		public const string CfgPath = @"GUI\SynchronizeSettingsWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//-----------------------------------------------------------------------------
 		public SynchronizeSettingsWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
 
 			hgrc = new IniFile();

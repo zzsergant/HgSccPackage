@@ -89,9 +89,14 @@ namespace HgSccHelper
 
 		DeferredCommandExecutor deferred_executor;
 
+		public const string CfgPath = @"GUI\FileHistoryWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//------------------------------------------------------------------
 		public FileHistoryWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
 
 			UpdateContext = new UpdateContext();

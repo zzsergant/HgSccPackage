@@ -77,9 +77,14 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		HgThread worker;
 
+		public const string CfgPath = @"GUI\CloneWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//------------------------------------------------------------------
 		public CloneWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
 
 			worker = new HgThread();

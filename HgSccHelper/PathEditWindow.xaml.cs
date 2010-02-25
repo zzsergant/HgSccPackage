@@ -113,9 +113,14 @@ namespace HgSccHelper
 			Username = user;
 		}
 
+		public const string CfgPath = @"GUI\PathEditWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//-----------------------------------------------------------------------------
 		public PathEditWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
 		}
 
