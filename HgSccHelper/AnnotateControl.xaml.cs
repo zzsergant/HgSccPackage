@@ -568,6 +568,10 @@ namespace HgSccHelper
 							listLines.SelectedIndex = line_number;
 					}
 				}
+				else
+				{
+					listLines.SelectedItem = null;
+				}
 			}
 		}
 
