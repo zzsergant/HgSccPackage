@@ -714,11 +714,66 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private childItem FindVisualChild<childItem>(DependencyObject obj) where childItem : DependencyObject
+		{
+			for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+			{
+				DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+				if (child != null && child is childItem)
+				{
+					return (childItem)child;
+				}
+				else
+				{
+					childItem childOfChild = FindVisualChild<childItem>(child);
+					if (childOfChild != null)
+					{
+						return childOfChild;
+					}
+				}
+			}
+			return null;
+		}  
+
+		//------------------------------------------------------------------
 		void ScrollSelectAndFocusLine(int idx)
 		{
 			if (idx >= 0 && idx < listLines.Items.Count)
 			{
-				listLines.ScrollIntoView(listLines.Items[idx]);
+				// FIXME: Find a better way to centering on item
+
+				var scroll_viewer = FindVisualChild<ScrollViewer>(listLines);
+				int viewable_items = 0;
+				int top_item = 0;
+
+				if (scroll_viewer != null)
+				{
+					double item_height = scroll_viewer.ScrollableHeight / listLines.Items.Count;
+					viewable_items = (int)(scroll_viewer.ViewportHeight / item_height);
+					top_item = (int)(scroll_viewer.VerticalOffset / item_height);
+				}
+
+				if (viewable_items > 0)
+				{
+					int top = idx - viewable_items / 2;
+					int bottom = idx + viewable_items / 2;
+
+					top = Math.Max(top, 0);
+					top = Math.Min(top, listLines.Items.Count - 1);
+
+					bottom = Math.Max(bottom, 0);
+					bottom = Math.Min(bottom, listLines.Items.Count - 1);
+
+					if (top < top_item)
+						listLines.ScrollIntoView(listLines.Items[top]);
+					else
+						listLines.ScrollIntoView(listLines.Items[bottom]);
+				}
+				else
+				{
+					listLines.ScrollIntoView(listLines.Items[idx]);
+				}
+
 				listLines.SelectedIndex = idx;
 
 				var item = (ListViewItem)listLines.ItemContainerGenerator.ContainerFromIndex(listLines.SelectedIndex);
