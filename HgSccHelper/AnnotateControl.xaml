@@ -166,7 +166,8 @@
                 <ListView Grid.Row="0" Name="listLines"
                           SelectionMode="Single"
                           SelectionChanged="listLines_SelectionChanged"
-                          >
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling">
                     <ListView.CommandBindings>
                         <CommandBinding Command="{x:Static local:AnnotateControl.DiffPreviousCommand}"
                             CanExecute="HistoryDiffPrevious_CanExecute"
