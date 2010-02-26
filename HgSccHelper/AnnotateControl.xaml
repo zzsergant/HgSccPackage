@@ -58,17 +58,6 @@
             <TextBlock Text="{Binding Path=Info.Source}"
                        HorizontalAlignment="Stretch"
                        FontFamily="Courier New">
-                    <TextBlock.Style>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=IsSelected}" Value="True">
-                                    <Setter Property="FontWeight" Value="Bold"></Setter>
-                                    <Setter Property="Background" Value="LightCyan"></Setter>
-                                    <Setter Property="Foreground" Value="Black"></Setter>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
             </TextBlock>
         </DataTemplate>
     </UserControl.Resources>
@@ -208,6 +197,17 @@
                             <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
                             <EventSetter Event="MouseDoubleClick"
                                          Handler="ListChanges_MouseDoubleClick" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsSelected}" Value="True">
+                                    <Setter Property="FontWeight" Value="Bold"></Setter>
+                                    <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"></Setter>
+                                    <!--<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>-->
+                                    <!--<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"></Setter>
+                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>-->
+                                    <!--<Setter Property="Background" Value="Lavender"></Setter>
+                                    <Setter Property="Foreground" Value="Indigo"></Setter>-->
+                                </DataTrigger>
+                            </Style.Triggers>
                         </Style>
                     </ListView.Resources>
                 </ListView>
