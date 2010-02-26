@@ -108,6 +108,28 @@ namespace HgSccHelper
 			rev_to_line_view = new C5.HashDictionary<int, List<AnnotateLineView>>();
 		}
 
+		//-----------------------------------------------------------------------------
+		void ListItemContainerGenerator_StatusChanged(object sender, EventArgs e)
+		{
+			var generator = (ItemContainerGenerator)sender;
+			if (generator.Status == System.Windows.Controls.Primitives.GeneratorStatus.ContainersGenerated)
+			{
+				if (listLines.SelectedIndex != -1)
+				{
+					var item = (ListViewItem)listLines.ItemContainerGenerator.ContainerFromIndex(listLines.SelectedIndex);
+					if (item != null)
+					{
+						listLines.ItemContainerGenerator.StatusChanged -= ListItemContainerGenerator_StatusChanged;
+						item.Focus();
+					}
+				}
+				else
+				{
+					listLines.ItemContainerGenerator.StatusChanged -= ListItemContainerGenerator_StatusChanged;
+				}
+			}
+		}
+
 		//------------------------------------------------------------------
 		public GridView ListChangesGrid
 		{
@@ -577,7 +599,11 @@ namespace HgSccHelper
 					{
 						int line_number = rev_lines[0].Info.Line - 1;
 						if (line_number < listLines.Items.Count)
-							listLines.SelectedIndex = line_number;
+						{
+							var line_view = listLines.Items[line_number] as AnnotateLineView;
+							if (!line_view.IsSelected)
+								listLines.SelectedIndex = line_number;
+						}
 					}
 				}
 				else
@@ -600,15 +626,15 @@ namespace HgSccHelper
 			var annotate_line = listLines.SelectedItem as AnnotateLineView;
 			if (annotate_line != null)
 			{
+				foreach (var line_view in rev_to_line_view[annotate_line.Info.Rev])
+					line_view.IsSelected = true;
+
 				int idx;
 				if (rev_to_change_idx_map.Find(annotate_line.Info.Rev, out idx))
 				{
 					listChanges.SelectedIndex = idx;
 					listChanges.ScrollIntoView(listChanges.SelectedItem);
 				}
-
-				foreach (var line_view in rev_to_line_view[annotate_line.Info.Rev])
-					line_view.IsSelected = true;
 			}
 		}
 
@@ -636,8 +662,7 @@ namespace HgSccHelper
 			if (int.TryParse(textLine.Text, out line))
 			{
 				line -= 1;
-				listLines.ScrollIntoView(listLines.Items[line]);
-				listLines.SelectedIndex = line;
+				ScrollSelectAndFocusLine(line);
 			}
 
 			e.Handled = true;
@@ -685,8 +710,27 @@ namespace HgSccHelper
 			if (next_change_idx == -1)
 				return;
 
-			listLines.ScrollIntoView(listLines.Items[next_change_idx]);
-			listLines.SelectedIndex = next_change_idx;
+			ScrollSelectAndFocusLine(next_change_idx);
+		}
+
+		//------------------------------------------------------------------
+		void ScrollSelectAndFocusLine(int idx)
+		{
+			if (idx >= 0 && idx < listLines.Items.Count)
+			{
+				listLines.ScrollIntoView(listLines.Items[idx]);
+				listLines.SelectedIndex = idx;
+
+				var item = (ListViewItem)listLines.ItemContainerGenerator.ContainerFromIndex(listLines.SelectedIndex);
+				if (item != null)
+				{
+					item.Focus();
+				}
+				else
+				{
+					listLines.ItemContainerGenerator.StatusChanged += ListItemContainerGenerator_StatusChanged;
+				}
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -721,8 +765,7 @@ namespace HgSccHelper
 			if (next_change_idx == -1)
 				return;
 
-			listLines.ScrollIntoView(listLines.Items[next_change_idx]);
-			listLines.SelectedIndex = next_change_idx;
+			ScrollSelectAndFocusLine(next_change_idx);
 		}
 	}
 
