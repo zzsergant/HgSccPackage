@@ -602,7 +602,7 @@ namespace HgSccHelper
 						{
 							var line_view = listLines.Items[line_number] as AnnotateLineView;
 							if (!line_view.IsSelected)
-								listLines.SelectedIndex = line_number;
+								ScrollSelectAndFocusLine(line_number);
 						}
 					}
 				}
