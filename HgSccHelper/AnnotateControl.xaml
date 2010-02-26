@@ -66,6 +66,18 @@
                         CanExecute="Archive_CanExecute"
                         Executed="Archive_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:AnnotateControl.GotoLineCommand}"
+                        CanExecute="GotoLine_CanExecute"
+                        Executed="GotoLine_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static local:AnnotateControl.NextChangeCommand}"
+                        CanExecute="NextChange_CanExecute"
+                        Executed="NextChange_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static local:AnnotateControl.PrevChangeCommand}"
+                        CanExecute="PrevChange_CanExecute"
+                        Executed="PrevChange_Executed">
+        </CommandBinding>
     </UserControl.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -87,6 +99,20 @@
                 <Separator />
                 <Button Content="Archive Revision"
                         Command="{x:Static local:AnnotateControl.ArchiveCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Label Content="Line:" Margin="5,0"></Label>
+                <TextBox Name="textLine" Margin="5,0"
+                         Width="90" MaxLines="1" PreviewKeyDown="textLine_PreviewKeyDown"></TextBox>
+                <Button Content="Goto"
+                        Command="{x:Static local:AnnotateControl.GotoLineCommand}"
+                        ></Button>
+                <Separator />
+                <Button Content="Next Change"
+                        Command="{x:Static local:AnnotateControl.NextChangeCommand}"
+                        MinWidth="75" />
+                <Button Content="Prev Change"
+                        Command="{x:Static local:AnnotateControl.PrevChangeCommand}"
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
@@ -184,6 +210,10 @@
                     <ListView.InputBindings>
                         <KeyBinding Command="{x:Static local:AnnotateControl.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
+                        <KeyBinding Command="{x:Static local:AnnotateControl.PrevChangeCommand}"
+                            Modifiers="Control" Key="Up" />
+                        <KeyBinding Command="{x:Static local:AnnotateControl.NextChangeCommand}"
+                            Modifiers="Control" Key="Down" />
                     </ListView.InputBindings>
                     <ListView.ContextMenu>
                         <ContextMenu>
@@ -191,6 +221,11 @@
                               InputGestureText="Ctrl + D"></MenuItem>
                             <MenuItem Command="{x:Static local:AnnotateControl.ArchiveCommand}"
                               ></MenuItem>
+                            <Separator />
+                            <MenuItem Command="{x:Static local:AnnotateControl.PrevChangeCommand}"
+                                      InputGestureText="Ctrl + Up"></MenuItem>
+                            <MenuItem Command="{x:Static local:AnnotateControl.NextChangeCommand}"
+                                      InputGestureText="Ctrl + Down"></MenuItem>
                         </ContextMenu>
                     </ListView.ContextMenu>
                     <ListView.Resources>
@@ -198,15 +233,20 @@
                             <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
                             <EventSetter Event="MouseDoubleClick"
                                          Handler="ListChanges_MouseDoubleClick" />
+                            <Setter Property="IsSelected" Value="{Binding Path=IsCurrent, Mode=OneWayToSource}" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=IsSelected}" Value="True">
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding Path=IsSelected}" Value="True">
+                                        </Condition>
+                                        <Condition Binding="{Binding Path=IsCurrent}" Value="False">
+                                        </Condition>
+                                    </MultiDataTrigger.Conditions>
                                     <Setter Property="FontWeight" Value="Bold"></Setter>
                                     <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"></Setter>
-                                    <!--<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>-->
-                                    <!--<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"></Setter>
-                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>-->
-                                    <!--<Setter Property="Background" Value="Lavender"></Setter>
-                                    <Setter Property="Foreground" Value="Indigo"></Setter>-->
+                                </MultiDataTrigger>
+                                <DataTrigger Binding="{Binding Path=IsSelected}" Value="True">
+                                    <Setter Property="FontWeight" Value="Bold"></Setter>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

@@ -39,6 +39,18 @@ namespace HgSccHelper
 		public static RoutedUICommand ArchiveCommand = new RoutedUICommand("Archive",
 			"Archive", typeof(AnnotateControl));
 
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand GotoLineCommand = new RoutedUICommand("Goto Line",
+			"GotoLine", typeof(AnnotateControl));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand NextChangeCommand = new RoutedUICommand("Next Change",
+			"NextChange", typeof(AnnotateControl));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand PrevChangeCommand = new RoutedUICommand("Prev Change",
+			"PrevChange", typeof(AnnotateControl));
+
 		List<FileHistoryInfo> history;
 
 		//-----------------------------------------------------------------------------
@@ -599,6 +611,119 @@ namespace HgSccHelper
 					line_view.IsSelected = true;
 			}
 		}
+
+		//------------------------------------------------------------------
+		private void GotoLine_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			if (listLines != null)
+			{
+				int line;
+				if (int.TryParse(textLine.Text, out line))
+				{
+					line -= 1;
+					if (line >= 0 && line < listLines.Items.Count)
+						e.CanExecute = true;
+				}
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void GotoLine_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			int line;
+			if (int.TryParse(textLine.Text, out line))
+			{
+				line -= 1;
+				listLines.ScrollIntoView(listLines.Items[line]);
+				listLines.SelectedIndex = line;
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void textLine_PreviewKeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.Return)
+			{
+				if (GotoLineCommand.CanExecute(sender, e.Source as IInputElement))
+					GotoLineCommand.Execute(sender, e.Source as IInputElement);
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void NextChange_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void NextChange_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			if (listLines == null)
+				return;
+
+			var line_view = listLines.SelectedItem as AnnotateLineView;
+			if (line_view == null)
+				return;
+
+			int revision = line_view.Info.Rev;
+			int line_number = line_view.Info.Line;
+
+			var end_of_current_idx = annotated_lines.FindIndex(line_number - 1,
+				annotated_line => annotated_line.Info.Rev != revision);
+
+			if (end_of_current_idx == -1)
+				return;
+
+			var next_change_idx = annotated_lines.FindIndex(end_of_current_idx,
+					annotated_line => annotated_line.Info.Rev == revision);
+
+			if (next_change_idx == -1)
+				return;
+
+			listLines.ScrollIntoView(listLines.Items[next_change_idx]);
+			listLines.SelectedIndex = next_change_idx;
+		}
+
+		//------------------------------------------------------------------
+		private void PrevChange_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void PrevChange_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			if (listLines == null)
+				return;
+
+			var line_view = listLines.SelectedItem as AnnotateLineView;
+			if (line_view == null)
+				return;
+
+			int revision = line_view.Info.Rev;
+			int line_number = line_view.Info.Line;
+
+			var end_of_current_idx = annotated_lines.FindLastIndex(line_number - 1,
+				annotated_line => annotated_line.Info.Rev != revision);
+
+			if (end_of_current_idx == -1)
+				return;
+				
+			var next_change_idx = annotated_lines.FindLastIndex(end_of_current_idx,
+					annotated_line => annotated_line.Info.Rev == revision);
+
+			if (next_change_idx == -1)
+				return;
+
+			listLines.ScrollIntoView(listLines.Items[next_change_idx]);
+			listLines.SelectedIndex = next_change_idx;
+		}
 	}
 
 	//==================================================================
@@ -628,5 +753,16 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public static readonly DependencyProperty IsSelectedProperty =
 			DependencyProperty.Register("IsSelected", typeof(bool), typeof(AnnotateLineView));
+
+		//------------------------------------------------------------------
+		public bool IsCurrent
+		{
+			get { return (bool)GetValue(IsCurrentProperty); }
+			set { SetValue(IsCurrentProperty, value); }
+		}
+
+		//------------------------------------------------------------------
+		public static readonly DependencyProperty IsCurrentProperty =
+			DependencyProperty.Register("IsCurrent", typeof(bool), typeof(AnnotateLineView));
 	}
 }
