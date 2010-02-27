@@ -48,9 +48,13 @@ namespace HgSccHelper
 
 		C5.HashDictionary<string, TagInfo> tag_map;
 
+		public const string CfgPath = @"GUI\TagsWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//------------------------------------------------------------------
 		public TagsWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
 			InitializeComponent();
 
 			// Since WPF combo box does not provide TextChanged event

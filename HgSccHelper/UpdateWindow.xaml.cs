@@ -47,9 +47,13 @@ namespace HgSccHelper
 		IdentifyInfo CurrentRevision { get; set; }
 		ObservableCollection<string> parents;
 
+		public const string CfgPath = @"GUI\UpdateWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//------------------------------------------------------------------
 		public UpdateWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
 			InitializeComponent();
 
 			// Since WPF combo box does not provide TextChanged event

@@ -36,9 +36,13 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public string BranchName { get; private set; }
 
+		public const string CfgPath = @"GUI\BranchNameWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//------------------------------------------------------------------
 		public BranchNameWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
 			InitializeComponent();
 		}
 

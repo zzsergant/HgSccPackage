@@ -24,12 +24,20 @@ namespace HgSccHelper
 	{
 		Window wnd;
 		string cfg_path;
+		CfgWindowPositionOptions options;
 
 		//------------------------------------------------------------------
 		public CfgWindowPosition(string cfg_path, Window wnd)
+			: this(cfg_path, wnd, CfgWindowPositionOptions.PositionAndSize)
+		{
+		}
+
+		//------------------------------------------------------------------
+		public CfgWindowPosition(string cfg_path, Window wnd, CfgWindowPositionOptions options)
 		{
 			this.cfg_path = cfg_path;
 			this.wnd = wnd;
+			this.options = options;
 
 			wnd.Loaded += wnd_Loaded;
 			wnd.Initialized += wnd_Initialized;
@@ -42,42 +50,71 @@ namespace HgSccHelper
 			var bounds = wnd.RestoreBounds;
 			Cfg.Set(cfg_path, "X", (int)bounds.Left);
 			Cfg.Set(cfg_path, "Y", (int)bounds.Top);
-			Cfg.Set(cfg_path, "Width", (int)bounds.Width);
-			Cfg.Set(cfg_path, "Height", (int)bounds.Height);
-			Cfg.Set(cfg_path, "IsMaximized", wnd.WindowState == WindowState.Maximized ? 1 : 0);
+
+			if (options == CfgWindowPositionOptions.PositionAndSize)
+			{
+				Cfg.Set(cfg_path, "Width", (int)bounds.Width);
+				Cfg.Set(cfg_path, "Height", (int)bounds.Height);
+				Cfg.Set(cfg_path, "IsMaximized", wnd.WindowState == WindowState.Maximized ? 1 : 0);
+			}
 		}
 
 		//------------------------------------------------------------------
 		void wnd_Initialized(object sender, EventArgs e)
 		{
-			int x;
-			int y;
-			int width;
-			int height;
-
-			if (	Cfg.Get(cfg_path, "Width", out width, (int)wnd.Width)
-				&&	Cfg.Get(cfg_path, "Height", out height, (int)wnd.Height)
-				&&	Cfg.Get(cfg_path, "X", out x, (int)wnd.Left)
-				&&	Cfg.Get(cfg_path, "Y", out y, (int)wnd.Top)
-				)
+			switch (options)
 			{
-				wnd.Left = x;
-				wnd.Top = y;
-				wnd.Width = width;
-				wnd.Height = height;
-				wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+				case CfgWindowPositionOptions.PositionOnly:
+					{
+						int x;
+						int y;
+
+						if (	Cfg.Get(cfg_path, "X", out x, (int)wnd.Left)
+							&&	Cfg.Get(cfg_path, "Y", out y, (int)wnd.Top)
+							)
+						{
+							wnd.Left = x;
+							wnd.Top = y;
+							wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+						}
+						break;
+					}
+				case CfgWindowPositionOptions.PositionAndSize:
+					{
+						int x;
+						int y;
+						int width;
+						int height;
+
+						if (Cfg.Get(cfg_path, "Width", out width, (int)wnd.Width)
+							&& Cfg.Get(cfg_path, "Height", out height, (int)wnd.Height)
+							&& Cfg.Get(cfg_path, "X", out x, (int)wnd.Left)
+							&& Cfg.Get(cfg_path, "Y", out y, (int)wnd.Top)
+							)
+						{
+							wnd.Left = x;
+							wnd.Top = y;
+							wnd.Width = width;
+							wnd.Height = height;
+							wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+						}
+						break;
+					}
 			}
 		}
 
 		//------------------------------------------------------------------
 		void wnd_Loaded(object sender, RoutedEventArgs e)
 		{
-			int is_maximized;
-
-			if (Cfg.Get(cfg_path, "IsMaximized", out is_maximized, 0))
+			if (options == CfgWindowPositionOptions.PositionAndSize)
 			{
-				if (is_maximized == 1)
-					wnd.WindowState = WindowState.Maximized;
+				int is_maximized;
+
+				if (Cfg.Get(cfg_path, "IsMaximized", out is_maximized, 0))
+				{
+					if (is_maximized == 1)
+						wnd.WindowState = WindowState.Maximized;
+				}
 			}
 		}
 
@@ -93,5 +130,12 @@ namespace HgSccHelper
 				wnd = null;
 			}
 		}
+	}
+
+	//------------------------------------------------------------------
+	public enum CfgWindowPositionOptions
+	{
+		PositionAndSize,
+		PositionOnly
 	}
 }

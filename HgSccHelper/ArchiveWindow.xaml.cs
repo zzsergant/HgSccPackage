@@ -63,9 +63,13 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		string ArchiveRevisionPart { get; set; }
 
+		public const string CfgPath = @"GUI\ArchiveWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//------------------------------------------------------------------
 		public ArchiveWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
 			InitializeComponent();
 
 			// Since WPF combo box does not provide TextChanged event

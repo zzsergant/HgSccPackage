@@ -64,9 +64,13 @@ namespace HgSccHelper
 			DependencyProperty.Register("DestinationPath", typeof(string),
 			typeof(BundleWindow));
 
+		public const string CfgPath = @"GUI\BundleWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//------------------------------------------------------------------
 		public BundleWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
 			InitializeComponent();
 
 			// Since WPF combo box does not provide TextChanged event
