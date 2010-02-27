@@ -743,31 +743,10 @@ namespace HgSccHelper
 				// FIXME: Find a better way to centering on item
 
 				var scroll_viewer = FindVisualChild<ScrollViewer>(listLines);
-				int viewable_items = 0;
-				int top_item = 0;
-
 				if (scroll_viewer != null)
 				{
-					double item_height = scroll_viewer.ScrollableHeight / listLines.Items.Count;
-					viewable_items = (int)(scroll_viewer.ViewportHeight / item_height);
-					top_item = (int)(scroll_viewer.VerticalOffset / item_height);
-				}
-
-				if (viewable_items > 0)
-				{
-					int top = idx - viewable_items / 2;
-					int bottom = idx + viewable_items / 2;
-
-					top = Math.Max(top, 0);
-					top = Math.Min(top, listLines.Items.Count - 1);
-
-					bottom = Math.Max(bottom, 0);
-					bottom = Math.Min(bottom, listLines.Items.Count - 1);
-
-					if (top < top_item)
-						listLines.ScrollIntoView(listLines.Items[top]);
-					else
-						listLines.ScrollIntoView(listLines.Items[bottom]);
+					double top = Math.Max(0, idx - scroll_viewer.ViewportHeight / 2);
+					scroll_viewer.ScrollToVerticalOffset(top);
 				}
 				else
 				{
