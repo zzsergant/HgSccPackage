@@ -20,9 +20,23 @@ using System.IO;
 namespace HgSccHelper
 {
 	//==================================================================
-	static class Cfg
+	public static class Cfg
 	{
-		public const string CfgRoot = @"Software\Zz\HgSccPackage";
+		public const string CfgRegRoot = @"Software\Zz";
+		
+		/// <summary>
+		/// This is a prefix for cfg registry. You can set it to a program name.
+		/// </summary>
+		public static string Program = "HgSccHelper";
+
+		//------------------------------------------------------------------
+		public static string CfgRoot
+		{
+			get
+			{
+				return Path.Combine(CfgRegRoot, Program);
+			}
+		}
 
 		//------------------------------------------------------------------
 		static Cfg()
