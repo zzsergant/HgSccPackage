@@ -205,6 +205,31 @@ namespace HgSccPackage
 			return VSConstants.S_OK;
 		}
 
+		//------------------------------------------------------------------
+		IVsPersistDocData GetDocData(string filename)
+		{
+			var doc_info = Rdt.FindAndLockDocument(filename, _VSRDTFLAGS.RDT_NoLock);
+			if (doc_info == null || doc_info.DocData == IntPtr.Zero)
+				return null;
+
+			return Marshal.GetObjectForIUnknown(doc_info.DocData) as IVsPersistDocData;
+		}
+
+		//------------------------------------------------------------------
+		bool IsDirty(string filename)
+		{
+			var doc_data = GetDocData(filename);
+			if (doc_data == null)
+				return false;
+
+			int dirty = 0;
+			var error = doc_data.IsDocDataDirty(out dirty);
+			if (error != VSConstants.S_OK)
+				return false;
+
+			return dirty != 0;
+		}
+
 		/// <summary>
 		/// Provide source control icons for the specified files and returns scc status of files
 		/// </summary>
@@ -224,19 +249,29 @@ namespace HgSccPackage
 				switch (status)
 				{
 					case SourceControlStatus.scsCheckedIn:
-						rgsiGlyphs[iFile] = VsStateIcon.STATEICON_CHECKEDIN;
-						if (rgdwSccStatus != null)
 						{
-							rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
+							rgsiGlyphs[iFile] = VsStateIcon.STATEICON_CHECKEDIN;
+							if (IsDirty(rgpszFullPaths[iFile]))
+								rgsiGlyphs[iFile] = VsStateIcon.STATEICON_EDITABLE;
+
+							if (rgdwSccStatus != null)
+							{
+								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
+							}
+							break;
 						}
-						break;
 					case SourceControlStatus.scsCheckedOut:
-						rgsiGlyphs[iFile] = VsStateIcon.STATEICON_CHECKEDOUT;
-						if (rgdwSccStatus != null)
 						{
-							rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CHECKEDOUT;
+							rgsiGlyphs[iFile] = VsStateIcon.STATEICON_CHECKEDOUT;
+							if (IsDirty(rgpszFullPaths[iFile]))
+								rgsiGlyphs[iFile] = VsStateIcon.STATEICON_EDITABLE;
+
+							if (rgdwSccStatus != null)
+							{
+								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CHECKEDOUT;
+							}
+							break;
 						}
-						break;
 					default:
 						//System.Collections.Generic.IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgpszFullPaths[i]);
 						/*
@@ -2008,16 +2043,6 @@ namespace HgSccPackage
 			Logger.WriteLine("OnAfterAttributeChange: {0}, {1}",
 				e.DocInfo.MkDocument, e.Attributes);
 
-			if ((e.Attributes & __VSRDTATTRIB.RDTA_DocDataReloaded) != __VSRDTATTRIB.RDTA_DocDataReloaded)
-				return;
-
-			/*
-						// Get automation-object Document and work with it
-
-						ProjectItem prjItem = DTE.Solution.FindProjectItem(pbstrMkDocument);
-						if (prjItem != null)
-							OnDocumentSaved(prjItem.Document);
-			*/
 			if (storage.IsValid)
 			{
 				var status = storage.GetFileStatus(e.DocInfo.MkDocument);
