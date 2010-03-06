@@ -84,7 +84,20 @@ namespace HgSccHelper
 	//=============================================================================
 	public class Hg
 	{
+		//------------------------------------------------------------------
 		public const int MaxCmdLength = 2000 - 300;
+
+		//------------------------------------------------------------------
+		public static string CustomHgClient { get; set; }
+
+		//------------------------------------------------------------------
+		public static string DefaultClient { get; private set; }
+
+		//------------------------------------------------------------------
+		static Hg()
+		{
+			DefaultClient = Util.FindExe("hg") ?? "hg";
+		}
 
 		//-----------------------------------------------------------------------------
 		public Hg()
@@ -95,9 +108,12 @@ namespace HgSccHelper
 		public ProcessStartInfo PrepareProcess(string work_dir, string arguments)
 		{
 			// TODO: Make the hg path configurable via options
-			// to avoid expensive search for hg in the PATH
 
-			var info = new ProcessStartInfo("hg");
+			var hg_client = DefaultClient;
+			if (!String.IsNullOrEmpty(CustomHgClient))
+				hg_client = CustomHgClient;
+
+			var info = new ProcessStartInfo(hg_client);
 			info.Arguments = arguments;
 
 			info.CreateNoWindow = true;
