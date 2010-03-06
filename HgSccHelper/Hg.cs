@@ -94,7 +94,10 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public ProcessStartInfo PrepareProcess(string work_dir, string arguments)
 		{
-			var info = new ProcessStartInfo("hg.exe");
+			// TODO: Make the hg path configurable via options
+			// to avoid expensive search for hg in the PATH
+
+			var info = new ProcessStartInfo("hg");
 			info.Arguments = arguments;
 
 			info.CreateNoWindow = true;
