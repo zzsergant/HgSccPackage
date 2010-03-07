@@ -96,7 +96,11 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		static Hg()
 		{
-			DefaultClient = Util.FindExe("hg") ?? "hg";
+			DefaultClient = "hg";
+			var found_client = Util.FindExe("hg");
+			
+			if (!String.IsNullOrEmpty(found_client))
+				DefaultClient = found_client;
 		}
 
 		//-----------------------------------------------------------------------------
