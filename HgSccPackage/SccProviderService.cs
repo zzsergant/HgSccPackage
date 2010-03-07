@@ -25,6 +25,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
 using System.Windows.Forms;
 using HgSccPackage.Vs;
+using System.Drawing;
 
 namespace HgSccPackage
 {
@@ -38,6 +39,7 @@ namespace HgSccPackage
 		IVsQueryEditQuerySave2,     // Required to allow editing of controlled files 
 		IVsTrackProjectDocumentsEvents2,  // Usefull to track project changes (add, renames, deletes, etc)
 		IVsTrackProjectDocumentsEvents3,
+		IVsSccGlyphs,
 		IDisposable 
 	{
 		// Whether the provider is active or not
@@ -65,6 +67,22 @@ namespace HgSccPackage
 
 		private readonly C5.HashDictionary<string, string> add_origin = new C5.HashDictionary<string, string>();
 //		private SccFileChangesManager file_changes;
+
+		// Remember the base index where our custom scc glyph start
+		private uint customSccGlyphBaseIndex = 0;
+		// Our custom image list
+		ImageList customSccGlyphsImageList;
+
+		// Indexes of icons in our custom image list
+		// NOTE: Only four custom glyphs allowed
+		enum CustomSccGlyphs
+		{
+			Added = 0,
+			Deleted = 1,
+			Copied = 2,
+			Reserved = 3
+		};
+
 
 		#region SccProvider Service initialization/unitialization
 
@@ -246,30 +264,50 @@ namespace HgSccPackage
 				// Return the icons and the status. While the status is a combination a flags, we'll return just values 
 				// with one bit set, to make life easier for GetSccGlyphsFromStatus
 				SourceControlStatus status = statuses[iFile];
+
 				switch (status)
 				{
-					case SourceControlStatus.scsCheckedIn:
+					case SourceControlStatus.scsAdded:
 						{
-							rgsiGlyphs[iFile] = VsStateIcon.STATEICON_CHECKEDIN;
-							if (IsDirty(rgpszFullPaths[iFile]))
-								rgsiGlyphs[iFile] = VsStateIcon.STATEICON_EDITABLE;
-
+							rgsiGlyphs[iFile] = (VsStateIcon)(this.customSccGlyphBaseIndex + (uint)CustomSccGlyphs.Added);
 							if (rgdwSccStatus != null)
-							{
-								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
-							}
+								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CHECKEDOUT;
 							break;
 						}
-					case SourceControlStatus.scsCheckedOut:
+					case SourceControlStatus.scsCopied:
+						{
+							rgsiGlyphs[iFile] = (VsStateIcon)(this.customSccGlyphBaseIndex + (uint)CustomSccGlyphs.Copied);
+							if (rgdwSccStatus != null)
+								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CHECKEDOUT;
+							break;
+						}
+					case SourceControlStatus.scsDeleted:
+					case SourceControlStatus.scsRemoved:
+						{
+							rgsiGlyphs[iFile] = (VsStateIcon)(this.customSccGlyphBaseIndex + (uint)CustomSccGlyphs.Deleted);
+							if (rgdwSccStatus != null)
+								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_DELETED;
+							break;
+						}
+					case SourceControlStatus.scsIgnored:
+						{
+							rgsiGlyphs[iFile] = VsStateIcon.STATEICON_EXCLUDEDFROMSCC;
+							if (rgdwSccStatus != null)
+								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_NOTCONTROLLED;
+							break;
+						}
+					case SourceControlStatus.scsClean:
+						{
+							rgsiGlyphs[iFile] = VsStateIcon.STATEICON_CHECKEDIN;
+							if (rgdwSccStatus != null)
+								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
+							break;
+						}
+					case SourceControlStatus.scsModified:
 						{
 							rgsiGlyphs[iFile] = VsStateIcon.STATEICON_CHECKEDOUT;
-							if (IsDirty(rgpszFullPaths[iFile]))
-								rgsiGlyphs[iFile] = VsStateIcon.STATEICON_EDITABLE;
-
 							if (rgdwSccStatus != null)
-							{
 								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CHECKEDOUT;
-							}
 							break;
 						}
 					default:
@@ -296,6 +334,12 @@ namespace HgSccPackage
 							}
 						}
 						break;
+				}
+
+				if (status != SourceControlStatus.scsUncontrolled)
+				{
+					if (IsDirty(rgpszFullPaths[iFile]))
+						rgsiGlyphs[iFile] = VsStateIcon.STATEICON_EDITABLE;
 				}
 			}
 
@@ -326,10 +370,17 @@ namespace HgSccPackage
 		{
 			switch (status)
 			{
-				case SourceControlStatus.scsCheckedIn:
+				case SourceControlStatus.scsAdded:
+				case SourceControlStatus.scsModified:
+				case SourceControlStatus.scsCopied:
+					return (uint)__SccStatus.SCC_STATUS_CHECKEDOUT;
+				case SourceControlStatus.scsClean:
 					return (uint) __SccStatus.SCC_STATUS_CONTROLLED;
-				case SourceControlStatus.scsCheckedOut:
-					return (uint) __SccStatus.SCC_STATUS_CHECKEDOUT;
+				case SourceControlStatus.scsIgnored:
+					return (uint) __SccStatus.SCC_STATUS_CONTROLLED;
+				case SourceControlStatus.scsDeleted:
+				case SourceControlStatus.scsRemoved:
+					return (uint) __SccStatus.SCC_STATUS_DELETED;
 				case SourceControlStatus.scsUncontrolled:
 					return (uint) __SccStatus.SCC_STATUS_NOTCONTROLLED;
 			}
@@ -449,11 +500,26 @@ namespace HgSccPackage
 			SourceControlStatus status = GetFileStatus(files[0]);
 			switch (status)
 			{
-				case SourceControlStatus.scsCheckedIn:
-					pbstrTooltipText = Resources.ResourceManager.GetString("Status_CheckedIn"); 
+				case SourceControlStatus.scsAdded:
+					pbstrTooltipText = "Added";
 					break;
-				case SourceControlStatus.scsCheckedOut:
-					pbstrTooltipText = Resources.ResourceManager.GetString("Status_CheckedOut");
+				case SourceControlStatus.scsCopied:
+					pbstrTooltipText = "Copied from other file";
+					break;
+				case SourceControlStatus.scsDeleted:
+					pbstrTooltipText = "Deleted";
+					break;
+				case SourceControlStatus.scsRemoved:
+					pbstrTooltipText = "Removed";
+					break;
+				case SourceControlStatus.scsIgnored:
+					pbstrTooltipText = "Ignored";
+					break;
+				case SourceControlStatus.scsClean:
+					pbstrTooltipText = "Clean"; 
+					break;
+				case SourceControlStatus.scsModified:
+					pbstrTooltipText = "Modified";
 					break;
 				default:
 					// If the file is not controlled, but is member of a controlled project, report the item as checked out (same as source control in VS2003 did)
@@ -751,56 +817,23 @@ namespace HgSccPackage
 						{
 							switch (status)
 							{
-								case SourceControlStatus.scsCheckedIn:
+								case SourceControlStatus.scsClean:
 									if ((rgfQueryEdit & (uint)tagVSQueryEditFlags.QEF_ReportOnly) != 0)
 									{
 										fMoreInfo = (uint)(tagVSQueryEditResultFlags.QER_EditNotPossible | tagVSQueryEditResultFlags.QER_ReadOnlyUnderScc);
 									}
 									else
 									{
-/*
-										DlgQueryEditCheckedInFile dlgAskCheckout = new DlgQueryEditCheckedInFile(rgpszMkDocuments[iFile]);
-										if ((rgfQueryEdit & (uint)tagVSQueryEditFlags.QEF_SilentMode) != 0)
-										{
-											// When called in silent mode, attempt the checkout
-											// (The alternative is to deny the edit and return QER_NoisyPromptRequired and expect for a non-silent call)
-											dlgAskCheckout.Answer = DlgQueryEditCheckedInFile.qecifCheckout;
-										}
-										else
-										{
-											dlgAskCheckout.ShowDialog();
-										}
-
-										if (dlgAskCheckout.Answer == DlgQueryEditCheckedInFile.qecifCheckout)
-										{
-											// Checkout the file, and since it cannot fail, allow the edit
-											CheckoutFileAndRefreshProjectGlyphs(rgpszMkDocuments[iFile]);
-											fEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
-											fMoreInfo = (uint)tagVSQueryEditResultFlags.QER_MaybeCheckedout;
-											// Do not forget to set QER_Changed if the content of the file on disk changes during the query edit
-											// Do not forget to set QER_Reloaded if the source control reloads the file from disk after such changing checkout.
-										}
-										else if (dlgAskCheckout.Answer == DlgQueryEditCheckedInFile.qecifEditInMemory)
-										{
-											// Allow edit in memory
-											fEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
-											fMoreInfo = (uint)(tagVSQueryEditResultFlags.QER_InMemoryEdit);
-											// Add the file to the list of files approved for edit, so if the IDE asks again about this file, we'll allow the edit without asking the user again
-											// UNDONE: Currently, a file gets removed from _approvedForInMemoryEdit list only when the solution is closed. Consider intercepting the 
-											// IVsRunningDocTableEvents.OnAfterSave/OnAfterSaveAll interface and removing the file from the approved list after it gets saved once.
-											_approvedForInMemoryEdit.Add(rgpszMkDocuments[iFile].ToLower());
-										}
-										else
-										{
-											fEditVerdict = (uint)tagVSQueryEditResult.QER_NoEdit_UserCanceled;
-											fMoreInfo = (uint)(tagVSQueryEditResultFlags.QER_ReadOnlyUnderScc | tagVSQueryEditResultFlags.QER_CheckoutCanceledOrFailed);
-										}
-*/
 										fEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
 										fMoreInfo = (uint)tagVSQueryEditResultFlags.QER_MaybeCheckedout;
 									}
 									break;
-								case SourceControlStatus.scsCheckedOut: // fall through
+								case SourceControlStatus.scsModified: // fall through
+								case SourceControlStatus.scsAdded:
+								case SourceControlStatus.scsCopied:
+								case SourceControlStatus.scsDeleted:
+								case SourceControlStatus.scsRemoved:
+								case SourceControlStatus.scsIgnored:
 								case SourceControlStatus.scsUncontrolled:
 									if (fileExists && isFileReadOnly)
 									{
@@ -931,41 +964,7 @@ namespace HgSccPackage
 
 					switch (status)
 					{
-/*
-						case SourceControlStatus.scsCheckedIn:
-							DlgQuerySaveCheckedInFile dlgAskCheckout = new DlgQuerySaveCheckedInFile(rgpszMkDocuments[iFile]);
-							if ((rgfQuerySave & (uint)tagVSQuerySaveFlags.QSF_SilentMode) != 0)
-							{
-								// When called in silent mode, attempt the checkout
-								// (The alternative is to deny the save, return QSR_NoSave_NoisyPromptRequired and expect for a non-silent call)
-								dlgAskCheckout.Answer = DlgQuerySaveCheckedInFile.qscifCheckout;
-							}
-							else
-							{
-								dlgAskCheckout.ShowDialog();
-							}
-
-							switch (dlgAskCheckout.Answer)
-							{
-								case DlgQueryEditCheckedInFile.qecifCheckout:
-									// Checkout the file, and since it cannot fail, allow the save to continue
-									CheckoutFileAndRefreshProjectGlyphs(rgpszMkDocuments[iFile]);
-									pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
-									break;
-								case DlgQuerySaveCheckedInFile.qscifForceSaveAs:
-									pdwQSResult = (uint)tagVSQuerySaveResult.QSR_ForceSaveAs;
-									break;
-								case DlgQuerySaveCheckedInFile.qscifSkipSave:
-									pdwQSResult = (uint)tagVSQuerySaveResult.QSR_NoSave_Continue;
-									break;
-								default:
-									pdwQSResult = (uint)tagVSQuerySaveResult.QSR_NoSave_Cancel;
-									break;
-							}
-
-							break;
-*/
-						case SourceControlStatus.scsCheckedIn:
+						case SourceControlStatus.scsClean:
 							{
 								if (fileExists && isFileReadOnly)
 								{
@@ -979,7 +978,12 @@ namespace HgSccPackage
 								pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
 								break;
 							}
-						case SourceControlStatus.scsCheckedOut:	 // fall through
+						case SourceControlStatus.scsModified:	 // fall through
+						case SourceControlStatus.scsAdded:
+						case SourceControlStatus.scsCopied:
+						case SourceControlStatus.scsIgnored:
+						case SourceControlStatus.scsDeleted:
+						case SourceControlStatus.scsRemoved:
 						case SourceControlStatus.scsUncontrolled:
 							if (fileExists && isFileReadOnly)
 							{
@@ -1280,34 +1284,6 @@ namespace HgSccPackage
 							SourceControlStatus status = storage.GetFileStatus(rgpszMkDocuments[iFile]);
 							if (status != SourceControlStatus.scsUncontrolled)
 							{
-/*
-								// This is a controlled file, warn the user
-								IVsUIShell uiShell = (IVsUIShell)_sccProvider.GetService(typeof(SVsUIShell));
-								Guid clsid = Guid.Empty;
-								int result = VSConstants.S_OK;
-								string messageText = Resources.ResourceManager.GetString("TPD_DeleteControlledFile"); 
-								string messageCaption = Resources.ResourceManager.GetString("ProviderName");
-								if (uiShell.ShowMessageBox(0, ref clsid,
-													messageCaption,
-													String.Format(CultureInfo.CurrentUICulture, messageText, rgpszMkDocuments[iFile]),
-													string.Empty,
-													0,
-													OLEMSGBUTTON.OLEMSGBUTTON_YESNO,
-													OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
-													OLEMSGICON.OLEMSGICON_QUERY,
-													0,        // false = application modal; true would make it system modal
-													out result) != VSConstants.S_OK
-									|| result != (int)DialogResult.Yes)
-								{
-									pSummaryResult[0] = VSQUERYREMOVEFILERESULTS.VSQUERYREMOVEFILERESULTS_RemoveNotOK;
-									if (rgResults != null)
-									{
-										rgResults[iFile] = VSQUERYREMOVEFILERESULTS.VSQUERYREMOVEFILERESULTS_RemoveNotOK;
-									}
-									// Don't spend time iterating through the rest of the files once the rename has been cancelled
-									break;
-								}
-*/
 							}
 						}
 					}
@@ -2141,5 +2117,41 @@ namespace HgSccPackage
 		{
 			return storage.IsValid;
 		}
+
+		#region IVsSccGlyphs Members
+
+		public int GetCustomGlyphList(uint BaseIndex, out uint pdwImageListHandle)
+		{
+			// If this is the first time we got called, construct the image list, remember the index, etc
+			if (this.customSccGlyphsImageList == null)
+			{
+				// The shell calls this function when the provider becomes active to get our custom glyphs
+				// and to tell us what's the first index we can use for our glyphs
+				// Remember the index in the scc glyphs (VsStateIcon) where our custom glyphs will start
+				this.customSccGlyphBaseIndex = BaseIndex;
+
+				// Create a new imagelist
+				this.customSccGlyphsImageList = new ImageList();
+
+				// Set the transparent color for the imagelist (the SccGlyphs.bmp uses magenta for background)
+				this.customSccGlyphsImageList.TransparentColor = Color.FromArgb(255, 0, 255);
+
+				// Set the corret imagelist size (7x16 pixels, otherwise the system will either stretch the image or fill in with black blocks)
+				this.customSccGlyphsImageList.ImageSize = new Size(7, 16);
+
+				// Add the custom scc glyphs we support to the list
+				// NOTE: VS2005 and VS2008 are limited to 4 custom scc glyphs (let's hope this will change in future versions)
+				Image sccGlyphs = (Image)Resources.CustomGlyphs;
+				this.customSccGlyphsImageList.Images.AddStrip(sccGlyphs);
+			}
+
+			// Return a Win32 HIMAGELIST handle to our imagelist to the shell (by keeping the ImageList a member of the class we guarantee the Win32 object is still valid when the shell needs it)
+			pdwImageListHandle = (uint)this.customSccGlyphsImageList.Handle;
+
+			// Return success (If you don't want to have custom glyphs return VSConstants.E_NOTIMPL)
+			return VSConstants.S_OK;
+		}
+
+		#endregion
 	}
 }

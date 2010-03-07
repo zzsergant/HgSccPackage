@@ -25,8 +25,13 @@ namespace HgSccPackage
 	public enum SourceControlStatus
 	{
 		scsUncontrolled = 0,
-		scsCheckedIn,
-		scsCheckedOut
+		scsClean,
+		scsModified,
+		scsAdded,
+		scsCopied,
+		scsRemoved,
+		scsDeleted,
+		scsIgnored
 	};
 
 	//------------------------------------------------------------------
@@ -188,45 +193,39 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		private static SourceControlStatus FromHgStatus(HgFileStatus status)
+		private static SourceControlStatus FromHgStatus(HgFileInfo file_info)
 		{
-			switch (status)
+			switch (file_info.Status)
 			{
 				case HgFileStatus.Added:
-					return SourceControlStatus.scsCheckedOut;
+					{
+						if (!String.IsNullOrEmpty(file_info.CopiedFrom))
+							return SourceControlStatus.scsCopied;
+
+						return SourceControlStatus.scsAdded;
+					}
 				case HgFileStatus.Clean:
-					return SourceControlStatus.scsCheckedIn;
+					return SourceControlStatus.scsClean;
 				case HgFileStatus.Deleted:
-					return SourceControlStatus.scsUncontrolled;
+					return SourceControlStatus.scsDeleted;
 				case HgFileStatus.Ignored:
-					return SourceControlStatus.scsUncontrolled;
+					return SourceControlStatus.scsIgnored;
 				case HgFileStatus.Modified:
-					return SourceControlStatus.scsCheckedOut;
+					{
+						if (!String.IsNullOrEmpty(file_info.CopiedFrom))
+							return SourceControlStatus.scsCopied;
+
+						return SourceControlStatus.scsModified;
+					}
 				case HgFileStatus.NotTracked:
 					return SourceControlStatus.scsUncontrolled;
 				case HgFileStatus.Removed:
-					return SourceControlStatus.scsUncontrolled;
+					return SourceControlStatus.scsRemoved;
 				case HgFileStatus.Tracked:
-					return SourceControlStatus.scsCheckedIn;
+					return SourceControlStatus.scsClean;
 			}
 
 			return SourceControlStatus.scsUncontrolled;
-		}
-
-		//------------------------------------------------------------------
-		private static HgFileStatus ToHgStatus(SourceControlStatus status)
-		{
-			switch (status)
-			{
-				case SourceControlStatus.scsCheckedIn:
-					return HgFileStatus.Tracked;
-				case SourceControlStatus.scsCheckedOut:
-					return HgFileStatus.Modified;
-				case SourceControlStatus.scsUncontrolled:
-					return HgFileStatus.NotTracked;
-			}
-
-			return HgFileStatus.NotTracked;
 		}
 
 		//------------------------------------------------------------------
@@ -253,7 +252,7 @@ namespace HgSccPackage
 				HgFileInfo info;
 				if (cache.Find(file.File.ToLower(), out info))
 				{
-					file.Status = FromHgStatus(info.Status);
+					file.Status = FromHgStatus(info);
 				}
 				//Logger.WriteLine("GetFileStatus: {0} = {1}", file.File, file.Status);
 			}
@@ -289,7 +288,7 @@ namespace HgSccPackage
 				HgFileInfo info;
 				if (cache.Find(files[i].ToLower(), out info))
 				{
-					statuses[i] = FromHgStatus(info.Status);
+					statuses[i] = FromHgStatus(info);
 				}
 
 				//Logger.WriteLine("GetFileStatus: {0} = {1}", files[i], statuses[i]);
@@ -397,7 +396,7 @@ namespace HgSccPackage
 			foreach (var f in files)
 			{
 				Logger.WriteLine("Remove: {0}", f);
-				SetCacheStatus(f, SourceControlStatus.scsCheckedOut);
+				SetCacheStatus(f, HgFileStatus.Removed);
 			}
 			return SccErrors.Ok;
 		}
@@ -515,14 +514,14 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		public void SetCacheStatus(string file, SourceControlStatus status)
+		public void SetCacheStatus(string file, HgFileStatus status)
 		{
 			Logger.WriteLine("SetCacheStatus: {0}, {1}", file, status);
 			
 			HgFileInfo info;
 			if (cache.Find(file.ToLower(), out info))
 			{
-				info.Status = ToHgStatus(status);
+				info.Status = status;
 			}
 			else
 			{

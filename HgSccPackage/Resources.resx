@@ -163,4 +163,7 @@
   <data name="104" xml:space="preserve">
     <value>DJQIHJRAEHPZE2IPI0EADHCJRZE1PDJ3CQM2PHEZKDIHJMCIR9ZCMMA8PJJRJDIEH8ARIPHHIKC8EPI2ATDIC9JQQPZMMPI9CTI3J0KRCMJHHTA3I2QEKRE0EPMTJMR0</value>
   </data>
+  <data name="CustomGlyphs" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\CustomGlyphs.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

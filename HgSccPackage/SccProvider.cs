@@ -620,20 +620,24 @@ namespace HgSccPackage
 			foreach (string file in files)
 			{
 				SourceControlStatus status = sccService.GetFileStatus(file);
-				if (status == SourceControlStatus.scsCheckedIn)
+				if (	status == SourceControlStatus.scsClean
+					||	status == SourceControlStatus.scsUncontrolled
+					||	status == SourceControlStatus.scsIgnored)
 				{
 					continue;
 				}
 
-				if (status == SourceControlStatus.scsCheckedOut)
+				if (status == SourceControlStatus.scsUncontrolled)
 				{
-					return OLECMDF.OLECMDF_ENABLED;
+					// If the file is uncontrolled, enable the command only if the file is part of a controlled project
+					System.Collections.Generic.IList<VSITEMSELECTION> nodes =
+						sccService.GetControlledProjectsContainingFile(file);
+					if (nodes.Count > 0)
+					{
+						return OLECMDF.OLECMDF_ENABLED;
+					}
 				}
-
-				// If the file is uncontrolled, enable the command only if the file is part of a controlled project
-				System.Collections.Generic.IList<VSITEMSELECTION> nodes =
-					sccService.GetControlledProjectsContainingFile(file);
-				if (nodes.Count > 0)
+				else
 				{
 					return OLECMDF.OLECMDF_ENABLED;
 				}
@@ -653,20 +657,24 @@ namespace HgSccPackage
 			foreach (string file in files)
 			{
 				SourceControlStatus status = sccService.GetFileStatus(file);
-				if (status == SourceControlStatus.scsCheckedIn)
+				if (	status == SourceControlStatus.scsClean
+					||	status == SourceControlStatus.scsUncontrolled
+					||	status == SourceControlStatus.scsIgnored)
 				{
 					continue;
 				}
 
-				if (status == SourceControlStatus.scsCheckedOut)
+				if (status == SourceControlStatus.scsUncontrolled)
 				{
-					return OLECMDF.OLECMDF_ENABLED;
+					// If the file is uncontrolled, enable the command only if the file is part of a controlled project
+					System.Collections.Generic.IList<VSITEMSELECTION> nodes =
+						sccService.GetControlledProjectsContainingFile(file);
+					if (nodes.Count > 0)
+					{
+						return OLECMDF.OLECMDF_ENABLED;
+					}
 				}
-
-				// If the file is uncontrolled, enable the command only if the file is part of a controlled project
-				System.Collections.Generic.IList<VSITEMSELECTION> nodes =
-					sccService.GetControlledProjectsContainingFile(file);
-				if (nodes.Count > 0)
+				else
 				{
 					return OLECMDF.OLECMDF_ENABLED;
 				}
@@ -814,10 +822,18 @@ namespace HgSccPackage
 
 			var files = GetFilesInControlledProjectsWithoutSpecial(selected_files);
 
-			if (files.Count == 1
-				&& sccService.GetFileStatus(files[0]) == SourceControlStatus.scsCheckedOut)
+			if (files.Count == 1)
 			{
-				return OLECMDF.OLECMDF_ENABLED;
+				switch (sccService.GetFileStatus(files[0]))
+				{
+					case SourceControlStatus.scsModified:
+					case SourceControlStatus.scsCopied:
+					case SourceControlStatus.scsDeleted:
+					case SourceControlStatus.scsRemoved:
+						{
+							return OLECMDF.OLECMDF_ENABLED;
+						}
+				}				
 			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
