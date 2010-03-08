@@ -171,43 +171,9 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public SccErrors QueryInfo(HgFileInfo[] files)
-		{
-			// TODO: Check if project is opened
-			var dict = new HashDictionary<string, HgFileStatus>();
-
-			foreach (var file_status in hg.Status(WorkingDir))
-			{
-				string file = file_status.File.ToLower();
-				dict.Add(file, file_status.Status);
-			}
-
-			foreach (var info in files)
-			{
-				HgFileStatus status = HgFileStatus.NotTracked;
-				string file;
-				if (GetRelativePath(info.File, out file)
-					&& dict.Find(file.ToLower(), out status))
-				{
-					info.Status = status;
-				}
-				else
-				{
-					info.Status = HgFileStatus.NotTracked;		  
-				}
-
-				// FIXME: file.ToLower() !
-//				dict.Remove(file);
-			}
-
-			return SccErrors.Ok;
-		}
-
-		//-----------------------------------------------------------------------------
 		public SccErrors QueryInfo2(HgFileInfo[] files)
 		{
 			// TODO: Check if project is opened
-			var dict = new HashDictionary<string, HgFileStatus>();
 			var lst = new List<string>();
 
 			int length = 0;
@@ -223,20 +189,23 @@ namespace HgSccHelper
 
 			var stats = (length > Hg.MaxCmdLength) ? hg.Status(WorkingDir) : hg.Status(WorkingDir, lst);
 
+			var dict = new HashDictionary<string, HgFileInfo>();
 			foreach (var file_status in stats)
 			{
 				string file = file_status.File.ToLower();
-				dict.Add(file, file_status.Status);
+				dict.Add(file, file_status);
 			}
 
 			foreach (var info in files)
 			{
-				HgFileStatus status = HgFileStatus.NotTracked;
+				HgFileInfo file_info;
 				string file;
-				if (GetRelativePath(info.File, out file)
-					&& dict.Find(file.ToLower(), out status))
+				if (	GetRelativePath(info.File, out file)
+					&&	dict.Find(file.ToLower(), out file_info)
+					)
 				{
-					info.Status = status;
+					info.CopiedFrom = file_info.CopiedFrom;
+					info.Status = file_info.Status;
 				}
 				else
 				{
@@ -246,23 +215,6 @@ namespace HgSccHelper
 
 			return SccErrors.Ok;
 		}
-
-/*
-		//-----------------------------------------------------------------------------
-		public SccErrors QueryInfo(SccFileInfo [] files)
-		{
-			var lst = new HgFileInfo[files.Length];
-			for (int i = 0; i < files.Length; ++i)
-				lst[i] = new HgFileInfo { File = files[i].File };
-
-			SccErrors error = QueryInfo(lst);
-
-			for (int i = 0; i < files.Length; ++i)
-				files[i].Status = ToSccStatus(lst[i].Status);
-
-			return error;
-		}
-*/
 
 		//-----------------------------------------------------------------------------
 		public SccErrors Add(IntPtr hwnd, SccAddFile[] files, string comment)
