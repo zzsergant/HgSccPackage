@@ -86,6 +86,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
+			Title = string.Format("Update: '{0}'", WorkingDir);
+
 			Hg = new Hg();
 
 			timer = new DispatcherTimer();

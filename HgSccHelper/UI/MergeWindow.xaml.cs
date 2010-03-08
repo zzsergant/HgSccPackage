@@ -57,6 +57,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
+			Title = string.Format("Merge: '{0}'", WorkingDir);
+
 			Hg = new Hg();
 
 			CurrentRevision = Hg.Identify(WorkingDir);

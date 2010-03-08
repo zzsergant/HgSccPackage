@@ -138,6 +138,8 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
+			Title = string.Format("Commit: '{0}'", WorkingDir);
+
 			listFilesGrid.LoadCfg(CommitWindow.CfgPath, "ListFilesGrid");
 
 			Hg = new Hg();

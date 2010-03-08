@@ -99,6 +99,11 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
+			if (!String.IsNullOrEmpty(SourcePath))
+				Title = string.Format("Clone: '{0}'", SourcePath);
+			else
+				Title = "Clone";
+
 			textUsername.IsEnabled = false;
 			passwordBox.IsEnabled = false;
 
