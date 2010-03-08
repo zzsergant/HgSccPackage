@@ -94,6 +94,9 @@
                 <Button Content="Annotate"
                         Command="{x:Static ui:Commands.AnnotateCommand}"
                         MinWidth="75" />
+                <Button Content="View File"
+                        Command="{x:Static ui:Commands.ViewFileCommand}"
+                        MinWidth="75" />
                 <Separator />
                 <Button Content="Update to Revision"
                         Command="{x:Static ui:Commands.UpdateCommand}"
@@ -217,6 +220,10 @@
                         CanExecute="Annotate_CanExecute"
                         Executed="Annotate_Executed">
                     </CommandBinding>
+                    <CommandBinding Command="{x:Static ui:Commands.ViewFileCommand}"
+                        CanExecute="ViewFile_CanExecute"
+                        Executed="ViewFile_Executed">
+                    </CommandBinding>
                 </ListView.CommandBindings>
                 <ListView.InputBindings>
                     <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
@@ -231,6 +238,8 @@
                         <MenuItem Command="{x:Static ui:Commands.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
+                              ></MenuItem>
+                        <MenuItem Command="{x:Static ui:Commands.ViewFileCommand}"
                               ></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>

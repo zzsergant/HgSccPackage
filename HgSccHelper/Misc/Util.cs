@@ -275,6 +275,20 @@ namespace HgSccHelper
 
 			return FindExisting(Environment.ExpandEnvironmentVariables(command), pathexts);
 		}
+
+		//------------------------------------------------------------------
+		public static void QueueDeletingFile(string filename, int timeout_ms)
+		{
+			System.Threading.Thread.Sleep(timeout_ms);
+			System.Threading.ThreadPool.QueueUserWorkItem(DeleteFileProc, filename);
+		}
+
+		//------------------------------------------------------------------
+		private static void DeleteFileProc(object filename)
+		{
+			System.Threading.Thread.Sleep(2000);
+			System.IO.File.Delete(filename.ToString());
+		}
 	}
 
 	//==================================================================

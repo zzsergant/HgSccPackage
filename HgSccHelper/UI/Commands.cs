@@ -71,5 +71,9 @@ namespace HgSccHelper.UI
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand UpdateCommand = new RoutedUICommand("Update to Revision",
 			"Update", typeof(Commands));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand ViewFileCommand = new RoutedUICommand("View File",
+			"ViewFile", typeof(Commands));
 	}
 }

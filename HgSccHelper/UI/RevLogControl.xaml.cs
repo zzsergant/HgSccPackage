@@ -451,6 +451,30 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void ViewFile_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (SelectedParentFile != null)
+				e.CanExecute = true;
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void ViewFile_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
+			var file_info = SelectedParentFile.FileInfo;
+
+			deferred_executor.QueueDefferedExecute(() =>
+			{
+				var hg = new Hg();
+				hg.ViewFile(WorkingDir, file_info.File, SelectedChangeset.Current.ChangeDesc.SHA1);
+			});
+		}
+
+		//------------------------------------------------------------------
 		private void Stop_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = (worker != null && worker.IsBusy && !worker.CancellationPending);

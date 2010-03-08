@@ -726,6 +726,70 @@ namespace HgSccHelper
 			}
 		}
 */
+		//------------------------------------------------------------------
+		public static string GetEditor()
+		{
+			var hg = new Hg();
+			var lines = hg.ShowConfig("");
+			var editor_prefix = "ui.editor";
+
+			var separator = new[] { '=' };
+			string editor = "notepad";
+
+			foreach (var line in lines)
+			{
+				if (line.StartsWith(editor_prefix))
+				{
+					var parts = line.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+					if (parts.Length < 1 || parts.Length > 2)
+						break;
+
+					var right = parts[1].Trim();
+					var editor_path = Util.FindExe(right);
+
+					if (!String.IsNullOrEmpty(editor_path))
+						editor = editor_path;
+
+					break;
+				}
+			}
+
+			return editor;
+		}
+
+		//------------------------------------------------------------------
+		public bool ViewFile(string work_dir, string file, string revision)
+		{
+			var editor = GetEditor();
+
+			if (revision == "")
+			{
+				return RunEditor(editor, Path.Combine(work_dir, file));
+			}
+
+			string temp_folder = Path.GetTempPath();
+			string temp_name = Path.GetRandomFileName() + "_" + Path.GetFileName(file);
+			string temp_file = Path.Combine(temp_folder, temp_name);
+
+			try
+			{
+				if (!CheckoutFile(work_dir, file, revision, temp_file))
+				{
+					return false;
+				}
+
+				return RunEditor(editor, temp_file);
+			}
+			finally
+			{
+				// If editor redirect file to other opened editor,
+				// then we need to sleep for a while to prevent
+				// file deletion, until other copy of editor opens it
+
+				Util.QueueDeletingFile(temp_file, 2000);
+			}
+		}
+
 		//-----------------------------------------------------------------------------
 		/// <summary>
 		/// Call diff tool for a file in workspace to compare with parent_revision
@@ -929,6 +993,23 @@ namespace HgSccHelper
 			args.Append(" " + file.Quote());
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			{
+				proc.WaitForExit();
+				if (proc.ExitCode < 0)
+					return false;
+
+				return true;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		public bool RunEditor(string editor, string file)
+		{
+			var info = new ProcessStartInfo(editor);
+			info.Arguments = file.Quote();
+			info.UseShellExecute = false;
+
+			using (var proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode < 0)

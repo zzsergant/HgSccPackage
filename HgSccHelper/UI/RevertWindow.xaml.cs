@@ -372,6 +372,37 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void ViewFile_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+			if (listFiles != null && (listFiles.SelectedItems.Count == 1))
+				e.CanExecute = true;
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void ViewFile_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var item = (RevertItem)listFiles.SelectedItem;
+
+			deferred_executor.QueueDefferedExecute(() =>
+			{
+				var hg = new Hg();
+				if (	item.FileInfo.Status == HgFileStatus.Removed
+					||	item.FileInfo.Status == HgFileStatus.Deleted
+					)
+				{
+					hg.ViewFile(WorkingDir, item.FileInfo.File, CurrentRevision.Rev.ToString());
+				}
+				else
+				{
+					hg.ViewFile(WorkingDir, item.FileInfo.File, "");
+				}
+			});
+		}
+
+		//------------------------------------------------------------------
 		private void ListFiles_PreviewKeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.Key == Key.Space)
