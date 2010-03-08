@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Microsoft.Win32;
 
 namespace HgSccHelper
 {
@@ -347,6 +348,24 @@ namespace HgSccHelper
 
 			textUsername.IsEnabled = false;
 			passwordBox.IsEnabled = false;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void BrowseForBundle_Click(object sender, RoutedEventArgs e)
+		{
+			var dlg = new OpenFileDialog();
+			dlg.CheckPathExists = true;
+			dlg.CheckFileExists = true;
+			dlg.InitialDirectory = SourcePath;
+			dlg.Filter = String.Format("{0}|*{1}", "Mercurial bundle files (*.hg)", ".hg");
+			dlg.Title = "Browse for mercurial bundle file...";
+			dlg.RestoreDirectory = true;
+
+			var result = dlg.ShowDialog(this);
+			if (result == true)
+			{
+				textSourcePath.Text = dlg.FileName;
+			}
 		}
 	}
 }
