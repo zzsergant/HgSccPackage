@@ -61,187 +61,187 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnnotateControl.xaml.cs">
+    <Compile Include="UI\AnnotateControl.xaml.cs">
       <DependentUpon>AnnotateControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AnnotateWindow.xaml.cs">
+    <Compile Include="UI\AnnotateWindow.xaml.cs">
       <DependentUpon>AnnotateWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ArchiveWindow.xaml.cs">
+    <Compile Include="UI\ArchiveWindow.xaml.cs">
       <DependentUpon>ArchiveWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BranchNameWindow.xaml.cs">
+    <Compile Include="UI\BranchNameWindow.xaml.cs">
       <DependentUpon>BranchNameWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BundleWindow.xaml.cs">
+    <Compile Include="UI\BundleWindow.xaml.cs">
       <DependentUpon>BundleWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Cfg.cs" />
-    <Compile Include="CfgGridView.cs" />
-    <Compile Include="CfgWindowPosition.cs" />
-    <Compile Include="ChangeDesc.cs" />
-    <Compile Include="CloneWindow.xaml.cs">
+    <Compile Include="Cfg\Cfg.cs" />
+    <Compile Include="Cfg\CfgGridView.cs" />
+    <Compile Include="Cfg\CfgWindowPosition.cs" />
+    <Compile Include="Hg\ChangeDesc.cs" />
+    <Compile Include="UI\CloneWindow.xaml.cs">
       <DependentUpon>CloneWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CommitWindow.xaml.cs">
+    <Compile Include="UI\CommitWindow.xaml.cs">
       <DependentUpon>CommitWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DeferredCommandExecutor.cs" />
-    <Compile Include="FileHistoryWindow.xaml.cs">
+    <Compile Include="Misc\DeferredCommandExecutor.cs" />
+    <Compile Include="UI\FileHistoryWindow.xaml.cs">
       <DependentUpon>FileHistoryWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FileInfo.cs" />
-    <Compile Include="Hg.cs" />
-    <Compile Include="HgAboutControl.cs">
+    <Compile Include="Hg\FileInfo.cs" />
+    <Compile Include="Hg\Hg.cs" />
+    <Compile Include="Cfg\HgAboutControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="HgAboutControl.Designer.cs">
+    <Compile Include="Cfg\HgAboutControl.Designer.cs">
       <DependentUpon>HgAboutControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="HgAnnotate.cs" />
-    <Compile Include="HgArchive.cs" />
-    <Compile Include="HgBranch.cs" />
-    <Compile Include="HgBundle.cs" />
-    <Compile Include="HgDiffOptionsControl.cs">
+    <Compile Include="Hg\HgAnnotate.cs" />
+    <Compile Include="Hg\HgArchive.cs" />
+    <Compile Include="Hg\HgBranch.cs" />
+    <Compile Include="Hg\HgBundle.cs" />
+    <Compile Include="Cfg\HgDiffOptionsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="HgDiffOptionsControl.Designer.cs">
+    <Compile Include="Cfg\HgDiffOptionsControl.Designer.cs">
       <DependentUpon>HgDiffOptionsControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="HgFileStatus.cs" />
-    <Compile Include="HgMergeTools.cs" />
-    <Compile Include="HgOptionsHelper.cs" />
-    <Compile Include="HgResolve.cs" />
+    <Compile Include="Hg\HgFileStatus.cs" />
+    <Compile Include="Hg\HgMergeTools.cs" />
+    <Compile Include="Hg\HgOptionsHelper.cs" />
+    <Compile Include="Hg\HgResolve.cs" />
     <Compile Include="HgScc.cs" />
-    <Compile Include="HgSccOptions.cs" />
-    <Compile Include="HgThread.cs" />
+    <Compile Include="Cfg\HgSccOptions.cs" />
+    <Compile Include="Hg\HgThread.cs" />
     <Compile Include="Ini\IniFileElement.cs" />
     <Compile Include="Ini\IniFileLight.cs" />
     <Compile Include="Ini\IniFiles.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="MergeWindow.xaml.cs">
+    <Compile Include="Misc\Logger.cs" />
+    <Compile Include="UI\MergeWindow.xaml.cs">
       <DependentUpon>MergeWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OptionsForm.cs">
+    <Compile Include="Cfg\OptionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="OptionsForm.designer.cs">
+    <Compile Include="Cfg\OptionsForm.designer.cs">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PathEditWindow.xaml.cs">
+    <Compile Include="UI\PathEditWindow.xaml.cs">
       <DependentUpon>PathEditWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RevertWindow.xaml.cs">
+    <Compile Include="UI\RevertWindow.xaml.cs">
       <DependentUpon>RevertWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RevLogChangeDesc.cs" />
-    <Compile Include="RevLogControl.xaml.cs">
+    <Compile Include="UI\RevLog\RevLogChangeDesc.cs" />
+    <Compile Include="UI\RevLogControl.xaml.cs">
       <DependentUpon>RevLogControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RevLogIterator.cs" />
-    <Compile Include="RevLogLinesVisual.cs" />
-    <Compile Include="RevLogWindow.xaml.cs">
+    <Compile Include="UI\RevLog\RevLogIterator.cs" />
+    <Compile Include="UI\RevLog\RevLogLinesVisual.cs" />
+    <Compile Include="UI\RevLogWindow.xaml.cs">
       <DependentUpon>RevLogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SccDefines.cs" />
-    <Compile Include="SynchronizeSettingsWindow.xaml.cs">
+    <Compile Include="UI\SynchronizeSettingsWindow.xaml.cs">
       <DependentUpon>SynchronizeSettingsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SynchronizeWindow.xaml.cs">
+    <Compile Include="UI\SynchronizeWindow.xaml.cs">
       <DependentUpon>SynchronizeWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TagsWindow.xaml.cs">
+    <Compile Include="UI\TagsWindow.xaml.cs">
       <DependentUpon>TagsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UpdateContext.cs" />
-    <Compile Include="UpdateWindow.xaml.cs">
+    <Compile Include="Misc\UpdateContext.cs" />
+    <Compile Include="UI\UpdateWindow.xaml.cs">
       <DependentUpon>UpdateWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Util.cs" />
-    <Compile Include="WpfToWinFormsProxy.cs">
+    <Compile Include="Misc\Util.cs" />
+    <Compile Include="Misc\WpfToWinFormsProxy.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HgAboutControl.resx">
+    <EmbeddedResource Include="Cfg\HgAboutControl.resx">
       <DependentUpon>HgAboutControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HgDiffOptionsControl.resx">
+    <EmbeddedResource Include="Cfg\HgDiffOptionsControl.resx">
       <DependentUpon>HgDiffOptionsControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="OptionsForm.resx">
+    <EmbeddedResource Include="Cfg\OptionsForm.resx">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="RevLogControl.xaml">
+    <Page Include="UI\RevLogControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="AnnotateControl.xaml">
+    <Page Include="UI\AnnotateControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AnnotateWindow.xaml">
+    <Page Include="UI\AnnotateWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ArchiveWindow.xaml">
+    <Page Include="UI\ArchiveWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="BranchNameWindow.xaml">
+    <Page Include="UI\BranchNameWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="BundleWindow.xaml">
+    <Page Include="UI\BundleWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CloneWindow.xaml">
+    <Page Include="UI\CloneWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CommitWindow.xaml">
+    <Page Include="UI\CommitWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="FileHistoryWindow.xaml">
+    <Page Include="UI\FileHistoryWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="MergeWindow.xaml">
+    <Page Include="UI\MergeWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PathEditWindow.xaml">
+    <Page Include="UI\PathEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="RevertWindow.xaml">
+    <Page Include="UI\RevertWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RevLogWindow.xaml">
+    <Page Include="UI\RevLogWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="SynchronizeSettingsWindow.xaml">
+    <Page Include="UI\SynchronizeSettingsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="SynchronizeWindow.xaml">
+    <Page Include="UI\SynchronizeWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="TagsWindow.xaml">
+    <Page Include="UI\TagsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UpdateWindow.xaml">
+    <Page Include="UI\UpdateWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
