@@ -470,7 +470,10 @@ namespace HgSccHelper
 			deferred_executor.QueueDefferedExecute(() =>
 			{
 				var hg = new Hg();
-				hg.ViewFile(WorkingDir, file_info.File, SelectedChangeset.Current.ChangeDesc.SHA1);
+				if (file_info.Status == HgFileStatus.Removed)
+					hg.ViewFile(WorkingDir, file_info.File, (SelectedChangeset.Current.ChangeDesc.Rev - 1).ToString());
+				else
+					hg.ViewFile(WorkingDir, file_info.File, SelectedChangeset.Current.ChangeDesc.SHA1);
 			});
 		}
 
