@@ -4,40 +4,41 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:HgSccHelper"
+             xmlns:ui="clr-namespace:HgSccHelper.UI"
              mc:Ignorable="d"
              d:DesignHeight="317" d:DesignWidth="476"
              Loaded="UserControl_Loaded"
              Unloaded="UserControl_Unloaded">
     <UserControl.CommandBindings>
-        <CommandBinding Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         CanExecute="DiffPrevious_CanExecute"
                         Executed="DiffPrevious_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:RevLogControl.FileHistoryCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
                         CanExecute="FileHistory_CanExecute"
                         Executed="FileHistory_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:RevLogControl.AnnotateCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.AnnotateCommand}"
                         CanExecute="Annotate_CanExecute"
                         Executed="Annotate_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:RevLogControl.UpdateCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.UpdateCommand}"
                         CanExecute="Update_CanExecute"
                         Executed="Update_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:RevLogControl.TagsCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.TagsCommand}"
                         CanExecute="Tags_CanExecute"
                         Executed="Tags_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:RevLogControl.MergeCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.MergeCommand}"
                         CanExecute="Merge_CanExecute"
                         Executed="Merge_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:RevLogControl.ArchiveCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.ArchiveCommand}"
                         CanExecute="Archive_CanExecute"
                         Executed="Archive_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:RevLogControl.BundleCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.BundleCommand}"
                         CanExecute="Bundle_CanExecute"
                         Executed="Bundle_Executed">
         </CommandBinding>
@@ -49,7 +50,7 @@
                         CanExecute="ReadAll_CanExecute"
                         Executed="ReadAll_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:RevLogControl.StopCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.StopCommand}"
                         CanExecute="Stop_CanExecute"
                         Executed="Stop_Executed">
         </CommandBinding>
@@ -148,30 +149,30 @@
         <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
             <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                 <Button Content="Diff Previous"
-                        Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+                        Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         MinWidth="75" />
                 <Button Content="File History"
-                        Command="{x:Static local:RevLogControl.FileHistoryCommand}"
+                        Command="{x:Static ui:Commands.FileHistoryCommand}"
                         MinWidth="75" />
                 <Button Content="Annotate"
-                        Command="{x:Static local:RevLogControl.AnnotateCommand}"
+                        Command="{x:Static ui:Commands.AnnotateCommand}"
                         MinWidth="75" />
                 <Separator />
                 <Button Content="Update to Revision"
-                        Command="{x:Static local:RevLogControl.UpdateCommand}"
+                        Command="{x:Static ui:Commands.UpdateCommand}"
                         MinWidth="75" />
                 <Button Content="Add/Remove Tag"
-                        Command="{x:Static local:RevLogControl.TagsCommand}"
+                        Command="{x:Static ui:Commands.TagsCommand}"
                         MinWidth="75" />
                 <Separator />
                 <Button Content="Merge with Revision"
-                        Command="{x:Static local:RevLogControl.MergeCommand}"
+                        Command="{x:Static ui:Commands.MergeCommand}"
                         MinWidth="75" />
                 <Button Content="Archive Revision"
-                        Command="{x:Static local:RevLogControl.ArchiveCommand}"
+                        Command="{x:Static ui:Commands.ArchiveCommand}"
                         MinWidth="75" />
                 <Button Content="Bundle"
-                        Command="{x:Static local:RevLogControl.BundleCommand}"
+                        Command="{x:Static ui:Commands.BundleCommand}"
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
@@ -193,23 +194,23 @@
                   ItemContainerStyle="{DynamicResource ListViewItemStyle1}"
                   SelectionChanged="graphView_SelectionChanged">
                 <ListView.InputBindings>
-                    <KeyBinding Command="{x:Static local:RevLogControl.UpdateCommand}"
+                    <KeyBinding Command="{x:Static ui:Commands.UpdateCommand}"
                             Modifiers="Control" Key="U" />
-                    <KeyBinding Command="{x:Static local:RevLogControl.TagsCommand}"
+                    <KeyBinding Command="{x:Static ui:Commands.TagsCommand}"
                             Modifiers="Control" Key="T" />
-                    <KeyBinding Command="{x:Static local:RevLogControl.MergeCommand}"
+                    <KeyBinding Command="{x:Static ui:Commands.MergeCommand}"
                             Modifiers="Control" Key="M" />
                 </ListView.InputBindings>
                 <ListView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Command="{x:Static local:RevLogControl.UpdateCommand}"
+                        <MenuItem Command="{x:Static ui:Commands.UpdateCommand}"
                               InputGestureText="Ctrl + U"></MenuItem>
-                        <MenuItem Command="{x:Static local:RevLogControl.TagsCommand}"
+                        <MenuItem Command="{x:Static ui:Commands.TagsCommand}"
                               InputGestureText="Ctrl + T"></MenuItem>
-                        <MenuItem Command="{x:Static local:RevLogControl.MergeCommand}"
+                        <MenuItem Command="{x:Static ui:Commands.MergeCommand}"
                               InputGestureText="Ctrl + M"></MenuItem>
-                        <MenuItem Command="{x:Static local:RevLogControl.ArchiveCommand}"></MenuItem>
-                        <MenuItem Command="{x:Static local:RevLogControl.BundleCommand}"></MenuItem>
+                        <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"></MenuItem>
+                        <MenuItem Command="{x:Static ui:Commands.BundleCommand}"></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.View>
@@ -225,7 +226,7 @@
             <StackPanel Grid.Row="0"
                     Grid.Column="1" VerticalAlignment="Top">
                 <Button Content="Stop"
-                    Command="{x:Static local:RevLogControl.StopCommand}"
+                    Command="{x:Static ui:Commands.StopCommand}"
                     Margin="5" Padding="5, 0" Focusable="False" IsTabStop="False">
                 </Button>
             </StackPanel>
@@ -286,18 +287,18 @@
                                   VirtualizingStackPanel.IsVirtualizing="True"
                                   VirtualizingStackPanel.VirtualizationMode="Recycling">
                             <ListView.InputBindings>
-                                <KeyBinding Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+                                <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                                     Modifiers="Control" Key="D" />
-                                <KeyBinding Command="{x:Static local:RevLogControl.FileHistoryCommand}"
+                                <KeyBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
                                     Modifiers="Control" Key="H" />
                             </ListView.InputBindings>
                             <ListView.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Command="{x:Static local:RevLogControl.DiffPreviousCommand}"
+                                    <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"
                                         InputGestureText="Ctrl + D"></MenuItem>
-                                    <MenuItem Command="{x:Static local:RevLogControl.FileHistoryCommand}"
+                                    <MenuItem Command="{x:Static ui:Commands.FileHistoryCommand}"
                                         InputGestureText="Ctrl + H"></MenuItem>
-                                    <MenuItem Command="{x:Static local:RevLogControl.AnnotateCommand}"
+                                    <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
                                         ></MenuItem>
                                 </ContextMenu>
                             </ListView.ContextMenu>

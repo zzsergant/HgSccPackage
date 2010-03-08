@@ -1,4 +1,16 @@
-﻿using System;
+﻿//=========================================================================
+// Copyright 2009 Sergey Antonov <sergant_@mail.ru>
+//
+// This software may be used and distributed according to the terms of the
+// GNU General Public License version 2 as published by the Free Software
+// Foundation.
+//
+// See the file COPYING.TXT for the full text of the license, or see
+// http://www.gnu.org/licenses/gpl-2.0.txt
+//
+//=========================================================================
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +24,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using HgSccHelper.UI;
 
 namespace HgSccHelper
 {
@@ -65,14 +78,6 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public static RoutedUICommand StopCommand = new RoutedUICommand("Stop",
-			"Stop", typeof(CloneWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand CloneCommand = new RoutedUICommand("Clone",
-			"Clone", typeof(CloneWindow));
-
-		//-----------------------------------------------------------------------------
 		public string SourcePath { get; set; }
 
 		//------------------------------------------------------------------
@@ -112,8 +117,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
-			if (StopCommand.CanExecute(sender, e.Source as IInputElement))
-				StopCommand.Execute(sender, e.Source as IInputElement);
+			if (Commands.StopCommand.CanExecute(sender, e.Source as IInputElement))
+				Commands.StopCommand.Execute(sender, e.Source as IInputElement);
 
 			worker.Dispose();
 		}

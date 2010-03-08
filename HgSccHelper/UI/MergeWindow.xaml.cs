@@ -16,21 +16,13 @@ using System.Collections.Generic;
 using System.Windows.Threading;
 using System;
 using System.Text;
+using HgSccHelper.UI;
 
 namespace HgSccHelper
 {
 	//==================================================================
 	public partial class MergeWindow : Window
 	{
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand StopCommand = new RoutedUICommand("Stop",
-			"Stop", typeof(MergeWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand MergeCommand = new RoutedUICommand("Merge",
-			"Merge", typeof(MergeWindow));
-
-
 		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
 
@@ -131,8 +123,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
-			if (StopCommand.CanExecute(sender, e.Source as IInputElement))
-				StopCommand.Execute(sender, e.Source as IInputElement);
+			if (Commands.StopCommand.CanExecute(sender, e.Source as IInputElement))
+				Commands.StopCommand.Execute(sender, e.Source as IInputElement);
 
 			worker.Dispose();
 		}

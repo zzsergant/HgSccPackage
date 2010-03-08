@@ -2,6 +2,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:HgSccHelper"
+    xmlns:ui="clr-namespace:HgSccHelper.UI"
     x:Name="root"
     Height="600"
     Width="1026"
@@ -60,15 +61,15 @@
         </DataTemplate>
     </Window.Resources>
     <Window.CommandBindings>
-        <CommandBinding Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.UpdateCommand}"
                         CanExecute="Update_CanExecute"
                         Executed="Update_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:FileHistoryWindow.TagsCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.TagsCommand}"
                         CanExecute="Tags_CanExecute"
                         Executed="Tags_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:FileHistoryWindow.ArchiveCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.ArchiveCommand}"
                         CanExecute="Archive_CanExecute"
                         Executed="Archive_Executed">
         </CommandBinding>
@@ -81,28 +82,28 @@
         <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
             <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                 <Button Content="Diff Previous"
-                        Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                        Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         MinWidth="75" />
                 <Button Content="Diff Two Revisions"
-                        Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
+                        Command="{x:Static ui:Commands.DiffTwoRevisionsCommand}"
                         MinWidth="75" />
                 <Separator />
                 <Button Content="File History"
-                        Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                        Command="{x:Static ui:Commands.FileHistoryCommand}"
                         MinWidth="75" />
                 <Button Content="Annotate"
-                        Command="{x:Static local:FileHistoryWindow.AnnotateCommand}"
+                        Command="{x:Static ui:Commands.AnnotateCommand}"
                         MinWidth="75" />
                 <Separator />
                 <Button Content="Update to Revision"
-                        Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
+                        Command="{x:Static ui:Commands.UpdateCommand}"
                         MinWidth="75" />
                 <Button Content="Add/Remove Tag"
-                        Command="{x:Static local:FileHistoryWindow.TagsCommand}"
+                        Command="{x:Static ui:Commands.TagsCommand}"
                         MinWidth="75" />
                 <Separator />
                 <Button Content="Archive Revision"
-                        Command="{x:Static local:FileHistoryWindow.ArchiveCommand}"
+                        Command="{x:Static ui:Commands.ArchiveCommand}"
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
@@ -118,36 +119,36 @@
                   SelectionChanged="listChanges_SelectionChanged"
                   Margin="0, 0, 0, 5">
                 <ListView.CommandBindings>
-                    <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                    <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         CanExecute="HistoryDiffPrevious_CanExecute"
                         Executed="HistoryDiffPrevious_Executed">
                     </CommandBinding>
-                    <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
+                    <CommandBinding Command="{x:Static ui:Commands.DiffTwoRevisionsCommand}"
                         CanExecute="HistoryDiffTwoRevisions_CanExecute"
                         Executed="HistoryDiffTwoRevisions_Executed">
                     </CommandBinding>
                 </ListView.CommandBindings>
                 <ListView.InputBindings>
-                    <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                    <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
-                    <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
+                    <KeyBinding Command="{x:Static ui:Commands.DiffTwoRevisionsCommand}"
                             Modifiers="Shift" Key="D" />
-                    <KeyBinding Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
+                    <KeyBinding Command="{x:Static ui:Commands.UpdateCommand}"
                             Modifiers="Control" Key="U" />
-                    <KeyBinding Command="{x:Static local:FileHistoryWindow.TagsCommand}"
+                    <KeyBinding Command="{x:Static ui:Commands.TagsCommand}"
                             Modifiers="Control" Key="T" />
                 </ListView.InputBindings>
                 <ListView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                        <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
-                        <MenuItem Command="{x:Static local:FileHistoryWindow.DiffTwoRevisionsCommand}"
+                        <MenuItem Command="{x:Static ui:Commands.DiffTwoRevisionsCommand}"
                               InputGestureText="Shift + D"></MenuItem>
-                        <MenuItem Command="{x:Static local:FileHistoryWindow.UpdateCommand}"
+                        <MenuItem Command="{x:Static ui:Commands.UpdateCommand}"
                               InputGestureText="Ctrl + U"></MenuItem>
-                        <MenuItem Command="{x:Static local:FileHistoryWindow.ArchiveCommand}"
+                        <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"
                               ></MenuItem>
-                        <MenuItem Command="{x:Static local:FileHistoryWindow.TagsCommand}"
+                        <MenuItem Command="{x:Static ui:Commands.TagsCommand}"
                               InputGestureText="Ctrl + T"></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
@@ -204,32 +205,32 @@
                           IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
             <ListView Grid.Row="3" Name="listViewFiles">
                 <ListView.CommandBindings>
-                    <CommandBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                    <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         CanExecute="FilesDiffPrevious_CanExecute"
                         Executed="FilesDiffPrevious_Executed">
                     </CommandBinding>
-                    <CommandBinding Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                    <CommandBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
                         CanExecute="FileHistory_CanExecute"
                         Executed="FileHistory_Executed">
                     </CommandBinding>
-                    <CommandBinding Command="{x:Static local:FileHistoryWindow.AnnotateCommand}"
+                    <CommandBinding Command="{x:Static ui:Commands.AnnotateCommand}"
                         CanExecute="Annotate_CanExecute"
                         Executed="Annotate_Executed">
                     </CommandBinding>
                 </ListView.CommandBindings>
                 <ListView.InputBindings>
-                    <KeyBinding Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                    <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
-                    <KeyBinding Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                    <KeyBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
                             Modifiers="Control" Key="H" />
                 </ListView.InputBindings>
                 <ListView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Command="{x:Static local:FileHistoryWindow.DiffPreviousCommand}"
+                        <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
-                        <MenuItem Command="{x:Static local:FileHistoryWindow.FileHistoryCommand}"
+                        <MenuItem Command="{x:Static ui:Commands.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
-                        <MenuItem Command="{x:Static local:FileHistoryWindow.AnnotateCommand}"
+                        <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
                               ></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>

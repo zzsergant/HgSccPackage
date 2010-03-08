@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="CloneWindow"
     xmlns:local="clr-namespace:HgSccHelper"
+    xmlns:ui="clr-namespace:HgSccHelper.UI"
     x:Name="root"
     Height="600"
     Width="1026"
@@ -11,11 +12,11 @@
     PreviewKeyDown="Window_PreviewKeyDown"
     WindowStartupLocation="CenterScreen">
     <Window.CommandBindings>
-        <CommandBinding Command="{x:Static local:CloneWindow.CloneCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.CloneCommand}"
                         CanExecute="Clone_CanExecute"
                         Executed="Clone_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:CloneWindow.StopCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.StopCommand}"
                         CanExecute="Stop_CanExecute"
                         Executed="Stop_Executed">
         </CommandBinding>
@@ -146,11 +147,11 @@
                     Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Clone" MinWidth="75" MinHeight="25" Margin="5,5,0,5"
                     Name="btnClone" IsDefault="True"
-                    Command="{x:Static local:CloneWindow.CloneCommand}">
+                    Command="{x:Static ui:Commands.CloneCommand}">
             </Button>
             <Button Content="Stop" MinWidth="75" MinHeight="25" Margin="5,5,0,5"
                     Name="btnStop"
-                    Command="{x:Static local:CloneWindow.StopCommand}">
+                    Command="{x:Static ui:Commands.StopCommand}">
             </Button>
             <Button Content="Cancel" MinWidth="75" MinHeight="25" Margin="5"
                     Click="btnCancel_Click"

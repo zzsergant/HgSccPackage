@@ -1,6 +1,7 @@
 ﻿<Window x:Class="HgSccHelper.CommitWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="clr-namespace:HgSccHelper.UI"
     Title="CommitWindow"
     Height="600"
     Width="1026"
@@ -11,23 +12,23 @@
     PreviewKeyDown="Window_PreviewKeyDown"
     WindowStartupLocation="CenterScreen">
     <Window.CommandBindings>
-        <CommandBinding Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         CanExecute="DiffPrevious_CanExecute"
                         Executed="DiffPrevious_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:CommitWindow.FileHistoryCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
                         CanExecute="FileHistory_CanExecute"
                         Executed="FileHistory_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:CommitWindow.AnnotateCommand}"
+        <CommandBinding Command="{x:Static ui:Commands.AnnotateCommand}"
                         CanExecute="Annotate_CanExecute"
                         Executed="Annotate_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:CommitWindow.DiffParent1Command}"
+        <CommandBinding Command="{x:Static ui:Commands.DiffParent1Command}"
                         CanExecute="DiffParent_CanExecute"
                         Executed="DiffParent1_Executed">
         </CommandBinding>
-        <CommandBinding Command="{x:Static local:CommitWindow.DiffParent2Command}"
+        <CommandBinding Command="{x:Static ui:Commands.DiffParent2Command}"
                         CanExecute="DiffParent_CanExecute"
                         Executed="DiffParent2_Executed">
         </CommandBinding>
@@ -73,21 +74,21 @@
         <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
             <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                 <Button Content="Diff Previous"
-                        Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
+                        Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         MinWidth="75" />
                 <Separator />
                 <Button Content="File History"
-                        Command="{x:Static local:CommitWindow.FileHistoryCommand}"
+                        Command="{x:Static ui:Commands.FileHistoryCommand}"
                         MinWidth="75" />
                 <Button Content="Annotate"
-                        Command="{x:Static local:CommitWindow.AnnotateCommand}"
+                        Command="{x:Static ui:Commands.AnnotateCommand}"
                         MinWidth="75" />
                 <Separator />
                 <Button Content="Diff Parent 1"
-                        Command="{x:Static local:CommitWindow.DiffParent1Command}"
+                        Command="{x:Static ui:Commands.DiffParent1Command}"
                         MinWidth="75" />
                 <Button Content="Diff Parent 2"
-                        Command="{x:Static local:CommitWindow.DiffParent2Command}"
+                        Command="{x:Static ui:Commands.DiffParent2Command}"
                         MinWidth="75" />
                 <Separator />
                 <Button Content="Mark Resolved"
@@ -186,23 +187,23 @@
                         </GridView>
                     </ListView.View>
                     <ListView.InputBindings>
-                        <KeyBinding Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
+                        <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
-                        <KeyBinding Command="{x:Static local:CommitWindow.FileHistoryCommand}"
+                        <KeyBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
                             Modifiers="Control" Key="H" />
                     </ListView.InputBindings>
                     <ListView.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Command="{x:Static local:CommitWindow.DiffPreviousCommand}"
+                            <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
-                            <MenuItem Command="{x:Static local:CommitWindow.FileHistoryCommand}"
+                            <MenuItem Command="{x:Static ui:Commands.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
-                            <MenuItem Command="{x:Static local:CommitWindow.AnnotateCommand}"
+                            <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
                               ></MenuItem>
                             <Separator />
-                            <MenuItem Command="{x:Static local:CommitWindow.DiffParent1Command}"
+                            <MenuItem Command="{x:Static ui:Commands.DiffParent1Command}"
                               ></MenuItem>
-                            <MenuItem Command="{x:Static local:CommitWindow.DiffParent2Command}"
+                            <MenuItem Command="{x:Static ui:Commands.DiffParent2Command}"
                               ></MenuItem>
                             <Separator />
                             <MenuItem Command="{x:Static local:CommitWindow.MarkResolvedCommand}"

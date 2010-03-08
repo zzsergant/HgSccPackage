@@ -20,6 +20,7 @@ using System.Windows.Controls.Primitives;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Windows.Media;
+using HgSccHelper.UI;
 
 namespace HgSccHelper
 {
@@ -42,48 +43,12 @@ namespace HgSccHelper
 		DeferredCommandExecutor deferred_executor;
 
 		//-----------------------------------------------------------------------------
-		public static RoutedUICommand DiffPreviousCommand = new RoutedUICommand("Diff Previous",
-			"DiffPrevious", typeof(RevLogControl));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
-			"FileHistory", typeof(RevLogControl));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand AnnotateCommand = new RoutedUICommand("Annotate",
-			"Annotate", typeof(RevLogControl));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand UpdateCommand = new RoutedUICommand("Update to Revision",
-			"Update", typeof(RevLogControl));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand TagsCommand = new RoutedUICommand("Add/Remove Tag",
-			"Tags", typeof(RevLogControl));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand MergeCommand = new RoutedUICommand("Merge",
-			"Merge", typeof(RevLogControl));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand ArchiveCommand = new RoutedUICommand("Archive",
-			"Archive", typeof(RevLogControl));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand BundleCommand = new RoutedUICommand("Bundle",
-			"Bundle", typeof(RevLogControl));
-
-		//-----------------------------------------------------------------------------
 		public static RoutedUICommand ReadNextCommand = new RoutedUICommand("Read Next",
 			"ReadNext", typeof(RevLogControl));
 
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand ReadAllCommand = new RoutedUICommand("Read All",
 			"ReadAll", typeof(RevLogControl));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand StopCommand = new RoutedUICommand("Stop",
-			"Stop", typeof(RevLogControl));
 
 		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
@@ -273,8 +238,8 @@ namespace HgSccHelper
 		{
 			timer.Tick -= OnTimerTick;
 
-			if (StopCommand.CanExecute(sender, e.Source as IInputElement))
-				StopCommand.Execute(sender, e.Source as IInputElement);
+			if (Commands.StopCommand.CanExecute(sender, e.Source as IInputElement))
+				Commands.StopCommand.Execute(sender, e.Source as IInputElement);
 
 			worker.Dispose();
 			revlog_style.Dispose();
@@ -331,10 +296,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ListViewFiles_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			if (DiffPreviousCommand != null)
+			if (Commands.DiffPreviousCommand != null)
 			{
-				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
-					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
+				if (Commands.DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
+					Commands.DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
 			}
 		}
 

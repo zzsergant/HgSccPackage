@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Win32;
 using System.Windows.Controls;
+using HgSccHelper.UI;
 
 namespace HgSccHelper
 {
@@ -39,10 +40,6 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand PushCommand = new RoutedUICommand("Push",
 			"Push", typeof(SynchronizeWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand StopCommand = new RoutedUICommand("Stop",
-			"Stop", typeof(SynchronizeWindow));
 
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand SynchronizeSettingsCommand = new RoutedUICommand("Settings",
@@ -215,8 +212,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
-			if (StopCommand.CanExecute(sender, e.Source as IInputElement))
-				StopCommand.Execute(sender, e.Source as IInputElement);
+			if (Commands.StopCommand.CanExecute(sender, e.Source as IInputElement))
+				Commands.StopCommand.Execute(sender, e.Source as IInputElement);
 
 			worker.Dispose();
 		}

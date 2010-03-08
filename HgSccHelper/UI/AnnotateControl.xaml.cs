@@ -18,27 +18,12 @@ using System;
 using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Media;
+using HgSccHelper.UI;
 
 namespace HgSccHelper
 {
 	public partial class AnnotateControl : UserControl
 	{
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand DiffPreviousCommand = new RoutedUICommand("Diff Previous",
-			"DiffPrevious", typeof(AnnotateControl));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand DiffTwoRevisionsCommand = new RoutedUICommand("Diff Two Revisions",
-			"DiffTwoRevisions", typeof(AnnotateControl));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
-			"FileHistory", typeof(AnnotateControl));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand ArchiveCommand = new RoutedUICommand("Archive",
-			"Archive", typeof(AnnotateControl));
-
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand GotoLineCommand = new RoutedUICommand("Goto Line",
 			"GotoLine", typeof(AnnotateControl));
@@ -348,10 +333,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ListChanges_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			if (DiffPreviousCommand != null)
+			if (Commands.DiffPreviousCommand != null)
 			{
-				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
-					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
+				if (Commands.DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
+					Commands.DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
 			}
 		}
 
@@ -393,10 +378,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ListViewFiles_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			if (DiffPreviousCommand != null)
+			if (Commands.DiffPreviousCommand != null)
 			{
-				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
-					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
+				if (Commands.DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
+					Commands.DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
 			}
 		}
 

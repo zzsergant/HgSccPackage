@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using HgSccHelper.UI;
 
 namespace HgSccHelper
 {
@@ -20,26 +21,6 @@ namespace HgSccHelper
 	/// </summary>
 	public partial class CommitWindow : Window
 	{
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand DiffPreviousCommand = new RoutedUICommand("Diff Previous",
-			"DiffPrevious", typeof(CommitWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand DiffParent1Command = new RoutedUICommand("Diff Parent 1",
-			"DiffParent1", typeof(CommitWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand DiffParent2Command = new RoutedUICommand("Diff Parent 2",
-			"DiffParent2", typeof(CommitWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
-			"FileHistory", typeof(CommitWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand AnnotateCommand = new RoutedUICommand("Annotate",
-			"Annotate", typeof(CommitWindow));
-
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand MarkResolvedCommand = new RoutedUICommand("Mark Resolved",
 			"MarkResolved", typeof(CommitWindow));
@@ -705,10 +686,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ListFiles_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			if (DiffPreviousCommand != null)
+			if (Commands.DiffPreviousCommand != null)
 			{
-				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
-					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
+				if (Commands.DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
+					Commands.DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
 			}
 		}
 

@@ -16,38 +16,12 @@ using System.Windows.Input;
 using System.Collections.Generic;
 using System;
 using System.Windows.Data;
+using HgSccHelper.UI;
 
 namespace HgSccHelper
 {
 	public partial class FileHistoryWindow : Window
 	{
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand DiffPreviousCommand = new RoutedUICommand("Diff Previous",
-			"DiffPrevious", typeof(FileHistoryWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand DiffTwoRevisionsCommand = new RoutedUICommand("Diff Two Revisions",
-			"DiffTwoRevisions", typeof(FileHistoryWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
-			"FileHistory", typeof(FileHistoryWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand AnnotateCommand = new RoutedUICommand("Annotate",
-			"Annotate", typeof(FileHistoryWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand UpdateCommand = new RoutedUICommand("Update to Revision",
-			"Update", typeof(FileHistoryWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand TagsCommand = new RoutedUICommand("Add/Remove Tag",
-			"Tags", typeof(FileHistoryWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand ArchiveCommand = new RoutedUICommand("Archive",
-			"Archive", typeof(FileHistoryWindow));
 
 		List<FileHistoryInfo> history;
 
@@ -259,10 +233,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ListChanges_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			if (DiffPreviousCommand != null)
+			if (Commands.DiffPreviousCommand != null)
 			{
-				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
-					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
+				if (Commands.DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
+					Commands.DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
 			}
 		}
 
@@ -304,10 +278,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ListViewFiles_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			if (DiffPreviousCommand != null)
+			if (Commands.DiffPreviousCommand != null)
 			{
-				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
-					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
+				if (Commands.DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
+					Commands.DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
 			}
 		}
 

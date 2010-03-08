@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using HgSccHelper.UI;
 
 namespace HgSccHelper
 {
@@ -20,18 +21,6 @@ namespace HgSccHelper
 	/// </summary>
 	public partial class RevertWindow : Window
 	{
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand DiffPreviousCommand = new RoutedUICommand("Diff Previous",
-			"DiffPrevious", typeof(RevertWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand FileHistoryCommand = new RoutedUICommand("File History",
-			"FileHistory", typeof(RevertWindow));
-
-		//-----------------------------------------------------------------------------
-		public static RoutedUICommand AnnotateCommand = new RoutedUICommand("Annotate",
-			"Annotate", typeof(RevertWindow));
-
 		ObservableCollection<RevertItem> revert_items;
 		DeferredCommandExecutor deferred_executor;
 
@@ -324,10 +313,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ListFiles_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			if (DiffPreviousCommand != null)
+			if (Commands.DiffPreviousCommand != null)
 			{
-				if (DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
-					DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
+				if (Commands.DiffPreviousCommand.CanExecute(sender, e.Source as IInputElement))
+					Commands.DiffPreviousCommand.Execute(sender, e.Source as IInputElement);
 			}
 		}
 
