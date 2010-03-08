@@ -97,6 +97,9 @@
                 <Button Content="File History"
                         Command="{x:Static ui:Commands.FileHistoryCommand}"
                         MinWidth="75" />
+                <Button Content="View File"
+                        Command="{x:Static ui:Commands.ViewFileCommand}"
+                        MinWidth="75" />
                 <Separator />
                 <Button Content="Archive Revision"
                         Command="{x:Static ui:Commands.ArchiveCommand}"
@@ -282,6 +285,10 @@
                             CanExecute="FileHistory_CanExecute"
                             Executed="FileHistory_Executed">
                         </CommandBinding>
+                        <CommandBinding Command="{x:Static ui:Commands.ViewFileCommand}"
+                            CanExecute="ViewFile_CanExecute"
+                            Executed="ViewFile_Executed">
+                        </CommandBinding>
                     </ListView.CommandBindings>
                     <ListView.InputBindings>
                         <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
@@ -295,6 +302,8 @@
                                   InputGestureText="Ctrl + D"></MenuItem>
                             <MenuItem Command="{x:Static ui:Commands.FileHistoryCommand}"
                                   InputGestureText="Ctrl + H"></MenuItem>
+                            <MenuItem Command="{x:Static ui:Commands.ViewFileCommand}"
+                                  ></MenuItem>
                         </ContextMenu>
                     </ListView.ContextMenu>
                     <ListView.View>

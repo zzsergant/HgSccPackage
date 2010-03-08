@@ -422,6 +422,30 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void ViewFile_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = listViewFiles.SelectedItems.Count == 1;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void ViewFile_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var file_history = (FileHistoryInfo)listChanges.SelectedItem;
+			var file_info = (FileInfo)listViewFiles.SelectedItem;
+			var cs = file_history.ChangeDesc;
+
+			deferred_executor.QueueDefferedExecute(() =>
+			{
+				var hg = new Hg();
+				if (file_info.Status == FileStatus.Removed)
+					hg.ViewFile(WorkingDir, file_info.Path, (cs.Rev - 1).ToString());
+				else
+					hg.ViewFile(WorkingDir, file_info.Path, cs.Rev.ToString());
+			});
+		}
+
+		//------------------------------------------------------------------
 		private void HistoryDiffTwoRevisions_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = (listChanges.SelectedItems.Count == 2);
