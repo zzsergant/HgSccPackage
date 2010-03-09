@@ -786,7 +786,12 @@ namespace HgSccHelper
 				// then we need to sleep for a while to prevent
 				// file deletion, until other copy of editor opens it
 
-				Util.QueueDeletingFile(temp_file, 2000);
+				Util.QueueThreadPoolFn(() =>
+					{
+						var timeout_ms = 2000;
+						System.Threading.Thread.Sleep(timeout_ms);
+						System.IO.File.Delete(temp_file);
+					});
 			}
 		}
 

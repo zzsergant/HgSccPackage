@@ -277,17 +277,19 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		public static void QueueDeletingFile(string filename, int timeout_ms)
+		public static void QueueThreadPoolFn(DeferredThreadExecuteDelegate fn)
 		{
-			System.Threading.Thread.Sleep(timeout_ms);
-			System.Threading.ThreadPool.QueueUserWorkItem(DeleteFileProc, filename);
+			System.Threading.ThreadPool.QueueUserWorkItem(DeferredThreadExecute, fn);
 		}
 
 		//------------------------------------------------------------------
-		private static void DeleteFileProc(object filename)
+		public delegate void DeferredThreadExecuteDelegate();
+
+		//------------------------------------------------------------------
+		private static void DeferredThreadExecute(object fn)
 		{
-			System.Threading.Thread.Sleep(2000);
-			System.IO.File.Delete(filename.ToString());
+			var function = fn as DeferredThreadExecuteDelegate;
+			function();
 		}
 	}
 
