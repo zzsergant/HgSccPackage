@@ -745,10 +745,9 @@ namespace HgSccHelper
 						break;
 
 					var right = parts[1].Trim();
-					var editor_path = Util.FindExe(right);
 
-					if (!String.IsNullOrEmpty(editor_path))
-						editor = editor_path;
+					if (!String.IsNullOrEmpty(right))
+						editor = right;
 
 					break;
 				}
@@ -764,7 +763,7 @@ namespace HgSccHelper
 
 			if (revision == "")
 			{
-				return RunEditor(editor, Path.Combine(work_dir, file));
+				return RunEditorOrNotepad(editor, Path.Combine(work_dir, file));
 			}
 
 			string temp_folder = Path.GetTempPath();
@@ -778,11 +777,11 @@ namespace HgSccHelper
 					return false;
 				}
 
-				return RunEditor(editor, temp_file);
+				return RunEditorOrNotepad(editor, temp_file);
 			}
 			finally
 			{
-				// If editor redirect file to other opened editor,
+				// If editor redirects file to other opened editor,
 				// then we need to sleep for a while to prevent
 				// file deletion, until other copy of editor opens it
 
@@ -1007,8 +1006,34 @@ namespace HgSccHelper
 			}
 		}
 
+		//------------------------------------------------------------------
+		private bool RunEditorOrNotepad(string editor, string file)
+		{
+			// The editor specified in .hgrc/Mercurial.ini may have quotes
+			// and/or command line switches, so run it using cmd.
+			// TODO: Find a better way of doing this
+
+			var info = new ProcessStartInfo("cmd");
+			var cmd_line = editor + " " + file.Quote();
+			info.Arguments = "/C " + cmd_line.Quote();
+			info.UseShellExecute = false;
+			info.CreateNoWindow = true;
+
+			using (var proc = Process.Start(info))
+			{
+				proc.WaitForExit();
+				if (proc.ExitCode == 0)
+					return true;
+			}
+
+			// In case there is a problem with user editor,
+			// fallback to notepad
+
+			return RunEditor("notepad", file);
+		}
+
 		//-----------------------------------------------------------------------------
-		public bool RunEditor(string editor, string file)
+		private bool RunEditor(string editor, string file)
 		{
 			var info = new ProcessStartInfo(editor);
 			info.Arguments = file.Quote();
