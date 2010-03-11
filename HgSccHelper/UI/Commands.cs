@@ -57,6 +57,10 @@ namespace HgSccHelper.UI
 			"DiffTwoRevisions", typeof(Commands));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand GrepCommand = new RoutedUICommand("Grep",
+			"Grep", typeof(Commands));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand MergeCommand = new RoutedUICommand("Merge",
 			"Merge", typeof(Commands));
 

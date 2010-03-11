@@ -374,6 +374,25 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void Grep_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Grep_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var wnd = new GrepWindow();
+			wnd.WorkingDir = WorkingDir;
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//------------------------------------------------------------------
 		private void ViewFile_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;

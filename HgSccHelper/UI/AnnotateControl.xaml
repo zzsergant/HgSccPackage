@@ -79,6 +79,10 @@
                         CanExecute="PrevChange_CanExecute"
                         Executed="PrevChange_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static ui:Commands.GrepCommand}"
+                        CanExecute="Grep_CanExecute"
+                        Executed="Grep_Executed">
+        </CommandBinding>
     </UserControl.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -100,6 +104,9 @@
                 <Separator />
                 <Button Content="Archive Revision"
                         Command="{x:Static ui:Commands.ArchiveCommand}"
+                        MinWidth="75" />
+                <Button Content="Grep"
+                        Command="{x:Static ui:Commands.GrepCommand}"
                         MinWidth="75" />
                 <Separator />
                 <Label Content="Line:" Margin="5,0"></Label>
@@ -144,6 +151,7 @@
                               InputGestureText="Ctrl + D"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"
                               ></MenuItem>
+                        <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.GroupStyle>
@@ -214,6 +222,7 @@
                               InputGestureText="Ctrl + D"></MenuItem>
                             <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"
                               ></MenuItem>
+                            <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
                             <Separator />
                             <MenuItem Command="{x:Static local:AnnotateControl.PrevChangeCommand}"
                                       InputGestureText="Ctrl + Up"></MenuItem>

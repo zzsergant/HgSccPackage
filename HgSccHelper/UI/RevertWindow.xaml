@@ -28,6 +28,10 @@
                         CanExecute="ViewFile_CanExecute"
                         Executed="ViewFile_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static ui:Commands.GrepCommand}"
+                        CanExecute="Grep_CanExecute"
+                        Executed="Grep_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
     <Window.Resources>
         <DataTemplate x:Key="CheckBoxCell">
@@ -50,6 +54,9 @@
                         MinWidth="75" />
                 <Button Content="Annotate"
                         Command="{x:Static ui:Commands.AnnotateCommand}"
+                        MinWidth="75" />
+                <Button Content="Grep"
+                        Command="{x:Static ui:Commands.GrepCommand}"
                         MinWidth="75" />
                 <Button Content="ViewFile"
                         Command="{x:Static ui:Commands.ViewFileCommand}"
@@ -105,6 +112,7 @@
                               InputGestureText="Ctrl + H"></MenuItem>
                             <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
                               ></MenuItem>
+                            <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
                             <MenuItem Command="{x:Static ui:Commands.ViewFileCommand}"
                               ></MenuItem>
                         </ContextMenu>

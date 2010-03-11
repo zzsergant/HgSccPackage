@@ -22,6 +22,10 @@
                         CanExecute="Annotate_CanExecute"
                         Executed="Annotate_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static ui:Commands.GrepCommand}"
+                        CanExecute="Grep_CanExecute"
+                        Executed="Grep_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static ui:Commands.ViewFileCommand}"
                         CanExecute="ViewFile_CanExecute"
                         Executed="ViewFile_Executed">
@@ -161,6 +165,9 @@
                 <Button Content="Annotate"
                         Command="{x:Static ui:Commands.AnnotateCommand}"
                         MinWidth="75" />
+                <Button Content="Grep"
+                        Command="{x:Static ui:Commands.GrepCommand}"
+                        MinWidth="75" />
                 <Button Content="View File"
                         Command="{x:Static ui:Commands.ViewFileCommand}"
                         MinWidth="75" />
@@ -218,6 +225,7 @@
                               InputGestureText="Ctrl + M"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.BundleCommand}"></MenuItem>
+                        <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.View>
@@ -307,6 +315,7 @@
                                         InputGestureText="Ctrl + H"></MenuItem>
                                     <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
                                         ></MenuItem>
+                                    <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
                                     <MenuItem Command="{x:Static ui:Commands.ViewFileCommand}"
                                         ></MenuItem>
                                 </ContextMenu>

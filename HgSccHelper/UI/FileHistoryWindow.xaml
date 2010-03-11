@@ -73,6 +73,10 @@
                         CanExecute="Archive_CanExecute"
                         Executed="Archive_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static ui:Commands.GrepCommand}"
+                        CanExecute="Grep_CanExecute"
+                        Executed="Grep_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -93,6 +97,9 @@
                         MinWidth="75" />
                 <Button Content="Annotate"
                         Command="{x:Static ui:Commands.AnnotateCommand}"
+                        MinWidth="75" />
+                <Button Content="Grep"
+                        Command="{x:Static ui:Commands.GrepCommand}"
                         MinWidth="75" />
                 <Button Content="View File"
                         Command="{x:Static ui:Commands.ViewFileCommand}"
@@ -151,6 +158,7 @@
                               InputGestureText="Ctrl + U"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"
                               ></MenuItem>
+                        <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.TagsCommand}"
                               InputGestureText="Ctrl + T"></MenuItem>
                     </ContextMenu>
@@ -239,6 +247,7 @@
                               InputGestureText="Ctrl + H"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
                               ></MenuItem>
+                        <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.ViewFileCommand}"
                               ></MenuItem>
                     </ContextMenu>

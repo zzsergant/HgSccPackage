@@ -437,6 +437,28 @@ namespace HgSccHelper
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
 
+		//------------------------------------------------------------------
+		private void Grep_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Grep_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var wnd = new GrepWindow();
+			wnd.WorkingDir = WorkingDir;
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
+
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
 		//-----------------------------------------------------------------------------
 		private void Archive_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
