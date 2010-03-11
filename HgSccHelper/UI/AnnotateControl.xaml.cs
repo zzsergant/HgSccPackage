@@ -445,27 +445,6 @@ namespace HgSccHelper
 			});
 		}
 
-		//------------------------------------------------------------------
-		private void HistoryDiffTwoRevisions_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-		{
-			e.CanExecute = (listChanges.SelectedItems.Count == 2);
-			e.Handled = true;
-		}
-
-		//------------------------------------------------------------------
-		private void HistoryDiffTwoRevisions_Executed(object sender, ExecutedRoutedEventArgs e)
-		{
-			var f1 = (FileHistoryInfo)listChanges.SelectedItems[0];
-			var f2 = (FileHistoryInfo)listChanges.SelectedItems[1];
-
-			deferred_executor.QueueDefferedExecute(() =>
-			{
-				DiffTwoRevisions(f1, f2);
-			});
-
-			e.Handled = true;
-		}
-
 		//-----------------------------------------------------------------------------
 		private void Archive_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{

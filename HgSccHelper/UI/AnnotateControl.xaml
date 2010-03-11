@@ -90,9 +90,6 @@
                 <Button Content="Diff Previous"
                         Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         MinWidth="75" />
-                <Button Content="Diff Two Revisions"
-                        Command="{x:Static ui:Commands.DiffTwoRevisionsCommand}"
-                        MinWidth="75" />
                 <Separator />
                 <Button Content="File History"
                         Command="{x:Static ui:Commands.FileHistoryCommand}"
@@ -136,23 +133,15 @@
                         CanExecute="HistoryDiffPrevious_CanExecute"
                         Executed="HistoryDiffPrevious_Executed">
                     </CommandBinding>
-                    <CommandBinding Command="{x:Static ui:Commands.DiffTwoRevisionsCommand}"
-                        CanExecute="HistoryDiffTwoRevisions_CanExecute"
-                        Executed="HistoryDiffTwoRevisions_Executed">
-                    </CommandBinding>
                 </ListView.CommandBindings>
                 <ListView.InputBindings>
                     <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
-                    <KeyBinding Command="{x:Static ui:Commands.DiffTwoRevisionsCommand}"
-                            Modifiers="Shift" Key="D" />
                 </ListView.InputBindings>
                 <ListView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
-                        <MenuItem Command="{x:Static ui:Commands.DiffTwoRevisionsCommand}"
-                              InputGestureText="Shift + D"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"
                               ></MenuItem>
                     </ContextMenu>
