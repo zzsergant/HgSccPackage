@@ -1715,6 +1715,21 @@ namespace HgSccPackage
 			}
 		}
 
+		//------------------------------------------------------------------
+		public void Grep()
+		{
+			if (storage == null)
+				return;
+
+			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
+
+			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
+			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, all_projects))
+			{
+				storage.Grep();
+			}
+		}
 
 		/// <summary>
 		/// Returns a list of controlled projects containing the specified file

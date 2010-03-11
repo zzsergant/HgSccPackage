@@ -211,6 +211,12 @@ namespace HgSccPackage
 				mcs.AddCommand(menuCmd);
 
 				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
+					CommandId.icmdGrep);
+
+				menuCmd = new MenuCommand(Exec_icmdGrep, cmd);
+				mcs.AddCommand(menuCmd);
+
+				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
 					CommandId.icmdViewChangeLog);
 
 				menuCmd = new MenuCommand(Exec_icmdViewChangeLog, cmd);
@@ -578,6 +584,10 @@ namespace HgSccPackage
 					cmdf |= QueryStatus_icmdAnnotate();
 					break;
 
+				case CommandId.icmdGrep:
+					cmdf |= QueryStatus_icmdGrep();
+					break;
+
 				case CommandId.icmdViewChangeLog:
 					cmdf |= QueryStatus_icmdViewChangeLog();
 					break;
@@ -708,6 +718,11 @@ namespace HgSccPackage
 		private OLECMDF QueryStatus_icmdAnnotate()
 		{
 			return QueryStatus_icmdHistory();
+		}
+
+		private OLECMDF QueryStatus_icmdGrep()
+		{
+			return QueryStatus_icmdViewChangeLog();
 		}
 
 		private OLECMDF QueryStatus_icmdViewChangeLog()
@@ -917,6 +932,16 @@ namespace HgSccPackage
 			}
 
 			sccService.ViewChangeLog();
+		}
+
+		private void Exec_icmdGrep(object sender, EventArgs e)
+		{
+			if (!IsThereASolution())
+			{
+				return;
+			}
+
+			sccService.Grep();
 		}
 
 		private void Exec_icmdUpdate(object sender, EventArgs e)

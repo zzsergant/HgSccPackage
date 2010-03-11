@@ -18,6 +18,7 @@ using System.IO;
 using HgSccHelper;
 using C5;
 using System.Diagnostics;
+using HgSccHelper.UI;
 
 namespace HgSccPackage
 {
@@ -545,6 +546,24 @@ namespace HgSccPackage
 				return;
 
 			using (var proxy = new WpfToWinFormsProxy<RevLogWindow>())
+			{
+				var wnd = proxy.Wnd;
+				wnd.WorkingDir = hgscc.WorkingDir;
+
+				proxy.ShowDialog();
+
+				if (wnd.UpdateContext.IsParentChanged)
+					RaiseUpdateEvent();
+			}
+		}
+
+		//------------------------------------------------------------------
+		public void Grep()
+		{
+			if (!IsValid)
+				return;
+
+			using (var proxy = new WpfToWinFormsProxy<GrepWindow>())
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
