@@ -32,6 +32,18 @@
                         CanExecute="Search_CanExecute"
                         Executed="Search_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                        CanExecute="FilesDiffPrevious_CanExecute"
+                        Executed="FilesDiffPrevious_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
+                        CanExecute="FileHistory_CanExecute"
+                        Executed="FileHistory_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static ui:Commands.ViewFileCommand}"
+                        CanExecute="ViewFile_CanExecute"
+                        Executed="ViewFile_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -153,20 +165,6 @@
                           SelectionChanged="listLines_SelectionChanged"
                           VirtualizingStackPanel.IsVirtualizing="True"
                           VirtualizingStackPanel.VirtualizationMode="Recycling">
-                    <ListView.CommandBindings>
-                        <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
-                            CanExecute="MatchesDiffPrevious_CanExecute"
-                            Executed="MatchesDiffPrevious_Executed">
-                        </CommandBinding>
-                        <CommandBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
-                                CanExecute="MatchesFileHistory_CanExecute"
-                                Executed="MatchesFileHistory_Executed">
-                        </CommandBinding>
-                        <CommandBinding Command="{x:Static ui:Commands.ViewFileCommand}"
-                                CanExecute="MatchesViewFile_CanExecute"
-                                Executed="MatchesViewFile_Executed">
-                        </CommandBinding>
-                    </ListView.CommandBindings>
                     <ListView.View>
                         <GridView x:Name="listLinesGrid">
                             <GridViewColumn Header="Rev" DisplayMemberBinding="{Binding Rev}" Width="70" />
@@ -223,20 +221,6 @@
             <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files">
                 <ListView Name="listViewFiles" MaxHeight="150"
                           ItemsSource="{Binding Path=SelectedChangeset.Files, ElementName=root, Mode=OneWay}">
-                    <ListView.CommandBindings>
-                        <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
-                            CanExecute="FilesDiffPrevious_CanExecute"
-                            Executed="FilesDiffPrevious_Executed">
-                        </CommandBinding>
-                        <CommandBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
-                            CanExecute="FileHistory_CanExecute"
-                            Executed="FileHistory_Executed">
-                        </CommandBinding>
-                        <CommandBinding Command="{x:Static ui:Commands.ViewFileCommand}"
-                            CanExecute="ViewFile_CanExecute"
-                            Executed="ViewFile_Executed">
-                        </CommandBinding>
-                    </ListView.CommandBindings>
                     <ListView.InputBindings>
                         <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                                 Modifiers="Control" Key="D" />

@@ -121,7 +121,19 @@ namespace HgSccHelper.UI
 				var line_info = (GrepLineInfo)listLines.SelectedItem;
 				var changes = Hg.ChangesFull(WorkingDir, line_info.File, line_info.Rev.ToString());
 				if (changes.Count == 1)
+				{
 					changeset = changes[0];
+
+					// Selecting file in the files listview
+					foreach (var file_info in changeset.Files)
+					{
+						if (file_info.Path == line_info.File)
+						{
+							listViewFiles.SelectedItem = file_info;
+							break;
+						}
+					}
+				}
 			}
 
 			SelectedChangeset = changeset;
@@ -285,74 +297,6 @@ namespace HgSccHelper.UI
 		}
 
 		//------------------------------------------------------------------
-		private void MatchesDiffPrevious_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-		{
-			e.CanExecute = false;
-			if (listLines.SelectedItems.Count == 1)
-			{
-				var line_info = listLines.SelectedItem as GrepLineInfo;
-				if (line_info != null && line_info.Rev > 0)
-					e.CanExecute = true;
-			}
-			e.Handled = true;
-		}
-
-		//------------------------------------------------------------------
-		private void MatchesDiffPrevious_Executed(object sender, ExecutedRoutedEventArgs e)
-		{
-			var line_info = (GrepLineInfo)listLines.SelectedItem;
-
-			deferred_executor.QueueDefferedExecute(() =>
-			{
-				try
-				{
-					Hg.Diff(WorkingDir, line_info.File, (line_info.Rev - 1).ToString(),
-						line_info.File, line_info.Rev.ToString());
-				}
-				catch (HgDiffException)
-				{
-					Util.HandleHgDiffException();
-				}
-			});
-
-			e.Handled = true;
-		}
-
-
-		//------------------------------------------------------------------
-		private void MatchesFileHistory_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-		{
-			e.CanExecute = listLines.SelectedItem != null;
-			e.Handled = true;
-		}
-
-		//------------------------------------------------------------------
-		private void MatchesFileHistory_Executed(object sender, ExecutedRoutedEventArgs e)
-		{
-			var line_info = (GrepLineInfo)listLines.SelectedItem;
-			ViewFileHistory(line_info.File, line_info.Rev.ToString());
-		}
-
-		//------------------------------------------------------------------
-		private void MatchesViewFile_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-		{
-			e.CanExecute = listLines.SelectedItem != null;
-			e.Handled = true;
-		}
-
-		//------------------------------------------------------------------
-		private void MatchesViewFile_Executed(object sender, ExecutedRoutedEventArgs e)
-		{
-			var line_info = (GrepLineInfo)listLines.SelectedItem;
-
-			deferred_executor.QueueDefferedExecute(() =>
-			{
-				Hg.ViewFile(WorkingDir, line_info.File, line_info.Rev.ToString());
-			});
-
-		}
-
-		//------------------------------------------------------------------
 		private void DiffTwoRevisions(FileHistoryInfo f1, FileHistoryInfo f2)
 		{
 			if (f1.ChangeDesc.Rev > f2.ChangeDesc.Rev)
@@ -375,8 +319,7 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		private void FilesDiffPrevious_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = false;
-			if (listViewFiles.SelectedItems.Count == 1)
+			if (listViewFiles != null && listViewFiles.SelectedItems.Count == 1)
 			{
 				var file_info = (FileInfo)listViewFiles.SelectedItem;
 				if (file_info.Status == FileStatus.Modified)
@@ -429,7 +372,8 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		private void FileHistory_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = listViewFiles.SelectedItems.Count == 1;
+			if (listViewFiles != null)
+				e.CanExecute = listViewFiles.SelectedItems.Count == 1;
 			e.Handled = true;
 		}
 
@@ -457,7 +401,8 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		private void ViewFile_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = listViewFiles.SelectedItems.Count == 1;
+			if (listViewFiles != null)
+				e.CanExecute = listViewFiles.SelectedItems.Count == 1;
 			e.Handled = true;
 		}
 
