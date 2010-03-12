@@ -121,22 +121,33 @@ namespace HgSccHelper.UI
 				var line_info = (GrepLineInfo)listLines.SelectedItem;
 				var changes = Hg.ChangesFull(WorkingDir, line_info.File, line_info.Rev.ToString());
 				if (changes.Count == 1)
-				{
 					changeset = changes[0];
-
-					// Selecting file in the files listview
-					foreach (var file_info in changeset.Files)
-					{
-						if (file_info.Path == line_info.File)
-						{
-							listViewFiles.SelectedItem = file_info;
-							break;
-						}
-					}
-				}
 			}
 
 			SelectedChangeset = changeset;
+			SynchronizeMatchWithFilesList();
+		}
+
+		//------------------------------------------------------------------
+		private void SynchronizeMatchWithFilesList()
+		{
+			var line_info = listLines.SelectedItem as GrepLineInfo;
+			if (line_info == null)
+				return;
+
+			// Selecting file in the files listview
+			if (SelectedChangeset == null)
+				return;
+
+			foreach (var file_info in SelectedChangeset.Files)
+			{
+				if (file_info.Path == line_info.File)
+				{
+					listViewFiles.SelectedItem = file_info;
+					listViewFiles.ScrollIntoView(file_info);
+					break;
+				}
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -477,7 +488,10 @@ namespace HgSccHelper.UI
 			if (SelectedChangeset != null)
 			{
 				if (SelectedChangeset.Rev == line_info.Rev)
+				{
+					SynchronizeMatchWithFilesList();
 					return;
+				}
 			}
 
 			timer.Stop();
