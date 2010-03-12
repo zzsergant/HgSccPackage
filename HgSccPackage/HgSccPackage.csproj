@@ -134,6 +134,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="postbuild.bat" />
     <None Include="Resources\CustomGlyphs.bmp" />
     <Content Include="Resources\Images_24bit.bmp" />
     <Content Include="Resources\Images_32bit.bmp" />
@@ -184,6 +185,8 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>"%25VSSDK90Install%25\VisualStudioIntegration\Tools\bin\regpkg.exe" /regfile:"$(TargetDir)$(TargetName).reg" /codebase $(TargetPath)</PostBuildEvent>
+    <PostBuildEvent>"$(ProjectDir)postbuild.bat" $(TargetFileName) $(ConfigurationName)
+"%25VSSDK90Install%25\VisualStudioIntegration\Tools\bin\regpkg.exe" /regfile:"$(TargetDir)$(TargetName).reg" /codebase $(TargetPath)
+</PostBuildEvent>
   </PropertyGroup>
 </Project>
