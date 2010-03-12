@@ -392,6 +392,30 @@ namespace HgSccHelper.UI
 		}
 
 		//------------------------------------------------------------------
+		private void Annotate_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			if (listViewFiles != null)
+				e.CanExecute = listViewFiles.SelectedItems.Count == 1;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Annotate_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var file_info = (FileInfo)listViewFiles.SelectedItem;
+
+			var wnd = new AnnotateWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.Rev = SelectedChangeset.Rev.ToString();
+			wnd.FileName = file_info.Path;
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//------------------------------------------------------------------
 		private void FileHistory_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var file_info = (FileInfo)listViewFiles.SelectedItem;

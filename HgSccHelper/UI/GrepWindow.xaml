@@ -41,6 +41,10 @@
                         CanExecute="FileHistory_CanExecute"
                         Executed="FileHistory_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static ui:Commands.AnnotateCommand}"
+                        CanExecute="Annotate_CanExecute"
+                        Executed="Annotate_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static ui:Commands.ViewFileCommand}"
                         CanExecute="ViewFile_CanExecute"
                         Executed="ViewFile_Executed">
@@ -59,6 +63,9 @@
                 <Separator />
                 <Button Content="File History"
                         Command="{x:Static ui:Commands.FileHistoryCommand}"
+                        MinWidth="75" />
+                <Button Content="Annotate"
+                        Command="{x:Static ui:Commands.AnnotateCommand}"
                         MinWidth="75" />
                 <Button Content="View File"
                         Command="{x:Static ui:Commands.ViewFileCommand}"
@@ -186,6 +193,8 @@
                               InputGestureText="Ctrl + D"></MenuItem>
                             <MenuItem Command="{x:Static ui:Commands.FileHistoryCommand}"
                                   InputGestureText="Ctrl + H"></MenuItem>
+                            <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
+                                  ></MenuItem>
                             <MenuItem Command="{x:Static ui:Commands.ViewFileCommand}"
                                   ></MenuItem>
                             <Separator />
@@ -234,6 +243,8 @@
                                   InputGestureText="Ctrl + D"></MenuItem>
                             <MenuItem Command="{x:Static ui:Commands.FileHistoryCommand}"
                                   InputGestureText="Ctrl + H"></MenuItem>
+                            <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
+                                  ></MenuItem>
                             <MenuItem Command="{x:Static ui:Commands.ViewFileCommand}"
                                   ></MenuItem>
                         </ContextMenu>
