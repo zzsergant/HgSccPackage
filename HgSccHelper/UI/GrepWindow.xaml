@@ -15,7 +15,8 @@
         <DataTemplate x:Key="MatchTemplate">
             <TextBlock Text="{Binding Path=Match}"
                        HorizontalAlignment="Stretch"
-                       FontFamily="Courier New">
+                       MaxHeight="50"
+                       FontFamily="Courier New" TextTrimming="CharacterEllipsis">
             </TextBlock>
         </DataTemplate>
     </Window.Resources>
