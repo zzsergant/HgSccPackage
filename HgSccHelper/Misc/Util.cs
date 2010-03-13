@@ -291,6 +291,17 @@ namespace HgSccHelper
 			var function = fn as DeferredThreadExecuteDelegate;
 			function();
 		}
+
+		//------------------------------------------------------------------
+		public static string Convert(string value, Encoding src, Encoding trg)
+		{
+			Decoder dec = src.GetDecoder();
+			byte[] ba = trg.GetBytes(value);
+			int len = dec.GetCharCount(ba, 0, ba.Length);
+			char[] ca = new char[len];
+			dec.GetChars(ba, 0, ba.Length, ca, 0);
+			return new string(ca);
+		}
 	}
 
 	//==================================================================

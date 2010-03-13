@@ -78,6 +78,16 @@
                 <Button Content="Stop"
                         Command="{x:Static ui:Commands.StopCommand}"
                         MinWidth="75" />
+                <Separator />
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Encoding:" Margin="5"></Label>
+                    <ComboBox MinWidth="150"
+                              Margin="5"
+                              Name="comboEncodings"
+                              SelectionChanged="comboEncodings_SelectionChanged"
+                              DisplayMemberPath="Name"
+                              IsTextSearchEnabled="False"></ComboBox>
+                </StackPanel>
             </ToolBar>
         </ToolBarTray>
         <Grid KeyboardNavigation.TabNavigation="Cycle" Grid.Row="1">

@@ -90,6 +90,8 @@ namespace HgSccHelper.UI
 		public const string CfgPath = @"GUI\GrepWindow";
 		CfgWindowPosition wnd_cfg;
 
+		ObservableCollection<EncodingItem> encodings;
+
 		//------------------------------------------------------------------
 		public GrepWindow()
 		{
@@ -107,6 +109,11 @@ namespace HgSccHelper.UI
 			timer = new DispatcherTimer();
 			timer.Interval = TimeSpan.FromMilliseconds(50);
 			timer.Tick += OnTimerTick;
+
+			encodings = new ObservableCollection<EncodingItem>();
+			encodings.Add(new EncodingItem { Name = "Ansi", Encoding = Encoding.Default });
+			encodings.Add(new EncodingItem { Name = "Utf8", Encoding = Encoding.UTF8 });
+			comboEncodings.ItemsSource = encodings;
 		}
 
 		//------------------------------------------------------------------
@@ -154,6 +161,8 @@ namespace HgSccHelper.UI
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			listLinesGrid.LoadCfg(GrepWindow.CfgPath, "ListLinesGrid");
+			string encoding_name;
+			Cfg.Get(GrepWindow.CfgPath, "encoding", out encoding_name, encodings[0].Name);
 
 			Title = string.Format("Grep: '{0}'", WorkingDir);
 
@@ -163,6 +172,12 @@ namespace HgSccHelper.UI
 			if (CurrentRevision == null)
 				return;
 
+			var encoding = encodings.First(enc => enc.Name == encoding_name);
+			if (encoding != null)
+				comboEncodings.SelectedItem = encoding;
+			else
+				comboEncodings.SelectedIndex = 0;
+
 			textRegexp.Focus();
 		}
 
@@ -170,6 +185,9 @@ namespace HgSccHelper.UI
 		private void Window_Unloaded(object sender, RoutedEventArgs e)
 		{
 			listLinesGrid.SaveCfg(GrepWindow.CfgPath, "ListLinesGrid");
+			var encoding = comboEncodings.SelectedItem as EncodingItem;
+			if (encoding != null)
+				Cfg.Set(GrepWindow.CfgPath, "encoding", encoding.Name);
 
 			if (Commands.StopCommand.CanExecute(sender, e.Source as IInputElement))
 				Commands.StopCommand.Execute(sender, e.Source as IInputElement);
@@ -285,7 +303,7 @@ namespace HgSccHelper.UI
 				// FIXME: Fix unicode byte order mark, that can appear
 				// in the first line of unicode file
 
-				var line_info = new GrepLineInfo
+				var line_info = new ThreadGrepLineInfo
 				{
 					 Rev = rev,
 					 File = parts[0],
@@ -294,13 +312,28 @@ namespace HgSccHelper.UI
 				};
 
 				Dispatcher.Invoke(DispatcherPriority.Normal,
-					new Action<GrepLineInfo>(Worker_NewGrepLine), line_info);
+					new Action<ThreadGrepLineInfo>(Worker_NewGrepLine), line_info);
 			}
 		}
 
 		//------------------------------------------------------------------
-		void Worker_NewGrepLine(GrepLineInfo line_info)
+		void Worker_NewGrepLine(ThreadGrepLineInfo thread_line)
 		{
+			var match = thread_line.Match;
+
+			var encoding = comboEncodings.SelectedItem as EncodingItem;
+			if (encoding != null && encoding.Encoding != Encoding.Default)
+				match = Util.Convert(match, encoding.Encoding, Encoding.Default);
+
+			var line_info = new GrepLineInfo
+			{
+				Line = thread_line.Line,
+				File = thread_line.File,
+				Rev = thread_line.Rev,
+				MatchInDefaultEncoding = thread_line.Match,
+				Match = match
+			};
+
 			grep_lines.Add(line_info);
 
 			if (listLines.SelectedIndex == -1 && listLines.Items.Count > 0)
@@ -519,14 +552,54 @@ namespace HgSccHelper.UI
 		{
 			checkFollowRenames.IsEnabled = String.IsNullOrEmpty(textIncludes.Text);
 		}
+
+		//------------------------------------------------------------------
+		private void comboEncodings_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			var encoding = comboEncodings.SelectedItem as EncodingItem;
+
+			if (encoding != null)
+			{
+				foreach (var line_info in grep_lines)
+					line_info.Match = Util.Convert(line_info.MatchInDefaultEncoding,
+						encoding.Encoding, Encoding.Default);
+			}
+		}
 	}
 
 	//==================================================================
-	class GrepLineInfo
+	class ThreadGrepLineInfo
 	{
 		public int Rev { get; set; }
 		public string File { get; set; }
 		public int Line { get; set; }
 		public string Match { get; set; }
+	}
+
+	//==================================================================
+	class GrepLineInfo : DependencyObject
+	{
+		public int Rev { get; set; }
+		public string File { get; set; }
+		public int Line { get; set; }
+		public string MatchInDefaultEncoding { get; set; }
+
+		//------------------------------------------------------------------
+		public string Match
+		{
+			get { return (string)GetValue(MatchProperty); }
+			set { SetValue(MatchProperty, value); }
+		}
+
+		//------------------------------------------------------------------
+		public static readonly DependencyProperty MatchProperty =
+			DependencyProperty.Register("Match", typeof(string), typeof(GrepLineInfo));
+	}
+
+	//==================================================================
+	class EncodingItem
+	{
+		public string Name { get; set; }
+		public Encoding Encoding { get; set; }
 	}
 }
