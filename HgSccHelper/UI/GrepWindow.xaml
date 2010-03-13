@@ -212,7 +212,7 @@
                 </ListView>
                 <StackPanel Grid.Row="1"
                         DataContext="{Binding Path=SelectedChangeset, ElementName=root, Mode=OneWay}"
-                        Orientation="Horizontal" Margin="0, 0, 0, 5">
+                        Orientation="Horizontal" Margin="0, 5, 0, 5">
                     <Label Content="Changeset:" />
                     <TextBox Text="{Binding Path=Rev}" IsReadOnly="True" Margin="5, 0" MinWidth="70"/>
                     <Label Content=":" />
