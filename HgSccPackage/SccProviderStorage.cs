@@ -97,6 +97,27 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		public bool IsAnyModifiedFiles()
+		{
+			if (!IsValid)
+				return false;
+
+			foreach (var file_info in cache.Values)
+			{
+				switch (file_info.Status)
+				{
+					case HgFileStatus.Added:
+					case HgFileStatus.Deleted:
+					case HgFileStatus.Removed:
+					case HgFileStatus.Modified:
+						return true;
+				}
+			}
+
+			return false;
+		}
+
+		//------------------------------------------------------------------
 		public void ReloadCache()
 		{
 			if (!IsValid)

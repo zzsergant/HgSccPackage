@@ -626,31 +626,10 @@ namespace HgSccPackage
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			System.Collections.Generic.IList<string> files = GetSelectedFilesInControlledProjects();
-			foreach (string file in files)
+			if (	sccService.IsValidStorage()
+				&&	sccService.IsAnyModifedFiles())
 			{
-				SourceControlStatus status = sccService.GetFileStatus(file);
-				if (	status == SourceControlStatus.scsClean
-					||	status == SourceControlStatus.scsUncontrolled
-					||	status == SourceControlStatus.scsIgnored)
-				{
-					continue;
-				}
-
-				if (status == SourceControlStatus.scsUncontrolled)
-				{
-					// If the file is uncontrolled, enable the command only if the file is part of a controlled project
-					System.Collections.Generic.IList<VSITEMSELECTION> nodes =
-						sccService.GetControlledProjectsContainingFile(file);
-					if (nodes.Count > 0)
-					{
-						return OLECMDF.OLECMDF_ENABLED;
-					}
-				}
-				else
-				{
-					return OLECMDF.OLECMDF_ENABLED;
-				}
+				return OLECMDF.OLECMDF_ENABLED;
 			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
@@ -663,31 +642,10 @@ namespace HgSccPackage
 				return OLECMDF.OLECMDF_INVISIBLE;
 			}
 
-			System.Collections.Generic.IList<string> files = GetSelectedFilesInControlledProjects();
-			foreach (string file in files)
+			if (	sccService.IsValidStorage()
+				&&	sccService.IsAnyModifedFiles())
 			{
-				SourceControlStatus status = sccService.GetFileStatus(file);
-				if (	status == SourceControlStatus.scsClean
-					||	status == SourceControlStatus.scsUncontrolled
-					||	status == SourceControlStatus.scsIgnored)
-				{
-					continue;
-				}
-
-				if (status == SourceControlStatus.scsUncontrolled)
-				{
-					// If the file is uncontrolled, enable the command only if the file is part of a controlled project
-					System.Collections.Generic.IList<VSITEMSELECTION> nodes =
-						sccService.GetControlledProjectsContainingFile(file);
-					if (nodes.Count > 0)
-					{
-						return OLECMDF.OLECMDF_ENABLED;
-					}
-				}
-				else
-				{
-					return OLECMDF.OLECMDF_ENABLED;
-				}
+				return OLECMDF.OLECMDF_ENABLED;
 			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
@@ -865,11 +823,24 @@ namespace HgSccPackage
 				return;
 			}
 
-			System.Collections.Generic.IList<VSITEMSELECTION> selectedNodes = null;
-			System.Collections.Generic.IList<string> files =
-				GetSelectedFilesInControlledProjects(out selectedNodes);
+			var selected_files = GetSelectedFilesInControlledProjects();
+			var modified_files = new List<string>();
 
-			sccService.CommitFiles(files);
+			foreach (string file in selected_files)
+			{
+				SourceControlStatus status = sccService.GetFileStatus(file);
+				if (	status == SourceControlStatus.scsClean
+					||	status == SourceControlStatus.scsUncontrolled
+					||	status == SourceControlStatus.scsIgnored
+					)
+				{
+					continue;
+				}
+
+				modified_files.Add(file);
+			}
+
+			sccService.CommitFiles(modified_files);
 		}
 
 		private void Exec_icmdRevert(object sender, EventArgs e)
@@ -879,11 +850,24 @@ namespace HgSccPackage
 				return;
 			}
 			
-			System.Collections.Generic.IList<VSITEMSELECTION> selectedNodes = null;
-			System.Collections.Generic.IList<string> files =
-				GetSelectedFilesInControlledProjects(out selectedNodes);
+			var selected_files = GetSelectedFilesInControlledProjects();
+			var modified_files = new List<string>();
 
-			sccService.RevertFiles(files);
+			foreach (string file in selected_files)
+			{
+				SourceControlStatus status = sccService.GetFileStatus(file);
+				if (	status == SourceControlStatus.scsClean
+					||	status == SourceControlStatus.scsUncontrolled
+					||	status == SourceControlStatus.scsIgnored
+					)
+				{
+					continue;
+				}
+
+				modified_files.Add(file);
+			}
+
+			sccService.RevertFiles(modified_files);
 		}
 
 		private void Exec_icmdViewHistory(object sender, EventArgs e)

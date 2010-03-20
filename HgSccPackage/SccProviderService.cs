@@ -2133,6 +2133,12 @@ namespace HgSccPackage
 			return storage.IsValid;
 		}
 
+		//------------------------------------------------------------------
+		public bool IsAnyModifedFiles()
+		{
+			return storage.IsAnyModifiedFiles();
+		}
+
 		#region IVsSccGlyphs Members
 
 		public int GetCustomGlyphList(uint BaseIndex, out uint pdwImageListHandle)
