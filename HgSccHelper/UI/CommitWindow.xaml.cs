@@ -100,6 +100,9 @@ namespace HgSccHelper
 		public IEnumerable<string> FilesToCommit { set; get; }
 
 		//------------------------------------------------------------------
+		public bool CheckAllFiles { get; set; }
+
+		//------------------------------------------------------------------
 		public List<string> CommitedFiles { private set; get; }
 
 		//-----------------------------------------------------------------------------
@@ -346,11 +349,8 @@ namespace HgSccHelper
 				}
 			}
 
-			// Check all items if FilesToCommit is empty
-			if (dict.Count == 0)
-			{
+			if (CheckAllFiles)
 				IsAllChecked = true;
-			}
 
 			return true;
 		}
