@@ -268,7 +268,7 @@ namespace HgSccHelper
 			var path_env = Environment.GetEnvironmentVariable("PATH") ?? "";
 			foreach (var path in path_env.Split(path_sep, StringSplitOptions.RemoveEmptyEntries))
 			{
-				var executable = FindExisting(System.IO.Path.Combine(path, command), pathexts);
+				var executable = FindExisting(System.IO.Path.Combine(path.UnQuote(), command), pathexts);
 				if (!String.IsNullOrEmpty(executable))
 					return executable;
 			}
