@@ -497,7 +497,7 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		private void UpdateCache(IEnumerable<string> files)
+		public void UpdateCache(IEnumerable<string> files)
 		{
 			if (!IsValid)
 				return;

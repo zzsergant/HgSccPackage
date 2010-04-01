@@ -73,6 +73,9 @@ namespace HgSccPackage
 		// Our custom image list
 		ImageList customSccGlyphsImageList;
 
+		System.Windows.Forms.Timer rdt_timer;
+		C5.HashSet<string> rdt_files_to_update;
+
 		// Indexes of icons in our custom image list
 		// NOTE: Only four custom glyphs allowed
 		enum CustomSccGlyphs
@@ -110,6 +113,12 @@ namespace HgSccPackage
 
 			storage.UpdateEvent += UpdateEvent_Handler;
 
+			rdt_timer = new Timer();
+			rdt_timer.Interval = 300;
+			rdt_timer.Tick += new EventHandler(rdt_timer_Tick);
+
+			rdt_files_to_update = new C5.HashSet<string>();
+
 //			file_changes = new SccFileChangesManager(_sccProvider);
 		}
 
@@ -144,6 +153,9 @@ namespace HgSccPackage
 //			file_changes.Dispose();
 
 			storage.UpdateEvent -= UpdateEvent_Handler;
+			
+			rdt_timer.Tick -= rdt_timer_Tick;
+			rdt_timer.Dispose();
 		}
 
 		#endregion
@@ -2038,6 +2050,23 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		void rdt_timer_Tick(object sender, EventArgs e)
+		{
+			rdt_timer.Stop();
+			if (rdt_files_to_update.Count != 0)
+			{
+				var files = rdt_files_to_update.ToArray();
+				rdt_files_to_update.Clear();
+
+				if (storage.IsValid && Active)
+				{
+					storage.UpdateCache(files);
+					RefreshGlyphsForControlledProjects();
+				}
+			}
+		}
+
+		//------------------------------------------------------------------
 		void Rdt_AfterAttributeChangeEvent(object sender, RdtAfterAttributeChangeEventArgs e)
 		{
 			Logger.WriteLine("OnAfterAttributeChange: {0}, {1}",
@@ -2048,13 +2077,8 @@ namespace HgSccPackage
 				var status = storage.GetFileStatus(e.DocInfo.MkDocument);
 				if (status != SourceControlStatus.scsUncontrolled)
 				{
-					storage.UpdateFileCache(e.DocInfo.MkDocument);
-
-					System.Collections.Generic.IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new[] { e.DocInfo.MkDocument});
-					if (lst.Count != 0)
-					{
-						_sccProvider.RefreshNodesGlyphs(lst);
-					}
+					rdt_files_to_update.Add(e.DocInfo.MkDocument);
+					rdt_timer.Start();
 				}
 			}
 		}
