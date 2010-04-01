@@ -266,7 +266,7 @@ namespace HgSccPackage
 
 			if (not_in_cache.Count != 0)
 			{
-				UpdateCache(not_in_cache);
+				//UpdateCache(not_in_cache);
 			}
 
 			foreach (var file in files)
@@ -302,7 +302,7 @@ namespace HgSccPackage
 
 			if (not_in_cache.Count != 0)
 			{
-				UpdateCache(not_in_cache);
+				//UpdateCache(not_in_cache);
 			}
 
 			for (int i = 0; i < files.Length; ++i)
