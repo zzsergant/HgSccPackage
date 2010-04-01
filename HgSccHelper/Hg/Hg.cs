@@ -468,7 +468,7 @@ namespace HgSccHelper
 
 				if ((cmd_line.Length + str.Length) > MaxCmdLength)
 				{
-					using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+					using (Process proc = Process.Start(PrepareProcess(work_dir, cmd_line.ToString())))
 					{
 						var reader = proc.StandardOutput;
 						var info = HgFileInfo.ParseFileInfo(reader);
@@ -491,7 +491,7 @@ namespace HgSccHelper
 
 			if (cmd_line.Length != args.Length)
 			{
-				using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+				using (Process proc = Process.Start(PrepareProcess(work_dir, cmd_line.ToString())))
 				{
 					var reader = proc.StandardOutput;
 					var info = HgFileInfo.ParseFileInfo(reader);
