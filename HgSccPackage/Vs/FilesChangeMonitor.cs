@@ -42,15 +42,22 @@ namespace HgSccPackage.Vs
 		//------------------------------------------------------------------
 		public bool Add(string filename)
 		{
-			if (!File.Exists(filename))
+			try
 			{
-				Logger.WriteLine("FilesChangeMonitor.Add - file {0} is not exists", filename);
+				if (!File.Exists(filename))
+				{
+					Logger.WriteLine("FilesChangeMonitor.Add - file {0} is not exists", filename);
+					return false;
+				}
+
+				var file_info = new FileInfo(filename);
+				files.Add(new FileUpdateInfo { FileName = filename, LastWriteTime = file_info.LastWriteTime });
+				return true;
+			}
+			catch (ArgumentException)
+			{
 				return false;
 			}
-
-			var file_info = new FileInfo(filename);
-			files.Add(new FileUpdateInfo { FileName = filename, LastWriteTime = file_info.LastWriteTime });
-			return true;
 		}
 
 		//------------------------------------------------------------------

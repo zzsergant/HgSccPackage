@@ -53,8 +53,8 @@ namespace HgSccPackage.Vs
 					var project_path = scc_provider.GetProjectFileName(project);
 					if (project_path != null)
 					{
-						sln_prj_monitor.Add(project_path);
-						change.IgnoreFile(0, project_path, 1);
+						if (sln_prj_monitor.Add(project_path))
+							change.IgnoreFile(0, project_path, 1);
 					}
 				}
 				else
@@ -62,8 +62,8 @@ namespace HgSccPackage.Vs
 					var scc_solution = project_hier as IVsSolution;
 					if (scc_solution != null)
 					{
-						sln_prj_monitor.Add(sln_name);
-						change.IgnoreFile(0, sln_name, 1);
+						if (sln_prj_monitor.Add(sln_name))
+							change.IgnoreFile(0, sln_name, 1);
 					}
 				}
 			}
