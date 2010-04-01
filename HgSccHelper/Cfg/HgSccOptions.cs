@@ -23,10 +23,12 @@ namespace HgSccHelper
 	public class HgPkgOptions
 	{
 		public string DiffTool { get; set; }
+		public bool UseSccBindings { get; set; }
 
 		public HgPkgOptions()
 		{
 			DiffTool = "";
+			UseSccBindings = true;
 		}
 	}
 
@@ -61,65 +63,30 @@ namespace HgSccHelper
 				return instance.options;
 			}
 		}
-
-		private static string RegistryPath
-		{
-			get
-			{
-				return "Software\\Zz\\HgSccPackage";
-			}
-		}
-
-		private static string RegKey_DiffTool
-		{
-			get
-			{
-				return "DiffTool";
-			}
-		}
-
+		
 		//-----------------------------------------------------------------------------
 		public static void Save()
 		{
-			try
-			{
-				var hg_key = Registry.CurrentUser.CreateSubKey(RegistryPath);
-				if (hg_key != null)
-				{
-					hg_key.SetValue(RegKey_DiffTool, Options.DiffTool, RegistryValueKind.String);
-					hg_key.Close();
-				}
-			}
-			catch (System.Exception e)
-			{
-				System.Windows.Forms.MessageBox.Show(e.Message, "Error in Save", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
+			if (!String.IsNullOrEmpty(Options.DiffTool))
+				Cfg.Set("", "DiffTool", Options.DiffTool);
+
+			Cfg.Set("", "UseSccBindings", Options.UseSccBindings ? 1 : 0);
 		}
 
 		//-----------------------------------------------------------------------------
 		private static HgPkgOptions Load()
 		{
-			try
-			{
-				HgPkgOptions options = new HgPkgOptions();
+			var options = new HgPkgOptions();
 
-				var hg_key = Registry.CurrentUser.OpenSubKey(RegistryPath);
-				if (hg_key != null)
-				{
-					string diff_tool = (string)hg_key.GetValue(RegKey_DiffTool, options.DiffTool);
-					if (diff_tool != null)
-						options.DiffTool = diff_tool;
-					hg_key.Close();
-				}
+			string diff_tool = options.DiffTool;
+			int use_scc_bindings = options.UseSccBindings ? 1 : 0;
 
-				return options;
-			}
-			catch (System.Exception e)
-			{
-				System.Windows.Forms.MessageBox.Show(e.Message, "Error in Load", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
+			if (Cfg.Get("", "DiffTool", out diff_tool, diff_tool))
+				options.DiffTool = diff_tool;
+			if (Cfg.Get("", "UseSccBinding", out use_scc_bindings, use_scc_bindings))
+				options.UseSccBindings = use_scc_bindings != 0;
 
-			return new HgPkgOptions();
+			return options;
 		}
 	}
 }

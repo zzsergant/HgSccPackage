@@ -33,10 +33,13 @@
 			this.tabPageAbout = new System.Windows.Forms.TabPage();
 			this.btnOK = new System.Windows.Forms.Button();
 			this.btnCancel = new System.Windows.Forms.Button();
-			this.hgAboutControl1 = new HgSccHelper.HgAboutControl();
 			this.hgDiffOptionsControl1 = new HgSccHelper.HgDiffOptionsControl();
+			this.hgSettingsControl1 = new HgSccHelper.HgSettingsControl();
+			this.hgAboutControl1 = new HgSccHelper.HgAboutControl();
+			this.tabSettings = new System.Windows.Forms.TabPage();
 			this.tabOptions.SuspendLayout();
 			this.tabDiff.SuspendLayout();
+			this.tabSettings.SuspendLayout();
 			this.tabPageAbout.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -46,6 +49,7 @@
 						| System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this.tabOptions.Controls.Add(this.tabDiff);
+			this.tabOptions.Controls.Add(this.tabSettings);
 			this.tabOptions.Controls.Add(this.tabPageAbout);
 			this.tabOptions.Location = new System.Drawing.Point(2, 5);
 			this.tabOptions.Name = "tabOptions";
@@ -97,6 +101,14 @@
 			this.btnCancel.UseVisualStyleBackColor = true;
 			this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
 			// 
+			// hgDiffOptionsControl1
+			// 
+			this.hgDiffOptionsControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.hgDiffOptionsControl1.Location = new System.Drawing.Point(3, 3);
+			this.hgDiffOptionsControl1.Name = "hgDiffOptionsControl1";
+			this.hgDiffOptionsControl1.Size = new System.Drawing.Size(512, 190);
+			this.hgDiffOptionsControl1.TabIndex = 0;
+			// 
 			// hgAboutControl1
 			// 
 			this.hgAboutControl1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -105,13 +117,23 @@
 			this.hgAboutControl1.Size = new System.Drawing.Size(518, 196);
 			this.hgAboutControl1.TabIndex = 0;
 			// 
-			// hgDiffOptionsControl1
+			// tabSettings
 			// 
-			this.hgDiffOptionsControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.hgDiffOptionsControl1.Location = new System.Drawing.Point(3, 3);
-			this.hgDiffOptionsControl1.Name = "hgDiffOptionsControl1";
-			this.hgDiffOptionsControl1.Size = new System.Drawing.Size(512, 190);
-			this.hgDiffOptionsControl1.TabIndex = 0;
+			this.tabSettings.Controls.Add(this.hgSettingsControl1); 
+			this.tabSettings.Location = new System.Drawing.Point(4, 22);
+			this.tabSettings.Name = "tabSettings";
+			this.tabSettings.Size = new System.Drawing.Size(518, 196);
+			this.tabSettings.TabIndex = 2;
+			this.tabSettings.Text = "Settings";
+			this.tabSettings.UseVisualStyleBackColor = true;
+			// 
+			// hgSettingsControl1
+			// 
+			this.hgSettingsControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.hgSettingsControl1.Location = new System.Drawing.Point(3, 3);
+			this.hgSettingsControl1.Name = "hgSettingsControl1";
+			this.hgSettingsControl1.Size = new System.Drawing.Size(512, 190);
+			this.hgSettingsControl1.TabIndex = 0;
 			// 
 			// OptionsForm
 			// 
@@ -130,6 +152,7 @@
 			this.Text = "HgScc Options";
 			this.tabOptions.ResumeLayout(false);
 			this.tabDiff.ResumeLayout(false);
+			this.tabSettings.ResumeLayout(false);
 			this.tabPageAbout.ResumeLayout(false);
 			this.ResumeLayout(false);
 
@@ -144,5 +167,7 @@
 		private System.Windows.Forms.TabPage tabPageAbout;
 		private HgSccHelper.HgDiffOptionsControl hgDiffOptionsControl1;
 		private HgSccHelper.HgAboutControl hgAboutControl1;
+		private HgSccHelper.HgSettingsControl hgSettingsControl1;
+		private System.Windows.Forms.TabPage tabSettings;
 	}
 }

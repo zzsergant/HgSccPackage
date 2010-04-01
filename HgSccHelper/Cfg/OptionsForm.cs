@@ -36,19 +36,17 @@ namespace HgSccHelper
 		{
 			string diff_tool = hgDiffOptionsControl1.DiffToolPath;
 
-			if (diff_tool.Length == 0)
+			if (diff_tool.Length != 0)
 			{
-				MessageBox.Show("You should browse for Diff tool", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-				return;
-			}
-
-			if (!File.Exists(diff_tool))
-			{
-				MessageBox.Show("File: " + diff_tool + " is not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				return;
+				if (!File.Exists(diff_tool))
+				{
+					MessageBox.Show("File: " + diff_tool + " is not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					return;
+				}
 			}
 
 			HgSccOptions.Options.DiffTool = diff_tool;
+			HgSccOptions.Options.UseSccBindings = hgSettingsControl1.UseSccBindings;
 			HgSccOptions.Save();
 
 			DialogResult = DialogResult.OK;

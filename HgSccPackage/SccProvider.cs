@@ -107,6 +107,7 @@ namespace HgSccPackage
 														  0x94, 0x74, 0x1a, 0x39,
 														  0x56, 0xd4, 0x6d, 0xe8);
 
+		//------------------------------------------------------------------
 		public SccProvider()
 		{
 			Logger.WriteLine("Entering constructor for: {0}", this.ToString());
@@ -283,6 +284,12 @@ namespace HgSccPackage
 										  [OutAttribute] VSQUERYSAVESLNPROPS[]
 											pqsspSave)
 		{
+			if (!HgSccOptions.Options.UseSccBindings)
+			{
+				pqsspSave[0] = VSQUERYSAVESLNPROPS.QSP_HasNoProps;
+				return VSConstants.S_OK;
+			}
+
 			// This function is called by the IDE to determine if something needs to be saved in the solution.
 			// If the package returns that it has dirty properties, the shell will callback on SaveSolutionProps
 

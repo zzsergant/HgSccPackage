@@ -106,21 +106,20 @@ namespace HgSccPackage
 			{
 				string diff_tool = page.DiffToolPath;
 
-				if (diff_tool.Length == 0)
+				if (diff_tool.Length != 0)
 				{
-					MessageBox.Show("You should browse for Diff tool", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-					e.ApplyBehavior = ApplyKind.CancelNoNavigate;
+					if (!File.Exists(diff_tool))
+					{
+						MessageBox.Show("File: " + diff_tool + " is not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						e.ApplyBehavior = ApplyKind.CancelNoNavigate;
+						base.OnApply(e);
+						return;
+					}
 				}
-				else if (!File.Exists(diff_tool))
-				{
-					MessageBox.Show("File: " + diff_tool + " is not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					e.ApplyBehavior = ApplyKind.CancelNoNavigate;
-				}
-				else
-				{
-					HgSccOptions.Options.DiffTool = diff_tool;
-					HgSccOptions.Save();
-				}
+
+				HgSccOptions.Options.DiffTool = diff_tool;
+				HgSccOptions.Options.UseSccBindings = page.UseSccBindings;
+				HgSccOptions.Save();
 			}
 			else
 			{
@@ -128,33 +127,6 @@ namespace HgSccPackage
 			}
 			
 			base.OnApply(e);
-			/*
-						string messageText = Resources.ResourceManager.GetString("ApplyProviderOptions");
-						string messageCaption = Resources.ResourceManager.GetString("ProviderName");
-
-						IVsUIShell uiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
-						Guid clsid = Guid.Empty;
-						int result = VSConstants.S_OK;
-						if (uiShell.ShowMessageBox(0, ref clsid,
-											messageCaption,
-											messageText,
-											string.Empty,
-											0,
-											OLEMSGBUTTON.OLEMSGBUTTON_OKCANCEL,
-											OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
-											OLEMSGICON.OLEMSGICON_QUERY,
-											0,        // false = application modal; true would make it system modal
-											out result) != VSConstants.S_OK
-							|| result != (int)DialogResult.OK)
-						{
-							Logger.WriteLine("Cancelled the OnApply event");
-							e.ApplyBehavior = ApplyKind.Cancel;
-						}
-						else
-						{
-							base.OnApply(e);
-						}
-			*/
 		}
     }
 }

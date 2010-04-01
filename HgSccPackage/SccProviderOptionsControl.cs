@@ -38,7 +38,9 @@ namespace HgSccPackage
 		private HgSccHelper.HgDiffOptionsControl hgDiffOptionsControl1;
 		private TabPage tabPageAbout;
 		private HgSccHelper.HgAboutControl hgAboutControl1;
-        // The parent page, use to persist data
+		private TabPage tabSettings;
+		private HgSccHelper.HgSettingsControl hgSettingsControl1;
+		// The parent page, use to persist data
         private SccProviderOptions _customPage;
 
         public SccProviderOptionsControl()
@@ -78,14 +80,18 @@ namespace HgSccPackage
 			this.hgDiffOptionsControl1 = new HgSccHelper.HgDiffOptionsControl();
 			this.tabPageAbout = new System.Windows.Forms.TabPage();
 			this.hgAboutControl1 = new HgSccHelper.HgAboutControl();
+			this.tabSettings = new System.Windows.Forms.TabPage();
+			this.hgSettingsControl1 = new HgSccHelper.HgSettingsControl();
 			this.tabOptions.SuspendLayout();
 			this.tabDiff.SuspendLayout();
+			this.tabSettings.SuspendLayout();
 			this.tabPageAbout.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// tabOptions
 			// 
 			this.tabOptions.Controls.Add(this.tabDiff);
+			this.tabOptions.Controls.Add(this.tabSettings);
 			this.tabOptions.Controls.Add(this.tabPageAbout);
 			this.tabOptions.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabOptions.Location = new System.Drawing.Point(0, 0);
@@ -131,6 +137,24 @@ namespace HgSccPackage
 			this.hgAboutControl1.Size = new System.Drawing.Size(424, 208);
 			this.hgAboutControl1.TabIndex = 0;
 			// 
+			// tabSettings
+			// 
+			this.tabSettings.Controls.Add(this.hgSettingsControl1);
+			this.tabSettings.Location = new System.Drawing.Point(4, 22);
+			this.tabSettings.Name = "tabSettings";
+			this.tabSettings.Size = new System.Drawing.Size(424, 208);
+			this.tabSettings.TabIndex = 2;
+			this.tabSettings.Text = "Settings";
+			this.tabSettings.UseVisualStyleBackColor = true;
+			// 
+			// hgSettingsControl1
+			// 
+			this.hgSettingsControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.hgSettingsControl1.Location = new System.Drawing.Point(3, 3);
+			this.hgSettingsControl1.Name = "hgSettingsControl1";
+			this.hgSettingsControl1.Size = new System.Drawing.Size(418, 202);
+			this.hgSettingsControl1.TabIndex = 0;
+			// 
 			// SccProviderOptionsControl
 			// 
 			this.AllowDrop = true;
@@ -140,6 +164,7 @@ namespace HgSccPackage
 			this.tabOptions.ResumeLayout(false);
 			this.tabDiff.ResumeLayout(false);
 			this.tabPageAbout.ResumeLayout(false);
+			this.tabSettings.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
@@ -164,11 +189,19 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		public bool UseSccBindings
+		{
+			get
+			{
+				return hgSettingsControl1.UseSccBindings;
+			}
+		}
+
+		//------------------------------------------------------------------
 		public void Activate()
 		{
 			hgDiffOptionsControl1.Activate();
 		}
-
     }
 
 }

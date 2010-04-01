@@ -597,10 +597,30 @@ namespace HgSccPackage
 
 		public int OnAfterOpenSolution([InAttribute] Object pUnkReserved, [InAttribute] int fNewSolution)
 		{
+			if (!Active)
+				return VSConstants.S_OK;
+
 			// This event is fired last by the shell when opening a solution.
 			// By this time, we have already loaded the solution persistence data from the PreLoad section
 			// the controlled projects should be opened and registered with source control
-			if (_loadingControlledSolutionLocation.Length > 0)
+			bool register_scc_projects = _loadingControlledSolutionLocation.Length > 0;
+			if (!register_scc_projects)
+			{
+				if (!storage.IsValid)
+				{
+					// If solution is not controlled, check if there is
+					// a mercurial repository
+
+					var solution_dir = Path.GetDirectoryName(_sccProvider.GetSolutionFileName());
+					if (SccErrors.Ok == storage.Init(solution_dir, SccOpenProjectFlags.None))
+					{
+						Logger.WriteLine("Solution is not controlled, but there is a mercurial repository");
+						register_scc_projects = !HgSccOptions.Options.UseSccBindings;
+					}
+				}
+			}
+
+			if (register_scc_projects)
 			{
 				// We'll also need to refresh the solution glyphs to reflect the controlled state
 				System.Collections.Generic.IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
@@ -635,18 +655,6 @@ namespace HgSccPackage
 
 			// reset the flag now that solution open completed
 			_loadingControlledSolutionLocation = "";
-
-			if (!storage.IsValid)
-			{
-				// If solution is not controlled, check if there is
-				// a mercurial repository
-
-				var solution_dir = Path.GetDirectoryName(_sccProvider.GetSolutionFileName());
-				if (SccErrors.Ok == storage.Init(solution_dir, SccOpenProjectFlags.None))
-				{
-					Logger.WriteLine("Solution is not controlled, but there is a mercurial repository");
-				}
-			}
 
 			all_projects.Add((IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution)));
 
@@ -1558,7 +1566,8 @@ namespace HgSccPackage
 			foreach (IVsHierarchy pHier in hashUncontrolledProjects.Keys)
 			{
 				var sccProject2 = (IVsSccProject2)pHier;
-				sccProject2.SetSccLocation("<Project Location In Database>", "<Source Control Database>", "<Local Binding Root of Project>", _sccProvider.ProviderName);
+				if (HgSccOptions.Options.UseSccBindings)
+					sccProject2.SetSccLocation("<Project Location In Database>", "<Source Control Database>", "<Local Binding Root of Project>", _sccProvider.ProviderName);
 
 				// Add the newly controlled projects now to the list of controlled projects in this solution
 				controlled_projects.Add(pHier);

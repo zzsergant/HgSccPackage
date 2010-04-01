@@ -71,6 +71,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cfg\HgSettingsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Cfg\HgSettingsControl.Designer.cs">
+      <DependentUpon>HgSettingsControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\AnnotateControl.xaml.cs">
       <DependentUpon>AnnotateControl.xaml</DependentUpon>
     </Compile>
@@ -183,6 +189,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Cfg\HgDiffOptionsControl.resx">
       <DependentUpon>HgDiffOptionsControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Cfg\HgSettingsControl.resx">
+      <DependentUpon>HgSettingsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Cfg\OptionsForm.resx">
       <DependentUpon>OptionsForm.cs</DependentUpon>
