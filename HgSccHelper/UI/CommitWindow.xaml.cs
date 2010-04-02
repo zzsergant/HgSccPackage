@@ -271,7 +271,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private bool Prepare()
 		{
-			var resolve_dict = new C5.HashDictionary<string, ResolveStatus>();
+			var resolve_dict = new Dictionary<string, ResolveStatus>();
 			if (IsMergeActive)
 			{
 				var hg_resolve = new HgResolve();
@@ -280,14 +280,14 @@ namespace HgSccHelper
 					resolve_dict[file.Path.ToLower()] = file.Status;
 			}
 
-			var files_status_dict = new C5.HashDictionary<string, HgFileInfo>();
+			var files_status_dict = new Dictionary<string, HgFileInfo>();
 
 			foreach (var file_status in Hg.Status(WorkingDir))
 			{
 				files_status_dict.Add(file_status.File, file_status);
 			}
 
-			var dict = new C5.HashDictionary<string, HgFileStatus>();
+			var dict = new Dictionary<string, HgFileStatus>();
 			if (FilesToCommit != null)
 			{
 				foreach (var f in FilesToCommit)
@@ -300,7 +300,7 @@ namespace HgSccHelper
 				}
 			}
 
-			var commit_removed = new C5.HashDictionary<string, CommitItem>();
+			var commit_removed = new Dictionary<string, CommitItem>();
 			foreach (var tuple in files_status_dict)
 			{
 				var f = tuple.Value;
@@ -314,14 +314,14 @@ namespace HgSccHelper
 						{
 							var item = new CommitItem();
 							string lower_f = f.File.ToLower();
-							item.IsChecked = dict.Contains(lower_f);
+							item.IsChecked = dict.ContainsKey(lower_f);
 							item.FileInfo = f;
 							item.ResolveStatus = ResolveStatus.None;
 
 							if (IsMergeActive)
 							{
 								var resolve_status = ResolveStatus.None;
-								if (resolve_dict.Find(lower_f, out resolve_status))
+								if (resolve_dict.TryGetValue(lower_f, out resolve_status))
 									item.ResolveStatus = resolve_status;
 							}
 
@@ -341,7 +341,7 @@ namespace HgSccHelper
 				{
 					CommitItem item;
 
-					if (commit_removed.Find(f.FileInfo.CopiedFrom, out item))
+					if (commit_removed.TryGetValue(f.FileInfo.CopiedFrom, out item))
 					{
 						Logger.WriteLine("commit_removed: " + item.FileInfo.File);
 						item.IsChecked = true;

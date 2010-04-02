@@ -19,7 +19,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
-using C5;
 using Microsoft.Win32;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -1071,9 +1070,9 @@ namespace HgSccPackage
 		/// <summary>
 		/// Returns a list of controllable projects in the solution
 		/// </summary>
-		private C5.HashSet<IVsHierarchy> GetLoadedControllableProjectsEnum()
+		private HashSet<IVsHierarchy> GetLoadedControllableProjectsEnum()
 		{
-			var mapHierarchies = new C5.HashSet<IVsHierarchy>();
+			var mapHierarchies = new HashSet<IVsHierarchy>();
 
 			IVsSolution sol = (IVsSolution) GetService(typeof (SVsSolution));
 			Guid rguidEnumOnlyThisType = new Guid();
@@ -1111,13 +1110,13 @@ namespace HgSccPackage
 		/// Gets the list of selected controllable project hierarchies
 		/// </summary>
 		/// <returns>True if a solution was created.</returns>
-		private C5.HashSet<IVsHierarchy> GetSelectedHierarchies(
+		private HashSet<IVsHierarchy> GetSelectedHierarchies(
 			System.Collections.Generic.IList<VSITEMSELECTION> sel, out bool solutionSelected)
 		{
 			// Initialize output arguments
 			solutionSelected = false;
 
-			var mapHierarchies = new C5.HashSet<IVsHierarchy>();
+			var mapHierarchies = new HashSet<IVsHierarchy>();
 			foreach (VSITEMSELECTION vsItemSel in sel)
 			{
 				if (vsItemSel.pHier == null
@@ -2019,9 +2018,9 @@ namespace HgSccPackage
 		/// <summary>
 		/// Returns a list of solution folders projects in the solution
 		/// </summary>
-		public C5.HashSet<IVsHierarchy> GetSolutionFoldersEnum()
+		public HashSet<IVsHierarchy> GetSolutionFoldersEnum()
 		{
-			var mapHierarchies = new C5.HashSet<IVsHierarchy>();
+			var mapHierarchies = new HashSet<IVsHierarchy>();
 
 			var sol = (IVsSolution) GetService(typeof (SVsSolution));
 			Guid rguidEnumOnlyThisType = guidSolutionFolderProject;

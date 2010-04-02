@@ -90,7 +90,7 @@ namespace HgSccPackage.Vs
 				}
 				else
 				{
-					var proj_map = new C5.HashDictionary<string, IVsProject>();
+					var proj_map = new Dictionary<string, IVsProject>();
 
 					foreach (var project_hier in projects)
 					{
@@ -112,7 +112,7 @@ namespace HgSccPackage.Vs
 						{
 							Logger.WriteLine("Reloading project: {0}", filename);
 							IVsProject scc_project;
-							if (proj_map.Find(filename.ToLower(), out scc_project))
+							if (proj_map.TryGetValue(filename.ToLower(), out scc_project))
 							{
 								var doc_info = rdt.FindAndLockDocument(filename, _VSRDTFLAGS.RDT_NoLock);
 								if (doc_info != null)

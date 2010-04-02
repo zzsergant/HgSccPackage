@@ -87,19 +87,19 @@ namespace HgSccHelper
 		/// <summary>
 		/// SHA1 -> BranchInfo map
 		/// </summary>
-		C5.HashDictionary<string, BranchInfo> Branches { get; set; }
+		Dictionary<string, BranchInfo> Branches { get; set; }
 
 		//------------------------------------------------------------------
 		/// <summary>
 		/// Tag Name -> TagInfo map
 		/// </summary>
-		C5.HashDictionary<string, TagInfo> Tags { get; set; }
+		Dictionary<string, TagInfo> Tags { get; set; }
 
 		//------------------------------------------------------------------
 		/// <summary>
 		/// SHA1 -> RevLogLinesPair map
 		/// </summary>
-		C5.HashDictionary<string, RevLogLinesPair> rev_log_hash_map;
+		Dictionary<string, RevLogLinesPair> rev_log_hash_map;
 
 		//------------------------------------------------------------------
 		public RevLogControl()
@@ -121,7 +121,7 @@ namespace HgSccHelper
 
 			UpdateContext = new UpdateContext();
 
-			rev_log_hash_map = new C5.HashDictionary<string, RevLogLinesPair>();
+			rev_log_hash_map = new Dictionary<string, RevLogLinesPair>();
 			deferred_executor = new DeferredCommandExecutor();
 		}
 
@@ -139,13 +139,13 @@ namespace HgSccHelper
 			if (CurrentRevision == null)
 				return;
 
-			Branches = new C5.HashDictionary<string, BranchInfo>();
+			Branches = new Dictionary<string, BranchInfo>();
 			foreach (var branch in hg.Branches(WorkingDir, HgBranchesOptions.Closed))
 			{
 				Branches[branch.SHA1] = branch;
 			}
 
-			Tags = new C5.HashDictionary<string, TagInfo>();
+			Tags = new Dictionary<string, TagInfo>();
 			foreach (var tag in hg.Tags(WorkingDir))
 			{
 				Tags[tag.Name] = tag;
@@ -530,7 +530,7 @@ namespace HgSccHelper
 			}
 
 			BranchInfo branch_info;
-			if (Branches.Find(sha1, out branch_info))
+			if (Branches.TryGetValue(sha1, out branch_info))
 				new_lines_pair.BranchInfo = branch_info;
 
 			rev_lines.Add(new_lines_pair);
@@ -620,7 +620,7 @@ namespace HgSccHelper
 			foreach (var parent in CurrentRevision.Parents)
 			{
 				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.Find(parent.SHA1, out lines_pair))
+				if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
 					lines_pair.IsCurrent = false;
 			}
 
@@ -628,7 +628,7 @@ namespace HgSccHelper
 			foreach (var parent in CurrentRevision.Parents)
 			{
 				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.Find(parent.SHA1, out lines_pair))
+				if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
 					lines_pair.IsCurrent = true;
 			}
 		}
@@ -637,7 +637,7 @@ namespace HgSccHelper
 		private void HandleBranchChanges()
 		{
 			var hg = new Hg();
-			var new_branches = new C5.HashDictionary<string, BranchInfo>();
+			var new_branches = new Dictionary<string, BranchInfo>();
 			var branch_list = hg.Branches(WorkingDir, HgBranchesOptions.Closed);
 
 			foreach (var branch_info in branch_list)
@@ -650,7 +650,7 @@ namespace HgSccHelper
 			{
 				// removing old branch info
 				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.Find(branch_info.SHA1, out lines_pair))
+				if (rev_log_hash_map.TryGetValue(branch_info.SHA1, out lines_pair))
 					lines_pair.BranchInfo = null;
 			}
 
@@ -660,7 +660,7 @@ namespace HgSccHelper
 			{
 				// adding or updating branch info
 				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.Find(branch_info.SHA1, out lines_pair))
+				if (rev_log_hash_map.TryGetValue(branch_info.SHA1, out lines_pair))
 					lines_pair.BranchInfo = branch_info;
 			}
 		}
@@ -669,7 +669,7 @@ namespace HgSccHelper
 		private void HandleTagsChanges()
 		{
 			var hg = new Hg();
-			var new_tags = new C5.HashDictionary<string, TagInfo>();
+			var new_tags = new Dictionary<string, TagInfo>();
 			var tags_list = hg.Tags(WorkingDir);
 
 			foreach (var tag in tags_list)
@@ -681,7 +681,7 @@ namespace HgSccHelper
 			{
 				// removing old tags
 				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.Find(tag.SHA1, out lines_pair))
+				if (rev_log_hash_map.TryGetValue(tag.SHA1, out lines_pair))
 				{
 					var change_desc = lines_pair.Current.ChangeDesc;
 					change_desc.Tags.Remove(tag.Name);
@@ -694,7 +694,7 @@ namespace HgSccHelper
 			{
 				// adding or updating tags
 				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.Find(tag.SHA1, out lines_pair))
+				if (rev_log_hash_map.TryGetValue(tag.SHA1, out lines_pair))
 				{
 					var change_desc = lines_pair.Current.ChangeDesc;
 					if (!change_desc.Tags.Contains(tag.Name))

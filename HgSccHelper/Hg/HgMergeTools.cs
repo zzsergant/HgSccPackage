@@ -19,7 +19,7 @@ namespace HgSccHelper
 {
 	class HgMergeTools
 	{
-		C5.HashDictionary<string, MergeToolInfo> merge_tools;
+		Dictionary<string, MergeToolInfo> merge_tools;
 
 		//-----------------------------------------------------------------------------
 		public HgMergeTools()
@@ -34,14 +34,14 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private C5.HashDictionary<string, MergeToolInfo> DiscoverMergeTools()
+		private Dictionary<string, MergeToolInfo> DiscoverMergeTools()
 		{
 			var hg = new Hg();
 			var lines = hg.ShowConfig("");
 			var merge_tools_prefix = "merge-tools";
 
 			var separator = new[] { '=' };
-			var merge_tools = new C5.HashDictionary<string, MergeToolInfo>();
+			var merge_tools = new Dictionary<string, MergeToolInfo>();
 
 			foreach (var line in lines)
 			{
@@ -77,7 +77,7 @@ namespace HgSccHelper
 						var tool_opt = left.Substring(last_point + 1);
 
 						MergeToolInfo tool;
-						if (!merge_tools.Find(tool_alias, out tool))
+						if (!merge_tools.TryGetValue(tool_alias, out tool))
 						{
 							tool = new MergeToolInfo(tool_alias);
 							merge_tools[tool_alias] = tool;
@@ -117,12 +117,12 @@ namespace HgSccHelper
 	//-----------------------------------------------------------------------------
 	class MergeToolInfo
 	{
-		private C5.HashDictionary<string, string> map;
+		private Dictionary<string, string> map;
 
 		//-----------------------------------------------------------------------------
 		public MergeToolInfo(string alias)
 		{
-			map = new C5.HashDictionary<string, string>();
+			map = new Dictionary<string, string>();
 			Alias = alias;
 			ExecutableFilename = string.Empty;
 		}
@@ -153,14 +153,14 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool IsOptionExists(string key)
 		{
-			return map.Contains(key);
+			return map.ContainsKey(key);
 		}
 
 		//-----------------------------------------------------------------------------
 		public string GetOption(string key, string default_value)
 		{
 			string value;
-			if (map.Find(key, out value))
+			if (map.TryGetValue(key, out value))
 				return value;
 
 			return default_value;

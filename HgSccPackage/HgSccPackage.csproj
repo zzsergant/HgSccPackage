@@ -147,10 +147,6 @@
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\C5\C5.csproj">
-      <Project>{D70489CD-ABDA-48FF-BD1E-BE3F7495BE71}</Project>
-      <Name>C5</Name>
-    </ProjectReference>
     <ProjectReference Include="..\HgSccHelper\HgSccHelper.csproj">
       <Project>{172BA27D-ACC4-4294-A57C-C09895599EEA}</Project>
       <Name>HgSccHelper</Name>

@@ -56,6 +56,29 @@ namespace HgSccHelper
 			return str.Substring(0, 12);
 		}
 
+		//------------------------------------------------------------------
+		public static bool FindOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary,
+			TKey key, ref TValue v)
+		{
+			TValue found;
+			if (dictionary.TryGetValue(key, out found))
+			{
+				v = found;
+				return true;
+			}
+
+			dictionary[key] = v;
+			return false;
+		}
+
+		//------------------------------------------------------------------
+		public static T[] ToArray<T>(this HashSet<T> hash_set)
+		{
+			var array = new T[hash_set.Count];
+			hash_set.CopyTo(array);
+			return array;
+		}
+
 		//-----------------------------------------------------------------------------
 		public static bool GetRelativePath(string working_dir, string path, out string relative)
 		{

@@ -29,7 +29,7 @@ namespace HgSccPackage.Vs
 		VsRunningDocumentTable rdt;
 		IVsSolution solution;
 
-		C5.HashDictionary<string, IVsPersistDocData> rdt_doc_list;
+		Dictionary<string, IVsPersistDocData> rdt_doc_list;
 
 		//------------------------------------------------------------------
 		public RdtFilesReloader(SccProvider scc_provider, IEnumerable<IVsHierarchy> controlled_projects)
@@ -41,7 +41,7 @@ namespace HgSccPackage.Vs
 			solution = (IVsSolution)scc_provider.GetService(typeof(SVsSolution));
 
 			rdt_files_monitor = new FilesChangeMonitor();
-			rdt_doc_list = new C5.HashDictionary<string, IVsPersistDocData>();
+			rdt_doc_list = new Dictionary<string, IVsPersistDocData>();
 
 			foreach (var doc_info in rdt.EnumDocuments())
 			{
@@ -68,7 +68,7 @@ namespace HgSccPackage.Vs
 			foreach (var filename in rdt_files_monitor.ChangedFiles)
 			{
 				IVsPersistDocData doc;
-				if (rdt_doc_list.Find(filename.ToLower(), out doc))
+				if (rdt_doc_list.TryGetValue(filename.ToLower(), out doc))
 				{
 					doc.ReloadDocData((uint) _VSRELOADDOCDATA.RDD_IgnoreNextFileChange);
 					rdt_doc_list.Remove(filename.ToLower());

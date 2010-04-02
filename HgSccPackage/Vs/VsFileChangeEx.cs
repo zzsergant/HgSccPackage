@@ -22,8 +22,8 @@ namespace HgSccPackage.Vs
 	//==================================================================
 	class VsFileChangeEx : IDisposable, IVsFileChangeEvents
 	{
-		C5.HashDictionary<string, uint> files_cookies;
-		// C5.HashDictionary<string, uint> dirs_cookies;
+		Dictionary<string, uint> files_cookies;
+		// Dictionary<string, uint> dirs_cookies;
 
 		//------------------------------------------------------------------
 		public IVsFileChangeEx Interface { get; private set; }
@@ -35,7 +35,7 @@ namespace HgSccPackage.Vs
 				throw new ArgumentNullException("file_change_ex");
 
 			Interface = file_change_ex;
-			files_cookies = new C5.HashDictionary<string, uint>();
+			files_cookies = new Dictionary<string, uint>();
 			// dirs_cookies = new List<uint>();
 		}
 
@@ -44,7 +44,7 @@ namespace HgSccPackage.Vs
 		{
 			var lower_filename = filename.ToLower();
 
-			if (files_cookies.Contains(lower_filename))
+			if (files_cookies.ContainsKey(lower_filename))
 				throw new ArgumentException("File allready advised for changes: " + filename);
 
 			uint cookie;
@@ -63,7 +63,7 @@ namespace HgSccPackage.Vs
 			var lower_filename = filename.ToLower();
 
 			uint cookie;
-			if (!files_cookies.Find(lower_filename, out cookie))
+			if (!files_cookies.TryGetValue(lower_filename, out cookie))
 				return false;
 
 			Interface.UnadviseFileChange(cookie);

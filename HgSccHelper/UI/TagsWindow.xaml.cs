@@ -46,7 +46,7 @@ namespace HgSccHelper
 		RevLogChangeDesc RevDesc { get; set; }
 		RevLogChangeDesc TagDesc { get; set; }
 
-		C5.HashDictionary<string, TagInfo> tag_map;
+		Dictionary<string, TagInfo> tag_map;
 
 		public const string CfgPath = @"GUI\TagsWindow";
 		CfgWindowPosition wnd_cfg;
@@ -78,7 +78,7 @@ namespace HgSccHelper
 				}
 			};
 
-			tag_map = new C5.HashDictionary<string, TagInfo>();
+			tag_map = new Dictionary<string, TagInfo>();
 			UpdateContext = new UpdateContext();
 		}
 
@@ -250,7 +250,7 @@ namespace HgSccHelper
 
 			var tag_name = comboTag.Text;
 
-			if (	tag_map.Contains(tag_name)
+			if (	tag_map.ContainsKey(tag_name)
 				&& !replace_tag
 				)
 			{

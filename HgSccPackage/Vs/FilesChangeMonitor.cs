@@ -30,13 +30,13 @@ namespace HgSccPackage.Vs
 		}
 
 		List<FileUpdateInfo> files;
-		C5.HashSet<string> changed_files;
+		HashSet<string> changed_files;
 
 		//------------------------------------------------------------------
 		public FilesChangeMonitor()
 		{
 			files = new List<FileUpdateInfo>();
-			changed_files = new C5.HashSet<string>();
+			changed_files = new HashSet<string>();
 		}
 
 		//------------------------------------------------------------------

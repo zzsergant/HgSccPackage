@@ -139,14 +139,14 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private bool Prepare()
 		{
-			var files_status_dict = new C5.HashDictionary<string, HgFileInfo>();
+			var files_status_dict = new Dictionary<string, HgFileInfo>();
 
 			foreach (var file_status in Hg.Status(WorkingDir))
 			{
 				files_status_dict.Add(file_status.File, file_status);
 			}
 
-			var dict = new C5.HashDictionary<string, HgFileStatus>();
+			var dict = new Dictionary<string, HgFileStatus>();
 			if (FilesToRevert != null)
 			{
 				foreach (var f in FilesToRevert)
@@ -159,7 +159,7 @@ namespace HgSccHelper
 				}
 			}
 
-			var revert_removed = new C5.HashDictionary<string, RevertItem>();
+			var revert_removed = new Dictionary<string, RevertItem>();
 			foreach (var tuple in files_status_dict)
 			{
 				var f = tuple.Value;
@@ -173,7 +173,7 @@ namespace HgSccHelper
 						{
 							var item = new RevertItem();
 							string lower_f = f.File.ToLower();
-							item.IsChecked = dict.Contains(lower_f);
+							item.IsChecked = dict.ContainsKey(lower_f);
 							item.FileInfo = f;
 
 							revert_items.Add(item);
@@ -192,7 +192,7 @@ namespace HgSccHelper
 				{
 					RevertItem item;
 
-					if (revert_removed.Find(f.FileInfo.CopiedFrom, out item))
+					if (revert_removed.TryGetValue(f.FileInfo.CopiedFrom, out item))
 					{
 						Logger.WriteLine("revert_removed: " + item.FileInfo.File);
 						item.IsChecked = true;

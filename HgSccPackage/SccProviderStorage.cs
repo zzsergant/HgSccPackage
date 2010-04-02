@@ -16,7 +16,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using HgSccHelper;
-using C5;
 using System.Diagnostics;
 using HgSccHelper.UI;
 
@@ -46,7 +45,7 @@ namespace HgSccPackage
 	public class SccProviderStorage
 	{
 		private HgScc hgscc;
-		private HashDictionary<string, HgFileInfo> cache;
+		private Dictionary<string, HgFileInfo> cache;
 
 		public event EventHandler UpdateEvent;
 
@@ -61,7 +60,7 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public SccProviderStorage()
 		{
-			cache = new HashDictionary<string, HgFileInfo>();
+			cache = new Dictionary<string, HgFileInfo>();
 		}
 
 		//------------------------------------------------------------------
@@ -260,7 +259,7 @@ namespace HgSccPackage
 
 			foreach (var file in files)
 			{
-				if (!cache.Contains(file.File.ToLower()))
+				if (!cache.ContainsKey(file.File.ToLower()))
 					not_in_cache.Add(file.File);
 			}
 
@@ -272,7 +271,7 @@ namespace HgSccPackage
 			foreach (var file in files)
 			{
 				HgFileInfo info;
-				if (cache.Find(file.File.ToLower(), out info))
+				if (cache.TryGetValue(file.File.ToLower(), out info))
 				{
 					file.Status = FromHgStatus(info);
 				}
@@ -296,7 +295,7 @@ namespace HgSccPackage
 
 			foreach (var file in files)
 			{
-				if (!cache.Contains(file.ToLower()))
+				if (!cache.ContainsKey(file.ToLower()))
 					not_in_cache.Add(file);
 			}
 
@@ -308,7 +307,7 @@ namespace HgSccPackage
 			for (int i = 0; i < files.Length; ++i)
 			{
 				HgFileInfo info;
-				if (cache.Find(files[i].ToLower(), out info))
+				if (cache.TryGetValue(files[i].ToLower(), out info))
 				{
 					statuses[i] = FromHgStatus(info);
 				}
@@ -322,7 +321,7 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		private static IEnumerable<string> RemoveDuplicates(IEnumerable<string> items)
 		{
-			var hash_set = new C5.HashSet<string>();
+			var hash_set = new HashSet<string>();
 			foreach (var item in items)
 				hash_set.Add(item);
 			return hash_set.ToArray();
@@ -541,7 +540,7 @@ namespace HgSccPackage
 			Logger.WriteLine("SetCacheStatus: {0}, {1}", file, status);
 			
 			HgFileInfo info;
-			if (cache.Find(file.ToLower(), out info))
+			if (cache.TryGetValue(file.ToLower(), out info))
 			{
 				info.Status = status;
 			}

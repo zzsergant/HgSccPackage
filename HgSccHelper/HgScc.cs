@@ -16,7 +16,6 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using System.Windows.Forms;
-using C5;
 
 namespace HgSccHelper
 {
@@ -105,7 +104,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public SccErrors LookupProjects(string folder, out SccFileInfo[] files)
 		{
-			var dict = new HashDictionary<string, bool>();
+			var dict = new Dictionary<string, bool>();
 			dict.Add(".sln", true);
 			dict.Add(".atp", true);
 			dict.Add(".dbp", true);
@@ -144,9 +143,9 @@ namespace HgSccHelper
 */
 
 		//-----------------------------------------------------------------------------
-		public HashDictionary<string, HgFileInfo> QueryInfoFullDict()
+		public Dictionary<string, HgFileInfo> QueryInfoFullDict()
 		{
-			var dict = new HashDictionary<string, HgFileInfo>();
+			var dict = new Dictionary<string, HgFileInfo>();
 //			var hg_files = hg.Manifest(WorkingDir);
 
 			foreach (var file_status in hg.Status(WorkingDir))
@@ -189,7 +188,7 @@ namespace HgSccHelper
 
 			var stats = (length > Hg.MaxCmdLength) ? hg.Status(WorkingDir) : hg.Status(WorkingDir, lst);
 
-			var dict = new HashDictionary<string, HgFileInfo>();
+			var dict = new Dictionary<string, HgFileInfo>();
 			foreach (var file_status in stats)
 			{
 				string file = file_status.File.ToLower();
@@ -201,7 +200,7 @@ namespace HgSccHelper
 				HgFileInfo file_info;
 				string file;
 				if (	GetRelativePath(info.File, out file)
-					&&	dict.Find(file.ToLower(), out file_info)
+					&& dict.TryGetValue(file.ToLower(), out file_info)
 					)
 				{
 					info.CopiedFrom = file_info.CopiedFrom;

@@ -60,25 +60,25 @@ namespace HgSccHelper
 		/// <summary>
 		/// SHA1 -> BranchInfo map
 		/// </summary>
-		C5.HashDictionary<string, BranchInfo> Branches { get; set; }
+		Dictionary<string, BranchInfo> Branches { get; set; }
 
 		//------------------------------------------------------------------
 		/// <summary>
 		/// Tag Name -> TagInfo map
 		/// </summary>
-		C5.HashDictionary<string, TagInfo> Tags { get; set; }
+		Dictionary<string, TagInfo> Tags { get; set; }
 
 		//------------------------------------------------------------------
 		/// <summary>
 		/// SHA1 -> FileHistoryInfo map
 		/// </summary>
-		C5.HashDictionary<string, FileHistoryInfo> file_history_map;
+		Dictionary<string, FileHistoryInfo> file_history_map;
 
 		DeferredCommandExecutor deferred_executor;
 		List<AnnotateLineView> annotated_lines;
 
-		C5.HashDictionary<int, int> rev_to_change_idx_map;
-		C5.HashDictionary<int, List<AnnotateLineView>> rev_to_line_view;
+		Dictionary<int, int> rev_to_change_idx_map;
+		Dictionary<int, List<AnnotateLineView>> rev_to_line_view;
 
 		//------------------------------------------------------------------
 		public AnnotateControl()
@@ -86,11 +86,11 @@ namespace HgSccHelper
 			InitializeComponent();
 
 			UpdateContext = new UpdateContext();
-			file_history_map = new C5.HashDictionary<string, FileHistoryInfo>();
+			file_history_map = new Dictionary<string, FileHistoryInfo>();
 
 			deferred_executor = new DeferredCommandExecutor();
-			rev_to_change_idx_map = new C5.HashDictionary<int, int>();
-			rev_to_line_view = new C5.HashDictionary<int, List<AnnotateLineView>>();
+			rev_to_change_idx_map = new Dictionary<int, int>();
+			rev_to_line_view = new Dictionary<int, List<AnnotateLineView>>();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -136,13 +136,13 @@ namespace HgSccHelper
 			if (CurrentRevision == null)
 				return;
 
-			Branches = new C5.HashDictionary<string, BranchInfo>();
+			Branches = new Dictionary<string, BranchInfo>();
 			foreach (var branch in Hg.Branches(WorkingDir, HgBranchesOptions.Closed))
 			{
 				Branches[branch.SHA1] = branch;
 			}
 
-			Tags = new C5.HashDictionary<string, TagInfo>();
+			Tags = new Dictionary<string, TagInfo>();
 			foreach (var tag in Hg.Tags(WorkingDir))
 			{
 				Tags[tag.Name] = tag;
@@ -206,7 +206,7 @@ namespace HgSccHelper
 				}
 
 				BranchInfo branch_info;
-				if (Branches.Find(history_item.ChangeDesc.SHA1, out branch_info))
+				if (Branches.TryGetValue(history_item.ChangeDesc.SHA1, out branch_info))
 					history_item.BranchInfo = branch_info;
 
 				file_history_map[history_item.ChangeDesc.SHA1] = history_item;
@@ -259,7 +259,7 @@ namespace HgSccHelper
 					annotated_lines.Add(line_view);
 
 					List<AnnotateLineView> rev_lines;
-					if (!rev_to_line_view.Find(line_view.Info.Rev, out rev_lines))
+					if (!rev_to_line_view.TryGetValue(line_view.Info.Rev, out rev_lines))
 					{
 						rev_lines = new List<AnnotateLineView>();
 						rev_to_line_view[line_view.Info.Rev] = rev_lines;
@@ -507,7 +507,7 @@ namespace HgSccHelper
 			foreach (var parent in CurrentRevision.Parents)
 			{
 				FileHistoryInfo file_history;
-				if (file_history_map.Find(parent.SHA1, out file_history))
+				if (file_history_map.TryGetValue(parent.SHA1, out file_history))
 					file_history.IsCurrent = false;
 			}
 
@@ -515,7 +515,7 @@ namespace HgSccHelper
 			foreach (var parent in CurrentRevision.Parents)
 			{
 				FileHistoryInfo file_history;
-				if (file_history_map.Find(parent.SHA1, out file_history))
+				if (file_history_map.TryGetValue(parent.SHA1, out file_history))
 					file_history.IsCurrent = true;
 			}
 		}
@@ -524,7 +524,7 @@ namespace HgSccHelper
 		private void HandleBranchChanges()
 		{
 			var hg = new Hg();
-			var new_branches = new C5.HashDictionary<string, BranchInfo>();
+			var new_branches = new Dictionary<string, BranchInfo>();
 			var branch_list = hg.Branches(WorkingDir, HgBranchesOptions.Closed);
 
 			foreach (var branch_info in branch_list)
@@ -537,7 +537,7 @@ namespace HgSccHelper
 			{
 				// removing old branch info
 				FileHistoryInfo file_history;
-				if (file_history_map.Find(branch_info.SHA1, out file_history))
+				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
 					file_history.BranchInfo = null;
 			}
 
@@ -547,7 +547,7 @@ namespace HgSccHelper
 			{
 				// adding or updating branch info
 				FileHistoryInfo file_history;
-				if (file_history_map.Find(branch_info.SHA1, out file_history))
+				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
 					file_history.BranchInfo = branch_info;
 			}
 		}
@@ -556,7 +556,7 @@ namespace HgSccHelper
 		private void HandleTagsChanges()
 		{
 			var hg = new Hg();
-			var new_tags = new C5.HashDictionary<string, TagInfo>();
+			var new_tags = new Dictionary<string, TagInfo>();
 			var tags_list = hg.Tags(WorkingDir);
 
 			foreach (var tag in tags_list)
@@ -568,7 +568,7 @@ namespace HgSccHelper
 			{
 				// removing old tags
 				FileHistoryInfo file_history;
-				if (file_history_map.Find(tag.SHA1, out file_history))
+				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
 				{
 					var change_desc = file_history.ChangeDesc;
 					change_desc.Tags.Remove(tag.Name);
@@ -581,7 +581,7 @@ namespace HgSccHelper
 			{
 				// adding or updating tags
 				FileHistoryInfo file_history;
-				if (file_history_map.Find(tag.SHA1, out file_history))
+				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
 				{
 					var change_desc = file_history.ChangeDesc;
 					if (!change_desc.Tags.Contains(tag.Name))
@@ -603,7 +603,7 @@ namespace HgSccHelper
 					listViewFiles.SelectedIndex = 0;
 
 				List<AnnotateLineView> rev_lines;
-				if (rev_to_line_view.Find(file_history.ChangeDesc.Rev, out rev_lines))
+				if (rev_to_line_view.TryGetValue(file_history.ChangeDesc.Rev, out rev_lines))
 				{
 					if (rev_lines.Count > 0)
 					{
@@ -640,7 +640,7 @@ namespace HgSccHelper
 					line_view.IsSelected = true;
 
 				int idx;
-				if (rev_to_change_idx_map.Find(annotate_line.Info.Rev, out idx))
+				if (rev_to_change_idx_map.TryGetValue(annotate_line.Info.Rev, out idx))
 				{
 					listChanges.SelectedIndex = idx;
 					listChanges.ScrollIntoView(listChanges.SelectedItem);

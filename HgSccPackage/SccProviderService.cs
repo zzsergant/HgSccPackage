@@ -17,7 +17,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using C5;
 using HgSccHelper;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
@@ -51,21 +50,21 @@ namespace HgSccPackage
 		// The cookie for project document events
 		private uint _tpdTrackProjectDocumentsCookie;
 		// The list of controlled projects hierarchies
-		private readonly C5.HashSet<IVsHierarchy> controlled_projects = new C5.HashSet<IVsHierarchy>();
-		private readonly C5.HashSet<IVsHierarchy> all_projects = new C5.HashSet<IVsHierarchy>();
+		private readonly HashSet<IVsHierarchy> controlled_projects = new HashSet<IVsHierarchy>();
+		private readonly HashSet<IVsHierarchy> all_projects = new HashSet<IVsHierarchy>();
 
 		private SccProviderStorage storage = new SccProviderStorage();
 		// The list of controlled and offline projects hierarchies
-		private readonly C5.HashSet<IVsHierarchy> _offlineProjects = new C5.HashSet<IVsHierarchy>();
+		private readonly HashSet<IVsHierarchy> _offlineProjects = new HashSet<IVsHierarchy>();
 		// Variable tracking whether the currently loading solution is controlled (during solution load or merge)
 		private string _loadingControlledSolutionLocation = "";
 		// The location of the currently controlled solution
 		private string _solutionLocation;
 		// The list of files approved for in-memory edit
-		private readonly C5.HashSet<string> _approvedForInMemoryEdit = new C5.HashSet<string>();
+		private readonly HashSet<string> _approvedForInMemoryEdit = new HashSet<string>();
 		private VsRunningDocumentTable Rdt { get; set; }
 
-		private readonly C5.HashDictionary<string, string> add_origin = new C5.HashDictionary<string, string>();
+		private readonly Dictionary<string, string> add_origin = new Dictionary<string, string>();
 //		private SccFileChangesManager file_changes;
 
 		// Remember the base index where our custom scc glyph start
@@ -74,7 +73,7 @@ namespace HgSccPackage
 		ImageList customSccGlyphsImageList;
 
 		System.Windows.Forms.Timer rdt_timer;
-		C5.HashSet<string> rdt_files_to_update;
+		HashSet<string> rdt_files_to_update;
 
 		// Indexes of icons in our custom image list
 		// NOTE: Only four custom glyphs allowed
@@ -117,7 +116,7 @@ namespace HgSccPackage
 			rdt_timer.Interval = 300;
 			rdt_timer.Tick += new EventHandler(rdt_timer_Tick);
 
-			rdt_files_to_update = new C5.HashSet<string>();
+			rdt_files_to_update = new HashSet<string>();
 
 //			file_changes = new SccFileChangesManager(_sccProvider);
 		}
@@ -1154,7 +1153,7 @@ namespace HgSccPackage
 		public int OnAfterAddFilesEx([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSADDFILEFLAGS[] rgFlags)
 		{
 			var files = new List<string>();
-			var copy_files = new C5.HashDictionary<string, string>();
+			var copy_files = new Dictionary<string, string>();
 
 			var selected_items = new List<VSITEMSELECTION>();
 
@@ -1182,7 +1181,7 @@ namespace HgSccPackage
 				{
 					
 					string old_name;
-					if (add_origin.Find(rgpszMkDocuments[iFile], out old_name))
+					if (add_origin.TryGetValue(rgpszMkDocuments[iFile], out old_name))
 					{
 						copy_files[rgpszMkDocuments[iFile]] = old_name;
 						add_origin.Remove(rgpszMkDocuments[iFile]);
