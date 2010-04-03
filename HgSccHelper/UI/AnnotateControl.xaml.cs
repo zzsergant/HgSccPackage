@@ -80,6 +80,8 @@ namespace HgSccHelper
 		Dictionary<int, int> rev_to_change_idx_map;
 		Dictionary<int, List<AnnotateLineView>> rev_to_line_view;
 
+		GridViewColumnSorter files_sorter;
+
 		//------------------------------------------------------------------
 		public AnnotateControl()
 		{
@@ -91,6 +93,8 @@ namespace HgSccHelper
 			deferred_executor = new DeferredCommandExecutor();
 			rev_to_change_idx_map = new Dictionary<int, int>();
 			rev_to_line_view = new Dictionary<int, List<AnnotateLineView>>();
+
+			files_sorter = new GridViewColumnSorter(listViewFiles);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -810,6 +814,13 @@ namespace HgSccHelper
 				return;
 
 			ScrollSelectAndFocusLine(next_change_idx);
+		}
+
+		//------------------------------------------------------------------
+		void GridViewColumnHeaderClickedHandler(object sender,
+												RoutedEventArgs e)
+		{
+			files_sorter.GridViewColumnHeaderClickedHandler(sender, e);
 		}
 	}
 

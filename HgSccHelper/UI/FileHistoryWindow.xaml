@@ -214,7 +214,8 @@
                           Height="5" Background="Transparent"
                           DragDelta="GridSplitter_DragDelta"
                           IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-            <ListView Grid.Row="3" Name="listViewFiles">
+            <ListView Grid.Row="3" Name="listViewFiles"
+                      GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
                 <ListView.CommandBindings>
                     <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         CanExecute="FilesDiffPrevious_CanExecute"

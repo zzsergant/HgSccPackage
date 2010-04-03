@@ -273,7 +273,8 @@
                 </TextBox>
             </Grid>
             <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files">
-                <ListView Name="listViewFiles" MaxHeight="150">
+                <ListView Name="listViewFiles" MaxHeight="150"
+                          GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
                     <ListView.CommandBindings>
                         <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                             CanExecute="FilesDiffPrevious_CanExecute"

@@ -77,6 +77,7 @@
     <Compile Include="Cfg\HgSettingsControl.Designer.cs">
       <DependentUpon>HgSettingsControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Misc\GridViewColumnSorter.cs" />
     <Compile Include="UI\AnnotateControl.xaml.cs">
       <DependentUpon>AnnotateControl.xaml</DependentUpon>
     </Compile>

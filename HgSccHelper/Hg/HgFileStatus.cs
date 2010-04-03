@@ -18,14 +18,14 @@ namespace HgSccHelper
 	//-----------------------------------------------------------------------------
 	public enum HgFileStatus
 	{
-		Tracked,
-		Modified,
 		Added,
-		Removed,
 		Clean,
 		Deleted,
 		Ignored,
-		NotTracked
+		Modified,
+		NotTracked,
+		Removed,
+		Tracked,
 	}
 
 	//-----------------------------------------------------------------------------

@@ -24,6 +24,8 @@ namespace HgSccHelper
 		ObservableCollection<RevertItem> revert_items;
 		DeferredCommandExecutor deferred_executor;
 
+		GridViewColumnSorter files_sorter;
+
 		public const string CfgPath = @"GUI\RevertWindow";
 		CfgWindowPosition wnd_cfg;
 
@@ -41,6 +43,9 @@ namespace HgSccHelper
 
 			UpdateContext = new UpdateContext();
 			deferred_executor = new DeferredCommandExecutor();
+
+			files_sorter = new GridViewColumnSorter(listFiles);
+			files_sorter.ExcludeColumn(checkColumn);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -448,6 +453,13 @@ namespace HgSccHelper
 						item.IsChecked = new_checked_state;
 				}
 			}
+		}
+
+		//------------------------------------------------------------------
+		void GridViewColumnHeaderClickedHandler(object sender,
+												RoutedEventArgs e)
+		{
+			files_sorter.GridViewColumnHeaderClickedHandler(sender, e);
 		}
 	}
 

@@ -62,6 +62,7 @@ namespace HgSccHelper
 		Dictionary<string, FileHistoryInfo> file_history_map;
 
 		DeferredCommandExecutor deferred_executor;
+		GridViewColumnSorter files_sorter;
 
 		public const string CfgPath = @"GUI\FileHistoryWindow";
 		CfgWindowPosition wnd_cfg;
@@ -77,6 +78,8 @@ namespace HgSccHelper
 			file_history_map = new Dictionary<string, FileHistoryInfo>();
 
 			deferred_executor = new DeferredCommandExecutor();
+
+			files_sorter = new GridViewColumnSorter(listViewFiles);
 		}
 
 		//------------------------------------------------------------------
@@ -650,6 +653,13 @@ namespace HgSccHelper
 		private void GridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
 		{
 			textChangeDesc.Height = changeDescRow.Height.Value;
+		}
+
+		//------------------------------------------------------------------
+		void GridViewColumnHeaderClickedHandler(object sender,
+												RoutedEventArgs e)
+		{
+			files_sorter.GridViewColumnHeaderClickedHandler(sender, e);
 		}
 	}
 

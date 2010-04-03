@@ -78,11 +78,12 @@
                 <Label Grid.Row="0" Content="Files:"></Label>
                 <ListView Grid.Row="1"
                       Name="listFiles"
+                      GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler"
                       PreviewKeyDown="ListFiles_PreviewKeyDown"
                       MinHeight="75">
                     <ListView.View>
                         <GridView x:Name="listFilesGrid">
-                            <GridViewColumn Width="Auto" CellTemplate="{StaticResource CheckBoxCell}">
+                            <GridViewColumn Width="Auto" x:Name="checkColumn" CellTemplate="{StaticResource CheckBoxCell}">
                                 <GridViewColumn.HeaderTemplate>
                                     <DataTemplate>
                                         <CheckBox Name="checkAll"

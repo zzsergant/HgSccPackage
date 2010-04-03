@@ -300,7 +300,8 @@
                         <ListView ItemsSource="{Binding Path=Files}"
                                   SelectionChanged="listFiles_SelectionChanged"
                                   VirtualizingStackPanel.IsVirtualizing="True"
-                                  VirtualizingStackPanel.VirtualizationMode="Recycling">
+                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                  GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
                             <ListView.InputBindings>
                                 <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                                     Modifiers="Control" Key="D" />

@@ -240,6 +240,7 @@
             </Grid>
             <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files">
                 <ListView Name="listViewFiles" MaxHeight="150"
+                          GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler"
                           ItemsSource="{Binding Path=SelectedChangeset.Files, ElementName=root, Mode=OneWay}">
                     <ListView.InputBindings>
                         <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"

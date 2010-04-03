@@ -91,6 +91,7 @@ namespace HgSccHelper.UI
 		CfgWindowPosition wnd_cfg;
 
 		ObservableCollection<EncodingItem> encodings;
+		GridViewColumnSorter files_sorter;
 
 		//------------------------------------------------------------------
 		public GrepWindow()
@@ -114,6 +115,8 @@ namespace HgSccHelper.UI
 			encodings.Add(new EncodingItem { Name = "Ansi", Encoding = Encoding.Default });
 			encodings.Add(new EncodingItem { Name = "Utf8", Encoding = Encoding.UTF8 });
 			comboEncodings.ItemsSource = encodings;
+
+			files_sorter = new GridViewColumnSorter(listViewFiles);
 		}
 
 		//------------------------------------------------------------------
@@ -564,6 +567,13 @@ namespace HgSccHelper.UI
 					line_info.Match = Util.Convert(line_info.MatchInDefaultEncoding,
 						encoding.Encoding, Encoding.Default);
 			}
+		}
+
+		//------------------------------------------------------------------
+		void GridViewColumnHeaderClickedHandler(object sender,
+												RoutedEventArgs e)
+		{
+			files_sorter.GridViewColumnHeaderClickedHandler(sender, e);
 		}
 	}
 

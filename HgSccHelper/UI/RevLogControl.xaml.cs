@@ -101,6 +101,8 @@ namespace HgSccHelper
 		/// </summary>
 		Dictionary<string, RevLogLinesPair> rev_log_hash_map;
 
+		Dictionary<ListView, GridViewColumnSorter> files_sorter;
+
 		//------------------------------------------------------------------
 		public RevLogControl()
 		{
@@ -123,6 +125,8 @@ namespace HgSccHelper
 
 			rev_log_hash_map = new Dictionary<string, RevLogLinesPair>();
 			deferred_executor = new DeferredCommandExecutor();
+
+			files_sorter = new Dictionary<ListView, GridViewColumnSorter>();
 		}
 
 		//------------------------------------------------------------------
@@ -853,6 +857,25 @@ namespace HgSccHelper
 		private void GridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
 		{
 			textChangeDesc.Height = changeDescRow.Height.Value;
+		}
+
+		//------------------------------------------------------------------
+		void GridViewColumnHeaderClickedHandler(object sender,
+												RoutedEventArgs e)
+		{
+			Logger.WriteLine("sender = {0}", sender);
+			GridViewColumnSorter column_sorter;
+			ListView list_view = sender as ListView;
+			if (list_view != null)
+			{
+				if (!files_sorter.TryGetValue(list_view, out column_sorter))
+				{
+					column_sorter = new GridViewColumnSorter(list_view);
+					files_sorter[list_view] = column_sorter;
+				}
+
+				column_sorter.GridViewColumnHeaderClickedHandler(sender, e);
+			}
 		}
 	}
 

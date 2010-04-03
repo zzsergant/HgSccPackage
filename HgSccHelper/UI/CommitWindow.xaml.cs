@@ -54,6 +54,8 @@ namespace HgSccHelper
 		List<MergeToolInfo> merge_tools;
 		DeferredCommandExecutor deferred_executor;
 
+		GridViewColumnSorter files_sorter;
+
 		public const string CfgPath = @"GUI\CommitWindow";
 		CfgWindowPosition wnd_cfg;
 
@@ -76,6 +78,9 @@ namespace HgSccHelper
 			branchPanel.DataContext = NamedBranchOp;
 
 			deferred_executor = new DeferredCommandExecutor();
+
+			files_sorter = new GridViewColumnSorter(listFiles);
+			files_sorter.ExcludeColumn(checkColumn);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -908,6 +913,13 @@ namespace HgSccHelper
 		private void GridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
 		{
 			textCommitMessage.Height = commitMessageRow.Height.Value;
+		}
+
+		//------------------------------------------------------------------
+		void GridViewColumnHeaderClickedHandler(object sender,
+												RoutedEventArgs e)
+		{
+			files_sorter.GridViewColumnHeaderClickedHandler(sender, e);
 		}
 	}
 
