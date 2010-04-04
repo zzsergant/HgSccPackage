@@ -475,7 +475,7 @@ namespace HgSccHelper
 			{
 				var hg = new Hg();
 				if (file_info.Status == HgFileStatus.Removed)
-					hg.ViewFile(WorkingDir, file_info.File, (SelectedChangeset.Current.ChangeDesc.Rev - 1).ToString());
+					hg.ViewFile(WorkingDir, file_info.File, parent_diff.Desc.Rev.ToString());
 				else
 					hg.ViewFile(WorkingDir, file_info.File, SelectedChangeset.Current.ChangeDesc.SHA1);
 			});
