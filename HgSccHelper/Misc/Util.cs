@@ -94,17 +94,26 @@ namespace HgSccHelper
 			return true;
 		}
 
+		public delegate void HgDiffExceptionHandler();
+		public static HgDiffExceptionHandler DiffExceptionHandler { get; set; }
 
 		//-----------------------------------------------------------------------------
 		public static void HandleHgDiffException()
 		{
-			System.Windows.Forms.MessageBox.Show("You should set the diff tool in Tools->Options->Source Control->Mercurial Options Page and retry the operation",
+			if (DiffExceptionHandler != null)
+			{
+				DiffExceptionHandler();
+			}
+			else
+			{
+				System.Windows.Forms.MessageBox.Show("You should set the diff tool in Tools->Options->Source Control->Mercurial Options Page and retry the operation",
 				"Information", System.Windows.Forms.MessageBoxButtons.OK,
 				System.Windows.Forms.MessageBoxIcon.Information);
 
-			using (var f = new OptionsForm())
-			{
-				f.ShowDialog();
+				using (var f = new OptionsForm())
+				{
+					f.ShowDialog();
+				}
 			}
 		}
 
