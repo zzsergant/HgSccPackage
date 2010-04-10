@@ -14,7 +14,7 @@
     Loaded="Window_Loaded"
     ShowInTaskbar="False"
     ResizeMode="NoResize"
-    Unloaded="Window_Unloaded">
+    Closed="Window_Closed">
     <Window.Resources>
         <local:BoolToOppositeBoolConverter x:Key="OppositeConverter" />
         <ItemsPanelTemplate x:Key="PathItemsPanelTemplate">

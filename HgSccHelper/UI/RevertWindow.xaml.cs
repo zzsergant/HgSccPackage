@@ -116,7 +116,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private void Window_Unloaded(object sender, RoutedEventArgs e)
+		private void Window_Closed(object sender, EventArgs e)
 		{
 			listFilesGrid.SaveCfg(RevertWindow.CfgPath, "ListFilesGrid");
 

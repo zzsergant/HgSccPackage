@@ -185,16 +185,14 @@ namespace HgSccHelper.UI
 		}
 
 		//------------------------------------------------------------------
-		private void Window_Unloaded(object sender, RoutedEventArgs e)
+		private void Window_Closed(object sender, EventArgs e)
 		{
 			listLinesGrid.SaveCfg(GrepWindow.CfgPath, "ListLinesGrid");
 			var encoding = comboEncodings.SelectedItem as EncodingItem;
 			if (encoding != null)
 				Cfg.Set(GrepWindow.CfgPath, "encoding", encoding.Name);
 
-			if (Commands.StopCommand.CanExecute(sender, e.Source as IInputElement))
-				Commands.StopCommand.Execute(sender, e.Source as IInputElement);
-
+			worker.Cancel();
 			worker.Dispose();
 			deferred_executor.Dispose();
 		}

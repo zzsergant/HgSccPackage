@@ -230,7 +230,7 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		private void Window_Unloaded(object sender, RoutedEventArgs e)
+		private void Window_Closed(object sender, EventArgs e)
 		{
 			timer.Stop();
 			timer.Tick -= OnTimerTick;

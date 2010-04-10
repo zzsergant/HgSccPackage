@@ -222,7 +222,7 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		private void Window_Unloaded(object sender, RoutedEventArgs e)
+		private void Window_Closed(object sender, EventArgs e)
 		{
 			tag_timer.Stop();
 			tag_timer.Tick -= OnTagTimerTick;

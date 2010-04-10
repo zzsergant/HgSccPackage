@@ -210,11 +210,9 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		private void Window_Unloaded(object sender, RoutedEventArgs e)
+		private void Window_Closed(object sender, EventArgs e)
 		{
-			if (Commands.StopCommand.CanExecute(sender, e.Source as IInputElement))
-				Commands.StopCommand.Execute(sender, e.Source as IInputElement);
-
+			worker.Cancel();
 			worker.Dispose();
 		}
 

@@ -242,9 +242,7 @@ namespace HgSccHelper
 		{
 			timer.Tick -= OnTimerTick;
 
-			if (Commands.StopCommand.CanExecute(sender, e.Source as IInputElement))
-				Commands.StopCommand.Execute(sender, e.Source as IInputElement);
-
+			worker.Cancel();
 			worker.Dispose();
 			revlog_style.Dispose();
 			deferred_executor.Dispose();
