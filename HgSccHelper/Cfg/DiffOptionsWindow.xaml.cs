@@ -36,6 +36,9 @@ namespace HgSccHelper
 		{
 			InitializeComponent();
 
+			if (HgSccOptions.Options.DiffTool.Length != 0)
+				textCustomDiffTool.Text = HgSccOptions.Options.DiffTool;
+
 			var lst = HgOptionsHelper.DetectDiffTools();
 			if (lst.Count == 0)
 			{
@@ -48,14 +51,20 @@ namespace HgSccHelper
 				radioAutoDetect.IsChecked = true;
 
 				if (HgSccOptions.Options.DiffTool.Length != 0)
-					comboDiffTools.SelectedItem = HgSccOptions.Options.DiffTool;
+				{
+					if (lst.Contains(HgSccOptions.Options.DiffTool))
+					{
+						comboDiffTools.SelectedItem = HgSccOptions.Options.DiffTool;
+					}
+					else
+					{
+						radioCustom.IsChecked = true;
+					}
+				}
 				
 				if (comboDiffTools.SelectedIndex == -1)
 					comboDiffTools.SelectedIndex = 0;
 			}
-
-			if (HgSccOptions.Options.DiffTool.Length != 0)
-				textCustomDiffTool.Text = HgSccOptions.Options.DiffTool;
 		}
 
 		//------------------------------------------------------------------
