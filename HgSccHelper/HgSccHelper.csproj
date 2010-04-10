@@ -71,6 +71,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cfg\DiffOptionsWindow.xaml.cs">
+      <DependentUpon>DiffOptionsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Cfg\HgSettingsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -205,6 +208,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Cfg\DiffOptionsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\AnnotateControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
