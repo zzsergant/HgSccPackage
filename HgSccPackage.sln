@@ -6,11 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HgSccPackage", "HgSccPackag
 		{5CF359D0-B6CA-4653-ADD4-9E2AA7705903} = {5CF359D0-B6CA-4653-ADD4-9E2AA7705903}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F1894F5D-DAFA-4323-9F22-C9BF70CDBC94}"
-	ProjectSection(SolutionItems) = preProject
-		Overview.xml = Overview.xml
-	EndProjectSection
-EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "HgSccPackageSetup", "HgSccPackageSetup\HgSccPackageSetup.vdproj", "{7A39C9EB-4AE6-4BBA-958C-5E270B9AC834}"
 	ProjectSection(ProjectDependencies) = postProject
 		{172BA27D-ACC4-4294-A57C-C09895599EEA} = {172BA27D-ACC4-4294-A57C-C09895599EEA}

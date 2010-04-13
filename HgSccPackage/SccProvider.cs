@@ -57,12 +57,6 @@ namespace HgSccPackage
 		"Source Control", "Mercurial Options Page", 106, 107, false)]
 	[ProvideToolsOptionsPageVisibility("Source Control", "Mercurial Options Page",
 		"A7F26CA1-0000-4729-896E-0BBE9E380635")]
-	// Register a sample tool window visible only when the provider is active
-/*
-	[MsVsShell.ProvideToolWindow(typeof (SccProviderToolWindow))]
-	[MsVsShell.ProvideToolWindowVisibility(typeof (SccProviderToolWindow),
-		"A7F26CA1-0000-4729-896E-0BBE9E380635")]
-*/
 	// Register the source control provider's service (implementing IVsScciProvider interface)
 	[MsVsShell.ProvideService(typeof (SccProviderService),
 		ServiceName = "Mercurial Source Control Provider Service")]
@@ -1021,38 +1015,6 @@ namespace HgSccPackage
 				sccService.Compare(files[0]);
 			}
 		}
-
-		// The function can be used to bring back the provider's toolwindow if it was previously closed
-/*
-		private void Exec_icmdViewToolWindow(object sender, EventArgs e)
-		{
-			MsVsShell.ToolWindowPane window =
-				this.FindToolWindow(typeof (SccProviderToolWindow), 0, true);
-			IVsWindowFrame windowFrame = null;
-			if (window != null && window.Frame != null)
-			{
-				windowFrame = (IVsWindowFrame) window.Frame;
-			}
-			if (windowFrame != null)
-			{
-				ErrorHandler.ThrowOnFailure(windowFrame.Show());
-			}
-		}
-*/
-
-/*
-		private void Exec_icmdToolWindowToolbarCommand(object sender, EventArgs e)
-		{
-			SccProviderToolWindow window =
-				(SccProviderToolWindow)
-				this.FindToolWindow(typeof (SccProviderToolWindow), 0, true);
-
-			if (window != null)
-			{
-				window.ToolWindowToolbarCommand();
-			}
-		}
-*/
 
 		#endregion
 

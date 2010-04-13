@@ -62,18 +62,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataStreamFromComStream.cs" />
-    <Compile Include="DlgQueryEditCheckedInFile.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DlgQueryEditCheckedInFile.Designer.cs">
-      <DependentUpon>DlgQueryEditCheckedInFile.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DlgQuerySaveCheckedInFile.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DlgQuerySaveCheckedInFile.Designer.cs">
-      <DependentUpon>DlgQuerySaveCheckedInFile.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProvideSolutionProps.cs" />
     <Compile Include="SccFileChangesManager.cs" />
@@ -95,10 +83,6 @@
     </Compile>
     <Compile Include="SccProviderService.cs" />
     <Compile Include="SccProviderStorage.cs" />
-    <Compile Include="SccProviderToolWindow.cs" />
-    <Compile Include="SccProviderToolWindowControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="Vs\RdtFilesReloader.cs" />
     <Compile Include="Vs\FilesChangeMonitor.cs" />
     <Compile Include="Vs\SlnOrProjectReloader.cs" />
@@ -106,14 +90,6 @@
     <Compile Include="Vs\VsRunningDocumentTable.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="DlgQueryEditCheckedInFile.resx">
-      <DependentUpon>DlgQueryEditCheckedInFile.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DlgQuerySaveCheckedInFile.resx">
-      <DependentUpon>DlgQuerySaveCheckedInFile.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Resources.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
@@ -122,14 +98,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SccProviderOptionsControl.resx">
       <DependentUpon>SccProviderOptionsControl.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SccProviderToolWindow.resx">
-      <DependentUpon>SccProviderToolWindow.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SccProviderToolWindowControl.resx">
-      <DependentUpon>SccProviderToolWindowControl.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
