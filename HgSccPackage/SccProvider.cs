@@ -95,10 +95,6 @@ namespace HgSccPackage
 		private const string _strSolutionBindingsProperty = "SolutionBindings";
 		// Whether the solution was just added to source control and the provider needs to saved source control properties in the solution file when the solution is saved
 		private bool _solutionHasDirtyProps = false;
-		// The guid of solution folders
-		private readonly Guid guidSolutionFolderProject = new Guid(0x2150e333, 0x8fdc, 0x42a3,
-														  0x94, 0x74, 0x1a, 0x39,
-														  0x56, 0xd4, 0x6d, 0xe8);
 
 		//------------------------------------------------------------------
 		public SccProvider()
@@ -1825,52 +1821,6 @@ namespace HgSccPackage
 			}
 
 			return false;
-		}
-
-		//------------------------------------------------------------------
-		/// <summary>
-		/// Checks whether the specified project is a solution folder
-		/// </summary>
-		public bool IsSolutionFolderProject(IVsHierarchy pHier)
-		{
-			var pFileFormat = pHier as IPersistFileFormat;
-			if (pFileFormat != null)
-			{
-				Guid guidClassID;
-				if (pFileFormat.GetClassID(out guidClassID) == VSConstants.S_OK &&
-					guidClassID.CompareTo(guidSolutionFolderProject) == 0)
-				{
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		//------------------------------------------------------------------
-		/// <summary>
-		/// Returns a list of solution folders projects in the solution
-		/// </summary>
-		public HashSet<IVsHierarchy> GetSolutionFoldersEnum()
-		{
-			var mapHierarchies = new HashSet<IVsHierarchy>();
-
-			var sol = (IVsSolution) GetService(typeof (SVsSolution));
-			Guid rguidEnumOnlyThisType = guidSolutionFolderProject;
-			IEnumHierarchies ppenum = null;
-			ErrorHandler.ThrowOnFailure(
-				sol.GetProjectEnum((uint) __VSENUMPROJFLAGS.EPF_LOADEDINSOLUTION,
-								   ref rguidEnumOnlyThisType, out ppenum));
-
-			IVsHierarchy[] rgelt = new IVsHierarchy[1];
-			uint pceltFetched = 0;
-			while (ppenum.Next(1, rgelt, out pceltFetched) == VSConstants.S_OK &&
-				   pceltFetched == 1)
-			{
-				mapHierarchies.Add(rgelt[0]);
-			}
-
-			return mapHierarchies;
 		}
 
 		#endregion

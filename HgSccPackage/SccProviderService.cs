@@ -580,7 +580,7 @@ namespace HgSccPackage
 			Logger.WriteLine("OnAfterOpenProject: {0}, added = {1}", pHierarchy, fAdded);
 
 			// If a solution folder is added to the solution after the solution is added to scc, we need to controll that folder
-			if (_sccProvider.IsSolutionFolderProject(pHierarchy) && (fAdded == 1))
+			if (VsSolutionUtil.IsSolutionFolderProject(pHierarchy) && (fAdded == 1))
 			{
 				var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
 				if (IsProjectControlled(solHier))
@@ -646,8 +646,8 @@ namespace HgSccPackage
 				nodes.Add(vsItem);
 
 				// Also, solution folders won't call RegisterSccProject, so we have to enumerate them and register them with scc once the solution is controlled
-				var enumSolFolders = _sccProvider.GetSolutionFoldersEnum();
-				foreach (IVsHierarchy pHier in enumSolFolders)
+				var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+				foreach (IVsHierarchy pHier in VsSolutionUtil.GetSolutionFolders(sol))
 				{
 					// Register this solution folder using the same location as the solution
 					var pSccProject = (IVsSccProject2)pHier;
@@ -682,8 +682,8 @@ namespace HgSccPackage
 		{
 			// Since we registered the solution with source control from OnAfterOpenSolution, it would be nice to unregister it, too, when it gets closed.
 			// Also, unregister the solution folders
-			var enumSolFolders = _sccProvider.GetSolutionFoldersEnum();
-			foreach (IVsHierarchy pHier in enumSolFolders)
+			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+			foreach (IVsHierarchy pHier in VsSolutionUtil.GetSolutionFolders(sol))
 			{
 				var pSccProject = (IVsSccProject2)pHier;
 				UnregisterSccProject(pSccProject);
