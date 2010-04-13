@@ -114,16 +114,24 @@ namespace HgSccPackage
 			// set of functions, but instead we'll use the IVsPersistSolutionProps functions directly.
 		}
 
-		/////////////////////////////////////////////////////////////////////////////
-		// SccProvider Package Implementation
-
 		#region Package Members
 
+		//------------------------------------------------------------------
 		public new Object GetService(Type serviceType)
 		{
 			return base.GetService(serviceType);
 		}
 
+		//------------------------------------------------------------------
+		private static void AddMenuCommand(MsVsShell.OleMenuCommandService menu_service,
+			int cmd_id, EventHandler exec_handler)
+		{
+			var cmd = new CommandID(GuidList.guidSccProviderCmdSet, cmd_id);
+			var menuCmd = new MenuCommand(exec_handler, cmd);
+			menu_service.AddCommand(menuCmd);
+		}
+
+		//------------------------------------------------------------------
 		protected override void Initialize()
 		{
 			Logger.WriteLine("Entering Initialize() of: {0}", this.ToString());
@@ -141,92 +149,19 @@ namespace HgSccPackage
 
 			if (mcs != null)
 			{
-				// ToolWindow Command
-/*
-				CommandID cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-											  CommandId.icmdViewToolWindow);
-
-				MenuCommand menuCmd = new MenuCommand(Exec_icmdViewToolWindow, cmd);
-				mcs.AddCommand(menuCmd);
-*/
-
-				// ToolWindow's ToolBar Command
-/*
-				var cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-									CommandId.icmdToolWindowToolbarCommand);
-				menuCmd = new MenuCommand(Exec_icmdToolWindowToolbarCommand, cmd);
-				mcs.AddCommand(menuCmd);
-*/
-
 				// Source control menu commmads
-				var cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-									CommandId.icmdAddToSourceControl);
-				var menuCmd = new MenuCommand(Exec_icmdAddToSourceControl, cmd);
-				mcs.AddCommand(menuCmd);
-
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdClone);
-
-				menuCmd = new MenuCommand(Exec_icmdClone, cmd);
-				mcs.AddCommand(menuCmd);
-
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdSynchronize);
-
-				menuCmd = new MenuCommand(Exec_icmdSynchronize, cmd);
-				mcs.AddCommand(menuCmd);
-
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdCommit);
-
-				menuCmd = new MenuCommand(Exec_icmdCommit, cmd);
-				mcs.AddCommand(menuCmd);
-
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdRevert);
-				menuCmd = new MenuCommand(Exec_icmdRevert, cmd);
-				mcs.AddCommand(menuCmd);
-
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-									CommandId.icmdCompare);
-				menuCmd = new MenuCommand(Exec_icmdCompare, cmd);
-				mcs.AddCommand(menuCmd);
-
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdViewHistory);
-
-				menuCmd = new MenuCommand(Exec_icmdViewHistory, cmd);
-				mcs.AddCommand(menuCmd);
-
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdAnnotate);
-
-				menuCmd = new MenuCommand(Exec_icmdAnnotate, cmd);
-				mcs.AddCommand(menuCmd);
-
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdGrep);
-
-				menuCmd = new MenuCommand(Exec_icmdGrep, cmd);
-				mcs.AddCommand(menuCmd);
-
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdViewChangeLog);
-
-				menuCmd = new MenuCommand(Exec_icmdViewChangeLog, cmd);
-				mcs.AddCommand(menuCmd);
-
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdUpdate);
-
-				menuCmd = new MenuCommand(Exec_icmdUpdate, cmd);
-				mcs.AddCommand(menuCmd);
-
-				cmd = new CommandID(GuidList.guidSccProviderCmdSet,
-					CommandId.icmdTags);
-
-				menuCmd = new MenuCommand(Exec_icmdTags, cmd);
-				mcs.AddCommand(menuCmd);
+				AddMenuCommand(mcs, CommandId.icmdAddToSourceControl, Exec_icmdAddToSourceControl);
+				AddMenuCommand(mcs, CommandId.icmdClone, Exec_icmdClone);
+				AddMenuCommand(mcs, CommandId.icmdSynchronize, Exec_icmdSynchronize);
+				AddMenuCommand(mcs, CommandId.icmdCommit, Exec_icmdCommit);
+				AddMenuCommand(mcs, CommandId.icmdRevert, Exec_icmdRevert);
+				AddMenuCommand(mcs, CommandId.icmdCompare, Exec_icmdCompare);
+				AddMenuCommand(mcs, CommandId.icmdViewHistory, Exec_icmdViewHistory);
+				AddMenuCommand(mcs, CommandId.icmdAnnotate, Exec_icmdAnnotate);
+				AddMenuCommand(mcs, CommandId.icmdGrep, Exec_icmdGrep);
+				AddMenuCommand(mcs, CommandId.icmdViewChangeLog, Exec_icmdViewChangeLog);
+				AddMenuCommand(mcs, CommandId.icmdUpdate, Exec_icmdUpdate);
+				AddMenuCommand(mcs, CommandId.icmdTags, Exec_icmdTags);
 			}
 
 			// Register the provider with the source control manager
