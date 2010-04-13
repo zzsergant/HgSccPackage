@@ -47,13 +47,13 @@ namespace HgSccPackage.Vs
 		}
 
 		//------------------------------------------------------------------
-		public static IEnumerable<IVsHierarchy> EnumHierarchies(IVsSolution solution)
+		public static IEnumerable<IVsHierarchy> EnumHierarchies(this IVsSolution solution)
 		{
-			return EnumHierarchies(solution, new Guid());
+			return solution.EnumHierarchies(new Guid());
 		}
 
 		//------------------------------------------------------------------
-		public static IEnumerable<IVsHierarchy> EnumHierarchies(IVsSolution solution, Guid only_this_type)
+		public static IEnumerable<IVsHierarchy> EnumHierarchies(this IVsSolution solution, Guid only_this_type)
 		{
 			Guid rguidEnumOnlyThisType = only_this_type;
 			IEnumHierarchies ppenum = null;

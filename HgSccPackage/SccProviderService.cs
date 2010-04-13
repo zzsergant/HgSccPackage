@@ -647,7 +647,7 @@ namespace HgSccPackage
 
 				// Also, solution folders won't call RegisterSccProject, so we have to enumerate them and register them with scc once the solution is controlled
 				var solution = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-				var solution_folders = VsSolutionUtil.EnumHierarchies(solution, VsSolutionUtil.SolutionFolderGuid);
+				var solution_folders = solution.EnumHierarchies(VsSolutionUtil.SolutionFolderGuid);
 
 				foreach (IVsHierarchy pHier in solution_folders)
 				{
@@ -686,7 +686,7 @@ namespace HgSccPackage
 			// Also, unregister the solution folders
 
 			var solution = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			var solution_folders = VsSolutionUtil.EnumHierarchies(solution, VsSolutionUtil.SolutionFolderGuid);
+			var solution_folders = solution.EnumHierarchies(VsSolutionUtil.SolutionFolderGuid);
 
 			foreach (IVsHierarchy pHier in solution_folders)
 			{

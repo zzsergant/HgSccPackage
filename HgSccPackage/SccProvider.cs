@@ -363,7 +363,7 @@ namespace HgSccPackage
 
 			Hashtable hashProjectsUserData = new Hashtable();
 			var solution = (IVsSolution)GetService(typeof(SVsSolution));
-			var scc_projects = VsSolutionUtil.EnumHierarchies(solution).Where(hier => hier is IVsSccProject2);
+			var scc_projects = solution.EnumHierarchies().Where(hier => hier is IVsSccProject2);
 
 			var hier_map = new HashSet<IVsHierarchy>();
 			foreach (var hier in scc_projects)
@@ -881,7 +881,7 @@ namespace HgSccPackage
 			{
 				// When the solution is selected, all the uncontrolled projects in the solution will be added to scc
 				var solution = (IVsSolution)GetService(typeof(SVsSolution));
-				var scc_projects = VsSolutionUtil.EnumHierarchies(solution).Where(hier => hier is IVsSccProject2);
+				var scc_projects = solution.EnumHierarchies().Where(hier => hier is IVsSccProject2);
 
 				hash.Clear();
 				foreach (var hier in scc_projects)
@@ -1123,7 +1123,7 @@ namespace HgSccPackage
 				selectedNodes.Clear();
 
 				var solution = (IVsSolution)GetService(typeof(SVsSolution));
-				var scc_projects = VsSolutionUtil.EnumHierarchies(solution).Where(hier => hier is IVsSccProject2);
+				var scc_projects = solution.EnumHierarchies().Where(hier => hier is IVsSccProject2);
 				
 				foreach (IVsHierarchy pHier in scc_projects)
 				{
