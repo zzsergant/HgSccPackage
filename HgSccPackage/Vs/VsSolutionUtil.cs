@@ -1,4 +1,16 @@
-﻿using System;
+﻿//=========================================================================
+// Copyright 2009 Sergey Antonov <sergant_@mail.ru>
+// 
+// This software may be used and distributed according to the terms of the
+// GNU General Public License version 2 as published by the Free Software
+// Foundation.
+// 
+// See the file COPYING.TXT for the full text of the license, or see
+// http://www.gnu.org/licenses/gpl-2.0.txt
+// 
+//=========================================================================
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +23,7 @@ namespace HgSccPackage.Vs
 	static class VsSolutionUtil
 	{
 		// The guid of solution folders
-		private static readonly Guid guidSolutionFolderProject =
+		public static readonly Guid SolutionFolderGuid =
 			new Guid(0x2150e333, 0x8fdc, 0x42a3, 0x94, 0x74, 0x1a, 0x39, 0x56, 0xd4, 0x6d, 0xe8);
 
 		//------------------------------------------------------------------
@@ -25,7 +37,7 @@ namespace HgSccPackage.Vs
 			{
 				Guid guidClassID;
 				if (pFileFormat.GetClassID(out guidClassID) == VSConstants.S_OK &&
-					guidClassID.CompareTo(guidSolutionFolderProject) == 0)
+					guidClassID.CompareTo(SolutionFolderGuid) == 0)
 				{
 					return true;
 				}
@@ -35,15 +47,15 @@ namespace HgSccPackage.Vs
 		}
 
 		//------------------------------------------------------------------
-		/// <summary>
-		/// Returns a list of solution folders projects in the solution
-		/// </summary>
-		public static List<IVsHierarchy> GetSolutionFolders(IVsSolution solution)
+		public static IEnumerable<IVsHierarchy> EnumHierarchies(IVsSolution solution)
 		{
-			// FIXME: If there are no duplicates, then this can be changed to List
-			var mapHierarchies = new HashSet<IVsHierarchy>();
+			return EnumHierarchies(solution, new Guid());
+		}
 
-			Guid rguidEnumOnlyThisType = guidSolutionFolderProject;
+		//------------------------------------------------------------------
+		public static IEnumerable<IVsHierarchy> EnumHierarchies(IVsSolution solution, Guid only_this_type)
+		{
+			Guid rguidEnumOnlyThisType = only_this_type;
 			IEnumHierarchies ppenum = null;
 			ErrorHandler.ThrowOnFailure(
 				solution.GetProjectEnum((uint)__VSENUMPROJFLAGS.EPF_LOADEDINSOLUTION,
@@ -54,10 +66,8 @@ namespace HgSccPackage.Vs
 			while (ppenum.Next(1, rgelt, out pceltFetched) == VSConstants.S_OK &&
 				   pceltFetched == 1)
 			{
-				mapHierarchies.Add(rgelt[0]);
+				yield return rgelt[0];
 			}
-
-			return mapHierarchies.ToList();
 		}
 	}
 }

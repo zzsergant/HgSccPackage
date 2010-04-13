@@ -27,6 +27,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using MsVsShell = Microsoft.VisualStudio.Shell;
 using ErrorHandler = Microsoft.VisualStudio.ErrorHandler;
 using HgSccHelper;
+using HgSccPackage.Vs;
+using System.Linq;
 
 namespace HgSccPackage
 {
@@ -360,15 +362,19 @@ namespace HgSccPackage
 						 "The shell called to read an key that doesn't belong to this package");
 
 			Hashtable hashProjectsUserData = new Hashtable();
-			IVsSolution solution = (IVsSolution) GetService(typeof (SVsSolution));
-			// get the list of controllable projects
-			var hash = GetLoadedControllableProjectsEnum();
+			var solution = (IVsSolution)GetService(typeof(SVsSolution));
+			var scc_projects = VsSolutionUtil.EnumHierarchies(solution).Where(hier => hier is IVsSccProject2);
+
+			var hier_map = new HashSet<IVsHierarchy>();
+			foreach (var hier in scc_projects)
+				hier_map.Add(hier);
+
 			// add the solution to the controllable projects list
 			IVsHierarchy solHier = (IVsHierarchy) GetService(typeof (SVsSolution));
-			hash.Add(solHier);
+			hier_map.Add(solHier);
 			
 			// collect all projects that are controlled and offline
-			foreach (IVsHierarchy pHier in hash)
+			foreach (IVsHierarchy pHier in hier_map)
 			{
 				if (sccService.IsProjectControlled(pHier) &&
 					sccService.IsProjectOffline(pHier))
@@ -874,7 +880,12 @@ namespace HgSccPackage
 			if (isSolutionSelected)
 			{
 				// When the solution is selected, all the uncontrolled projects in the solution will be added to scc
-				hash = GetLoadedControllableProjectsEnum();
+				var solution = (IVsSolution)GetService(typeof(SVsSolution));
+				var scc_projects = VsSolutionUtil.EnumHierarchies(solution).Where(hier => hier is IVsSccProject2);
+
+				hash.Clear();
+				foreach (var hier in scc_projects)
+					hash.Add(hier);
 			}
 
 			foreach (IVsHierarchy pHier in hash)
@@ -936,37 +947,6 @@ namespace HgSccPackage
 		{
 			get { return _solutionHasDirtyProps; }
 			set { _solutionHasDirtyProps = value; }
-		}
-
-		//------------------------------------------------------------------
-		/// <summary>
-		/// Returns a list of controllable projects in the solution
-		/// </summary>
-		private HashSet<IVsHierarchy> GetLoadedControllableProjectsEnum()
-		{
-			var mapHierarchies = new HashSet<IVsHierarchy>();
-
-			IVsSolution sol = (IVsSolution) GetService(typeof (SVsSolution));
-			Guid rguidEnumOnlyThisType = new Guid();
-			IEnumHierarchies ppenum = null;
-			ErrorHandler.ThrowOnFailure(
-				sol.GetProjectEnum((uint) __VSENUMPROJFLAGS.EPF_LOADEDINSOLUTION,
-								   ref rguidEnumOnlyThisType, out ppenum));
-
-			IVsHierarchy[] rgelt = new IVsHierarchy[1];
-			uint pceltFetched = 0;
-			while (ppenum.Next(1, rgelt, out pceltFetched) == VSConstants.S_OK
-				   && pceltFetched == 1
-				)
-			{
-				IVsSccProject2 sccProject2 = rgelt[0] as IVsSccProject2;
-				if (sccProject2 != null)
-				{
-					mapHierarchies.Add(rgelt[0]);
-				}
-			}
-
-			return mapHierarchies;
 		}
 
 		//------------------------------------------------------------------
@@ -1141,8 +1121,11 @@ namespace HgSccPackage
 			{
 				// Replace the selection with the root items of all controlled projects
 				selectedNodes.Clear();
-				var hashControllable = GetLoadedControllableProjectsEnum();
-				foreach (IVsHierarchy pHier in hashControllable)
+
+				var solution = (IVsSolution)GetService(typeof(SVsSolution));
+				var scc_projects = VsSolutionUtil.EnumHierarchies(solution).Where(hier => hier is IVsSccProject2);
+				
+				foreach (IVsHierarchy pHier in scc_projects)
 				{
 					if (sccService.IsProjectControlled(pHier))
 					{
