@@ -171,15 +171,16 @@ namespace HgSccPackage
 			rscp.RegisterSourceControlProvider(GuidList.guidSccProvider);
 		}
 
+		//------------------------------------------------------------------
 		protected override void Dispose(bool disposing)
 		{
 			Logger.WriteLine("Entering Dispose() of: {0}", this.ToString());
 
 			sccService.Dispose();
-
 			base.Dispose(disposing);
 		}
 
+		//------------------------------------------------------------------
 		// This function is called by the IVsSccProvider service implementation when the active state of the provider changes
 		// If the package needs to refresh UI or perform other tasks, this is a good place to add the code
 		public void OnActiveStateChange()
@@ -208,6 +209,7 @@ namespace HgSccPackage
 			return VSConstants.S_OK;
 		}
 
+		//------------------------------------------------------------------
 		public int QuerySaveSolutionProps([InAttribute] IVsHierarchy pHierarchy,
 										  [OutAttribute] VSQUERYSAVESLNPROPS[]
 											pqsspSave)
@@ -254,6 +256,7 @@ namespace HgSccPackage
 			return VSConstants.S_OK;
 		}
 
+		//------------------------------------------------------------------
 		public int SaveSolutionProps([InAttribute] IVsHierarchy pHierarchy,
 									 [InAttribute] IVsSolutionPersistence
 										pPersistence)
@@ -276,6 +279,7 @@ namespace HgSccPackage
 			return VSConstants.S_OK;
 		}
 
+		//------------------------------------------------------------------
 		public int WriteSolutionProps([InAttribute] IVsHierarchy pHierarchy,
 									  [InAttribute] string pszKey,
 									  [InAttribute] IPropertyBag pPropBag)
@@ -297,6 +301,7 @@ namespace HgSccPackage
 			return VSConstants.S_OK;
 		}
 
+		//------------------------------------------------------------------
 		public int ReadSolutionProps([InAttribute] IVsHierarchy pHierarchy,
 									 [InAttribute] string pszProjectName,
 									 [InAttribute] string pszProjectMk,
@@ -333,6 +338,7 @@ namespace HgSccPackage
 			return VSConstants.S_OK;
 		}
 
+		//------------------------------------------------------------------
 		public int SaveUserOptions([InAttribute] IVsSolutionPersistence pPersistence)
 		{
 			// This function gets called by the shell when the SUO file is saved.
@@ -348,6 +354,7 @@ namespace HgSccPackage
 			return VSConstants.S_OK;
 		}
 
+		//------------------------------------------------------------------
 		public int WriteUserOptions([InAttribute] IStream pOptionsStream,
 									[InAttribute] string pszKey)
 		{
@@ -393,6 +400,7 @@ namespace HgSccPackage
 			return VSConstants.S_OK;
 		}
 
+		//------------------------------------------------------------------
 		public int LoadUserOptions(
 			[InAttribute] IVsSolutionPersistence pPersistence,
 			[InAttribute] uint grfLoadOpts)
@@ -407,6 +415,7 @@ namespace HgSccPackage
 			return VSConstants.S_OK;
 		}
 
+		//------------------------------------------------------------------
 		public int ReadUserOptions([InAttribute] IStream pOptionsStream,
 								   [InAttribute] string pszKey)
 		{
@@ -535,14 +544,6 @@ namespace HgSccPackage
 					cmdf |= QueryStatus_icmdTags();
 					break;
 
-/*
-				case CommandId.icmdViewToolWindow:
-				case CommandId.icmdToolWindowToolbarCommand:
-					// These commmands are always enabled when the provider is active
-					cmdf |= OLECMDF.OLECMDF_ENABLED;
-					break;
-*/
-
 				default:
 					return
 						(int)
@@ -554,12 +555,11 @@ namespace HgSccPackage
 			return VSConstants.S_OK;
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdCommit()
 		{
 			if (!IsThereASolution())
-			{
 				return OLECMDF.OLECMDF_INVISIBLE;
-			}
 
 			if (	sccService.IsValidStorage()
 				&&	sccService.IsAnyModifedFiles())
@@ -570,12 +570,11 @@ namespace HgSccPackage
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdRevert()
 		{
 			if (!IsThereASolution())
-			{
 				return OLECMDF.OLECMDF_INVISIBLE;
-			}
 
 			if (	sccService.IsValidStorage()
 				&&	sccService.IsAnyModifedFiles())
@@ -586,12 +585,11 @@ namespace HgSccPackage
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdHistory()
 		{
 			if (!IsThereASolution())
-			{
 				return OLECMDF.OLECMDF_INVISIBLE;
-			}
 
 			var selected_files = GetSelectedNodes();
 			if (selected_files.Count != 1)
@@ -608,67 +606,59 @@ namespace HgSccPackage
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdAnnotate()
 		{
 			return QueryStatus_icmdHistory();
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdGrep()
 		{
 			return QueryStatus_icmdViewChangeLog();
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdViewChangeLog()
 		{
 			if (!IsThereASolution())
-			{
 				return OLECMDF.OLECMDF_INVISIBLE;
-			}
 
 			if (sccService.IsValidStorage())
-			{
 				return OLECMDF.OLECMDF_ENABLED;
-			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdUpdate()
 		{
 			if (!IsThereASolution())
-			{
 				return OLECMDF.OLECMDF_INVISIBLE;
-			}
 
 			if (sccService.IsValidStorage())
-			{
 				return OLECMDF.OLECMDF_ENABLED;
-			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdTags()
 		{
 			if (!IsThereASolution())
-			{
 				return OLECMDF.OLECMDF_INVISIBLE;
-			}
 
 			if (sccService.IsValidStorage())
-			{
 				return OLECMDF.OLECMDF_ENABLED;
-			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdAddToSourceControl()
 		{
 			if (!IsThereASolution())
-			{
 				return OLECMDF.OLECMDF_INVISIBLE;
-			}
 
 			System.Collections.Generic.IList<VSITEMSELECTION> sel = GetSelectedNodes();
 			bool isSolutionSelected = false;
@@ -697,32 +687,29 @@ namespace HgSccPackage
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdClone()
 		{
 			return OLECMDF.OLECMDF_ENABLED;
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdSynchronize()
 		{
 			if (!IsThereASolution())
-			{
 				return OLECMDF.OLECMDF_INVISIBLE;
-			}
 
 			if (sccService.IsValidStorage())
-			{
 				return OLECMDF.OLECMDF_ENABLED;
-			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdCompare()
 		{
 			if (!IsThereASolution())
-			{
 				return OLECMDF.OLECMDF_INVISIBLE;
-			}
 
 			var selected_files = GetSelectedNodes();
 			if (selected_files.Count != 1)
@@ -751,6 +738,7 @@ namespace HgSccPackage
 
 		#region Source Control Commands Execution
 
+		//------------------------------------------------------------------
 		private void Exec_icmdCommit(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
@@ -778,12 +766,11 @@ namespace HgSccPackage
 			sccService.CommitFiles(modified_files);
 		}
 
+		//------------------------------------------------------------------
 		private void Exec_icmdRevert(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
-			{
 				return;
-			}
 			
 			var selected_files = GetSelectedFilesInControlledProjects();
 			var modified_files = new List<string>();
@@ -805,12 +792,11 @@ namespace HgSccPackage
 			sccService.RevertFiles(modified_files);
 		}
 
+		//------------------------------------------------------------------
 		private void Exec_icmdViewHistory(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
-			{
 				return;
-			}
 
 			var selected_files = GetSelectedNodes();
 			if (selected_files.Count != 1)
@@ -824,12 +810,11 @@ namespace HgSccPackage
 			}
 		}
 
+		//------------------------------------------------------------------
 		private void Exec_icmdAnnotate(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
-			{
 				return;
-			}
 
 			var selected_files = GetSelectedNodes();
 			if (selected_files.Count != 1)
@@ -843,53 +828,47 @@ namespace HgSccPackage
 			}
 		}
 
+		//------------------------------------------------------------------
 		private void Exec_icmdViewChangeLog(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
-			{
 				return;
-			}
 
 			sccService.ViewChangeLog();
 		}
 
+		//------------------------------------------------------------------
 		private void Exec_icmdGrep(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
-			{
 				return;
-			}
 
 			sccService.Grep();
 		}
 
+		//------------------------------------------------------------------
 		private void Exec_icmdUpdate(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
-			{
 				return;
-			}
 
 			sccService.Update();
 		}
 
+		//------------------------------------------------------------------
 		private void Exec_icmdTags(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
-			{
 				return;
-			}
 
 			sccService.Tags();
 		}
 
+		//------------------------------------------------------------------
 		private void Exec_icmdAddToSourceControl(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
-			{
-				Debug.Assert(false, "The command should have been disabled");
 				return;
-			}
 
 			System.Collections.Generic.IList<VSITEMSELECTION> sel = GetSelectedNodes();
 			bool isSolutionSelected = false;
@@ -916,28 +895,26 @@ namespace HgSccPackage
 												  true);
 		}
 
+		//------------------------------------------------------------------
 		private void Exec_icmdClone(object sender, EventArgs e)
 		{
 			sccService.Clone();
 		}
 
+		//------------------------------------------------------------------
 		private void Exec_icmdSynchronize(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
-			{
-				Debug.Assert(false, "The command should have been disabled");
 				return;
-			}
 
 			sccService.Synchronize();
 		}
 
+		//------------------------------------------------------------------
 		private void Exec_icmdCompare(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
-			{
 				return;
-			}
 
 			var selected_files = GetSelectedNodes();
 			if (selected_files.Count != 1)
@@ -955,6 +932,7 @@ namespace HgSccPackage
 
 		#region Source Control Utility Functions
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns whether suorce control properties must be saved in the solution file
 		/// </summary>
@@ -964,6 +942,7 @@ namespace HgSccPackage
 			set { _solutionHasDirtyProps = value; }
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns a list of controllable projects in the solution
 		/// </summary>
@@ -994,6 +973,7 @@ namespace HgSccPackage
 			return mapHierarchies;
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Checks whether a solution exist
 		/// </summary>
@@ -1003,6 +983,7 @@ namespace HgSccPackage
 			return (GetSolutionFileName() != null);
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Gets the list of selected controllable project hierarchies
 		/// </summary>
@@ -1036,6 +1017,7 @@ namespace HgSccPackage
 			return mapHierarchies;
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Gets the list of directly selected VSITEMSELECTION objects
 		/// </summary>
@@ -1137,6 +1119,7 @@ namespace HgSccPackage
 			return selectedNodes;
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns a list of source controllable files in the selection (recursive)
 		/// </summary>
@@ -1146,6 +1129,7 @@ namespace HgSccPackage
 			return GetSelectedFilesInControlledProjects(out selectedNodes);
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns a list of source controllable files in the selection (recursive)
 		/// </summary>
@@ -1206,6 +1190,7 @@ namespace HgSccPackage
 			return sccFiles;
 		}
 
+		//------------------------------------------------------------------
 		private System.Collections.Generic.IList<string> GetFilesInControlledProjectsWithoutSpecial(System.Collections.Generic.IList<VSITEMSELECTION> selectedNodes)
 		{
 			System.Collections.Generic.IList<string> sccFiles = new List<string>();
@@ -1288,6 +1273,7 @@ namespace HgSccPackage
 			return sccFiles;
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns a list of source controllable files associated with the specified node
 		/// </summary>
@@ -1297,6 +1283,7 @@ namespace HgSccPackage
 			return GetNodeFiles(pscp2, itemid);
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns a list of source controllable files associated with the specified node
 		/// </summary>
@@ -1363,12 +1350,14 @@ namespace HgSccPackage
 			return sccFiles;
 		}
 
+		//------------------------------------------------------------------
 		public System.Collections.Generic.IList<string> GetNodeFilesWithoutSpecial(IVsHierarchy hier, uint itemid)
 		{
 			var pscp2 = hier as IVsSccProject2;
 			return GetNodeFiles(pscp2, itemid);
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns a list of source controllable files associated with the specified node
 		/// </summary>
@@ -1468,6 +1457,7 @@ namespace HgSccPackage
 				}
 		*/
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Refreshes the glyphs of the specified hierarchy nodes
 		/// </summary>
@@ -1587,72 +1577,8 @@ namespace HgSccPackage
 			}
 		}
 
-/*
-		public void RefreshNodesGlyphsFromStatus(IList<VSITEMSELECTION> selectedNodes, SourceControlStatus status)
-		{
-			uint[] sccStatus = new[]{ sccService.SourceStatusToSccStatus(status)};
-			VsStateIcon[] sccIcon = new VsStateIcon[1];
-			sccService.GetSccGlyphFromStatus(sccStatus[0], sccIcon);
 
-			foreach (VSITEMSELECTION vsItemSel in selectedNodes)
-			{
-				var sccProject2 = vsItemSel.pHier as IVsSccProject2;
-				if (vsItemSel.itemid == VSConstants.VSITEMID_ROOT)
-				{
-					if (sccProject2 == null)
-					{
-						// Note: The solution's hierarchy does not implement IVsSccProject2, IVsSccProject interfaces
-						// It may be a pain to treat the solution as special case everywhere; a possible workaround is 
-						// to implement a solution-wrapper class, that will implement IVsSccProject2, IVsSccProject and
-						// IVsHierarhcy interfaces, and that could be used in provider's code wherever a solution is needed.
-						// This approach could unify the treatment of solution and projects in the provider's code.
-
-						// Until then, solution is treated as special case
-						string[] rgpszFullPaths = new string[1];
-						rgpszFullPaths[0] = GetSolutionFileName();
-
-						// Set the solution's glyph directly in the hierarchy
-						IVsHierarchy solHier = (IVsHierarchy)GetService(typeof(SVsSolution));
-						solHier.SetProperty(VSConstants.VSITEMID_ROOT,
-											(int)__VSHPROPID.VSHPROPID_StateIconIndex,
-											sccIcon[0]);
-					}
-					else
-					{
-						// Refresh all the glyphs in the project; the project will call back GetSccGlyphs() 
-						// with the files for each node that will need new glyph
-//						sccProject2.SccGlyphChanged(0, null, null, null);
-						uint[] rguiAffectedNodes = new uint[1];
-						rguiAffectedNodes[0] = vsItemSel.itemid;
-
-						sccProject2.SccGlyphChanged(1, rguiAffectedNodes, sccIcon, sccStatus);
-					}
-				}
-				else
-				{
-					// It may be easier/faster to simply refresh all the nodes in the project, 
-					// and let the project call back on GetSccGlyphs, but just for the sake of the demo, 
-					// let's refresh ourselves only one node at a time
-
-					vsItemSel.pHier.SetProperty(vsItemSel.itemid, (int)__VSHPROPID.VSHPROPID_StateIconIndex, sccIcon[0]);
-					IList<string> sccFiles = GetNodeFiles(sccProject2, vsItemSel.itemid);
-
-					// We'll use for the node glyph just the Master file's status (ignoring special files of the node)
-					if (sccFiles.Count > 0)
-					{
-						string[] rgpszFullPaths = new string[1];
-						rgpszFullPaths[0] = sccFiles[0];
-
-						uint[] rguiAffectedNodes = new uint[1];
-						rguiAffectedNodes[0] = vsItemSel.itemid;
-						sccProject2.SccGlyphChanged(1, rguiAffectedNodes, sccIcon,
-													sccStatus);
-					}
-				}
-			}
-		}
-*/
-
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns the filename of the solution
 		/// </summary>
@@ -1672,6 +1598,7 @@ namespace HgSccPackage
 			return null;
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns the filename of the specified controllable project 
 		/// </summary>
@@ -1695,6 +1622,7 @@ namespace HgSccPackage
 			return GetProjectFileName(project);
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns the filename of the specified controllable project 
 		/// </summary>
@@ -1748,6 +1676,7 @@ namespace HgSccPackage
 			return null;
 		}
 
+		//------------------------------------------------------------------
 		private void DebugWalkingNode(IVsHierarchy pHier, uint itemid)
 		{
 			object property = null;
@@ -1759,6 +1688,7 @@ namespace HgSccPackage
 			}
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Gets the list of ItemIDs that are nodes in the specified project
 		/// </summary>
@@ -1768,6 +1698,7 @@ namespace HgSccPackage
 			return GetProjectItems(pHier, VSConstants.VSITEMID_ROOT);
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Gets the list of ItemIDs that are nodes in the specified project, starting with the specified item
 		/// </summary>
@@ -1845,6 +1776,7 @@ namespace HgSccPackage
 			return projectNodes;
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Gets the list of source controllable files in the specified project
 		/// </summary>
@@ -1853,6 +1785,7 @@ namespace HgSccPackage
 			return GetProjectFiles(pscp2Project, VSConstants.VSITEMID_ROOT);
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Gets the list of source controllable files in the specified project
 		/// </summary>
@@ -1875,6 +1808,7 @@ namespace HgSccPackage
 			return projectFiles;
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Checks whether the provider is invoked in command line mode
 		/// </summary>
@@ -1893,6 +1827,7 @@ namespace HgSccPackage
 			return false;
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Checks whether the specified project is a solution folder
 		/// </summary>
@@ -1912,6 +1847,7 @@ namespace HgSccPackage
 			return false;
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns a list of solution folders projects in the solution
 		/// </summary>
