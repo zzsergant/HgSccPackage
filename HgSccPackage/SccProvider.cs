@@ -115,6 +115,20 @@ namespace HgSccPackage
 		#region Package Members
 
 		//------------------------------------------------------------------
+		public T GetService<T>()
+			where T : class
+		{
+			return (T)GetService(typeof(T));
+		}
+
+		//------------------------------------------------------------------
+		public T GetServiceAs<T>()
+			where T : class
+		{
+			return GetService(typeof(T)) as T;
+		}
+
+		//------------------------------------------------------------------
 		public new Object GetService(Type serviceType)
 		{
 			return base.GetService(serviceType);
@@ -1174,40 +1188,18 @@ namespace HgSccPackage
 		{
 			IList<string> sccFiles = new List<string>();
 
-			bool isSolutionSelected = false;
-			var hash = GetSelectedHierarchies(selectedNodes, out isSolutionSelected);
-			if (isSolutionSelected)
-			{
-				// Add the solution file to the list
-				if (sccService.IsProjectControlled(null))
-				{
-					IVsHierarchy solHier = (IVsHierarchy)GetService(typeof(SVsSolution));
-					VSITEMSELECTION vsItemSelection;
-					vsItemSelection.pHier = solHier;
-					vsItemSelection.itemid = VSConstants.VSITEMID_ROOT;
-					selectedNodes.Add(vsItemSelection);
-				}
-			}
-
-			// now look in the rest of selection and accumulate scc files
 			foreach (VSITEMSELECTION vsItemSel in selectedNodes)
 			{
 				var pscp2 = vsItemSel.pHier as IVsSccProject2;
-				if (pscp2 == null)
+
+				if (vsItemSel.pHier == null)
 				{
 					// solution case
-					sccFiles.Add(GetSolutionFileName());
+					if (sccService.IsProjectControlled(null))
+						sccFiles.Add(GetSolutionFileName());
 				}
-				else
+				else if (pscp2 != null)
 				{
-/*
-					IList<string> nodefilesrec = GetNodeFilesWithoutSpecial(pscp2, vsItemSel.itemid);
-					foreach (string file in nodefilesrec)
-					{
-						sccFiles.Add(file);
-					}
-*/
-
 					IList<string> nodefilesrec = GetNodeFilesWithoutSpecial(pscp2, vsItemSel.itemid);
 					foreach (string file in nodefilesrec)
 					{
@@ -1327,13 +1319,6 @@ namespace HgSccPackage
 			}
 
 			return sccFiles;
-		}
-
-		//------------------------------------------------------------------
-		public IList<string> GetNodeFilesWithoutSpecial(IVsHierarchy hier, uint itemid)
-		{
-			var pscp2 = hier as IVsSccProject2;
-			return GetNodeFiles(pscp2, itemid);
 		}
 
 		//------------------------------------------------------------------
