@@ -64,7 +64,6 @@
     <Compile Include="DataStreamFromComStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProvideSolutionProps.cs" />
-    <Compile Include="SccFileChangesManager.cs" />
     <Compile Include="SccProvider.cs" />
     <Compile Include="CommandId.cs" />
     <Compile Include="Guids.cs" />

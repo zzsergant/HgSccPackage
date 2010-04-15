@@ -65,7 +65,6 @@ namespace HgSccPackage
 		private VsRunningDocumentTable Rdt { get; set; }
 
 		private readonly Dictionary<string, string> add_origin = new Dictionary<string, string>();
-//		private SccFileChangesManager file_changes;
 
 		// Remember the base index where our custom scc glyph start
 		private uint customSccGlyphBaseIndex = 0;
@@ -117,8 +116,6 @@ namespace HgSccPackage
 			rdt_timer.Tick += new EventHandler(rdt_timer_Tick);
 
 			rdt_files_to_update = new HashSet<string>();
-
-//			file_changes = new SccFileChangesManager(_sccProvider);
 		}
 
 		//------------------------------------------------------------------
@@ -148,8 +145,6 @@ namespace HgSccPackage
 				Rdt.Dispose();
 				Rdt = null;
 			}
-
-//			file_changes.Dispose();
 
 			storage.UpdateEvent -= UpdateEvent_Handler;
 			
