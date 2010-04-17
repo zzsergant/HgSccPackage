@@ -50,10 +50,12 @@ namespace HgSccPackage
 		// The cookie for project document events
 		private uint _tpdTrackProjectDocumentsCookie;
 		// The list of controlled projects hierarchies
-		private readonly HashSet<IVsHierarchy> controlled_projects = new HashSet<IVsHierarchy>();
+
 		private readonly HashSet<IVsHierarchy> all_projects = new HashSet<IVsHierarchy>();
 
-		private SccProviderStorage storage = new SccProviderStorage();
+		private readonly List<SccProviderStorage> storage_list = new List<SccProviderStorage>();
+		private readonly Dictionary<IVsHierarchy, SccProviderStorage> project_to_storage_map = new Dictionary<IVsHierarchy,SccProviderStorage>();
+
 		// The list of controlled and offline projects hierarchies
 		private readonly HashSet<IVsHierarchy> _offlineProjects = new HashSet<IVsHierarchy>();
 		// Variable tracking whether the currently loading solution is controlled (during solution load or merge)
@@ -72,7 +74,7 @@ namespace HgSccPackage
 		ImageList customSccGlyphsImageList;
 
 		System.Windows.Forms.Timer rdt_timer;
-		HashSet<string> rdt_files_to_update;
+		Dictionary<SccProviderStorage, HashSet<string>> rdt_files_to_update;
 
 		// Indexes of icons in our custom image list
 		// NOTE: Only four custom glyphs allowed
@@ -109,13 +111,11 @@ namespace HgSccPackage
 			Rdt.AfterAttributeChangeEvent += Rdt_AfterAttributeChangeEvent;
 			Rdt.AfterSaveEvent += Rdt_AfterSaveEvent;
 
-			storage.UpdateEvent += UpdateEvent_Handler;
-
 			rdt_timer = new Timer();
 			rdt_timer.Interval = 300;
 			rdt_timer.Tick += new EventHandler(rdt_timer_Tick);
 
-			rdt_files_to_update = new HashSet<string>();
+			rdt_files_to_update = new Dictionary<SccProviderStorage, HashSet<string>>();
 		}
 
 		//------------------------------------------------------------------
@@ -146,10 +146,15 @@ namespace HgSccPackage
 				Rdt = null;
 			}
 
-			storage.UpdateEvent -= UpdateEvent_Handler;
-			
 			rdt_timer.Tick -= rdt_timer_Tick;
 			rdt_timer.Dispose();
+
+			foreach (var storage in storage_list)
+			{
+				storage.UpdateEvent -= UpdateEvent_Handler;
+				storage.Close();
+			}
+			storage_list.Clear();
 		}
 
 		#endregion
@@ -192,7 +197,7 @@ namespace HgSccPackage
 			else
 			{
 				// Although the parameter is an int, it's in reality a BOOL value, so let's return 0/1 values
-				pfResult = (controlled_projects.Count != 0) ? 1 : 0;
+				pfResult = (project_to_storage_map.Count != 0) ? 1 : 0;
 			}
 	
 			return VSConstants.S_OK;
@@ -394,6 +399,37 @@ namespace HgSccPackage
 			return (uint)__SccStatus.SCC_STATUS_NOTCONTROLLED;
 		}
 
+		//------------------------------------------------------------------
+		SccProviderStorage GetStorageForFile(string filename)
+		{
+			foreach (var storage in storage_list)
+			{
+				if (storage.IsPathUnderRoot(filename))
+					return storage;
+			}
+
+			return null;
+		}
+
+		//------------------------------------------------------------------
+		SccProviderStorage GetStorageForProject(IVsHierarchy hierarchy)
+		{
+			if (hierarchy == null)
+			{
+				// this is solution, get the solution hierarchy
+				hierarchy = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
+			}
+
+			if (hierarchy == null)
+				return null;
+
+			SccProviderStorage storage;
+			if (project_to_storage_map.TryGetValue(hierarchy, out storage))
+				return storage;
+
+			return null;
+		}
+
 		/// <summary>
 		/// One of the most important methods in a source control provider, is called by projects that are under source control when they are first opened to register project settings
 		/// </summary>
@@ -410,7 +446,6 @@ namespace HgSccPackage
 			Logger.WriteLine("RegisterSccProject: sln = '{0}'", _sccProvider.GetSolutionFileName());
 
 			string solutionFile = _sccProvider.GetSolutionFileName();
-			var work_dir = Path.GetDirectoryName(solutionFile);
 
 			if (pscp2Project == null)
 			{
@@ -420,16 +455,28 @@ namespace HgSccPackage
 
 				var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
 
+				var work_dir = Path.GetDirectoryName(solutionFile);
+				var found_storage = GetStorageForFile(solutionFile);
+				var storage = found_storage;
+				
+				if (storage == null)
+					storage = new SccProviderStorage();
+
 				// FIXME: Проверить что путь у солюшена выше по иерархии чем у проекта
 				// а также что у проекта нет репозитория
 				if (!storage.IsValid)
 				{
-					var err = storage.Init(work_dir, SccOpenProjectFlags.CreateIfNew);
+					var err = storage.Init(work_dir, SccOpenProjectFlags.None);
 					if (err != SccErrors.Ok)
 						return VSConstants.E_FAIL;
 				}
-				
-				controlled_projects.Add(solHier);
+
+				project_to_storage_map[solHier] = storage;
+				if (found_storage == null)
+				{
+					storage.UpdateEvent += UpdateEvent_Handler;
+					storage_list.Add(storage);
+				}
 			}
 			else
 			{
@@ -438,15 +485,28 @@ namespace HgSccPackage
 				// Add the project to the list of controlled projects
 				var hierProject = (IVsHierarchy)pscp2Project;
 				var project_path = _sccProvider.GetProjectFileName(pscp2Project);
+				var work_dir = Path.GetDirectoryName(project_path);
+
 //				Logger.WriteLine("RegisterSccProject: adding project = '{0}'", project_path);
+
+				var found_storage = GetStorageForFile(project_path);
+				var storage = found_storage;
+
+				if (storage == null)
+					storage = new SccProviderStorage();
 
 				if (!storage.IsValid)
 				{
-					var err = storage.Init(work_dir, SccOpenProjectFlags.CreateIfNew);
+					var err = storage.Init(work_dir, SccOpenProjectFlags.None);
 					if (err != SccErrors.Ok)
 						return VSConstants.E_FAIL;
 				}
-				controlled_projects.Add(hierProject);
+				project_to_storage_map[hierProject] = storage;
+				if (found_storage == null)
+				{
+					storage.UpdateEvent += UpdateEvent_Handler;
+					storage_list.Add(storage);
+				}
 			}
 
 			return VSConstants.S_OK;
@@ -472,9 +532,16 @@ namespace HgSccPackage
 			}
 
 			// Remove the project from the list of controlled projects
-			if (controlled_projects.Contains(hierProject))
+			if (project_to_storage_map.ContainsKey(hierProject))
 			{
-				controlled_projects.Remove(hierProject);
+				var storage = project_to_storage_map[hierProject];
+				project_to_storage_map.Remove(hierProject);
+
+				if (!project_to_storage_map.ContainsValue(storage))
+				{
+					storage.UpdateEvent -= UpdateEvent_Handler;
+					storage_list.Remove(storage);
+				}
 				return VSConstants.S_OK;
 			}
 			
@@ -552,14 +619,20 @@ namespace HgSccPackage
 		public int OnAfterCloseSolution([InAttribute] Object pUnkReserved)
 		{
 			// Reset all source-control-related data now that solution is closed
-			controlled_projects.Clear();
+			project_to_storage_map.Clear();
 			all_projects.Clear();
 			_offlineProjects.Clear();
 			_sccProvider.SolutionHasDirtyProps = false;
 			_loadingControlledSolutionLocation = "";
 			_solutionLocation = "";
 			_approvedForInMemoryEdit.Clear();
-			storage.Close();
+
+			foreach (var storage in storage_list)
+			{
+				storage.UpdateEvent -= UpdateEvent_Handler;
+				storage.Close();
+			}
+			storage_list.Clear();
 
 			return VSConstants.S_OK;
 		}
@@ -612,17 +685,16 @@ namespace HgSccPackage
 			bool register_scc_projects = _loadingControlledSolutionLocation.Length > 0;
 			if (!register_scc_projects)
 			{
-				if (!storage.IsValid)
-				{
-					// If solution is not controlled, check if there is
-					// a mercurial repository
+				var solution_dir = Path.GetDirectoryName(_sccProvider.GetSolutionFileName());
+				var storage = new SccProviderStorage();
 
-					var solution_dir = Path.GetDirectoryName(_sccProvider.GetSolutionFileName());
-					if (SccErrors.Ok == storage.Init(solution_dir, SccOpenProjectFlags.None))
-					{
-						Logger.WriteLine("Solution is not controlled, but there is a mercurial repository");
-						register_scc_projects = !HgSccOptions.Options.UseSccBindings;
-					}
+				// If solution is not controlled, check if there is
+				// a mercurial repository
+
+				if (SccErrors.Ok == storage.Init(solution_dir, SccOpenProjectFlags.None))
+				{
+					Logger.WriteLine("Solution is not controlled, but there is a mercurial repository");
+					register_scc_projects = !HgSccOptions.Options.UseSccBindings;
 				}
 			}
 
@@ -1120,7 +1192,7 @@ namespace HgSccPackage
 				{
 					for (int iFile = 0; iFile < cFiles; iFile++)
 					{
-						//                        var storage = projects[pHier];
+						var storage = GetStorageForProject(pHier);
 						if (storage != null)
 						{
 							SourceControlStatus status = storage.GetFileStatus(rgpszMkDocuments[iFile]);
@@ -1152,8 +1224,8 @@ namespace HgSccPackage
 		/// </summary>
 		public int OnAfterAddFilesEx([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSADDFILEFLAGS[] rgFlags)
 		{
-			var files = new List<string>();
-			var copy_files = new Dictionary<string, string>();
+			var files_map = new Dictionary<SccProviderStorage, List<string>>();
+			var copy_files_map = new Dictionary<SccProviderStorage, Dictionary<string, string>>();
 
 			var selected_items = new List<VSITEMSELECTION>();
 
@@ -1176,10 +1248,27 @@ namespace HgSccPackage
 					iNextProjecFilesStart = rgFirstIndices[iProject + 1];
 				}
 
+				var project_storage = GetStorageForProject(pHier);
+				if (project_storage == null)
+					continue;
+
+				Dictionary<string, string> copy_files;
+				if (!copy_files_map.TryGetValue(project_storage, out copy_files))
+				{
+					copy_files = new Dictionary<string, string>();
+					copy_files_map[project_storage] = copy_files;
+				}
+
+				List<string> files;
+				if (!files_map.TryGetValue(project_storage, out files))
+				{
+					files = new List<string>();
+					files_map[project_storage] = files;
+				}
+
 				// Now that we know which files belong to this project, iterate the project files
 				for (int iFile = iProjectFilesStart; iFile < iNextProjecFilesStart; iFile++)
-				{
-					
+				{					
 					string old_name;
 					if (add_origin.TryGetValue(rgpszMkDocuments[iFile], out old_name))
 					{
@@ -1197,22 +1286,39 @@ namespace HgSccPackage
 				}
 			}
 
-			foreach (var pair in copy_files)
+			foreach (var storage in copy_files_map.Keys)
 			{
-				var new_path = pair.Key;
-				var old_path = pair.Value;
-
-				Logger.WriteLine("Copying file: {0} from {1}",
-					new_path, old_path);
-
-				if (!storage.Copy(new_path, old_path))
+				var copy_files = copy_files_map[storage];
+				foreach (var pair in copy_files)
 				{
-					Logger.WriteLine("Copy failed");
-					files.Add(new_path);
+					var new_path = pair.Key;
+					var old_path = pair.Value;
+
+					Logger.WriteLine("Copying file: {0} from {1}",
+						new_path, old_path);
+
+					if (!storage.Copy(new_path, old_path))
+					{
+						Logger.WriteLine("Copy failed");
+
+						List<string> files;
+						if (!files_map.TryGetValue(storage, out files))
+						{
+							files = new List<string>();
+							files_map[storage] = files;
+						}
+
+						files.Add(new_path);
+					}
 				}
 			}
 
-			storage.AddFilesToStorage(files);
+			foreach (var storage in files_map.Keys)
+			{
+				var files = files_map[storage];
+				storage.AddFilesToStorage(files);
+			}
+
 			_sccProvider.RefreshNodesGlyphs(selected_items);
 
 			// Before checking in files, make sure all in-memory edits have been commited to disk 
@@ -1226,13 +1332,18 @@ namespace HgSccPackage
 
 			if (add_origin.Count != 0)
 			{
-				foreach (var pair in copy_files)
+				foreach (var storage in copy_files_map.Keys)
 				{
-					var new_path = pair.Key;
-					var old_path = pair.Value;
+					var copy_files = copy_files_map[storage];
 
-					Logger.WriteLine("Origin for file: {0} from {1}",
-						new_path, old_path);
+					foreach (var pair in copy_files)
+					{
+						var new_path = pair.Key;
+						var old_path = pair.Value;
+
+						Logger.WriteLine("Origin for file: {0} from {1}",
+							new_path, old_path);
+					}
 				}
 			}
 
@@ -1297,7 +1408,7 @@ namespace HgSccPackage
 				{
 					for (int iFile = 0; iFile < cFiles; iFile++)
 					{
-//                        var storage = projects[pHier];
+						var storage = GetStorageForProject(pHier);
 						if (storage != null)
 						{
 							SourceControlStatus status = storage.GetFileStatus(rgpszMkDocuments[iFile]);
@@ -1325,7 +1436,7 @@ namespace HgSccPackage
 
 		public int OnAfterRemoveFiles([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSREMOVEFILEFLAGS[] rgFlags)
 		{
-			var files = new List<string>();
+			var files_map = new Dictionary<SccProviderStorage, List<string>>();
 
 			// Start by iterating through all projects calling this function
 			for (int iProject = 0; iProject < cProjects; iProject++)
@@ -1359,6 +1470,17 @@ namespace HgSccPackage
 					iNextProjecFilesStart = rgFirstIndices[iProject + 1];
 				}
 
+				var project_storage = GetStorageForProject(pHier);
+				if (project_storage == null)
+					continue;
+
+				List<string> files;
+				if (!files_map.TryGetValue(project_storage, out files))
+				{
+					files = new List<string>();
+					files_map[project_storage] = files;
+				}
+
 				// Now that we know which files belong to this project, iterate the project files
 				for (int iFile = iProjectFilesStart; iFile < iNextProjecFilesStart; iFile++)
 				{
@@ -1366,7 +1488,11 @@ namespace HgSccPackage
 				}
 			}
 
-			storage.RemoveFiles(files);
+			foreach (var storage in files_map.Keys)
+			{
+				var files = files_map[storage];
+				storage.RemoveFiles(files);
+			}
 
 			// Before checking in files, make sure all in-memory edits have been commited to disk 
 			// by forcing a save of the solution. Ideally, only the files to be checked in should be saved...
@@ -1444,7 +1570,7 @@ namespace HgSccPackage
 				for (int iFile = iProjectFilesStart; iFile < iNextProjecFilesStart; iFile++)
 				{
 					Logger.WriteLine("OnAfterRenameFiles: [{0}]: {1} -> {2}", iFile, rgszMkOldNames[iFile], rgszMkNewNames[iFile]);
-					// var storage = projects[pHier];
+					var storage = GetStorageForProject(pHier);
 					if (storage != null)
 					{
 						storage.RenameFileInStorage(rgszMkOldNames[iFile], rgszMkNewNames[iFile]);
@@ -1525,7 +1651,7 @@ namespace HgSccPackage
 				pHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
 			}
 
-			return controlled_projects.Contains(pHier);
+			return project_to_storage_map.ContainsKey(pHier);
 		}
 
 		/// <summary>
@@ -1568,29 +1694,67 @@ namespace HgSccPackage
 		/// <summary>
 		/// Adds the specified projects and solution to source control
 		/// </summary>
-		public void AddProjectsToSourceControl(Hashtable hashUncontrolledProjects, bool addSolutionToSourceControl)
+		public void AddProjectsToSourceControl(HashSet<IVsHierarchy> hashUncontrolledProjects, bool addSolutionToSourceControl)
 		{
-			// A real source control provider will ask the user for a location where the projects will be controlled
-			// From the user input it should create up to 4 strings that will pass them to the projects to persist, 
-			// so next time the project is open from disk, it will callback source control package, and the package
-			// could use the 4 binding strings to identify the correct database location of the project files.
-			foreach (IVsHierarchy pHier in hashUncontrolledProjects.Keys)
-			{
-				var sccProject2 = (IVsSccProject2)pHier;
-				if (HgSccOptions.Options.UseSccBindings)
-					sccProject2.SetSccLocation("<Project Location In Database>", "<Source Control Database>", "<Local Binding Root of Project>", _sccProvider.ProviderName);
-
-				// Add the newly controlled projects now to the list of controlled projects in this solution
-				controlled_projects.Add(pHier);
-			}
+			string solutionFile = _sccProvider.GetSolutionFileName();
+			var solution_dir = Path.GetDirectoryName(solutionFile);
 
 			// Also, if the solution was selected to be added to scc, write in the solution properties the controlled status
 			if (addSolutionToSourceControl)
 			{
 				var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
-				controlled_projects.Add(solHier);
+				var found_storage = GetStorageForFile(solution_dir);
+				var storage = found_storage;
+				if (storage == null)
+					storage = new SccProviderStorage();
+
+				if (!storage.IsValid)
+				{
+					var err = storage.Init(solution_dir, SccOpenProjectFlags.CreateIfNew);
+				}
+
+				project_to_storage_map[solHier] = storage;
+				if (found_storage == null)
+				{
+					storage.UpdateEvent += UpdateEvent_Handler;
+					storage_list.Add(storage);
+				}
+
 				_sccProvider.SolutionHasDirtyProps = true;
 			}
+
+			// A real source control provider will ask the user for a location where the projects will be controlled
+			// From the user input it should create up to 4 strings that will pass them to the projects to persist, 
+			// so next time the project is open from disk, it will callback source control package, and the package
+			// could use the 4 binding strings to identify the correct database location of the project files.
+			foreach (IVsHierarchy pHier in hashUncontrolledProjects)
+			{
+				var sccProject2 = (IVsSccProject2)pHier;
+				if (HgSccOptions.Options.UseSccBindings)
+					sccProject2.SetSccLocation("<Project Location In Database>", "<Source Control Database>", "<Local Binding Root of Project>", _sccProvider.ProviderName);
+
+				var project_path = _sccProvider.GetProjectFileName(sccProject2);
+				var project_dir = Path.GetDirectoryName(project_path);
+
+				// Add the newly controlled projects now to the list of controlled projects in this solution
+				var found_storage = GetStorageForFile(project_path);
+				var storage = found_storage;
+				if (storage == null)
+					storage = new SccProviderStorage();
+
+				if (!storage.IsValid)
+				{
+					var err = storage.Init(project_dir, SccOpenProjectFlags.CreateIfNew);
+				}
+
+				project_to_storage_map[pHier] = storage;
+				if (found_storage == null)
+				{
+					storage.UpdateEvent += UpdateEvent_Handler;
+					storage_list.Add(storage);
+				}
+			}
+
 
 			// Now save all the modified files
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
@@ -1598,46 +1762,22 @@ namespace HgSccPackage
 
 			// Add now the solution and project files to the source control database
 			// which in our case means creating a text file containing the list of controlled files
-			foreach (IVsHierarchy pHier in hashUncontrolledProjects.Keys)
+			foreach (IVsHierarchy pHier in hashUncontrolledProjects)
 			{
 				var sccProject2 = (IVsSccProject2)pHier;
 				var files = _sccProvider.GetProjectFiles(sccProject2);
 				var project_path = _sccProvider.GetProjectFileName(sccProject2);
-				string solutionFile = _sccProvider.GetSolutionFileName();
-				var work_dir = Path.GetDirectoryName(solutionFile);
 
-				if (!storage.IsValid)
+				var storage = GetStorageForFile(project_path);
+				if (storage != null)
 				{
-					var err = storage.Init(work_dir, SccOpenProjectFlags.CreateIfNew);
-//					if (err != SccErrors.Ok)
-//						return;
+					storage.AddFilesToStorage(files);
 				}
-
-				storage.AddFilesToStorage(files);
-			}
-
-			// If adding solution to source control, create a storage for the solution, too
-			if (addSolutionToSourceControl)
-			{
-				var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
-				var files = new List<string>();
-				string solutionFile = _sccProvider.GetSolutionFileName();
-				files.Add(solutionFile);
-				var work_dir = Path.GetDirectoryName(solutionFile);
-
-				if (!storage.IsValid)
-				{
-					var err = storage.Init(work_dir, SccOpenProjectFlags.CreateIfNew);
-//					if (err != SccErrors.Ok)
-//						return;
-				}
-
-				storage.AddFilesToStorage(files);
 			}
 
 			// For all the projects added to source control, refresh their source control glyphs
 			var nodes = new List<VSITEMSELECTION>();
-			foreach (IVsHierarchy pHier in hashUncontrolledProjects.Keys)
+			foreach (IVsHierarchy pHier in hashUncontrolledProjects)
 			{
 				VSITEMSELECTION vsItem;
 				vsItem.itemid = VSConstants.VSITEMID_ROOT;
@@ -1666,16 +1806,24 @@ namespace HgSccPackage
 		/// </summary>
 		public SourceControlStatus GetFileStatus(string filename)
 		{
+			// FIXME: Handle folders
+
+			var storage = GetStorageForFile(filename);
+			if (storage == null)
+				return SourceControlStatus.scsUncontrolled;
+
 			return storage.GetFileStatus(filename);
 		}
 
 		public void GetStatusForFiles(string[] files, SourceControlStatus[] statuses)
 		{
-			storage.GetStatusForFiles(files, statuses);
+			for (int i = 0; i < files.Length; ++i)
+				statuses[i] = GetFileStatus(files[i]);
 		}
 
 		public void ViewHistory(string file)
 		{
+			var storage = GetStorageForFile(file);
 			if (storage != null)
 			{
 				SourceControlStatus status = storage.GetFileStatus(file);
@@ -1692,6 +1840,7 @@ namespace HgSccPackage
 
 		public void Annotate(string file)
 		{
+			var storage = GetStorageForFile(file);
 			if (storage != null)
 			{
 				SourceControlStatus status = storage.GetFileStatus(file);
@@ -1708,6 +1857,7 @@ namespace HgSccPackage
 
 		public void Compare(string file)
 		{
+			var storage = GetStorageForFile(file);
 			if (storage != null)
 			{
 				SourceControlStatus status = storage.GetFileStatus(file);
@@ -1720,8 +1870,9 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		public void ViewChangeLog()
+		public void ViewChangeLog(IVsHierarchy hier)
 		{
+			var storage = GetStorageForProject(hier);
 			if (storage == null)
 				return;
 
@@ -1736,8 +1887,9 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		public void Grep()
+		public void Grep(IVsHierarchy hier)
 		{
+			var storage = GetStorageForProject(hier);
 			if (storage == null)
 				return;
 
@@ -1758,11 +1910,13 @@ namespace HgSccPackage
 		{
 			// Accumulate all the controlled projects that contain this file
 			System.Collections.Generic.IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
-			if (!storage.IsValid)
-				return nodes;
 
 			foreach (IVsHierarchy pHier in all_projects)
 			{
+				var storage = GetStorageForProject(pHier);
+				if (storage == null)
+					continue;
+
 				var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
 				if (solHier == pHier)
 				{
@@ -1814,11 +1968,42 @@ namespace HgSccPackage
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
+			var files_map = new Dictionary<SccProviderStorage, List<string>>();
+
+			foreach (var file in files)
+			{
+				var file_storage = GetStorageForFile(file);
+				if (file_storage == null)
+					continue;
+
+				List<string> files_list;
+				if (!files_map.TryGetValue(file_storage, out files_list))
+				{
+					files_list = new List<string>();
+					files_map[file_storage] = files_list;
+				}
+
+				files_list.Add(file);
+			}
+
+			SccProviderStorage storage = null;
+			List<string> files_to_commit = null;
+
+			foreach (var pair in files_map)
+			{
+				storage = pair.Key;
+				files_to_commit = pair.Value;
+				break;
+			}
+
+			if (storage == null || files_to_commit == null)
+				return;
+
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
 			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, all_projects))
 			{
 				IEnumerable<string> commited_files;
-				storage.Commit(files, out commited_files);
+				storage.Commit(files_to_commit, out commited_files);
 
 				var list = GetControlledProjectsContainingFiles(commited_files);
 				if (list.Count != 0)
@@ -1835,11 +2020,42 @@ namespace HgSccPackage
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
+			var files_map = new Dictionary<SccProviderStorage, List<string>>();
+
+			foreach (var file in files)
+			{
+				var file_storage = GetStorageForFile(file);
+				if (file_storage == null)
+					continue;
+
+				List<string> files_list;
+				if (!files_map.TryGetValue(file_storage, out files_list))
+				{
+					files_list = new List<string>();
+					files_map[file_storage] = files_list;
+				}
+
+				files_list.Add(file);
+			}
+
+			SccProviderStorage storage = null;
+			List<string> files_to_revert = null;
+
+			foreach (var pair in files_map)
+			{
+				storage = pair.Key;
+				files_to_revert = pair.Value;
+				break;
+			}
+
+			if (storage == null || files_to_revert == null)
+				return;
+
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
 			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, all_projects))
 			{
 				IEnumerable<string> reverted_files = null;
-				storage.Revert(files, out reverted_files);
+				storage.Revert(files_to_revert, out reverted_files);
 
 				var list = GetControlledProjectsContainingFiles(reverted_files);
 				if (list.Count != 0)
@@ -1939,6 +2155,8 @@ namespace HgSccPackage
 
 				if (projectName != null)
 				{
+					var storage = GetStorageForProject(pHier);
+
 					for (int iFile = 0; iFile < cFiles; iFile++)
 					{
 						if (storage != null && rgpszSrcMkDocuments[iFile] != rgpszNewMkDocuments[iFile])
@@ -2023,14 +2241,12 @@ namespace HgSccPackage
 		{
 			Logger.WriteLine("OnAfterSave: {0}", e.DocInfo.MkDocument);
 
-			/*
-						// Get automation-object Document and work with it
+			// TODO: Add batched status update
 
-						ProjectItem prjItem = DTE.Solution.FindProjectItem(pbstrMkDocument);
-						if (prjItem != null)
-							OnDocumentSaved(prjItem.Document);
-			*/
-			if (storage.IsValid)
+			var hier = e.DocInfo.Hierarchy;
+			var storage = GetStorageForProject(hier);
+
+			if (storage != null)
 			{
 				var status = storage.GetFileStatus(e.DocInfo.MkDocument);
 				if (status != SourceControlStatus.scsUncontrolled)
@@ -2054,13 +2270,16 @@ namespace HgSccPackage
 			rdt_timer.Stop();
 			if (rdt_files_to_update.Count != 0)
 			{
-				var files = rdt_files_to_update.ToArray();
-				rdt_files_to_update.Clear();
-
-				if (storage.IsValid && Active)
+				foreach (var storage in rdt_files_to_update.Keys)
 				{
-					storage.UpdateCache(files);
-					RefreshGlyphsForControlledProjects();
+					var files = rdt_files_to_update[storage].ToArray();
+					rdt_files_to_update[storage].Clear();
+
+					if (storage.IsValid && Active)
+					{
+						storage.UpdateCache(files);
+						RefreshGlyphsForControlledProjects();
+					}
 				}
 			}
 		}
@@ -2071,12 +2290,22 @@ namespace HgSccPackage
 			Logger.WriteLine("OnAfterAttributeChange: {0}, {1}",
 				e.DocInfo.MkDocument, e.Attributes);
 
-			if (storage.IsValid)
+			var hier = e.DocInfo.Hierarchy;
+			var storage = GetStorageForProject(hier);
+
+			if (storage != null && storage.IsValid)
 			{
 				var status = storage.GetFileStatus(e.DocInfo.MkDocument);
 				if (status != SourceControlStatus.scsUncontrolled)
 				{
-					rdt_files_to_update.Add(e.DocInfo.MkDocument);
+					HashSet<string> files_to_update;
+					if (!rdt_files_to_update.TryGetValue(storage, out files_to_update))
+					{
+						files_to_update = new HashSet<string>();
+						rdt_files_to_update[storage] = files_to_update;
+					}
+
+					files_to_update.Add(e.DocInfo.MkDocument);
 					rdt_timer.Start();
 				}
 			}
@@ -2086,9 +2315,10 @@ namespace HgSccPackage
 		{
 			// For all the projects added to source control, refresh their source control glyphs
 			var nodes = new List<VSITEMSELECTION>();
-			if (storage.IsValid)
+			foreach (IVsHierarchy pHier in all_projects)
 			{
-				foreach (IVsHierarchy pHier in all_projects)
+				var storage = GetStorageForProject(pHier);
+				if (storage != null)
 				{
 					VSITEMSELECTION vsItem;
 					vsItem.itemid = VSConstants.VSITEMID_ROOT;
@@ -2101,10 +2331,14 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		public void Synchronize()
+		public void Synchronize(IVsHierarchy hier)
 		{
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
+
+			var storage = GetStorageForProject(hier);
+			if (storage != null)
+				return;
 
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
 			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, all_projects))
@@ -2114,10 +2348,11 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		public void Clone()
+		public void Clone(IVsHierarchy hier)
 		{
 			string source_path = null;
 
+			var storage = GetStorageForProject(hier);
 			if (storage != null && storage.IsValid)
 			{
 				source_path = storage.WorkingDir;
@@ -2134,11 +2369,15 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		public void Update()
+		public void Update(IVsHierarchy hier)
 		{
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
+			var storage = GetStorageForProject(hier);
+			if (storage != null)
+				return;
+				
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
 			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, all_projects))
 			{
@@ -2147,28 +2386,36 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		public void Tags()
+		public void Tags(IVsHierarchy hier)
 		{
-			storage.Tags();
+			var storage = GetStorageForProject(hier);
+			if (storage != null)
+				storage.Tags();
 		}
 
 		//------------------------------------------------------------------
 		private void UpdateEvent_Handler(object sender, EventArgs e)
 		{
-			storage.ReloadCache();
-			RefreshGlyphsForControlledProjects();
+			var storage = sender as SccProviderStorage;
+			if (storage != null)
+			{
+				storage.ReloadCache();
+				RefreshGlyphsForControlledProjects();
+			}
 		}
 
 		//------------------------------------------------------------------
-		public bool IsValidStorage()
+		public bool IsValidStorage(IVsHierarchy hier)
 		{
-			return storage.IsValid;
+			var storage = GetStorageForProject(hier);
+			return storage != null && storage.IsValid;
 		}
 
 		//------------------------------------------------------------------
-		public bool IsAnyModifedFiles()
+		public bool IsAnyModifedFiles(IVsHierarchy hier)
 		{
-			return storage.IsAnyModifiedFiles();
+			var storage = GetStorageForProject(hier);
+			return storage != null && storage.IsAnyModifiedFiles();
 		}
 
 		#region IVsSccGlyphs Members

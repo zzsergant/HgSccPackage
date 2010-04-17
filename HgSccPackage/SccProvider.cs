@@ -577,8 +577,10 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return OLECMDF.OLECMDF_INVISIBLE;
 
-			if (	sccService.IsValidStorage()
-				&&	sccService.IsAnyModifedFiles())
+			var selected_hier = GetFirstSelectedHierarchy();
+
+			if (	sccService.IsValidStorage(selected_hier)
+				&&	sccService.IsAnyModifedFiles(selected_hier))
 			{
 				return OLECMDF.OLECMDF_ENABLED;
 			}
@@ -587,13 +589,27 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		private IVsHierarchy GetFirstSelectedHierarchy()
+		{
+			IList<VSITEMSELECTION> sel = GetSelectedNodes();
+			bool is_solution_selected;
+			var selected_hiers = GetSelectedHierarchies(sel, out is_solution_selected);
+			foreach (var hier in selected_hiers)
+				return hier;
+
+			return null;
+		}
+
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdRevert()
 		{
 			if (!IsThereASolution())
 				return OLECMDF.OLECMDF_INVISIBLE;
 
-			if (	sccService.IsValidStorage()
-				&&	sccService.IsAnyModifedFiles())
+			var selected_hier = GetFirstSelectedHierarchy();
+
+			if (	sccService.IsValidStorage(selected_hier)
+				&&	sccService.IsAnyModifedFiles(selected_hier))
 			{
 				return OLECMDF.OLECMDF_ENABLED;
 			}
@@ -640,7 +656,9 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return OLECMDF.OLECMDF_INVISIBLE;
 
-			if (sccService.IsValidStorage())
+			var selected_hier = GetFirstSelectedHierarchy();
+
+			if (sccService.IsValidStorage(selected_hier))
 				return OLECMDF.OLECMDF_ENABLED;
 
 			return OLECMDF.OLECMDF_SUPPORTED;
@@ -652,7 +670,9 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return OLECMDF.OLECMDF_INVISIBLE;
 
-			if (sccService.IsValidStorage())
+			var selected_hier = GetFirstSelectedHierarchy();
+
+			if (sccService.IsValidStorage(selected_hier))
 				return OLECMDF.OLECMDF_ENABLED;
 
 			return OLECMDF.OLECMDF_SUPPORTED;
@@ -664,7 +684,9 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return OLECMDF.OLECMDF_INVISIBLE;
 
-			if (sccService.IsValidStorage())
+			var selected_hier = GetFirstSelectedHierarchy();
+
+			if (sccService.IsValidStorage(selected_hier))
 				return OLECMDF.OLECMDF_ENABLED;
 
 			return OLECMDF.OLECMDF_SUPPORTED;
@@ -715,7 +737,9 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return OLECMDF.OLECMDF_INVISIBLE;
 
-			if (sccService.IsValidStorage())
+			var selected_hier = GetFirstSelectedHierarchy();
+
+			if (sccService.IsValidStorage(selected_hier))
 				return OLECMDF.OLECMDF_ENABLED;
 
 			return OLECMDF.OLECMDF_SUPPORTED;
@@ -850,7 +874,8 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return;
 
-			sccService.ViewChangeLog();
+			var selected_hier = GetFirstSelectedHierarchy();
+			sccService.ViewChangeLog(selected_hier);
 		}
 
 		//------------------------------------------------------------------
@@ -859,7 +884,8 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return;
 
-			sccService.Grep();
+			var selected_hier = GetFirstSelectedHierarchy();
+			sccService.Grep(selected_hier);
 		}
 
 		//------------------------------------------------------------------
@@ -868,7 +894,8 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return;
 
-			sccService.Update();
+			var selected_hier = GetFirstSelectedHierarchy();
+			sccService.Update(selected_hier);
 		}
 
 		//------------------------------------------------------------------
@@ -877,7 +904,8 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return;
 
-			sccService.Tags();
+			var selected_hier = GetFirstSelectedHierarchy();
+			sccService.Tags(selected_hier);
 		}
 
 		//------------------------------------------------------------------
@@ -890,7 +918,7 @@ namespace HgSccPackage
 			bool isSolutionSelected = false;
 			var hash = GetSelectedHierarchies(sel, out isSolutionSelected);
 
-			var hashUncontrolledProjects = new Hashtable();
+			var hashUncontrolledProjects = new HashSet<IVsHierarchy>();
 			if (isSolutionSelected)
 			{
 				// When the solution is selected, all the uncontrolled projects in the solution will be added to scc
@@ -906,20 +934,19 @@ namespace HgSccPackage
 			{
 				if (!sccService.IsProjectControlled(pHier))
 				{
-					hashUncontrolledProjects[pHier] = true;
+					hashUncontrolledProjects.Add(pHier);
 				}
 			}
 
-			// FIXME: Here the solution is forced to add to the source control
-
 			sccService.AddProjectsToSourceControl(hashUncontrolledProjects,
-												  true);
+												  isSolutionSelected);
 		}
 
 		//------------------------------------------------------------------
 		private void Exec_icmdClone(object sender, EventArgs e)
 		{
-			sccService.Clone();
+			var selected_hier = GetFirstSelectedHierarchy();
+			sccService.Clone(selected_hier);
 		}
 
 		//------------------------------------------------------------------
@@ -928,7 +955,8 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return;
 
-			sccService.Synchronize();
+			var selected_hier = GetFirstSelectedHierarchy();
+			sccService.Synchronize(selected_hier);
 		}
 
 		//------------------------------------------------------------------
