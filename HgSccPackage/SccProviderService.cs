@@ -2241,25 +2241,23 @@ namespace HgSccPackage
 		{
 			Logger.WriteLine("OnAfterSave: {0}", e.DocInfo.MkDocument);
 
-			// TODO: Add batched status update
-
 			var hier = e.DocInfo.Hierarchy;
 			var storage = GetStorageForProject(hier);
 
-			if (storage != null)
+			if (storage != null && storage.IsValid)
 			{
 				var status = storage.GetFileStatus(e.DocInfo.MkDocument);
 				if (status != SourceControlStatus.scsUncontrolled)
 				{
-					storage.UpdateFileCache(e.DocInfo.MkDocument);
-
-					System.Collections.Generic.IList<VSITEMSELECTION> lst =
-						GetControlledProjectsContainingFiles(new[] { e.DocInfo.MkDocument });
-
-					if (lst.Count != 0)
+					HashSet<string> files_to_update;
+					if (!rdt_files_to_update.TryGetValue(storage, out files_to_update))
 					{
-						_sccProvider.RefreshNodesGlyphs(lst);
+						files_to_update = new HashSet<string>();
+						rdt_files_to_update[storage] = files_to_update;
 					}
+
+					files_to_update.Add(e.DocInfo.MkDocument);
+					rdt_timer.Start();
 				}
 			}
 		}
