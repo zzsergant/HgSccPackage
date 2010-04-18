@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Win32;
 using System.Linq;
+using System.IO;
 
 namespace HgSccHelper
 {
@@ -54,6 +55,16 @@ namespace HgSccHelper
 		public static string ShortSHA1(this string str)
 		{
 			return str.Substring(0, 12);
+		}
+
+		//------------------------------------------------------------------
+		public static string GetTempFileNameForFile(string file)
+		{
+			string temp_folder = Path.GetTempPath();
+			string temp_name = Path.GetRandomFileName() + "_" + Path.GetFileName(file);
+			string temp_file = Path.Combine(temp_folder, temp_name);
+
+			return temp_file;
 		}
 
 		//------------------------------------------------------------------

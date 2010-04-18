@@ -766,9 +766,7 @@ namespace HgSccHelper
 				return RunEditorOrNotepad(editor, Path.Combine(work_dir, file));
 			}
 
-			string temp_folder = Path.GetTempPath();
-			string temp_name = Path.GetRandomFileName() + "_" + Path.GetFileName(file);
-			string temp_file = Path.Combine(temp_folder, temp_name);
+			string temp_file = Util.GetTempFileNameForFile(file);
 
 			try
 			{
@@ -809,7 +807,7 @@ namespace HgSccHelper
 			var file_info = files[0];
 			if (String.IsNullOrEmpty(file_info.CopiedFrom))
 			{
-				string temp1 = Path.GetTempFileName();
+				string temp1 = Util.GetTempFileNameForFile(file_info.File);
 				try
 				{
 					if (!CheckoutFile(work_dir, file_info.File, parent_revision, temp1))
@@ -840,7 +838,7 @@ namespace HgSccHelper
 					else
 						return false;
 
-				string temp1 = Path.GetTempFileName();
+				string temp1 = Util.GetTempFileNameForFile(parent_filename);
 				try
 				{
 					if (!CheckoutFile(work_dir, parent_filename, parent_revision, temp1))
@@ -871,7 +869,7 @@ namespace HgSccHelper
 			{
 				var file_info = files[0];
 
-				string temp1 = Path.GetTempFileName();
+				string temp1 = Util.GetTempFileNameForFile(file_info.CopiedFrom);
 				try
 				{
 					if (!CheckoutFile(work_dir, file_info.CopiedFrom, "", temp1))
@@ -893,7 +891,7 @@ namespace HgSccHelper
 			{
 				var file_info = files[0];
 
-				string temp1 = Path.GetTempFileName();
+				string temp1 = Util.GetTempFileNameForFile(file_info.File);
 				try
 				{
 					if (!CheckoutFile(work_dir, file_info.File, "", temp1))
@@ -1078,8 +1076,8 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool Diff(string work_dir, string file1, string rev1, string file2, string rev2)
 		{
-			string temp1 = Path.GetTempFileName();
-			string temp2 = Path.GetTempFileName();
+			string temp1 = Util.GetTempFileNameForFile(file1);
+			string temp2 = Util.GetTempFileNameForFile(file2);
 
 			try
 			{
