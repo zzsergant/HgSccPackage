@@ -14,6 +14,14 @@
           <CommandName>Mercurial Source Control Package</CommandName>
         </Strings>
       </Menu>
+      <Menu guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x100" type="Menu">
+        <Parent guid="guidSccProviderCmdSet" id="igrpSccNowhere"/>
+        <Strings>
+          <MenuText>Mercurial</MenuText>
+          <ButtonText>Mercurial</ButtonText>
+          <CommandName>Mercurial</CommandName>
+        </Strings>
+      </Menu>
       <!--  Menu for commands in toolwindow's toolbar 
       <Menu guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu" priority="0x0000" type="ToolWindowToolbar">
         <Parent guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu"/>
@@ -40,6 +48,9 @@
       <!-- 	Group for scci buttons in the File/SourceControl menu -->
       <Group guid="guidSccProviderCmdSet" id="igrpSourceControlCommands" priority="0x0000">
         <Parent guid="guidSccProviderCmdSet" id="imnuFileSourceControlMenu"/>
+      </Group>
+      <Group guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu" priority="0x0000">
+        <Parent guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu"/>
       </Group>
       <!-- 	Group for commands under View main menu 
       <Group guid="guidSccProviderCmdSet" id="igrpViewToolWindowGroup" priority="0x0100">
@@ -218,113 +229,51 @@
     <!--like IDG_VS_CTXT_ITEM_SCC, IDG_VS_CTXT_PROJECT_SCC, IDG_VS_CTXT_SOLUTION_SCC. -->
 
     <!--Place the source control commands defined in context menu for Solution Explorer also under File/SourceControl menu -->
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0000">
+    <CommandPlacement guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0000">
+    <CommandPlacement guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0000">
+    <CommandPlacement guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+    </CommandPlacement>
+    <!-- split -->
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0000">
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdAnnotate" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdAnnotate" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdAnnotate" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdGrep" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdGrep" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdGrep" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewChangeLog" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewChangeLog" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewChangeLog" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdTags" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdTags" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdTags" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdClone" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdClone" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdClone" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
     <!-- Also place the scc commands in the toolbar -->
     <CommandPlacement guid="guidSccProviderCmdSet" id="igrpSourceControlCommands" priority="0x0000">
@@ -351,12 +300,14 @@
 
       <IDSymbol name="imnuFileSourceControlMenu" value="0x200"/>
       <!--<IDSymbol name="imnuToolWindowToolbarMenu" value="0x201"/> -->
+      <IDSymbol name="imnuHgSccSlnMenu" value="0x202"/>
 
       <IDSymbol name="igrpFileSourceControl" value="0x300"/>
       <IDSymbol name="igrpSourceControlCommands" value="0x301"/>
       <!--<IDSymbol name="igrpViewToolWindowGroup" value="0x302"/>-->
       <!--<IDSymbol name="igrpToolWindowToolbarGroup" value="0x303"/> -->
       <IDSymbol name="igrpSccNowhere" value="0x304"/>
+      <IDSymbol name="igrpHgSccSlnMenu" value="0x305"/>
       <IDSymbol name="itbrSccToolbar" value="0x400"/>
     </GuidSymbol>
 

@@ -25,6 +25,7 @@ namespace HgSccPackage
 
 		// Define the list of menus (these include toolbars)
 		public const int imnuToolWindowToolbarMenu		= 0x201;
+		public const int imnuHgSccSlnMenu				= 0x202;
 
 		public const int icmdAddToSourceControl			= 0x100;
 		public const int icmdClone						= 0x101;
