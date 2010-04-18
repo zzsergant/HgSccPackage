@@ -2335,7 +2335,7 @@ namespace HgSccPackage
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
 			var storage = GetStorageForProject(hier);
-			if (storage != null)
+			if (storage == null)
 				return;
 
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
@@ -2373,7 +2373,7 @@ namespace HgSccPackage
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
 			var storage = GetStorageForProject(hier);
-			if (storage != null)
+			if (storage == null)
 				return;
 				
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
