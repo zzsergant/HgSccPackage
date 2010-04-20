@@ -1761,14 +1761,22 @@ namespace HgSccPackage
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
 			// Add now the solution and project files to the source control database
-			// which in our case means creating a text file containing the list of controlled files
+
+			if (addSolutionToSourceControl)
+			{
+				var storage = GetStorageForProject((IVsHierarchy)sol);
+				if (storage != null)
+				{
+					storage.AddFilesToStorage(new[] { solutionFile });
+				}
+			}
+
 			foreach (IVsHierarchy pHier in hashUncontrolledProjects)
 			{
 				var sccProject2 = (IVsSccProject2)pHier;
 				var files = _sccProvider.GetProjectFiles(sccProject2);
-				var project_path = _sccProvider.GetProjectFileName(sccProject2);
 
-				var storage = GetStorageForFile(project_path);
+				var storage = GetStorageForProject(pHier);
 				if (storage != null)
 				{
 					storage.AddFilesToStorage(files);
