@@ -275,10 +275,29 @@ namespace HgSccPackage
 				{
 					file.Status = FromHgStatus(info);
 				}
+				else
+				{
+					if (IsDirectory(file.File) && IsPathUnderRoot(file.File))
+						file.Status = SourceControlStatus.scsClean;
+				}
 				//Logger.WriteLine("GetFileStatus: {0} = {1}", file.File, file.Status);
 			}
 
 			return SccErrors.Ok;
+		}
+
+		//------------------------------------------------------------------
+		private bool IsDirectory(string path)
+		{
+			try
+			{
+				return Directory.Exists(path);
+			}
+			catch (ArgumentException)
+			{
+			}
+
+			return false;
 		}
 
 		//------------------------------------------------------------------
@@ -310,6 +329,11 @@ namespace HgSccPackage
 				if (cache.TryGetValue(files[i].ToLower(), out info))
 				{
 					statuses[i] = FromHgStatus(info);
+				}
+				else
+				{
+					if (IsDirectory(files[i]) && IsPathUnderRoot(files[i]))
+						statuses[i] = SourceControlStatus.scsClean;
 				}
 
 				//Logger.WriteLine("GetFileStatus: {0} = {1}", files[i], statuses[i]);
