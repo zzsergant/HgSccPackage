@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-//=========================================================================
+﻿//=========================================================================
 // Copyright 2009 Sergey Antonov <sergant_@mail.ru>
 //
 // This software may be used and distributed according to the terms of the
@@ -22,13 +19,14 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System;
 
 namespace HgSccHelper.UI
 {
 	/// <summary>
-	/// Interaction logic for CreateRepoWindow.xaml
+	/// Interaction logic for CreateRepositoryWindow.xaml
 	/// </summary>
-	public partial class CreateRepoWindow : Window
+	public partial class CreateRepositoryWindow : Window
 	{
 		//------------------------------------------------------------------
 		public string SolutionLocation { get; set; }
@@ -43,7 +41,7 @@ namespace HgSccHelper.UI
 		public bool SelectProjectOnLoad { get; set; }
 
 		//------------------------------------------------------------------
-		public CreateRepoWindow()
+		public CreateRepositoryWindow()
 		{
 			InitializeComponent();
 		}

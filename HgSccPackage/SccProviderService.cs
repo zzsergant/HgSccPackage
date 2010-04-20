@@ -1714,7 +1714,7 @@ namespace HgSccPackage
 					var err = storage.Init(solution_dir, SccOpenProjectFlags.None);
 					if (err != SccErrors.Ok)
 					{
-						using (var dlg = new WpfToWinFormsProxy<HgSccHelper.UI.CreateRepoWindow>())
+						using (var dlg = new WpfToWinFormsProxy<HgSccHelper.UI.CreateRepositoryWindow>())
 						{
 							var wnd = dlg.Wnd;
 							wnd.SolutionLocation = solution_dir;
@@ -1767,7 +1767,7 @@ namespace HgSccPackage
 					var err = storage.Init(project_dir, SccOpenProjectFlags.None);
 					if (err != SccErrors.Ok)
 					{
-						using (var dlg = new WpfToWinFormsProxy<HgSccHelper.UI.CreateRepoWindow>())
+						using (var dlg = new WpfToWinFormsProxy<HgSccHelper.UI.CreateRepositoryWindow>())
 						{
 							var wnd = dlg.Wnd;
 							wnd.SolutionLocation = solution_dir;

@@ -108,8 +108,8 @@
       <DependentUpon>CommitWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Misc\DeferredCommandExecutor.cs" />
-    <Compile Include="UI\CreateRepoWindow.xaml.cs">
-      <DependentUpon>CreateRepoWindow.xaml</DependentUpon>
+    <Compile Include="UI\CreateRepositoryWindow.xaml.cs">
+      <DependentUpon>CreateRepositoryWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\FileHistoryWindow.xaml.cs">
       <DependentUpon>FileHistoryWindow.xaml</DependentUpon>
@@ -243,7 +243,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UI\CreateRepoWindow.xaml">
+    <Page Include="UI\CreateRepositoryWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
