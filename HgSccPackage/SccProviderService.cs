@@ -1710,7 +1710,28 @@ namespace HgSccPackage
 
 				if (!storage.IsValid)
 				{
-					var err = storage.Init(solution_dir, SccOpenProjectFlags.CreateIfNew);
+					// Checking if there is allready a repository
+					var err = storage.Init(solution_dir, SccOpenProjectFlags.None);
+					if (err != SccErrors.Ok)
+					{
+						using (var dlg = new WpfToWinFormsProxy<HgSccHelper.UI.CreateRepoWindow>())
+						{
+							var wnd = dlg.Wnd;
+							wnd.SolutionLocation = solution_dir;
+
+							var result = wnd.ShowDialog();
+							if (result != true)
+								return;
+
+							err = storage.Init(wnd.ResultLocation, SccOpenProjectFlags.CreateIfNew);
+							if (err != SccErrors.Ok)
+							{
+								var msg = String.Format("Unable to create repository at folowing location:\n{0}", wnd.ResultLocation);
+								System.Windows.Forms.MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+								return;
+							}
+						}
+					}
 				}
 
 				project_to_storage_map[solHier] = storage;
@@ -1730,8 +1751,6 @@ namespace HgSccPackage
 			foreach (IVsHierarchy pHier in hashUncontrolledProjects)
 			{
 				var sccProject2 = (IVsSccProject2)pHier;
-				if (HgSccOptions.Options.UseSccBindings)
-					sccProject2.SetSccLocation("<Project Location In Database>", "<Source Control Database>", "<Local Binding Root of Project>", _sccProvider.ProviderName);
 
 				var project_path = _sccProvider.GetProjectFileName(sccProject2);
 				var project_dir = Path.GetDirectoryName(project_path);
@@ -1744,8 +1763,34 @@ namespace HgSccPackage
 
 				if (!storage.IsValid)
 				{
-					var err = storage.Init(project_dir, SccOpenProjectFlags.CreateIfNew);
+					// Checking if there is allready a repository
+					var err = storage.Init(project_dir, SccOpenProjectFlags.None);
+					if (err != SccErrors.Ok)
+					{
+						using (var dlg = new WpfToWinFormsProxy<HgSccHelper.UI.CreateRepoWindow>())
+						{
+							var wnd = dlg.Wnd;
+							wnd.SolutionLocation = solution_dir;
+							wnd.ProjectLocation = project_dir;
+							wnd.SelectProjectOnLoad = true;
+
+							var result = wnd.ShowDialog();
+							if (result != true)
+								return;
+
+							err = storage.Init(wnd.ResultLocation, SccOpenProjectFlags.CreateIfNew);
+							if (err != SccErrors.Ok)
+							{
+								var msg = String.Format("Unable to create repository at folowing location:\n{0}", wnd.ResultLocation);
+								System.Windows.Forms.MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+								return;
+							}
+						}
+					}
 				}
+
+				if (HgSccOptions.Options.UseSccBindings)
+					sccProject2.SetSccLocation("<Project Location In Database>", "<Source Control Database>", "<Local Binding Root of Project>", _sccProvider.ProviderName);
 
 				project_to_storage_map[pHier] = storage;
 				if (found_storage == null)
@@ -1754,7 +1799,6 @@ namespace HgSccPackage
 					storage_list.Add(storage);
 				}
 			}
-
 
 			// Now save all the modified files
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));

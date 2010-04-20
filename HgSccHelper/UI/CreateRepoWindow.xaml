@@ -1,0 +1,74 @@
+﻿<Window x:Class="HgSccHelper.UI.CreateRepoWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Create Repository"
+    SizeToContent="Height"
+    Height="Auto"
+    Width="800"
+    WindowStartupLocation="CenterScreen"
+    Loaded="Window_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Select new repository location:"
+                       Margin="5"></TextBlock>
+            <StackPanel Name="panelSolution" Margin="5">
+                <RadioButton Name="radioSolution"
+                             Content="Solution location:"
+                             Click="radioSolution_Click" GroupName="LocationGroup"></RadioButton>
+                <TextBox Name="textSolutionLocation"
+                         IsReadOnly="True"
+                         Margin="30,5,0,5"
+                         ></TextBox>
+            </StackPanel>
+            <StackPanel Name="panelProject" Margin="5">
+                <RadioButton Name="radioProject"
+                             Click="radioProject_Click"
+                             Content="Project location:" GroupName="LocationGroup"></RadioButton>
+                <TextBox Name="textProjectLocation"
+                         IsReadOnly="True"
+                         Margin="30,5,0,5"
+                         ></TextBox>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <RadioButton Name="radioCustom"
+                             Click="radioCustom_Click"
+                             Content="Custom location:" GroupName="LocationGroup"></RadioButton>
+                <Grid Margin="30,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" Name="textCustomLocation"
+                         IsReadOnly="True"
+                         Margin="0,5"
+                         ></TextBox>
+                    <Button Grid.Column="1"
+                            Name="btnBrowse"
+                            Click="btnBrowse_Click"
+                            Content="Browse..."
+                            Margin="5,5,0,5"
+                            MinWidth="75"
+                            MinHeight="23"></Button>
+                </Grid>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="OK"
+                        MinWidth="75"
+                        Margin="5,5,0,5"
+                        Click="btnOK_Click"
+                        MinHeight="23"></Button>
+            <Button Content="Cancel"
+                        MinWidth="75"
+                        MinHeight="23"
+                        Margin="5"
+                        IsCancel="True"
+                        ></Button>
+        </StackPanel>
+    </Grid>
+</Window>
