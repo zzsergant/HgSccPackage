@@ -95,7 +95,7 @@ namespace HgSccHelper
 		{
 			relative = string.Empty;
 			string f = path.ToLower();
-			if (!f.StartsWith(working_dir))
+			if (!f.StartsWith(working_dir.ToLower()))
 				return false;
 
 			if (path.Length == working_dir.Length)

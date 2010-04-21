@@ -67,8 +67,7 @@ namespace HgSccHelper
 				}
 			}
 
-			WorkingDir = root.ToLower();
-
+			WorkingDir = root;
 			return SccErrors.Ok;
 		}
 
