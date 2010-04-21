@@ -2444,6 +2444,16 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		public void RefreshStatus()
+		{
+			foreach (var storage in storage_list)
+			{
+				storage.ReloadCache();
+				RefreshGlyphsForControlledProjects();
+			}
+		}
+
+		//------------------------------------------------------------------
 		private void UpdateEvent_Handler(object sender, EventArgs e)
 		{
 			var storage = sender as SccProviderStorage;

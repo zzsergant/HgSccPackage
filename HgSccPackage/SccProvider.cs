@@ -174,6 +174,7 @@ namespace HgSccPackage
 				AddMenuCommand(mcs, CommandId.icmdViewChangeLog, Exec_icmdViewChangeLog);
 				AddMenuCommand(mcs, CommandId.icmdUpdate, Exec_icmdUpdate);
 				AddMenuCommand(mcs, CommandId.icmdTags, Exec_icmdTags);
+				AddMenuCommand(mcs, CommandId.icmdRefreshStatus, Exec_icmdRefreshStatus);
 			}
 
 			// Register the provider with the source control manager
@@ -560,6 +561,10 @@ namespace HgSccPackage
 					cmdf |= QueryStatus_icmdTags();
 					break;
 
+				case CommandId.icmdRefreshStatus:
+					cmdf |= QueryStatus_icmdRefreshStatus();
+					break;
+
 				default:
 					return
 						(int)
@@ -688,6 +693,22 @@ namespace HgSccPackage
 
 			if (sccService.IsValidStorage(selected_hier))
 				return OLECMDF.OLECMDF_ENABLED;
+
+			return OLECMDF.OLECMDF_SUPPORTED;
+		}
+
+		//------------------------------------------------------------------
+		private OLECMDF QueryStatus_icmdRefreshStatus()
+		{
+			if (!IsThereASolution())
+				return OLECMDF.OLECMDF_INVISIBLE;
+
+			int pfResult = 0;
+			sccService.AnyItemsUnderSourceControl(out pfResult);
+			if (pfResult > 0)
+			{
+				return OLECMDF.OLECMDF_ENABLED;
+			}
 
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
@@ -906,6 +927,15 @@ namespace HgSccPackage
 
 			var selected_hier = GetFirstSelectedHierarchy();
 			sccService.Tags(selected_hier);
+		}
+
+		//------------------------------------------------------------------
+		private void Exec_icmdRefreshStatus(object sender, EventArgs e)
+		{
+			if (!IsThereASolution())
+				return;
+
+			sccService.RefreshStatus();
 		}
 
 		//------------------------------------------------------------------
