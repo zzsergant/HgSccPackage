@@ -2015,47 +2015,20 @@ namespace HgSccPackage
 			return nodes;
 		}
 
-		public void CommitFiles(IEnumerable<string> files)
+		public void CommitFiles(IVsHierarchy hier, IEnumerable<string> files)
 		{
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
-			var files_map = new Dictionary<SccProviderStorage, List<string>>();
-
-			foreach (var file in files)
-			{
-				var file_storage = GetStorageForFile(file);
-				if (file_storage == null)
-					continue;
-
-				List<string> files_list;
-				if (!files_map.TryGetValue(file_storage, out files_list))
-				{
-					files_list = new List<string>();
-					files_map[file_storage] = files_list;
-				}
-
-				files_list.Add(file);
-			}
-
-			SccProviderStorage storage = null;
-			List<string> files_to_commit = null;
-
-			foreach (var pair in files_map)
-			{
-				storage = pair.Key;
-				files_to_commit = pair.Value;
-				break;
-			}
-
-			if (storage == null || files_to_commit == null)
+			var storage = GetStorageForProject(hier);
+			if (storage == null)
 				return;
 
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
 			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, all_projects))
 			{
 				IEnumerable<string> commited_files;
-				storage.Commit(files_to_commit, out commited_files);
+				storage.Commit(files, out commited_files);
 
 				var list = GetControlledProjectsContainingFiles(commited_files);
 				if (list.Count != 0)
@@ -2067,47 +2040,20 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		public void RevertFiles(IEnumerable<string> files)
+		public void RevertFiles(IVsHierarchy hier, IEnumerable<string> files)
 		{
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
 
-			var files_map = new Dictionary<SccProviderStorage, List<string>>();
-
-			foreach (var file in files)
-			{
-				var file_storage = GetStorageForFile(file);
-				if (file_storage == null)
-					continue;
-
-				List<string> files_list;
-				if (!files_map.TryGetValue(file_storage, out files_list))
-				{
-					files_list = new List<string>();
-					files_map[file_storage] = files_list;
-				}
-
-				files_list.Add(file);
-			}
-
-			SccProviderStorage storage = null;
-			List<string> files_to_revert = null;
-
-			foreach (var pair in files_map)
-			{
-				storage = pair.Key;
-				files_to_revert = pair.Value;
-				break;
-			}
-
-			if (storage == null || files_to_revert == null)
+			var storage = GetStorageForProject(hier);
+			if (storage == null)
 				return;
 
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
 			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, all_projects))
 			{
 				IEnumerable<string> reverted_files = null;
-				storage.Revert(files_to_revert, out reverted_files);
+				storage.Revert(files, out reverted_files);
 
 				var list = GetControlledProjectsContainingFiles(reverted_files);
 				if (list.Count != 0)

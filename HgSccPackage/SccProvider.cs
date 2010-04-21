@@ -807,6 +807,7 @@ namespace HgSccPackage
 				return;
 			}
 
+			var selected_hier = GetFirstSelectedHierarchy();
 			var selected_files = GetSelectedFilesInControlledProjects();
 			var modified_files = new List<string>();
 
@@ -824,7 +825,7 @@ namespace HgSccPackage
 				modified_files.Add(file);
 			}
 
-			sccService.CommitFiles(modified_files);
+			sccService.CommitFiles(selected_hier, modified_files);
 		}
 
 		//------------------------------------------------------------------
@@ -832,7 +833,8 @@ namespace HgSccPackage
 		{
 			if (!IsThereASolution())
 				return;
-			
+
+			var selected_hier = GetFirstSelectedHierarchy();
 			var selected_files = GetSelectedFilesInControlledProjects();
 			var modified_files = new List<string>();
 
@@ -850,7 +852,7 @@ namespace HgSccPackage
 				modified_files.Add(file);
 			}
 
-			sccService.RevertFiles(modified_files);
+			sccService.RevertFiles(selected_hier, modified_files);
 		}
 
 		//------------------------------------------------------------------
