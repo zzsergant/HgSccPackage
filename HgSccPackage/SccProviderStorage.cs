@@ -477,7 +477,7 @@ namespace HgSccPackage
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
-				wnd.FileName = relative_path.Replace('\\', '/');
+				wnd.FileName = relative_path;
 
 				proxy.ShowDialog();
 
@@ -503,7 +503,7 @@ namespace HgSccPackage
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
-				wnd.FileName = relative_path.Replace('\\', '/');
+				wnd.FileName = relative_path;
 
 				proxy.ShowDialog();
 

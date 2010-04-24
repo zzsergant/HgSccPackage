@@ -1219,6 +1219,8 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<RenameInfo> FindRenames(string work_dir, string file, List<ChangeDesc> changes)
 		{
+			file = file.Replace('\\', '/');
+
 			var renames = new List<RenameInfo>();
 			if (changes.Count == 0)
 				return renames;
