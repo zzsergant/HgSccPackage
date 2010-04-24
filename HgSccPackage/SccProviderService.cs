@@ -1484,7 +1484,8 @@ namespace HgSccPackage
 				// Now that we know which files belong to this project, iterate the project files
 				for (int iFile = iProjectFilesStart; iFile < iNextProjecFilesStart; iFile++)
 				{
-					files.Add(rgpszMkDocuments[iFile]);
+					if (!File.Exists(rgpszMkDocuments[iFile]))
+						files.Add(rgpszMkDocuments[iFile]);
 				}
 			}
 
