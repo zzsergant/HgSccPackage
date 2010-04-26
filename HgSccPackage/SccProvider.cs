@@ -803,9 +803,9 @@ namespace HgSccPackage
 		private void Exec_icmdCommit(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
-			{
 				return;
-			}
+			
+			SaveAllIfDirty();
 
 			var selected_hier = GetFirstSelectedHierarchy();
 			var selected_files = GetSelectedFilesInControlledProjects();
@@ -834,6 +834,8 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return;
 
+			SaveAllIfDirty();
+
 			var selected_hier = GetFirstSelectedHierarchy();
 			var selected_files = GetSelectedFilesInControlledProjects();
 			var modified_files = new List<string>();
@@ -861,6 +863,8 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return;
 
+			SaveAllIfDirty();
+
 			var selected_files = GetSelectedNodes();
 			if (selected_files.Count != 1)
 				return;
@@ -878,6 +882,8 @@ namespace HgSccPackage
 		{
 			if (!IsThereASolution())
 				return;
+
+			SaveAllIfDirty();
 
 			var selected_files = GetSelectedNodes();
 			if (selected_files.Count != 1)
@@ -897,6 +903,8 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return;
 
+			SaveAllIfDirty();
+
 			var selected_hier = GetFirstSelectedHierarchy();
 			sccService.ViewChangeLog(selected_hier);
 		}
@@ -907,6 +915,8 @@ namespace HgSccPackage
 			if (!IsThereASolution())
 				return;
 
+			SaveAllIfDirty();
+
 			var selected_hier = GetFirstSelectedHierarchy();
 			sccService.Grep(selected_hier);
 		}
@@ -916,6 +926,8 @@ namespace HgSccPackage
 		{
 			if (!IsThereASolution())
 				return;
+
+			SaveAllIfDirty();
 
 			var selected_hier = GetFirstSelectedHierarchy();
 			sccService.Update(selected_hier);
@@ -945,6 +957,8 @@ namespace HgSccPackage
 		{
 			if (!IsThereASolution())
 				return;
+
+			SaveAllIfDirty();
 
 			IList<VSITEMSELECTION> sel = GetSelectedNodes();
 			bool isSolutionSelected = false;
@@ -977,6 +991,11 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		private void Exec_icmdClone(object sender, EventArgs e)
 		{
+			if (IsThereASolution())
+			{
+				SaveAllIfDirty();
+			}
+
 			var selected_hier = GetFirstSelectedHierarchy();
 			sccService.Clone(selected_hier);
 		}
@@ -986,6 +1005,8 @@ namespace HgSccPackage
 		{
 			if (!IsThereASolution())
 				return;
+
+			SaveAllIfDirty();
 
 			var selected_hier = GetFirstSelectedHierarchy();
 			sccService.Synchronize(selected_hier);
@@ -1005,6 +1026,8 @@ namespace HgSccPackage
 
 			if (files.Count == 1)
 			{
+				// FIXME: Save only selected item
+				SaveAllIfDirty();
 				sccService.Compare(files[0]);
 			}
 		}
@@ -1031,6 +1054,14 @@ namespace HgSccPackage
 		private bool IsThereASolution()
 		{
 			return (GetSolutionFileName() != null);
+		}
+
+		//------------------------------------------------------------------
+		public bool SaveAllIfDirty()
+		{
+			var sol = (IVsSolution)GetService(typeof(SVsSolution));
+			var err = sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
+			return err == VSConstants.S_OK;
 		}
 
 		//------------------------------------------------------------------

@@ -1323,12 +1323,7 @@ namespace HgSccPackage
 
 			// Before checking in files, make sure all in-memory edits have been commited to disk 
 			// by forcing a save of the solution. Ideally, only the files to be checked in should be saved...
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			if (sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0) != VSConstants.S_OK)
-			{
-				// If saving the files failed, don't continue with the checkin
-				//				return;
-			}
+			_sccProvider.SaveAllIfDirty();
 
 			if (add_origin.Count != 0)
 			{
@@ -1357,14 +1352,7 @@ namespace HgSccPackage
 
 		public int OnAfterAddDirectoriesEx ([InAttribute] int cProjects, [InAttribute] int cDirectories, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSADDDIRECTORYFLAGS[] rgFlags)
 		{
-			// Before checking in files, make sure all in-memory edits have been commited to disk 
-			// by forcing a save of the solution. Ideally, only the files to be checked in should be saved...
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			if (sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0) != VSConstants.S_OK)
-			{
-				// If saving the files failed, don't continue with the checkin
-				//				return;
-			}
+			_sccProvider.SaveAllIfDirty();
 			return VSConstants.S_OK;
 		}
 
@@ -1495,14 +1483,7 @@ namespace HgSccPackage
 				storage.RemoveFiles(files);
 			}
 
-			// Before checking in files, make sure all in-memory edits have been commited to disk 
-			// by forcing a save of the solution. Ideally, only the files to be checked in should be saved...
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			if (sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0) != VSConstants.S_OK)
-			{
-				// If saving the files failed, don't continue with the checkin
-				//				return;
-			}
+			_sccProvider.SaveAllIfDirty();
 			return VSConstants.S_OK;
 		}
 
@@ -1513,14 +1494,7 @@ namespace HgSccPackage
 
 		public int OnAfterRemoveDirectories([InAttribute] int cProjects, [InAttribute] int cDirectories, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSREMOVEDIRECTORYFLAGS[] rgFlags)
 		{
-			// Before checking in files, make sure all in-memory edits have been commited to disk 
-			// by forcing a save of the solution. Ideally, only the files to be checked in should be saved...
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			if (sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0) != VSConstants.S_OK)
-			{
-				// If saving the files failed, don't continue with the checkin
-				//				return;
-			}
+			_sccProvider.SaveAllIfDirty();
 			return VSConstants.S_OK;
 		}
 
@@ -1584,15 +1558,7 @@ namespace HgSccPackage
 				}
 			}
 
-			// Before checking in files, make sure all in-memory edits have been commited to disk 
-			// by forcing a save of the solution. Ideally, only the files to be checked in should be saved...
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			if (sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0) != VSConstants.S_OK)
-			{
-				// If saving the files failed, don't continue with the checkin
-//				return;
-			}
-
+			_sccProvider.SaveAllIfDirty();
 			return VSConstants.S_OK;
 		}
 
@@ -1874,6 +1840,7 @@ namespace HgSccPackage
 				statuses[i] = GetFileStatus(files[i]);
 		}
 
+		//------------------------------------------------------------------
 		public void ViewHistory(string file)
 		{
 			var storage = GetStorageForFile(file);
@@ -1891,6 +1858,7 @@ namespace HgSccPackage
 			}
 		}
 
+		//------------------------------------------------------------------
 		public void Annotate(string file)
 		{
 			var storage = GetStorageForFile(file);
@@ -1908,6 +1876,7 @@ namespace HgSccPackage
 			}
 		}
 
+		//------------------------------------------------------------------
 		public void Compare(string file)
 		{
 			var storage = GetStorageForFile(file);
@@ -1929,9 +1898,6 @@ namespace HgSccPackage
 			if (storage == null)
 				return;
 
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
-
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
 			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, all_projects))
 			{
@@ -1946,9 +1912,6 @@ namespace HgSccPackage
 			if (storage == null)
 				return;
 
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
-
 			using (var sln_prj_reloader = new SlnOrProjectReloader(_sccProvider, all_projects))
 			using (var rdt_files_reloader = new RdtFilesReloader(_sccProvider, all_projects))
 			{
@@ -1956,6 +1919,7 @@ namespace HgSccPackage
 			}
 		}
 
+		//------------------------------------------------------------------
 		/// <summary>
 		/// Returns a list of controlled projects containing the specified file
 		/// </summary>
@@ -2004,6 +1968,7 @@ namespace HgSccPackage
 			return nodes;
 		}
 
+		//------------------------------------------------------------------
 		public System.Collections.Generic.IList<VSITEMSELECTION> GetControlledProjectsContainingFiles(IEnumerable<string> files)
 		{
 			var nodes = new List<VSITEMSELECTION>();
@@ -2016,11 +1981,9 @@ namespace HgSccPackage
 			return nodes;
 		}
 
+		//------------------------------------------------------------------
 		public void CommitFiles(IVsHierarchy hier, IEnumerable<string> files)
 		{
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
-
 			var storage = GetStorageForProject(hier);
 			if (storage == null)
 				return;
@@ -2043,9 +2006,6 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void RevertFiles(IVsHierarchy hier, IEnumerable<string> files)
 		{
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
-
 			var storage = GetStorageForProject(hier);
 			if (storage == null)
 				return;
@@ -2330,9 +2290,6 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void Synchronize(IVsHierarchy hier)
 		{
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
-
 			var storage = GetStorageForProject(hier);
 			if (storage == null)
 				return;
@@ -2368,9 +2325,6 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void Update(IVsHierarchy hier)
 		{
-			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
-
 			var storage = GetStorageForProject(hier);
 			if (storage == null)
 				return;
