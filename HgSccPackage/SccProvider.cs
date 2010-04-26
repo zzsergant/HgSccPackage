@@ -1237,10 +1237,54 @@ namespace HgSccPackage
 					{
 						sccFiles.Add(file);
 					}
+
+					if (nodefilesrec.Count == 0)
+					{
+						string filename;
+						if (GetSelectedItemFileName(pscp2, vsItemSel, out filename))
+							sccFiles.Add(filename);
+					}
 				}
 			}
 
 			return sccFiles;
+		}
+
+		//------------------------------------------------------------------
+		private bool GetSelectedItemFileName(IVsSccProject2 pscp2,
+			VSITEMSELECTION selected_item, out string filename)
+		{
+			// special or uncontrolled file
+			var project = (IVsProject)pscp2;
+			string bstrMKDocument;
+
+			if (	project.GetMkDocument(selected_item.itemid, out bstrMKDocument) == VSConstants.S_OK
+				&& !string.IsNullOrEmpty(bstrMKDocument))
+			{
+				object prop;
+				var res = selected_item.pHier.GetProperty(selected_item.itemid, (int)__VSHPROPID.VSHPROPID_Parent, out prop);
+				if (res == VSConstants.S_OK)
+				{
+					// Logger.WriteLine("ParentId: {0}", prop);
+				}
+
+				uint parent_id = (uint)((int)prop);
+				IList<string> files = GetNodeFiles(pscp2, parent_id);
+				if (files.Count != 0)
+				{
+					foreach (var f in files)
+					{
+						if (f == bstrMKDocument)
+						{
+							filename = f;
+							return true;
+						}
+					}
+				}
+			}
+
+			filename = null;
+			return false;
 		}
 
 		//------------------------------------------------------------------
@@ -1268,35 +1312,9 @@ namespace HgSccPackage
 
 					if (nodefilesrec.Count == 0)
 					{
-						// special or uncontrolled file
-						var project = (IVsProject)pscp2;
-						string bstrMKDocument;
-						if (project.GetMkDocument(vsItemSel.itemid, out bstrMKDocument) == VSConstants.S_OK
-							&& !string.IsNullOrEmpty(bstrMKDocument))
-						{
-							object prop;
-							var res = vsItemSel.pHier.GetProperty(vsItemSel.itemid, (int)__VSHPROPID.VSHPROPID_Parent, out prop);
-							if (res == VSConstants.S_OK)
-							{
-//								Logger.WriteLine("ParentId: {0}", prop);
-							}
-
-							uint parent_id = (uint)((int)prop);
-							IList<string> files = GetNodeFiles(pscp2, parent_id);
-							if (files.Count != 0)
-							{
-								var lower_path = bstrMKDocument;//.ToLower();
-
-								foreach (var f in files)
-								{
-//									if (f.ToLower().EndsWith(lower_path))
-									if (f == lower_path)
-									{
-										sccFiles.Add(f);
-									}
-								}
-							}
-						}
+						string filename;
+						if (GetSelectedItemFileName(pscp2, vsItemSel, out filename))
+							sccFiles.Add(filename);
 					}
 				}
 			}
