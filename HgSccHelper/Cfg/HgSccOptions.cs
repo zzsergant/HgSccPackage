@@ -83,7 +83,7 @@ namespace HgSccHelper
 
 			if (Cfg.Get("", "DiffTool", out diff_tool, diff_tool))
 				options.DiffTool = diff_tool;
-			if (Cfg.Get("", "UseSccBinding", out use_scc_bindings, use_scc_bindings))
+			if (Cfg.Get("", "UseSccBindings", out use_scc_bindings, use_scc_bindings))
 				options.UseSccBindings = use_scc_bindings != 0;
 
 			return options;
