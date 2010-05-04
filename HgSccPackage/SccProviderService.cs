@@ -683,6 +683,21 @@ namespace HgSccPackage
 			// By this time, we have already loaded the solution persistence data from the PreLoad section
 			// the controlled projects should be opened and registered with source control
 			bool register_scc_projects = _loadingControlledSolutionLocation.Length > 0;
+
+			if (HgSccOptions.Options.CheckProjectsForMercurialRepository)
+			{
+				// If this option is set, then we will check
+				// for mercurial repository at the project location
+				// even if the solution is not controlled and located
+				// outside of mercurial repository
+
+				// One downside, that this check may take quite some time
+				// for solution with a lot of projects, that
+				// are not in the mercurial repository
+
+				register_scc_projects = true;
+			}
+
 			if (!register_scc_projects)
 			{
 				var solution_dir = Path.GetDirectoryName(_sccProvider.GetSolutionFileName());

@@ -24,11 +24,13 @@ namespace HgSccHelper
 	{
 		public string DiffTool { get; set; }
 		public bool UseSccBindings { get; set; }
+		public bool CheckProjectsForMercurialRepository { get; set; }
 
 		public HgPkgOptions()
 		{
 			DiffTool = "";
 			UseSccBindings = true;
+			CheckProjectsForMercurialRepository = true;
 		}
 	}
 
@@ -71,6 +73,7 @@ namespace HgSccHelper
 				Cfg.Set("", "DiffTool", Options.DiffTool);
 
 			Cfg.Set("", "UseSccBindings", Options.UseSccBindings ? 1 : 0);
+			Cfg.Set("", "CheckProjectsForMercurialRepository", Options.CheckProjectsForMercurialRepository ? 1 : 0);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -80,11 +83,16 @@ namespace HgSccHelper
 
 			string diff_tool = options.DiffTool;
 			int use_scc_bindings = options.UseSccBindings ? 1 : 0;
+			int check_projects_for_repo = options.CheckProjectsForMercurialRepository ? 1 : 0;
 
 			if (Cfg.Get("", "DiffTool", out diff_tool, diff_tool))
 				options.DiffTool = diff_tool;
+
 			if (Cfg.Get("", "UseSccBindings", out use_scc_bindings, use_scc_bindings))
 				options.UseSccBindings = use_scc_bindings != 0;
+
+			if (Cfg.Get("", "CheckProjectsForMercurialRepository", out check_projects_for_repo, check_projects_for_repo))
+				options.CheckProjectsForMercurialRepository = check_projects_for_repo != 0;
 
 			return options;
 		}

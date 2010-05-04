@@ -198,6 +198,15 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		public bool CheckProjectsForMercurialRepository
+		{
+			get
+			{
+				return hgSettingsControl1.CheckProjectsForMercurialRepository;
+			}
+		}
+
+		//------------------------------------------------------------------
 		public void Activate()
 		{
 			hgDiffOptionsControl1.Activate();

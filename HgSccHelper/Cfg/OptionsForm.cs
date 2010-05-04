@@ -47,6 +47,7 @@ namespace HgSccHelper
 
 			HgSccOptions.Options.DiffTool = diff_tool;
 			HgSccOptions.Options.UseSccBindings = hgSettingsControl1.UseSccBindings;
+			HgSccOptions.Options.CheckProjectsForMercurialRepository = hgSettingsControl1.CheckProjectsForMercurialRepository;
 			HgSccOptions.Save();
 
 			DialogResult = DialogResult.OK;

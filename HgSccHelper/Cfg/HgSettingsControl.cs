@@ -17,6 +17,7 @@ namespace HgSccHelper
 			InitializeComponent();
 
 			checkBoxUseSccBindings.Checked = HgSccOptions.Options.UseSccBindings;
+			checkProjectsForRepository.Checked = HgSccOptions.Options.CheckProjectsForMercurialRepository;
 		}
 
 		//------------------------------------------------------------------
@@ -25,6 +26,15 @@ namespace HgSccHelper
 			get
 			{
 				return checkBoxUseSccBindings.Checked;
+			}
+		}
+
+		//------------------------------------------------------------------
+		public bool CheckProjectsForMercurialRepository
+		{
+			get
+			{
+				return checkProjectsForRepository.Checked;
 			}
 		}
 	}
