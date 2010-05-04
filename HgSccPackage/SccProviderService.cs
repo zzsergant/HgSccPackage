@@ -694,7 +694,7 @@ namespace HgSccPackage
 				if (SccErrors.Ok == storage.Init(solution_dir, SccOpenProjectFlags.None))
 				{
 					Logger.WriteLine("Solution is not controlled, but there is a mercurial repository");
-					register_scc_projects = !HgSccOptions.Options.UseSccBindings;
+					register_scc_projects = true;
 				}
 			}
 
