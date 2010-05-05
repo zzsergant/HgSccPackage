@@ -1575,6 +1575,12 @@ namespace HgSccPackage
 					// and let the project call back on GetSccGlyphs, but just for the sake of the demo, 
 					// let's refresh ourselves only one node at a time
 					IList<string> sccFiles = GetNodeFiles(sccProject2, vsItemSel.itemid);
+					if (sccFiles.Count == 0)
+					{
+						string filename;
+						if (GetSelectedItemFileName(sccProject2, vsItemSel, out filename))
+							sccFiles.Add(filename);
+					}
 
 					if (sccFiles.Count > 0)
 					{
