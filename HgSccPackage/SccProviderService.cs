@@ -1723,7 +1723,7 @@ namespace HgSccPackage
 					storage_list.Add(storage);
 				}
 
-				_sccProvider.SolutionHasDirtyProps = true;
+				_sccProvider.SolutionHasDirtyProps = HgSccOptions.Options.UseSccBindings;
 			}
 
 			// A real source control provider will ask the user for a location where the projects will be controlled
