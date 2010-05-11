@@ -25,6 +25,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using HgSccHelper.UI;
+using System.Web;
 
 namespace HgSccHelper
 {
@@ -189,8 +190,8 @@ namespace HgSccHelper
 				try
 				{
 					var uri_builder = new UriBuilder(source_path);
-					uri_builder.UserName = textUsername.Text;
-					uri_builder.Password = passwordBox.Password;
+					uri_builder.UserName = HttpUtility.UrlEncode(textUsername.Text);
+					uri_builder.Password = HttpUtility.UrlEncode(passwordBox.Password);
 					source_path = uri_builder.Uri.AbsoluteUri;
 				}
 				catch (UriFormatException)
@@ -335,13 +336,13 @@ namespace HgSccHelper
 				try
 				{
 					var builder = new UriBuilder(url);
-					textUsername.Text = builder.UserName;
+					textUsername.Text = HttpUtility.UrlDecode(builder.UserName);
 
 					if (	!String.IsNullOrEmpty(builder.Password)
 						&&	builder.Password != "***"
 						)
 					{
-						passwordBox.Password = builder.Password;
+						passwordBox.Password = HttpUtility.UrlDecode(builder.Password);
 						textSourcePath.Text = Util.RemoveUrlPassword(url);
 					}
 

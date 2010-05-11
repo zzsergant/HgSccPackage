@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using Microsoft.Win32;
 using System.Windows.Controls;
 using HgSccHelper.UI;
+using System.Web;
 
 namespace HgSccHelper
 {
@@ -183,8 +184,8 @@ namespace HgSccHelper
 						)
 					{
 						var uri_builder = new UriBuilder(path);
-						uri_builder.UserName = textUsername.Text;
-						uri_builder.Password = passwordBox.Password;
+						uri_builder.UserName = HttpUtility.UrlEncode(textUsername.Text);
+						uri_builder.Password = HttpUtility.UrlEncode(passwordBox.Password);
 						return uri_builder.Uri.AbsoluteUri;
 					}
 				}
@@ -513,12 +514,12 @@ namespace HgSccHelper
 			if (Util.IsValidRemoteUrl(url))
 			{
 				var builder = new UriBuilder(url);
-				textUsername.Text = builder.UserName;
+				textUsername.Text = HttpUtility.UrlDecode(builder.UserName);
 
 				if (	!String.IsNullOrEmpty(builder.Password)
 					&&	builder.Password != "***")
 				{
-					passwordBox.Password = builder.Password;
+					passwordBox.Password = HttpUtility.UrlDecode(builder.Password);
 					comboBoxPaths.Text = Util.RemoveUrlPassword(url);
 				}
 

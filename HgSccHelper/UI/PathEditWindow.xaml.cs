@@ -22,6 +22,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Web;
 
 namespace HgSccHelper
 {
@@ -104,7 +105,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public void OnUrlPasswordChange(string password)
 		{
-			passwordBox.Password = password;
+			passwordBox.Password = HttpUtility.UrlDecode(password);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -170,9 +171,9 @@ namespace HgSccHelper
 						var builder = new UriBuilder(Url);
 
 						if (!String.IsNullOrEmpty(Username))
-							builder.UserName = Username;
+							builder.UserName = HttpUtility.UrlEncode(Username);
 						if (!String.IsNullOrEmpty(passwordBox.Password))
-							builder.Password = passwordBox.Password;
+							builder.Password = HttpUtility.UrlEncode(passwordBox.Password);
 
 						Path = builder.Uri.AbsoluteUri;
 					}
