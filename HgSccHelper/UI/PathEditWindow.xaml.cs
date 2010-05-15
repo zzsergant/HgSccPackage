@@ -111,7 +111,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public void OnUrlUserChange(string user)
 		{
-			Username = user;
+			Username = HttpUtility.UrlDecode(user);
 		}
 
 		public const string CfgPath = @"GUI\PathEditWindow";
@@ -201,11 +201,11 @@ namespace HgSccHelper
 				if (Util.IsValidRemoteUrl(Url))
 				{
 					var builder = new UriBuilder(Url);
-					builder.UserName = textUsername.Text;
+					builder.UserName = HttpUtility.UrlEncode(textUsername.Text);
 
 					// Make sure, that we entering username with allowed characters
 					var checker = new UriBuilder(builder.Uri.AbsoluteUri);
-					if (checker.UserName == textUsername.Text)
+					if (HttpUtility.UrlDecode(checker.UserName) == textUsername.Text)
 						Url = builder.Uri.AbsoluteUri;
 				}
 			}
