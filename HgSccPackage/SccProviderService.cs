@@ -471,11 +471,14 @@ namespace HgSccPackage
 						return VSConstants.E_FAIL;
 				}
 
-				project_to_storage_map[solHier] = storage;
-				if (found_storage == null)
+				if (storage.GetFileStatus(solutionFile) != SourceControlStatus.scsUncontrolled)
 				{
-					storage.UpdateEvent += UpdateEvent_Handler;
-					storage_list.Add(storage);
+					project_to_storage_map[solHier] = storage;
+					if (found_storage == null)
+					{
+						storage.UpdateEvent += UpdateEvent_Handler;
+						storage_list.Add(storage);
+					}
 				}
 			}
 			else
@@ -501,11 +504,15 @@ namespace HgSccPackage
 					if (err != SccErrors.Ok)
 						return VSConstants.E_FAIL;
 				}
-				project_to_storage_map[hierProject] = storage;
-				if (found_storage == null)
+
+				if (storage.GetFileStatus(project_path) != SourceControlStatus.scsUncontrolled)
 				{
-					storage.UpdateEvent += UpdateEvent_Handler;
-					storage_list.Add(storage);
+					project_to_storage_map[hierProject] = storage;
+					if (found_storage == null)
+					{
+						storage.UpdateEvent += UpdateEvent_Handler;
+						storage_list.Add(storage);
+					}
 				}
 			}
 
