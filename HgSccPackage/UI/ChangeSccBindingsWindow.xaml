@@ -40,7 +40,7 @@
                     <GridView x:Name="listProjectsGrid">
                         <GridViewColumn Header="Name" Width="150" DisplayMemberBinding="{Binding Name}" />
                         <GridViewColumn Header="Type" Width="100" DisplayMemberBinding="{Binding SccProjectType}" />
-                        <GridViewColumn Header="Path" Width="500" DisplayMemberBinding="{Binding Path}" />
+                        <GridViewColumn Header="Path" Width="650" DisplayMemberBinding="{Binding Path}" />
                         <GridViewColumn Header="Binding" Width="100" DisplayMemberBinding="{Binding SccBindStatus}" />
                     </GridView>
                 </ListView.View>
