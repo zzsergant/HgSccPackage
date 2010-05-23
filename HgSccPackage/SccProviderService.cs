@@ -2249,8 +2249,7 @@ namespace HgSccPackage
 		{
 			Logger.WriteLine("OnAfterSave: {0}", e.DocInfo.MkDocument);
 
-			var hier = e.DocInfo.Hierarchy;
-			var storage = GetStorageForProject(hier);
+			var storage = GetStorageForFile(e.DocInfo.MkDocument);
 
 			if (storage != null && storage.IsValid)
 			{
@@ -2296,8 +2295,7 @@ namespace HgSccPackage
 			Logger.WriteLine("OnAfterAttributeChange: {0}, {1}",
 				e.DocInfo.MkDocument, e.Attributes);
 
-			var hier = e.DocInfo.Hierarchy;
-			var storage = GetStorageForProject(hier);
+			var storage = GetStorageForFile(e.DocInfo.MkDocument);
 
 			if (storage != null && storage.IsValid)
 			{
