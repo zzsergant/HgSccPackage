@@ -25,6 +25,7 @@ using Microsoft.VisualStudio;
 using System.Windows.Forms;
 using HgSccPackage.Vs;
 using System.Drawing;
+using HgSccPackage.UI;
 
 namespace HgSccPackage
 {
@@ -51,10 +52,15 @@ namespace HgSccPackage
 		private uint _tpdTrackProjectDocumentsCookie;
 		// The list of controlled projects hierarchies
 
+		public const string SccProjectName = "<Project Location In Database>";
+		public const string SccAuxPath = "<Source Control Database>";
+		public const string SccLocalPath = "<Local Binding Root of Project>";
+
 		private readonly HashSet<IVsHierarchy> all_projects = new HashSet<IVsHierarchy>();
 
 		private readonly List<SccProviderStorage> storage_list = new List<SccProviderStorage>();
 		private readonly Dictionary<IVsHierarchy, SccProviderStorage> project_to_storage_map = new Dictionary<IVsHierarchy,SccProviderStorage>();
+		private readonly HashSet<IVsHierarchy> projects_with_scc_bindings = new HashSet<IVsHierarchy>();
 
 		// The list of controlled and offline projects hierarchies
 		private readonly HashSet<IVsHierarchy> _offlineProjects = new HashSet<IVsHierarchy>();
@@ -487,32 +493,41 @@ namespace HgSccPackage
 
 				// Add the project to the list of controlled projects
 				var hierProject = (IVsHierarchy)pscp2Project;
-				var project_path = _sccProvider.GetProjectFileName(pscp2Project);
-				var work_dir = Path.GetDirectoryName(project_path);
-
-//				Logger.WriteLine("RegisterSccProject: adding project = '{0}'", project_path);
-
-				var found_storage = GetStorageForFile(project_path);
-				var storage = found_storage;
-
-				if (storage == null)
-					storage = new SccProviderStorage();
-
-				if (!storage.IsValid)
+				if (!project_to_storage_map.ContainsKey(hierProject))
 				{
-					var err = storage.Init(work_dir, SccOpenProjectFlags.None);
-					if (err != SccErrors.Ok)
-						return VSConstants.E_FAIL;
+					var project_path = _sccProvider.GetProjectFileName(pscp2Project);
+					var work_dir = Path.GetDirectoryName(project_path);
+
+//					Logger.WriteLine("RegisterSccProject: adding project = '{0}'", project_path);
+
+					var found_storage = GetStorageForFile(project_path);
+					var storage = found_storage;
+
+					if (storage == null)
+						storage = new SccProviderStorage();
+
+					if (!storage.IsValid)
+					{
+						var err = storage.Init(work_dir, SccOpenProjectFlags.None);
+						if (err != SccErrors.Ok)
+							return VSConstants.E_FAIL;
+					}
+
+					if (storage.GetFileStatus(project_path) != SourceControlStatus.scsUncontrolled)
+					{
+						project_to_storage_map[hierProject] = storage;
+						if (found_storage == null)
+						{
+							storage.UpdateEvent += UpdateEvent_Handler;
+							storage_list.Add(storage);
+						}
+					}
 				}
 
-				if (storage.GetFileStatus(project_path) != SourceControlStatus.scsUncontrolled)
+				if (project_to_storage_map.ContainsKey(hierProject))
 				{
-					project_to_storage_map[hierProject] = storage;
-					if (found_storage == null)
-					{
-						storage.UpdateEvent += UpdateEvent_Handler;
-						storage_list.Add(storage);
-					}
+					if (pszSccProjectName != "" && pszSccAuxPath != "" && pszSccLocalPath != "")
+						projects_with_scc_bindings.Add(hierProject);
 				}
 			}
 
@@ -549,6 +564,9 @@ namespace HgSccPackage
 					storage.UpdateEvent -= UpdateEvent_Handler;
 					storage_list.Remove(storage);
 				}
+
+				projects_with_scc_bindings.Remove(hierProject);
+
 				return VSConstants.S_OK;
 			}
 			
@@ -633,6 +651,7 @@ namespace HgSccPackage
 			_loadingControlledSolutionLocation = "";
 			_solutionLocation = "";
 			_approvedForInMemoryEdit.Clear();
+			projects_with_scc_bindings.Clear();
 
 			foreach (var storage in storage_list)
 			{
@@ -640,6 +659,7 @@ namespace HgSccPackage
 				storage.Close();
 			}
 			storage_list.Clear();
+			_sccProvider.SolutionHaveSccBindings = false;
 
 			return VSConstants.S_OK;
 		}
@@ -1730,7 +1750,11 @@ namespace HgSccPackage
 					storage_list.Add(storage);
 				}
 
-				_sccProvider.SolutionHasDirtyProps = HgSccOptions.Options.UseSccBindings;
+				if (HgSccOptions.Options.UseSccBindings)
+				{
+					_sccProvider.SolutionHaveSccBindings = true;
+					_sccProvider.SolutionHasDirtyProps = true;
+				}
 			}
 
 			// A real source control provider will ask the user for a location where the projects will be controlled
@@ -1779,7 +1803,10 @@ namespace HgSccPackage
 				}
 
 				if (HgSccOptions.Options.UseSccBindings)
-					sccProject2.SetSccLocation("<Project Location In Database>", "<Source Control Database>", "<Local Binding Root of Project>", _sccProvider.ProviderName);
+				{
+					sccProject2.SetSccLocation(SccProjectName, SccAuxPath, SccLocalPath, _sccProvider.ProviderName);
+					projects_with_scc_bindings.Add(pHier);
+				}
 
 				project_to_storage_map[pHier] = storage;
 				if (found_storage == null)
@@ -2436,5 +2463,143 @@ namespace HgSccPackage
 		}
 
 		#endregion
+
+		//-----------------------------------------------------------------------------
+		bool SccBindProject(IVsHierarchy hier)
+		{
+			if (!IsSccBoundProject(hier))
+			{
+				IVsSccProject2 prj = hier as IVsSccProject2;
+				if (prj != null)
+				{
+					prj.SetSccLocation(SccProjectName, SccAuxPath, SccLocalPath, _sccProvider.ProviderName);
+
+					var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+					sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, hier, 0);
+
+					projects_with_scc_bindings.Add(hier);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		//-----------------------------------------------------------------------------
+		bool SccUnbindProject(IVsHierarchy hier)
+		{
+			if (IsSccBoundProject(hier))
+			{
+				IVsSccProject2 prj = hier as IVsSccProject2;
+				if (prj != null)
+				{
+					prj.SetSccLocation("", "", "", "");
+
+					var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+					sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, hier, 0);
+
+					projects_with_scc_bindings.Remove(hier);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		//-----------------------------------------------------------------------------
+		bool IsSccBoundProject(IVsHierarchy hier)
+		{
+			return projects_with_scc_bindings.Contains(hier);
+		}
+
+		//-----------------------------------------------------------------------------
+		bool SccBindSolution(IVsHierarchy hier)
+		{
+			if (!_sccProvider.SolutionHaveSccBindings)
+			{
+				_sccProvider.SolutionHaveSccBindings = true;
+				_sccProvider.SolutionHasDirtyProps = true;
+
+				var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+				sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, hier, 0);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		//-----------------------------------------------------------------------------
+		bool SccUnbindSolution(IVsHierarchy hier)
+		{
+			if (_sccProvider.SolutionHaveSccBindings)
+			{
+				_sccProvider.SolutionHaveSccBindings = false;
+				_sccProvider.SolutionHasDirtyProps = true;
+
+				var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+				sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, hier, 0);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		//------------------------------------------------------------------
+		internal void ChangeSccBindings()
+		{
+			using (var proxy = new WpfToWinFormsProxy<ChangeSccBindingsWindow>())
+			{
+				var wnd = proxy.Wnd;
+				var projects = new List<SccBindItem>();
+				var sln_hier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
+
+				foreach(var hier in project_to_storage_map.Keys)
+				{
+					var item = new SccBindItem();
+					item.Hierarchy = hier;
+
+					var project = hier as IVsProject;
+					if (project != null)
+					{
+						var project_path = _sccProvider.GetProjectFileName(project);
+						if (project_path != null)
+						{
+							item.Path = project_path;
+							item.Name = Path.GetFileNameWithoutExtension(item.Path);
+							item.SccProjectType = SccProjectType.Project;
+							item.SccBindStatus = SccBindStatus.NotBound;
+							if (IsSccBoundProject(hier))
+								item.SccBindStatus = SccBindStatus.Bound;
+							item.Bind = SccBindProject;
+							item.Unbind = SccUnbindProject;
+
+							projects.Add(item);
+						}
+					}
+					else
+					{
+						var scc_solution = hier as IVsSolution;
+						if (scc_solution != null)
+						{
+							item.Path = _sccProvider.GetSolutionFileName();
+							item.Name = Path.GetFileNameWithoutExtension(item.Path);
+							item.SccProjectType = SccProjectType.Solution;
+							item.SccBindStatus = SccBindStatus.NotBound;
+							if (_sccProvider.SolutionHaveSccBindings)
+								item.SccBindStatus = SccBindStatus.Bound;
+
+							item.Bind = SccBindSolution;
+							item.Unbind = SccUnbindSolution;
+							projects.Add(item);
+						}
+					}					
+				}
+
+				wnd.SccBindItems = projects;
+				proxy.ShowDialog();
+			}
+		}
 	}
 }

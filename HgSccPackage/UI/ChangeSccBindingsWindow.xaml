@@ -1,0 +1,66 @@
+﻿<Window x:Class="HgSccPackage.UI.ChangeSccBindingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="ChangeSccBindingsWindow"
+    MinHeight="300"
+    Width="1026"
+    SizeToContent="Height"
+    xmlns:local="clr-namespace:HgSccPackage.UI"
+    x:Name="root"
+    Loaded="Window_Loaded"
+    Closed="Window_Closed"
+    PreviewKeyDown="Window_PreviewKeyDown"
+    WindowStartupLocation="CenterScreen">
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:ChangeSccBindingsWindow.SccBindCommand}"
+                        CanExecute="SccBind_CanExecute"
+                        Executed="SccBind_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static local:ChangeSccBindingsWindow.SccUnbindCommand}"
+                        CanExecute="SccUnbind_CanExecute"
+                        Executed="SccUnbind_Executed">
+        </CommandBinding>
+    </Window.CommandBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Content="Controlled Projects:"></Label>
+            <ListView Grid.Row="1"
+                      Name="listProjects"
+                      MinHeight="75">
+                <ListView.View>
+                    <GridView x:Name="listProjectsGrid">
+                        <GridViewColumn Header="Name" Width="150" DisplayMemberBinding="{Binding Name}" />
+                        <GridViewColumn Header="Type" Width="100" DisplayMemberBinding="{Binding SccProjectType}" />
+                        <GridViewColumn Header="Path" Width="500" DisplayMemberBinding="{Binding Path}" />
+                        <GridViewColumn Header="Binding" Width="100" DisplayMemberBinding="{Binding SccBindStatus}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+        <Button Grid.Row="1" HorizontalAlignment="Left"
+                Margin="5" Content="Select/Deselect All"
+                Click="AllButton_Click"
+                Padding="5"
+                MinHeight="23">
+        </Button>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Bind" MinWidth="75" MinHeight="23" Margin="0,5"
+                    Command="{x:Static local:ChangeSccBindingsWindow.SccBindCommand}"
+                    ></Button>
+            <Button Content="Unbind" MinWidth="75" MinHeight="23" Margin="5,5,0,5"
+                    Command="{x:Static local:ChangeSccBindingsWindow.SccUnbindCommand}"
+                    ></Button>
+            <Button Content="Close" MinWidth="75" MinHeight="23" Margin="5"
+                    Name="btnClose" IsCancel="True"></Button>
+        </StackPanel>
+    </Grid>
+</Window>

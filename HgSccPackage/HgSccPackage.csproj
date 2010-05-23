@@ -82,6 +82,9 @@
     </Compile>
     <Compile Include="SccProviderService.cs" />
     <Compile Include="SccProviderStorage.cs" />
+    <Compile Include="UI\ChangeSccBindingsWindow.xaml.cs">
+      <DependentUpon>ChangeSccBindingsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Vs\RdtFilesReloader.cs" />
     <Compile Include="Vs\FilesChangeMonitor.cs" />
     <Compile Include="Vs\SlnOrProjectReloader.cs" />
@@ -119,6 +122,12 @@
       <Project>{172BA27D-ACC4-4294-A57C-C09895599EEA}</Project>
       <Name>HgSccHelper</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="UI\ChangeSccBindingsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <PropertyGroup>
     <!--

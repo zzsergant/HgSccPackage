@@ -97,6 +97,7 @@ namespace HgSccPackage
 		private const string _strSolutionBindingsProperty = "SolutionBindings";
 		// Whether the solution was just added to source control and the provider needs to saved source control properties in the solution file when the solution is saved
 		private bool _solutionHasDirtyProps = false;
+		private bool _solutionHaveSccBindings = false;
 
 		//------------------------------------------------------------------
 		public SccProvider()
@@ -175,6 +176,7 @@ namespace HgSccPackage
 				AddMenuCommand(mcs, CommandId.icmdUpdate, Exec_icmdUpdate);
 				AddMenuCommand(mcs, CommandId.icmdTags, Exec_icmdTags);
 				AddMenuCommand(mcs, CommandId.icmdRefreshStatus, Exec_icmdRefreshStatus);
+				AddMenuCommand(mcs, CommandId.icmdChangeSccBindings, Exec_icmdChangeSccBindings);
 			}
 
 			// Register the provider with the source control manager
@@ -227,11 +229,13 @@ namespace HgSccPackage
 										  [OutAttribute] VSQUERYSAVESLNPROPS[]
 											pqsspSave)
 		{
+/*
 			if (!HgSccOptions.Options.UseSccBindings)
 			{
 				pqsspSave[0] = VSQUERYSAVESLNPROPS.QSP_HasNoProps;
 				return VSConstants.S_OK;
 			}
+*/
 
 			// This function is called by the IDE to determine if something needs to be saved in the solution.
 			// If the package returns that it has dirty properties, the shell will callback on SaveSolutionProps
@@ -304,12 +308,15 @@ namespace HgSccPackage
 			// source control the solution file, the bindings written as solution properties will help identifying where the 
 			// project files are in the source control database. The source control provider can download the project files 
 			// before they are needed by the IDE to be opened.
-			string strControlled = true.ToString();
-			object obj = strControlled;
-			pPropBag.Write(_strSolutionControlledProperty, ref obj);
-			string strSolutionLocation = "<Solution Location In Database>";
-			obj = strSolutionLocation;
-			pPropBag.Write(_strSolutionBindingsProperty, ref obj);
+			if (SolutionHaveSccBindings)
+			{
+				string strControlled = true.ToString();
+				object obj = strControlled;
+				pPropBag.Write(_strSolutionControlledProperty, ref obj);
+				string strSolutionLocation = "<Solution Location In Database>";
+				obj = strSolutionLocation;
+				pPropBag.Write(_strSolutionBindingsProperty, ref obj);
+			}
 
 			return VSConstants.S_OK;
 		}
@@ -347,6 +354,8 @@ namespace HgSccPackage
 					pPropBag.Read(_strSolutionBindingsProperty, out pVar, null, 0, null);
 					sccService.LoadingControlledSolutionLocation = pVar.ToString();
 				}
+
+				SolutionHaveSccBindings = true;
 			}
 			return VSConstants.S_OK;
 		}
@@ -565,6 +574,10 @@ namespace HgSccPackage
 					cmdf |= QueryStatus_icmdRefreshStatus();
 					break;
 
+				case CommandId.icmdChangeSccBindings:
+					cmdf |= QueryStatus_icmdChangeSccBindings();
+					break;
+
 				default:
 					return
 						(int)
@@ -699,6 +712,22 @@ namespace HgSccPackage
 
 		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdRefreshStatus()
+		{
+			if (!IsThereASolution())
+				return OLECMDF.OLECMDF_INVISIBLE;
+
+			int pfResult = 0;
+			sccService.AnyItemsUnderSourceControl(out pfResult);
+			if (pfResult > 0)
+			{
+				return OLECMDF.OLECMDF_ENABLED;
+			}
+
+			return OLECMDF.OLECMDF_SUPPORTED;
+		}
+
+		//------------------------------------------------------------------
+		private OLECMDF QueryStatus_icmdChangeSccBindings()
 		{
 			if (!IsThereASolution())
 				return OLECMDF.OLECMDF_INVISIBLE;
@@ -953,6 +982,15 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		private void Exec_icmdChangeSccBindings(object sender, EventArgs e)
+		{
+			if (!IsThereASolution())
+				return;
+
+			sccService.ChangeSccBindings();
+		}
+
+		//------------------------------------------------------------------
 		private void Exec_icmdAddToSourceControl(object sender, EventArgs e)
 		{
 			if (!IsThereASolution())
@@ -1044,6 +1082,13 @@ namespace HgSccPackage
 		{
 			get { return _solutionHasDirtyProps; }
 			set { _solutionHasDirtyProps = value; }
+		}
+
+		//-----------------------------------------------------------------------------
+		public bool SolutionHaveSccBindings
+		{
+			get { return _solutionHaveSccBindings; }
+			set { _solutionHaveSccBindings = value; }
 		}
 
 		//------------------------------------------------------------------
