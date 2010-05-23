@@ -2476,6 +2476,7 @@ namespace HgSccPackage
 
 					var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 					sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, hier, 0);
+					sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, (IVsHierarchy)sol, 0);
 
 					projects_with_scc_bindings.Add(hier);
 					return true;
@@ -2497,6 +2498,7 @@ namespace HgSccPackage
 
 					var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
 					sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, hier, 0);
+					sol.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, (IVsHierarchy)sol, 0);
 
 					projects_with_scc_bindings.Remove(hier);
 					return true;
@@ -2547,6 +2549,20 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		string GetHierarchyName(IVsHierarchy hier)
+		{
+			object name;
+			if (VSConstants.S_OK == hier.GetProperty((uint)VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_Name, out name))
+			{
+				var str_name = name as string;
+				if (str_name != null)
+					return str_name;
+			}
+
+			return "";
+		}
+
+		//------------------------------------------------------------------
 		internal void ChangeSccBindings()
 		{
 			using (var proxy = new WpfToWinFormsProxy<ChangeSccBindingsWindow>())
@@ -2567,7 +2583,7 @@ namespace HgSccPackage
 						if (project_path != null)
 						{
 							item.Path = project_path;
-							item.Name = Path.GetFileNameWithoutExtension(item.Path);
+							item.Name = GetHierarchyName(hier);
 							item.SccProjectType = SccProjectType.Project;
 							item.SccBindStatus = SccBindStatus.NotBound;
 							if (IsSccBoundProject(hier))
@@ -2584,7 +2600,7 @@ namespace HgSccPackage
 						if (scc_solution != null)
 						{
 							item.Path = _sccProvider.GetSolutionFileName();
-							item.Name = Path.GetFileNameWithoutExtension(item.Path);
+							item.Name = GetHierarchyName(hier);
 							item.SccProjectType = SccProjectType.Solution;
 							item.SccBindStatus = SccBindStatus.NotBound;
 							if (_sccProvider.SolutionHaveSccBindings)
