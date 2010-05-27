@@ -55,6 +55,7 @@
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Content="Update to:"
+                       HorizontalAlignment="Right"
                        Margin="5"></Label>
                 <ComboBox Grid.Row="0" Grid.Column="1" Name="comboRevision"
                           TextSearch.TextPath="Name"
@@ -67,12 +68,15 @@
                           Content="Discard local changes, no backup"
                           Margin="5,0"></CheckBox>
                 <Label Grid.Row="2" Grid.Column="0" Content="Target:"
+                       HorizontalAlignment="Right"
                        Margin="5"></Label>
                 <TextBox Grid.Row="2" Grid.Column="1"
                          Margin="5"
                          Name="targetDesc" IsReadOnly="True">
                 </TextBox>
-                <Label Grid.Row="3" Grid.Column="0" Content="Parent:"></Label>
+                <Label Grid.Row="3" Grid.Column="0" Content="Parent:"
+                         Margin="5"
+                       HorizontalAlignment="Right"></Label>
                 <ItemsControl Grid.Row="3" Grid.Column="1" Name="listParents">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

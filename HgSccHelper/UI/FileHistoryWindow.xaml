@@ -117,7 +117,8 @@
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
-        <Grid KeyboardNavigation.TabNavigation="Cycle" Grid.Row="1">
+        <Grid KeyboardNavigation.TabNavigation="Cycle" Grid.Row="1"
+              Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="300" />
                 <RowDefinition Height="Auto" />
@@ -208,6 +209,7 @@
             <TextBox Grid.Row="2" Name="textChangeDesc"
                      DataContext="{Binding Path=SelectedItem.ChangeDesc, ElementName=listChanges, Mode=OneWay}"
                      Text="{Binding Path=Desc}" TextWrapping="Wrap"
+                     Margin="0,0,0,5"
                      IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
             </TextBox>
             <GridSplitter Grid.Row="2" Margin="0"

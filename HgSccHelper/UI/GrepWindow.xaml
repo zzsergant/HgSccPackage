@@ -90,7 +90,8 @@
                 </StackPanel>
             </ToolBar>
         </ToolBarTray>
-        <Grid KeyboardNavigation.TabNavigation="Cycle" Grid.Row="1">
+        <Grid KeyboardNavigation.TabNavigation="Cycle" Grid.Row="1"
+              Margin="5,0,5,5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -116,12 +117,12 @@
                              Margin="5"></TextBox>
                     <Button Grid.Row="0" Grid.Column="2"
                             MinHeight="23"
-                            Margin="0,5,5,5"
+                            Margin="0,5,0,5"
                             MinWidth="75"
                             Command="{x:Static ui:GrepWindow.SearchCommand}"
                             Content="Search"></Button>
                     <Expander Header="Advanced options" Grid.Row="1" Grid.Column="0"
-                              Margin="5"
+                              Margin="0,5,0,5"
                               Grid.ColumnSpan="3">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -233,13 +234,15 @@
                     <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
                 </StackPanel>
                 <TextBox Grid.Row="2" Name="textChangeDesc"
-                     DataContext="{Binding Path=SelectedChangeset, ElementName=root, Mode=OneWay}"
-                     Text="{Binding Path=Desc}" TextWrapping="Wrap"
-                     IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
+                         DataContext="{Binding Path=SelectedChangeset, ElementName=root, Mode=OneWay}"
+                         Margin="0,0,0,5"
+                         Text="{Binding Path=Desc}" TextWrapping="Wrap"
+                         IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
                 </TextBox>
             </Grid>
             <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files">
                 <ListView Name="listViewFiles" MaxHeight="150"
+                          Margin="0,5,0,0"
                           GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler"
                           ItemsSource="{Binding Path=SelectedChangeset.Files, ElementName=root, Mode=OneWay}">
                     <ListView.InputBindings>

@@ -129,6 +129,7 @@
                      Text="{Binding Path=CommitMessage, ElementName=root}"
                      MinLines="2" MaxLines="10"
                      VerticalAlignment="Stretch"
+                     Margin="5,0,5,0"
                      TextWrapping="WrapWithOverflow"
                      AcceptsReturn="True"
                      VerticalScrollBarVisibility="Auto"></TextBox>
@@ -159,7 +160,7 @@
                          Padding="5,1"
                          IsReadOnly="True"
                          IsTabStop="False"
-                         Margin="0,0,5,0">
+                         Margin="0">
                     </TextBox>
                 </Grid>
             </StackPanel>
@@ -169,12 +170,13 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0" Content="Files:"></Label>
+                <Label Grid.Row="0" Margin="5"  Content="Files:"></Label>
                 <ListView Grid.Row="1"
-                      Name="listFiles"
-                      GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler"
-                      PreviewKeyDown="ListFiles_PreviewKeyDown"
-                      MinHeight="75">
+                          Name="listFiles"
+                          Margin="5,0,5,0"
+                          GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler"
+                          PreviewKeyDown="ListFiles_PreviewKeyDown"
+                          MinHeight="75">
                     <ListView.View>
                         <GridView x:Name="listFilesGrid">
                             <GridViewColumn Width="Auto" x:Name="checkColumn" CellTemplate="{StaticResource CheckBoxCell}">

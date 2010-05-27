@@ -57,6 +57,7 @@
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Content="Target Revision:"
+                       HorizontalAlignment="Right"
                        Margin="5"></Label>
                 <ComboBox Grid.Row="0" Grid.Column="1" Name="comboTargetRevision"
                           TextSearch.TextPath="Name"
@@ -66,12 +67,14 @@
                           Margin="5" IsEditable="True">
                 </ComboBox>
                 <Label Grid.Row="1" Grid.Column="0" Content="Target Desc:"
+                       HorizontalAlignment="Right"
                        Margin="5"></Label>
                 <TextBox Grid.Row="1" Grid.Column="1"
                          Margin="5" IsTabStop="False"
                          Name="targetDesc" IsReadOnly="True">
                 </TextBox>
                 <Label Grid.Row="2" Grid.Column="0" Content="Base Revision:"
+                       HorizontalAlignment="Right"
                        Margin="5"></Label>
                 <ComboBox Grid.Row="2" Grid.Column="1" Name="comboBaseRevision"
                           TextSearch.TextPath="Name"
@@ -81,6 +84,7 @@
                           Margin="5" IsEditable="True">
                 </ComboBox>
                 <Label Grid.Row="3" Grid.Column="0" Content="Base Desc:"
+                       HorizontalAlignment="Right"
                        Margin="5"></Label>
                 <TextBox Grid.Row="3" Grid.Column="1"
                          Margin="5" IsTabStop="False"

@@ -147,6 +147,7 @@
             <StackPanel Orientation="Horizontal">
                 <GroupBox Header="Incoming/Outgoing options:"
                           Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
+                          Margin="5,5,0,5"
                           Padding="5">
                     <StackPanel>
                         <CheckBox Content="Show newest record first"
@@ -162,6 +163,7 @@
                 </GroupBox>
                 <GroupBox Header="Pull options:"
                           Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
+                          Margin="5,5,0,5"
                           Padding="5">
                     <StackPanel>
                         <CheckBox Content="Update after pull"
@@ -171,6 +173,7 @@
                 </GroupBox>
                 <GroupBox Header="Other options:"
                           Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
+                          Margin="5"
                           Padding="5">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
@@ -189,6 +192,7 @@
                  VerticalScrollBarVisibility="Visible"
                  HorizontalScrollBarVisibility="Visible"
                  FontFamily="Courier New"
+                 Margin="5,0,5,5"
                  IsReadOnly="True">
         </TextBox>
     </Grid>

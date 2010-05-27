@@ -28,7 +28,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="0"
+              Margin="5,0,0,5">
             <Grid.RowDefinitions>
                 <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
@@ -98,8 +99,9 @@
         </Grid>
         <StackPanel Grid.Row="1">
             <GroupBox Header="Clone options:"
-                          Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
-                          Padding="5">
+                      Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
+                      Margin="5"
+                      Padding="5">
                 <StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -138,6 +140,7 @@
                  VerticalContentAlignment="Stretch"
                  VerticalScrollBarVisibility="Visible"
                  HorizontalScrollBarVisibility="Visible"
+                 Margin="5"
                  IsTabStop="False"
                  MinHeight="150"
                  FontFamily="Courier New"

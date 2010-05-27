@@ -55,6 +55,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <ListView HorizontalAlignment="Stretch" Name="listPaths"
+                      Margin="5"
                   VerticalAlignment="Stretch" Grid.Row="0" SelectionMode="Single">
                 <ListView.View>
                     <GridView>

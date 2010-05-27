@@ -190,7 +190,8 @@
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
-        <Grid Grid.Row="1" KeyboardNavigation.TabNavigation="Cycle">
+        <Grid Grid.Row="1" KeyboardNavigation.TabNavigation="Cycle"
+              Margin="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -242,18 +243,18 @@
                     Grid.Column="1" VerticalAlignment="Top">
                 <Button Content="Stop"
                     Command="{x:Static ui:Commands.StopCommand}"
-                    Margin="5" Padding="5, 0" Focusable="False" IsTabStop="False">
+                    Margin="5,0,0,0" Padding="5, 0" Focusable="False" IsTabStop="False">
                 </Button>
             </StackPanel>
             <StackPanel Grid.Row="0"
                     Grid.Column="1" VerticalAlignment="Bottom">
                 <Button Content="+500"
                     Command="{x:Static local:RevLogControl.ReadNextCommand}"
-                    Margin="5" Padding="5, 0" Focusable="False" IsTabStop="False">
+                    Margin="5,5,0,0" Padding="5, 0" Focusable="False" IsTabStop="False">
                 </Button>
                 <Button Content="All"
                     Command="{x:Static local:RevLogControl.ReadAllCommand}"
-                    Margin="5, 0, 5, 5" Padding="5, 0" Focusable="False" IsTabStop="False">
+                    Margin="5,5,0,5" Padding="5, 0" Focusable="False" IsTabStop="False">
                 </Button>
             </StackPanel>
             <GridSplitter Grid.Row="0" Margin="0"
@@ -276,6 +277,7 @@
                      Grid.Row="2" Grid.ColumnSpan="2"
                      DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}"
                      Text="{Binding Path=Desc}" TextWrapping="Wrap"
+                     Margin="0,0,0,5"
                      IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
             </TextBox>
             <GridSplitter Grid.Row="2" Margin="0"
@@ -293,6 +295,7 @@
                     <Style TargetType="{x:Type TabItem}">
                         <Setter Property="Header" Value="{Binding Path=HeaderString, Mode=OneWay}" />
                         <Setter Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
+                        <Setter Property="Margin" Value="0" />
                     </Style>
                 </TabControl.ItemContainerStyle>
                 <TabControl.ContentTemplate>

@@ -36,24 +36,25 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <GroupBox Header="Current revision (local)" Grid.Column="0"
-                      Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
-                      >
+                <StackPanel Grid.Column="0"
+                            Margin="5">
+                    <Label Content="Current revision (local):"></Label>
                     <TextBox Text="Current desc"
-                         Margin="5"
+                         Margin="0,5"
                          Name="currentDesc" IsReadOnly="True">
                     </TextBox>
-                </GroupBox>
-                <GroupBox Header="Merge target (other)" Grid.Column="1"
-                      Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
-                      >
+                </StackPanel>
+                <StackPanel Grid.Column="1"
+                            Margin="0,5,5,5">
+                    <Label Content="Merge target (other):"></Label>
                     <TextBox Text="Target desc"
-                         Margin="5"
+                         Margin="0,5"
                          Name="targetDesc" IsReadOnly="True">
                     </TextBox>
-                </GroupBox>
+                </StackPanel>
             </Grid>
             <GroupBox Header="Merge options"
+                      Margin="5,0,5,5"
                       Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -72,7 +73,7 @@
                                  IsChecked="True"
                                  Content="Merge with:"></RadioButton>
                     <ComboBox Grid.Column="1" Grid.Row="0"
-                              Margin="5,0,5,0"
+                              Margin="5,0,0,0"
                               Name="comboMergeTools" IsReadOnly="True"
                               DisplayMemberPath="Description"
                               IsEnabled="{Binding ElementName=radioMergeWith, Path=IsChecked}"
@@ -98,6 +99,7 @@
                  VerticalContentAlignment="Stretch"
                  VerticalScrollBarVisibility="Visible"
                  HorizontalScrollBarVisibility="Visible"
+                 Margin="5,0,5,0"
                  IsTabStop="False"
                  MinHeight="150"
                  FontFamily="Courier New"

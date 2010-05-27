@@ -75,8 +75,9 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0" Content="Files:"></Label>
+                <Label Grid.Row="0" Margin="5"  Content="Files:"></Label>
                 <ListView Grid.Row="1"
+                          Margin="5,0"
                       Name="listFiles"
                       GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler"
                       PreviewKeyDown="ListFiles_PreviewKeyDown"

@@ -124,7 +124,8 @@
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
-        <Grid KeyboardNavigation.TabNavigation="Cycle" Grid.Row="1">
+        <Grid KeyboardNavigation.TabNavigation="Cycle" Grid.Row="1"
+              Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="150" />
                 <RowDefinition Height="*" />
@@ -267,13 +268,15 @@
                     <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
                 </StackPanel>
                 <TextBox Grid.Row="2" Name="textChangeDesc"
-                     DataContext="{Binding Path=SelectedItem.ChangeDesc, ElementName=listChanges, Mode=OneWay}"
-                     Text="{Binding Path=Desc}" TextWrapping="Wrap"
-                     IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
+                         DataContext="{Binding Path=SelectedItem.ChangeDesc, ElementName=listChanges, Mode=OneWay}"
+                         Text="{Binding Path=Desc}" TextWrapping="Wrap"
+                         Margin="0,0,0,5"
+                         IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
                 </TextBox>
             </Grid>
             <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files">
                 <ListView Name="listViewFiles" MaxHeight="150"
+                          Margin="0,5,0,0"
                           GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
                     <ListView.CommandBindings>
                         <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
