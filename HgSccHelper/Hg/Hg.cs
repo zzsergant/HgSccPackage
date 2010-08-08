@@ -522,6 +522,23 @@ namespace HgSccHelper
 			}
 		}
 
+        //-----------------------------------------------------------------------------
+        public bool RunHg(string work_dir, string args, out string output)
+        {
+            using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+            {
+                output = proc.StandardOutput.ReadToEnd(); 
+                proc.WaitForExit();
+                if (proc.ExitCode < 0)
+                {
+                    output = string.Empty;
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
 		//-----------------------------------------------------------------------------
 		public bool Add(string work_dir, IEnumerable<string> files)
 		{
@@ -556,69 +573,135 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public bool Commit(string work_dir, HgCommitOptions options, IEnumerable<string> files, string comment)
+		public CommitResult Commit(string work_dir, HgCommitOptions options, IEnumerable<string> files, string comment)
+		{
+            using (var commit_msg_file = new CommitMessageFile(comment))
+            {
+                StringBuilder args = new StringBuilder();
+                args.Append("commit -v");
+                if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
+                    args.Append(" --close-branch");
+
+                args.Append(" -l " + commit_msg_file.FileName.Quote());
+
+                var cmd_line = new StringBuilder();
+                cmd_line.Append(args.ToString());
+
+                foreach (string f in files)
+                {
+                    var str = " " + f.Quote();
+                    cmd_line.Append(str);
+
+                    if (cmd_line.Length > MaxCmdLength)
+                        throw new HgCommandLineException();
+                }
+
+                if (cmd_line.Length == args.Length)
+                {
+                    // To commit all changes use CommitAll() function
+                    throw new ArgumentException("Passing no files in Commit function is not allowed");
+                }
+
+                string commit_output;
+                CommitResult result = new CommitResult();
+                result.IsSuccess = RunHg(work_dir, cmd_line.ToString(), out commit_output);
+                if (result.IsSuccess)
+                {
+                    ParseCommitOutput(commit_output, result);
+                }
+                return result;
+            }
+		}
+
+        private void ParseCommitOutput(string commit_output, CommitResult output)
+        {
+            const string SUBREPO_MARKER = "committing subrepository";
+            const string END_MARKER = "committed changeset";
+
+            string[] lines = commit_output.Split('\n');
+
+            output.CommitedFiles = new List<string>();
+            output.CommitedSubrepoFiles = new Dictionary<string, List<string>>();
+            bool next_line_is_subrepo_files = false;
+            string subrepo = null;
+            foreach (string line in lines)
+            {
+                if (line.StartsWith(END_MARKER))
+                    break;
+
+                if (line.StartsWith(SUBREPO_MARKER))
+                {
+                    subrepo = line.Substring(SUBREPO_MARKER.Length, line.Length - SUBREPO_MARKER.Length).Trim();
+                    output.CommitedSubrepoFiles.Add(subrepo, new List<string>());
+                    next_line_is_subrepo_files = true;
+                }
+                else
+                {
+                    if (next_line_is_subrepo_files)
+                    {
+                        if (line.Trim().ToLower().StartsWith(".hgsub"))
+                        {
+                            next_line_is_subrepo_files = false;
+                            continue;
+                        }
+                        else
+                        {
+                            output.CommitedSubrepoFiles[subrepo].Add(line.Replace('/', '\\').Trim());
+                            next_line_is_subrepo_files = true;
+                        }
+                    }
+                    else
+                    {
+                        output.CommitedFiles.Add(line.Replace('/','\\').Trim());
+                    }
+                }
+            }
+        }
+
+		//-----------------------------------------------------------------------------
+		public CommitResult CommitAll(string work_dir, HgCommitOptions options, string comment)
 		{
 			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
 				StringBuilder args = new StringBuilder();
-				args.Append("commit");
+				args.Append("commit -v");
 				if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
 					args.Append(" --close-branch");
 
 				args.Append(" -l " + commit_msg_file.FileName.Quote());
 
-				var cmd_line = new StringBuilder();
-				cmd_line.Append(args.ToString());
-
-				foreach (string f in files)
-				{
-					var str = " " + f.Quote();
-					cmd_line.Append(str);
-
-					if (cmd_line.Length > MaxCmdLength)
-						throw new HgCommandLineException();
-				}
-
-				if (cmd_line.Length == args.Length)
-				{
-					// To commit all changes use CommitAll() function
-					throw new ArgumentException("Passing no files in Commit function is not allowed");
-				}
-
-				return RunHg(work_dir, cmd_line.ToString());
+                string commit_output;
+                CommitResult result = new CommitResult();
+                result.IsSuccess = RunHg(work_dir, args.ToString(), out commit_output);
+                if (result.IsSuccess)
+                {
+                    ParseCommitOutput(commit_output, result);
+                }
+                return result;
 			}
 		}
 
 		//-----------------------------------------------------------------------------
-		public bool CommitAll(string work_dir, HgCommitOptions options, string comment)
+		public CommitResult CommitAll(string work_dir, HgCommitOptions options, string comment, string date_str)
 		{
 			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
 				StringBuilder args = new StringBuilder();
-				args.Append("commit");
-				if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
-					args.Append(" --close-branch");
-
-				args.Append(" -l " + commit_msg_file.FileName.Quote());
-
-				return RunHg(work_dir, args.ToString());
-			}
-		}
-
-		//-----------------------------------------------------------------------------
-		public bool CommitAll(string work_dir, HgCommitOptions options, string comment, string date_str)
-		{
-			using(var commit_msg_file = new CommitMessageFile(comment))
-			{
-				StringBuilder args = new StringBuilder();
-				args.Append("commit");
+				args.Append("commit -v");
 				if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
 					args.Append(" --close-branch");
 
 				args.Append(" -l " + commit_msg_file.FileName.Quote());
 				args.Append(" -d " + date_str.Quote());
 
-				return RunHg(work_dir, args.ToString());
+                string commit_output;
+                CommitResult result = new CommitResult();
+                result.IsSuccess = RunHg(work_dir, args.ToString(), out commit_output);
+                if (result.IsSuccess)
+                {
+                    ParseCommitOutput(commit_output, result);
+                }
+                return result;
 			}
 		}
 
@@ -1801,4 +1884,12 @@ namespace HgSccHelper
 		public bool IsActive { get; set; }
 		public bool IsClosed { get; set; }
 	}
+
+    //------------------------------------------------------------------
+    public class CommitResult
+    {
+        public bool IsSuccess { get; set; }
+        public List<string> CommitedFiles { get; set; }
+        public Dictionary<string, List<string>> CommitedSubrepoFiles { get; set; }
+    }
 }

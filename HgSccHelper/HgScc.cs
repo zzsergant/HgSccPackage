@@ -29,12 +29,14 @@ namespace HgSccHelper
 	public class HgScc
 	{
 		public string WorkingDir { get; private set; }
+        public List<string> SubRepoDirs { get; private set; } 
 		private readonly Hg hg;
 
 		//-----------------------------------------------------------------------------
 		public HgScc()
 		{
 			hg = new Hg();
+            SubRepoDirs = new List<string>();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -42,6 +44,12 @@ namespace HgSccHelper
 		{
 			return Util.GetRelativePath(WorkingDir, path, out relative);
 		}
+
+        //-----------------------------------------------------------------------------
+        public string GetRootPath(string local_proj_path)
+        {
+            return hg.Root(local_proj_path);
+        }
 
 		//-----------------------------------------------------------------------------
 		public SccErrors OpenProject(string local_proj_path, SccOpenProjectFlags flags)
@@ -67,8 +75,26 @@ namespace HgSccHelper
 				}
 			}
 
-			WorkingDir = root;
-			return SccErrors.Ok;
+            WorkingDir = root;
+            string hgsubPath = Path.Combine(root, ".hgsub");
+            if (File.Exists(hgsubPath))
+            {
+                using (StreamReader reader = new StreamReader(hgsubPath))
+                {
+                    while (!reader.EndOfStream)
+                    {
+                        string line = reader.ReadLine();
+                        if (string.IsNullOrEmpty(line)) continue;
+
+                        string[] tokens = line.Split('=');
+                        if (tokens.Length > 1)
+                        {
+                            SubRepoDirs.Add(tokens[0].Trim());
+                        }
+                    }
+                }
+            }
+            return SccErrors.Ok;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -269,7 +295,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public SccErrors CommitAll(IntPtr hwnd, string comment)
 		{
-			if (!hg.CommitAll(WorkingDir, HgCommitOptions.None, comment))
+			if (!hg.CommitAll(WorkingDir, HgCommitOptions.None, comment).IsSuccess)
 				return SccErrors.OpNotPerformed;
 
 			return SccErrors.Ok;
@@ -278,7 +304,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public SccErrors CommitAll(IntPtr hwnd, string comment, string date_str)
 		{
-			if (!hg.CommitAll(WorkingDir, HgCommitOptions.None, comment, date_str))
+			if (!hg.CommitAll(WorkingDir, HgCommitOptions.None, comment, date_str).IsSuccess)
 				return SccErrors.OpNotPerformed;
 
 			return SccErrors.Ok;

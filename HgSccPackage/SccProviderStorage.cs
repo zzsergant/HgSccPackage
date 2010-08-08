@@ -46,7 +46,7 @@ namespace HgSccPackage
 	{
 		private HgScc hgscc;
 		private Dictionary<string, HgFileInfo> cache;
-
+        public Dictionary<string, List<SccProviderStorage>> Subs { get; set; }
 		public event EventHandler UpdateEvent;
 
 		//------------------------------------------------------------------
@@ -61,6 +61,7 @@ namespace HgSccPackage
 		public SccProviderStorage()
 		{
 			cache = new Dictionary<string, HgFileInfo>();
+            Subs = new Dictionary<string, List<SccProviderStorage>>();
 		}
 
 		//------------------------------------------------------------------
@@ -371,15 +372,28 @@ namespace HgSccPackage
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
+                wnd.SubRepoDirs = hgscc.SubRepoDirs;
 				wnd.FilesToCommit = files;
 
 				proxy.ShowDialog();
 
 				if (wnd.DialogResult == true)
 				{
-					commited_files = wnd.CommitedFiles;
-					UpdateCache(commited_files);
-					return SccErrors.Ok;
+                    commited_files = new List<string>();
+                    ((List<string>)commited_files).AddRange(wnd.CommitedFiles);
+                    UpdateCache(wnd.CommitedFiles);
+                    foreach (var kvp in Subs)
+                    {
+                        foreach (var sub_storage in kvp.Value)
+                        {
+                            if (wnd.CommitedSubrepoFiles.ContainsKey(kvp.Key))
+                            {
+                                ((List<string>)commited_files).AddRange(wnd.CommitedSubrepoFiles[kvp.Key]);
+                                sub_storage.UpdateCache(wnd.CommitedSubrepoFiles[kvp.Key]);
+                            }
+                        }
+                    }
+                    return SccErrors.Ok;
 				}
 			}
 
@@ -522,7 +536,8 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void UpdateCache(IEnumerable<string> files)
 		{
-			if (!IsValid)
+			
+            if (!IsValid)
 				return;
 
 			var lst = new List<HgFileInfo>();
@@ -692,5 +707,35 @@ namespace HgSccPackage
 			}
 			return err == SccErrors.Ok;
 		}
-	}
+
+        public bool IsStorageControlled(string path)
+        {
+            if (!IsValid)
+            {
+                return false;
+            }
+
+            //check if controlled by subrepo
+            foreach (string sub in hgscc.SubRepoDirs)
+            {
+                if (path.ToLower().StartsWith(
+                    Path.Combine(hgscc.WorkingDir.ToLower(), sub.ToLower())))
+                {
+                    return false;
+                }
+            }
+
+            return path.ToLower().StartsWith(hgscc.WorkingDir.ToLower());
+        }
+
+        public void AddSubrepoStorage(string work_dir, SccProviderStorage storage)
+        {
+            string root = hgscc.GetRootPath(work_dir);
+            if (!Subs.ContainsKey(root))
+            {
+                Subs[root] = new List<SccProviderStorage>();
+            }
+            Subs[root].Add(storage);
+        }
+    }
 }

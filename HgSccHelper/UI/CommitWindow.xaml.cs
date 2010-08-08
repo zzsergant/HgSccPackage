@@ -102,6 +102,8 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
 
+        public List<string> SubRepoDirs { get; set; }
+
 		//------------------------------------------------------------------
 		public UpdateContext UpdateContext { get; private set; }
 
@@ -125,6 +127,9 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		public List<string> CommitedFiles { private set; get; }
+
+        //------------------------------------------------------------------
+        public Dictionary<string, List<string>> CommitedSubrepoFiles { private set; get; }
 
 		//-----------------------------------------------------------------------------
 		private Hg Hg { get; set; }
@@ -303,6 +308,30 @@ namespace HgSccHelper
 
 			var files_status_dict = new Dictionary<string, HgFileInfo>();
 
+            StringBuilder dirtySubRepos = new StringBuilder();
+            foreach (string subrepoDir in SubRepoDirs)
+            {
+                if (Hg.Status(System.IO.Path.Combine(WorkingDir, subrepoDir)).Count > 0)
+                {
+                    dirtySubRepos.AppendLine(subrepoDir);
+                }
+            }
+            //This is all I can do for subrepo atm. Still thinking of better design. Should we list all changes in subrepo also?
+            //The behavior of TortoiseHg is not good either (show that subrepo change, but doesn't list what changes).
+            //People at mercurial mail list seems to prefer not to commit recursively.
+            if (dirtySubRepos.Length > 0)
+            {
+                dirtySubRepos.Insert(0, "Please commit the following subrepo(s) individually:" + Environment.NewLine + Environment.NewLine);
+                dirtySubRepos.AppendLine();
+                dirtySubRepos.AppendLine("Do you want to force commit from main repo? [NOT RECOMMENDED]");
+                MessageBoxResult result = MessageBox.Show(dirtySubRepos.ToString(), "One or more sub repository contain uncommitted changes",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No, MessageBoxOptions.None);
+                if (result == MessageBoxResult.No)
+                {
+                    return false;
+                }
+            }
+
 			foreach (var file_status in Hg.Status(WorkingDir))
 			{
 				files_status_dict.Add(file_status.File, file_status);
@@ -412,15 +441,26 @@ namespace HgSccHelper
 				}
 
 
-				if (Hg.CommitAll(WorkingDir, options, CommitMessage))
+                CommitResult commit_result = Hg.CommitAll(WorkingDir, options, CommitMessage);
+				if (commit_result.IsSuccess)
 				{
 					CommitedFiles = new List<string>();
+                    CommitedSubrepoFiles = new Dictionary<string, List<string>>();
 
-					foreach (var f in commit_items)
+					foreach (var f in commit_result.CommitedFiles)
 					{
 						CommitedFiles.Add(System.IO.Path.GetFullPath(
-							System.IO.Path.Combine(WorkingDir, f.FileInfo.File)));
+							System.IO.Path.Combine(WorkingDir, f)));
 					}
+                    foreach (var kvp in commit_result.CommitedSubrepoFiles)
+                    {
+                        CommitedSubrepoFiles.Add(kvp.Key, new List<string>());
+                        foreach (var file in kvp.Value)
+                        {
+                            CommitedSubrepoFiles[kvp.Key].Add(System.IO.Path.GetFullPath(System.IO.Path.Combine(
+                                    System.IO.Path.Combine(WorkingDir, kvp.Key), file)));
+                        }
+                    }
 
 					UpdateContext.IsParentChanged = true;
 					UpdateContext.IsCommited = true;
@@ -449,17 +489,17 @@ namespace HgSccHelper
 					to_commit_files.Add(commit_item.FileInfo.File);
 				}
 
-				bool result = false;
+                CommitResult commit_result;
 
 				if (checked_list.Count == commit_items.Count)
 				{
-					result = Hg.CommitAll(WorkingDir, options, CommitMessage);
+                    commit_result = Hg.CommitAll(WorkingDir, options, CommitMessage);
 				}
 				else if (to_commit_files.Count > 0)
 				{
 					try
 					{
-						result = Hg.Commit(WorkingDir, options, to_commit_files, CommitMessage);
+                        commit_result = Hg.Commit(WorkingDir, options, to_commit_files, CommitMessage);
 					}
 					catch (HgCommandLineException)
 					{
@@ -472,15 +512,26 @@ namespace HgSccHelper
 					return;
 				}
 
-				if (result)
+                if (commit_result.IsSuccess)
 				{
-					CommitedFiles = new List<string>();
+                    CommitedFiles = new List<string>();
+                    CommitedSubrepoFiles = new Dictionary<string, List<string>>();
 
-					foreach (var f in to_commit_files)
-					{
-						CommitedFiles.Add(System.IO.Path.GetFullPath(
-							System.IO.Path.Combine(WorkingDir, f)));
-					}
+                    foreach (var f in commit_result.CommitedFiles)
+                    {
+                        CommitedFiles.Add(System.IO.Path.GetFullPath(
+                            System.IO.Path.Combine(WorkingDir, f)));
+                    }
+                    foreach (var kvp in commit_result.CommitedSubrepoFiles)
+                    {
+                        string subrepo_root = System.IO.Path.Combine(WorkingDir, kvp.Key);
+                        CommitedSubrepoFiles.Add(subrepo_root, new List<string>());
+                        foreach (var file in kvp.Value)
+                        {
+                            CommitedSubrepoFiles[subrepo_root].Add(System.IO.Path.GetFullPath(
+                                System.IO.Path.Combine(subrepo_root, file)));
+                        }
+                    }
 
 					UpdateContext.IsParentChanged = true;
 					UpdateContext.IsCommited = true;

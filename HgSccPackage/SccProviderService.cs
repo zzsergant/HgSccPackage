@@ -454,14 +454,26 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		SccProviderStorage GetStorageForFile(string filename)
 		{
-			foreach (var storage in storage_list)
+            foreach (var storage in storage_list)
 			{
-				if (storage.IsPathUnderRoot(filename))
+				if (storage.IsStorageControlled(filename))
 					return storage;
 			}
 
 			return null;
 		}
+
+        //-----------------------------------------------------------------
+        SccProviderStorage GetStorageParentForFile(string filename)
+        {
+            foreach (var storage in storage_list)
+            {
+                if (storage.IsPathUnderRoot(filename) && !storage.IsStorageControlled(filename))
+                    return storage;
+            }
+
+            return null;
+        }
 
 		//------------------------------------------------------------------
 		SccProviderStorage GetStorageForProject(IVsHierarchy hierarchy)
@@ -557,6 +569,12 @@ namespace HgSccPackage
 						var err = storage.Init(work_dir, SccOpenProjectFlags.None);
 						if (err != SccErrors.Ok)
 							return VSConstants.E_FAIL;
+
+                        var parent = GetStorageParentForFile(project_path);
+                        if (parent != null) //means that this is a sub repo
+                        {
+                            parent.AddSubrepoStorage(work_dir, storage);
+                        }
 					}
 
 					if (storage.GetFileStatus(project_path) != SourceControlStatus.scsUncontrolled)
