@@ -89,7 +89,7 @@ namespace HgSccHelper
                         string[] tokens = line.Split('=');
                         if (tokens.Length > 1)
                         {
-                            SubRepoDirs.Add(tokens[0].Trim());
+                            SubRepoDirs.Add(tokens[0].Trim().Replace('/','\\'));
                         }
                     }
                 }

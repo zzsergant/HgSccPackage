@@ -311,7 +311,9 @@ namespace HgSccHelper
             StringBuilder dirtySubRepos = new StringBuilder();
             foreach (string subrepoDir in SubRepoDirs)
             {
-                if (Hg.Status(System.IO.Path.Combine(WorkingDir, subrepoDir)).Count > 0)
+                if (Hg.Status(System.IO.Path.Combine(WorkingDir, subrepoDir), 
+                    HgStatusOptions.Added | HgStatusOptions.Copies | HgStatusOptions.Deleted | HgStatusOptions.Modified | HgStatusOptions.Removed, 
+                    "", "", "").Count > 0)
                 {
                     dirtySubRepos.AppendLine(subrepoDir);
                 }
