@@ -243,7 +243,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void root_Loaded(object sender, RoutedEventArgs e)
 		{
-			Title = string.Format("Syncrhonize Settings: '{0}'", WorkingDir);
+			Title = string.Format("Synchronize Settings: '{0}'", WorkingDir);
 
 			HgrcPath = System.IO.Path.Combine(WorkingDir, @".hg\hgrc");
 			hgrc = IniFile.FromFile(HgrcPath);
