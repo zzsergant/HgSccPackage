@@ -179,6 +179,17 @@ namespace HgSccPackage
 			_active = true;
 			_sccProvider.OnActiveStateChange();
 
+			var solution = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+			if (solution != null)
+			{
+				var phi2 = solution as IVsPersistHierarchyItem2;
+				if (phi2 != null)
+				{
+					Logger.WriteLine("Reloading solution");
+					phi2.ReloadItem(VSConstants.VSITEMID_ROOT, 0);
+				}
+			}
+
 			return VSConstants.S_OK;
 		}
 
