@@ -64,7 +64,15 @@
                         CanExecute="ClearPendingBranchClose_CanExecute"
                         Executed="ClearPendingBranchClose_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:CommitWindow.CommitCommand}"
+                        CanExecute="Commit_CanExecute"
+                        Executed="Commit_Executed">
+        </CommandBinding>
     </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Command="{x:Static local:CommitWindow.CommitCommand}"
+                    Modifiers="Control" Key="Return" />
+    </Window.InputBindings>
     <Window.Resources>
         <DataTemplate x:Key="CheckBoxCell">
             <CheckBox IsChecked="{Binding Path=IsChecked}" Focusable="False"></CheckBox>
@@ -126,7 +134,7 @@
             </Grid.RowDefinitions>
             <Label Grid.Row="0" Margin="5"  Content="Commit Message:" VerticalAlignment="Stretch"></Label>
             <TextBox Grid.Row="1" Name="textCommitMessage"
-                     Text="{Binding Path=CommitMessage, ElementName=root}"
+                     Text="{Binding Path=CommitMessage, ElementName=root, UpdateSourceTrigger=PropertyChanged}"
                      MinLines="2" MaxLines="10"
                      VerticalAlignment="Stretch"
                      Margin="5,0,5,0"
@@ -306,9 +314,10 @@
                     </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
-                    <Button Content="Commit" MinWidth="75" MinHeight="25" Margin="0,5"
-                            HorizontalAlignment="Right"
-                            Name="btnCommit" Click="btnCommit_Click"></Button>
+                    <Button Command="{x:Static local:CommitWindow.CommitCommand}"
+                            Content="Commit"
+                            MinWidth="75" MinHeight="25" Margin="0,5"
+                            HorizontalAlignment="Right"></Button>
                     <Button Content="Cancel" MinWidth="75" MinHeight="25" Margin="5"
                             HorizontalAlignment="Right"
                             Click="btnCancel_Click"

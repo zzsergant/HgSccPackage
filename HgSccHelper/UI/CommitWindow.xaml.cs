@@ -34,6 +34,10 @@ namespace HgSccHelper
 	public partial class CommitWindow : Window
 	{
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand CommitCommand = new RoutedUICommand("Commit",
+			"Commit", typeof(CommitWindow));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand MarkResolvedCommand = new RoutedUICommand("Mark Resolved",
 			"MarkResolved", typeof(CommitWindow));
 
@@ -380,7 +384,14 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		private void btnCommit_Click(object sender, RoutedEventArgs e)
+		private void Commit_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Commit_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			if (String.IsNullOrEmpty(CommitMessage))
 			{
@@ -454,7 +465,7 @@ namespace HgSccHelper
 					{
 						MessageBox.Show("Resulted command line for hg.exe is too long. In this situation you can only commit all changed files (which is equivalent to invoking hg.exe without specified files).", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 						return;
-					}					
+					}
 				}
 				else
 				{
@@ -480,7 +491,7 @@ namespace HgSccHelper
 				}
 			}
 		}
-		
+
 		//------------------------------------------------------------------
 		private void DiffPrevious_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
