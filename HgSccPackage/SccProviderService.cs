@@ -180,8 +180,10 @@ namespace HgSccPackage
 			_active = true;
 			_sccProvider.OnActiveStateChange();
 
+/*
 			pending_reload = true;
 			rdt_timer.Start();
+*/
 
 			return VSConstants.S_OK;
 		}
