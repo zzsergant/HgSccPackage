@@ -79,6 +79,7 @@ namespace HgSccPackage
 		// Our custom image list
 		ImageList customSccGlyphsImageList;
 
+		bool pending_reload;
 		System.Windows.Forms.Timer rdt_timer;
 		Dictionary<SccProviderStorage, HashSet<string>> rdt_files_to_update;
 
@@ -179,16 +180,8 @@ namespace HgSccPackage
 			_active = true;
 			_sccProvider.OnActiveStateChange();
 
-			var solution = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-			if (solution != null)
-			{
-				var phi2 = solution as IVsPersistHierarchyItem2;
-				if (phi2 != null)
-				{
-					Logger.WriteLine("Reloading solution");
-					phi2.ReloadItem(VSConstants.VSITEMID_ROOT, 0);
-				}
-			}
+			pending_reload = true;
+			rdt_timer.Start();
 
 			return VSConstants.S_OK;
 		}
@@ -276,6 +269,12 @@ namespace HgSccPackage
 			return dirty != 0;
 		}
 
+		//-----------------------------------------------------------------------------
+		private VsStateIcon GetCustomVsIcon(CustomSccGlyphs glyph)
+		{
+			return (VsStateIcon)(customSccGlyphBaseIndex + (uint)glyph);
+		}
+
 		/// <summary>
 		/// Provide source control icons for the specified files and returns scc status of files
 		/// </summary>
@@ -297,14 +296,14 @@ namespace HgSccPackage
 				{
 					case SourceControlStatus.scsAdded:
 						{
-							rgsiGlyphs[iFile] = (VsStateIcon)(this.customSccGlyphBaseIndex + (uint)CustomSccGlyphs.Added);
+							rgsiGlyphs[iFile] = GetCustomVsIcon(CustomSccGlyphs.Added);
 							if (rgdwSccStatus != null)
 								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CHECKEDOUT;
 							break;
 						}
 					case SourceControlStatus.scsCopied:
 						{
-							rgsiGlyphs[iFile] = (VsStateIcon)(this.customSccGlyphBaseIndex + (uint)CustomSccGlyphs.Copied);
+							rgsiGlyphs[iFile] = GetCustomVsIcon(CustomSccGlyphs.Copied);
 							if (rgdwSccStatus != null)
 								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CHECKEDOUT;
 							break;
@@ -312,7 +311,7 @@ namespace HgSccPackage
 					case SourceControlStatus.scsDeleted:
 					case SourceControlStatus.scsRemoved:
 						{
-							rgsiGlyphs[iFile] = (VsStateIcon)(this.customSccGlyphBaseIndex + (uint)CustomSccGlyphs.Deleted);
+							rgsiGlyphs[iFile] = GetCustomVsIcon(CustomSccGlyphs.Deleted);
 							if (rgdwSccStatus != null)
 								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_DELETED;
 							break;
@@ -2295,6 +2294,21 @@ namespace HgSccPackage
 					{
 						storage.UpdateCache(files);
 						RefreshGlyphsForControlledProjects();
+					}
+				}
+			}
+			if (pending_reload)
+			{
+				pending_reload = false;
+
+				var solution = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+				if (solution != null)
+				{
+					var phi2 = solution as IVsPersistHierarchyItem2;
+					if (phi2 != null)
+					{
+						Logger.WriteLine("Reloading solution");
+						phi2.ReloadItem(VSConstants.VSITEMID_ROOT, 0);
 					}
 				}
 			}
