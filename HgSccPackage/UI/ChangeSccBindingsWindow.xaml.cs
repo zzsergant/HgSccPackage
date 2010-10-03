@@ -46,9 +46,14 @@ namespace HgSccPackage.UI
 		//------------------------------------------------------------------
 		internal List<SccBindItem> SccBindItems { get; set; }
 
+		public const string CfgPath = @"GUI\ChangeSccBindingsWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//-----------------------------------------------------------------------------
 		public ChangeSccBindingsWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
+
 			InitializeComponent();
 
 			SccBindItems = new List<SccBindItem>();

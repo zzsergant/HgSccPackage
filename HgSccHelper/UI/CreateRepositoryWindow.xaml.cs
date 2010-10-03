@@ -40,9 +40,14 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		public bool SelectProjectOnLoad { get; set; }
 
+		public const string CfgPath = @"GUI\CreateRepositoryWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//------------------------------------------------------------------
 		public CreateRepositoryWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
+
 			InitializeComponent();
 		}
 
