@@ -26,6 +26,7 @@ using System.Windows.Forms;
 using HgSccPackage.Vs;
 using System.Drawing;
 using HgSccPackage.UI;
+using System.Linq;
 
 namespace HgSccPackage
 {
@@ -79,7 +80,7 @@ namespace HgSccPackage
 		// Our custom image list
 		ImageList customSccGlyphsImageList;
 
-		bool pending_reload;
+		bool pending_refresh_glyphs;
 		System.Windows.Forms.Timer rdt_timer;
 		Dictionary<SccProviderStorage, HashSet<string>> rdt_files_to_update;
 
@@ -100,6 +101,18 @@ namespace HgSccPackage
 		{
 			Debug.Assert(null != sccProvider);
 			_sccProvider = sccProvider;
+		}
+
+		//------------------------------------------------------------------
+		public void Dispose()
+		{
+			Deinit();
+		}
+
+		//------------------------------------------------------------------
+		void Init()
+		{
+			Logger.WriteLine("Init");
 
 			// Subscribe to solution events
 			var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
@@ -126,8 +139,10 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		public void Dispose()
+		void Deinit()
 		{
+			Logger.WriteLine("Deinit");
+
 			// Unregister from receiving solution events
 			if (VSConstants.VSCOOKIE_NIL != _vsSolutionEventsCookie)
 			{
@@ -176,14 +191,28 @@ namespace HgSccPackage
 		public int SetActive()
 		{
 			Logger.WriteLine("Provider set active");
+			Logger.WriteLine("sln = '{0}'", _sccProvider.GetSolutionFileName());
 
 			_active = true;
 			_sccProvider.OnActiveStateChange();
 
-/*
-			pending_reload = true;
-			rdt_timer.Start();
-*/
+			Init();
+
+			if (!String.IsNullOrEmpty(_sccProvider.GetSolutionFileName()))
+			{
+				Logger.WriteLine("Manual switch to active");
+
+				var solution = _sccProvider.GetService<IVsSolution>();
+				var scc_projects = solution.EnumHierarchies().Where(hier => hier is IVsSccProject2);
+				foreach (var prj in scc_projects)
+				{
+					OnAfterOpenProject(prj, 0);
+				}
+				OnAfterOpenSolution(null, 0);
+
+				pending_refresh_glyphs = true;
+				rdt_timer.Start();
+			}
 
 			return VSConstants.S_OK;
 		}
@@ -193,6 +222,14 @@ namespace HgSccPackage
 		public int SetInactive()
 		{
 			Logger.WriteLine("Provider set inactive");
+
+			if (!String.IsNullOrEmpty(_sccProvider.GetSolutionFileName()))
+			{
+				Logger.WriteLine("Manual switch to inactive");
+				OnAfterCloseSolution(null);
+			}
+
+			Deinit();
 
 			_active = false;
 			_sccProvider.OnActiveStateChange();
@@ -684,6 +721,9 @@ namespace HgSccPackage
 
 		public int OnAfterOpenProject([InAttribute] IVsHierarchy pHierarchy, [InAttribute] int fAdded)
 		{
+			if (!Active)
+				return VSConstants.S_OK;
+
 			Logger.WriteLine("OnAfterOpenProject: {0}, added = {1}", pHierarchy, fAdded);
 
 			// If a solution folder is added to the solution after the solution is added to scc, we need to controll that folder
@@ -2299,20 +2339,10 @@ namespace HgSccPackage
 					}
 				}
 			}
-			if (pending_reload)
+			if (pending_refresh_glyphs)
 			{
-				pending_reload = false;
-
-				var solution = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-				if (solution != null)
-				{
-					var phi2 = solution as IVsPersistHierarchyItem2;
-					if (phi2 != null)
-					{
-						Logger.WriteLine("Reloading solution");
-						phi2.ReloadItem(VSConstants.VSITEMID_ROOT, 0);
-					}
-				}
+				pending_refresh_glyphs = false;
+				RefreshGlyphsForControlledProjects();
 			}
 		}
 
