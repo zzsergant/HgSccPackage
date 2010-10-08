@@ -80,7 +80,6 @@ namespace HgSccPackage
 		// Our custom image list
 		ImageList customSccGlyphsImageList;
 
-		bool pending_refresh_glyphs;
 		System.Windows.Forms.Timer rdt_timer;
 		Dictionary<SccProviderStorage, HashSet<string>> rdt_files_to_update;
 
@@ -2374,11 +2373,6 @@ namespace HgSccPackage
 						RefreshGlyphsForControlledProjects();
 					}
 				}
-			}
-			if (pending_refresh_glyphs)
-			{
-				pending_refresh_glyphs = false;
-				RefreshGlyphsForControlledProjects();
 			}
 		}
 
