@@ -202,16 +202,20 @@ namespace HgSccPackage
 			{
 				Logger.WriteLine("Manual switch to active");
 
-				var solution = _sccProvider.GetService<IVsSolution>();
-				var scc_projects = solution.EnumHierarchies().Where(hier => hier is IVsSccProject2);
-				foreach (var prj in scc_projects)
-				{
-					OnAfterOpenProject(prj, 0);
-				}
-				OnAfterOpenSolution(null, 0);
+				ManualyRegisterProjects();
 
-				pending_refresh_glyphs = true;
-				rdt_timer.Start();
+				var shell = _sccProvider.GetService<IVsUIShell>();
+				if (shell != null)
+				{
+					Logger.WriteLine("Queueing pending status update");
+
+					object a = new object();
+					Guid cmd_set = GuidList.guidSccProviderCmdSet;
+					int id = CommandId.icmdRefreshStatus;
+
+					shell.PostExecCommand(ref cmd_set,
+						unchecked((uint)id), (uint)OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT, ref a);
+				}
 			}
 
 			return VSConstants.S_OK;
@@ -222,12 +226,6 @@ namespace HgSccPackage
 		public int SetInactive()
 		{
 			Logger.WriteLine("Provider set inactive");
-
-			if (!String.IsNullOrEmpty(_sccProvider.GetSolutionFileName()))
-			{
-				Logger.WriteLine("Manual switch to inactive");
-				OnAfterCloseSolution(null);
-			}
 
 			Deinit();
 
@@ -751,6 +749,44 @@ namespace HgSccPackage
 			all_projects.Add(pHierarchy);
 
 			return VSConstants.S_OK;
+		}
+
+		//------------------------------------------------------------------
+		void ManualyRegisterProjects()
+		{
+			Logger.WriteLine("Manualy register projects");
+
+			bool register_scc_projects = HgSccOptions.Options.CheckProjectsForMercurialRepository;
+			if (!register_scc_projects)
+			{
+				var solution_dir = Path.GetDirectoryName(_sccProvider.GetSolutionFileName());
+				var storage = new SccProviderStorage();
+
+				// If solution is not controlled, check if there is
+				// a mercurial repository
+
+				if (SccErrors.Ok == storage.Init(solution_dir, SccOpenProjectFlags.None))
+				{
+					Logger.WriteLine("Solution is not controlled, but there is a mercurial repository");
+					register_scc_projects = true;
+				}
+			}
+
+			if (register_scc_projects)
+			{
+				RegisterSccProject(null, "", "", "", _sccProvider.ProviderName);
+
+				var solution = _sccProvider.GetService<IVsSolution>();
+				var scc_projects = solution.EnumHierarchies().Where(hier => hier is IVsSccProject2);
+				foreach (var prj in scc_projects)
+				{
+					all_projects.Add(prj);
+					RegisterSccProject((IVsSccProject2)prj, "", "", "", _sccProvider.ProviderName);
+				}
+
+			}
+
+			all_projects.Add((IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution)));
 		}
 
 		public int OnAfterOpenSolution([InAttribute] Object pUnkReserved, [InAttribute] int fNewSolution)
@@ -2487,6 +2523,8 @@ namespace HgSccPackage
 
 		public int GetCustomGlyphList(uint BaseIndex, out uint pdwImageListHandle)
 		{
+			Logger.WriteLine("GetCustomGlyphList");
+
 			// If this is the first time we got called, construct the image list, remember the index, etc
 			if (this.customSccGlyphsImageList == null)
 			{
