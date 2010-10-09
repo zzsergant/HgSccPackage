@@ -262,13 +262,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_899C757C9F83E577E93C686CEAA19DF3"
+        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "OwnerKey" = "8:_899C757C9F83E577E93C686CEAA19DF3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -962,7 +962,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Mercurial Source Control Package"
         "ProductCode" = "8:{209938AC-C034-4498-A6D0-DC7F5A716A04}"
-        "PackageCode" = "8:{258AAECE-F354-4D34-9B8C-5CE886589A82}"
+        "PackageCode" = "8:{64C5B70B-C41E-4C3F-9D90-568279A3AD7E}"
         "UpgradeCode" = "8:{92680898-E5B3-43AF-9D81-3E07DA507EBC}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
@@ -2320,7 +2320,7 @@
                 {
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_3BDBF893BF9845239FEF95BE67F7C033"
                     {
-                    "Sequence" = "3:200"
+                    "Sequence" = "3:300"
                     "DisplayName" = "8:Installation Folder"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
@@ -2355,7 +2355,7 @@
                     }
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_45E69C7C98B0491FB54ED937D755FBD5"
                     {
-                    "Sequence" = "3:300"
+                    "Sequence" = "3:200"
                     "DisplayName" = "8:Checkboxes   (A)"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
