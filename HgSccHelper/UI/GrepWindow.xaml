@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:HgSccHelper"
     xmlns:ui="clr-namespace:HgSccHelper.UI"
+    xmlns:converters="clr-namespace:HgSccHelper.UI.Converters"
     Title="GrepWindow"
     x:Name="root"
     Height="600"
@@ -12,6 +13,7 @@
     PreviewKeyDown="Window_PreviewKeyDown"
     WindowStartupLocation="CenterScreen">
     <Window.Resources>
+        <converters:RemoveLastNewLineConverter x:Key="RemoveLastNewLineConverter" />
         <DataTemplate x:Key="MatchTemplate">
             <TextBlock Text="{Binding Path=Match}"
                        HorizontalAlignment="Stretch"
@@ -236,8 +238,8 @@
                 <TextBox Grid.Row="2" Name="textChangeDesc"
                          DataContext="{Binding Path=SelectedChangeset, ElementName=root, Mode=OneWay}"
                          Margin="0,0,0,5"
-                         Text="{Binding Path=Desc}" TextWrapping="Wrap"
-                         IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
+                         Text="{Binding Path=Desc, Converter={StaticResource RemoveLastNewLineConverter}}" TextWrapping="Wrap"
+                         IsReadOnly="True" MinLines="2" MaxLines="5" VerticalScrollBarVisibility="Auto">
                 </TextBox>
             </Grid>
             <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files">

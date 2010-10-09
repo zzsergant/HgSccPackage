@@ -109,6 +109,7 @@
       <DependentUpon>CommitWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Misc\DeferredCommandExecutor.cs" />
+    <Compile Include="UI\Converters\RemoveLastNewLineConverter.cs" />
     <Compile Include="UI\CreateRepositoryWindow.xaml.cs">
       <DependentUpon>CreateRepositoryWindow.xaml</DependentUpon>
     </Compile>

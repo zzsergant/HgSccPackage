@@ -3,10 +3,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:HgSccHelper"
     xmlns:ui="clr-namespace:HgSccHelper.UI"
+    xmlns:converters="clr-namespace:HgSccHelper.UI.Converters"
     x:Name="root"
     Loaded="Control_Loaded"
     Unloaded="Control_Unloaded">
     <UserControl.Resources>
+        <converters:RemoveLastNewLineConverter x:Key="RemoveLastNewLineConverter" />
         <DataTemplate x:Key="myCellTemplateDesc">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{Binding Path=BranchInfo.Name}" VerticalAlignment="Center"
@@ -269,9 +271,9 @@
                 </StackPanel>
                 <TextBox Grid.Row="2" Name="textChangeDesc"
                          DataContext="{Binding Path=SelectedItem.ChangeDesc, ElementName=listChanges, Mode=OneWay}"
-                         Text="{Binding Path=Desc}" TextWrapping="Wrap"
+                         Text="{Binding Path=Desc, Converter={StaticResource RemoveLastNewLineConverter}}" TextWrapping="Wrap"
                          Margin="0,0,0,5"
-                         IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
+                         IsReadOnly="True" MinLines="2" MaxLines="5" VerticalScrollBarVisibility="Auto">
                 </TextBox>
             </Grid>
             <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files">

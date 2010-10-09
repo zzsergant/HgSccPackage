@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:HgSccHelper"
              xmlns:ui="clr-namespace:HgSccHelper.UI"
+             xmlns:converters="clr-namespace:HgSccHelper.UI.Converters"
              mc:Ignorable="d"
              d:DesignHeight="317" d:DesignWidth="476"
              Loaded="UserControl_Loaded"
@@ -64,6 +65,7 @@
         </CommandBinding>
     </UserControl.CommandBindings>
     <UserControl.Resources>
+        <converters:RemoveLastNewLineConverter x:Key="RemoveLastNewLineConverter" />
     	<local:RevLogLinesPair x:Key="RevLogLinesPairDataSource" d:IsDataSource="True"/>
         <DataTemplate x:Key="myCellTemplateDesc">
         	<StackPanel Orientation="Horizontal">
@@ -276,9 +278,9 @@
             <TextBox Name="textChangeDesc"
                      Grid.Row="2" Grid.ColumnSpan="2"
                      DataContext="{Binding Path=SelectedItem.Current.ChangeDesc, ElementName=graphView, Mode=OneWay}"
-                     Text="{Binding Path=Desc}" TextWrapping="Wrap"
+                     Text="{Binding Path=Desc, Converter={StaticResource RemoveLastNewLineConverter}}" TextWrapping="Wrap"
                      Margin="0,0,0,5"
-                     IsReadOnly="True" MaxLines="5" VerticalScrollBarVisibility="Auto">
+                     IsReadOnly="True" MinLines="2" MaxLines="5" VerticalScrollBarVisibility="Auto">
             </TextBox>
             <GridSplitter Grid.Row="2" Margin="0"
                           Grid.Column="0"
