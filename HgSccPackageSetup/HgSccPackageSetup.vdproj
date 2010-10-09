@@ -723,7 +723,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:HgSccHelper, Version=1.3.3.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:HgSccHelper, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_899C757C9F83E577E93C686CEAA19DF3"
@@ -961,14 +961,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Mercurial Source Control Package"
-        "ProductCode" = "8:{209938AC-C034-4498-A6D0-DC7F5A716A04}"
-        "PackageCode" = "8:{64C5B70B-C41E-4C3F-9D90-568279A3AD7E}"
+        "ProductCode" = "8:{E06AA9DD-1319-40CA-AF46-5FA4D44BA253}"
+        "PackageCode" = "8:{C7A88D6B-E46E-4D72-976C-15D21579F69B}"
         "UpgradeCode" = "8:{92680898-E5B3-43AF-9D81-3E07DA507EBC}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.3.3"
+        "ProductVersion" = "8:1.4"
         "Manufacturer" = "8:Sergey Antonov"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

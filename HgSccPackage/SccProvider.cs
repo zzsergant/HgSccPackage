@@ -40,7 +40,7 @@ namespace HgSccPackage
 	[MsVsShell.DefaultRegistryRoot("Software\\Microsoft\\VisualStudio\\9.0Exp")]
 #endif
 	// Register the package to have information displayed in Help/About dialog box
-	[MsVsShell.InstalledProductRegistration(false, "#100", "#101", "1.3.3.0",
+	[MsVsShell.InstalledProductRegistration(false, "#100", "#101", "1.4.0.0",
 		IconResourceID = CommandId.iiconProductIcon)]
 	// Declare that resources for the package are to be found in the managed assembly
 	// resources, and not in a satellite dll

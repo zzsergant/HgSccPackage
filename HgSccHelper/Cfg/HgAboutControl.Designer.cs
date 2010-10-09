@@ -178,7 +178,7 @@
 			this.textBox5.ReadOnly = true;
 			this.textBox5.Size = new System.Drawing.Size(199, 20);
 			this.textBox5.TabIndex = 13;
-			this.textBox5.Text = "HgSccPackage v1.3.3";
+			this.textBox5.Text = "HgSccPackage v1.4";
 			// 
 			// label7
 			// 
