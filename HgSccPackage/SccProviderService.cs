@@ -848,12 +848,16 @@ namespace HgSccPackage
 				foreach (IVsHierarchy pHier in solution_folders)
 				{
 					// Register this solution folder using the same location as the solution
-					var pSccProject = (IVsSccProject2)pHier;
-					RegisterSccProject(pSccProject, _loadingControlledSolutionLocation, "", "", _sccProvider.ProviderName);
+					var pSccProject = pHier as IVsSccProject2;
+					if (pSccProject != null)
+					{
+						RegisterSccProject(pSccProject, _loadingControlledSolutionLocation, "",
+										   "", _sccProvider.ProviderName);
 
-					vsItem.itemid = VSConstants.VSITEMID_ROOT;
-					vsItem.pHier = pHier;
-					nodes.Add(vsItem);
+						vsItem.itemid = VSConstants.VSITEMID_ROOT;
+						vsItem.pHier = pHier;
+						nodes.Add(vsItem);
+					}
 				}
 
 				// Refresh the glyphs now for solution and solution folders
@@ -886,9 +890,12 @@ namespace HgSccPackage
 
 			foreach (IVsHierarchy pHier in solution_folders)
 			{
-				var pSccProject = (IVsSccProject2)pHier;
-				UnregisterSccProject(pSccProject);
-				all_projects.Remove(pHier);
+				var pSccProject = pHier as IVsSccProject2;
+				if (pSccProject != null)
+				{
+					UnregisterSccProject(pSccProject);
+					all_projects.Remove(pHier);
+				}
 			}
 
 			UnregisterSccProject(null);
