@@ -89,6 +89,7 @@
     <Compile Include="Vs\FilesChangeMonitor.cs" />
     <Compile Include="Vs\SlnOrProjectReloader.cs" />
     <Compile Include="Vs\VsFileChangeEx.cs" />
+    <Compile Include="Vs\VsHierarchyUtil.cs" />
     <Compile Include="Vs\VsSolutionUtil.cs" />
     <Compile Include="Vs\VsRunningDocumentTable.cs" />
   </ItemGroup>

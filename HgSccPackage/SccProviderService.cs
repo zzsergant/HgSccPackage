@@ -2493,6 +2493,15 @@ namespace HgSccPackage
 				storage.ReloadCache();
 				RefreshGlyphsForControlledProjects();
 			}
+
+/*
+			var solution = _sccProvider.GetService<IVsSolution>();
+			foreach (var item in solution.TraverseItems())
+			{
+				var ident_str = new string(' ', item.Depth * 2);
+				Logger.WriteLine("{0}{1}({2})", ident_str, item.HierarchyNode.Name, item.HierarchyNode.Id);
+			}
+*/
 		}
 
 		//------------------------------------------------------------------

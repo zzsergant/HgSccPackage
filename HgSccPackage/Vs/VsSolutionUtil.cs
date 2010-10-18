@@ -16,6 +16,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
+using System.Runtime.InteropServices;
 
 namespace HgSccPackage.Vs
 {
@@ -68,6 +69,104 @@ namespace HgSccPackage.Vs
 			{
 				yield return rgelt[0];
 			}
+		}
+
+		//-----------------------------------------------------------------------------
+		public static IEnumerable<HierarchyTraversalInfo> TraverseItems(this IVsSolution solution)
+		{
+			if (solution == null)
+				yield break;
+
+			var solutionHierarchy = solution as IVsHierarchy;
+			if (null != solutionHierarchy)
+			{
+				foreach (var item in TraverseHierarchyItem(solutionHierarchy,
+				  VSConstants.VSITEMID_ROOT, 0, true))
+				{
+					yield return item;
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		static IEnumerable<HierarchyTraversalInfo> TraverseHierarchyItem(IVsHierarchy hierarchy,
+			uint itemid,
+			int recursionLevel,
+			bool hierIsSolution)
+		{
+			IntPtr nestedHierarchyObj;
+			uint nestedItemId;
+			var hierGuid = typeof(IVsHierarchy).GUID;
+
+			var hr = hierarchy.GetNestedHierarchy(itemid, ref hierGuid,
+				out nestedHierarchyObj, out nestedItemId);
+
+			if (VSConstants.S_OK == hr && IntPtr.Zero != nestedHierarchyObj)
+			{
+				var nestedHierarchy = Marshal.GetObjectForIUnknown(nestedHierarchyObj) as IVsHierarchy;
+				Marshal.Release(nestedHierarchyObj);
+				if (nestedHierarchy != null)
+				{
+					foreach (var item in TraverseHierarchyItem(nestedHierarchy, nestedItemId,
+						recursionLevel, false))
+					{
+						yield return item;
+					}
+				}
+			}
+			else
+			{
+				yield return new HierarchyTraversalInfo(hierarchy, itemid, recursionLevel);
+				recursionLevel++;
+
+				object pVar;
+				hr = hierarchy.GetProperty(itemid,
+					(hierIsSolution && recursionLevel == 1)
+					? (int)__VSHPROPID.VSHPROPID_FirstVisibleChild
+					: (int)__VSHPROPID.VSHPROPID_FirstChild,
+					out pVar);
+				ErrorHandler.ThrowOnFailure(hr);
+				if (VSConstants.S_OK == hr)
+				{
+					var childId = GetItemId(pVar);
+					while (childId != VSConstants.VSITEMID_NIL)
+					{
+						foreach (var item in TraverseHierarchyItem(hierarchy, childId,
+							recursionLevel, false))
+						{
+							yield return item;
+						}
+
+						hr = hierarchy.GetProperty(childId,
+							(hierIsSolution && recursionLevel == 1)
+							? (int)__VSHPROPID.VSHPROPID_NextVisibleSibling
+							: (int)__VSHPROPID.VSHPROPID_NextSibling,
+							out pVar);
+
+						if (VSConstants.S_OK == hr)
+						{
+							childId = GetItemId(pVar);
+						}
+						else
+						{
+							ErrorHandler.ThrowOnFailure(hr);
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private static uint GetItemId(object pvar)
+		{
+			if (pvar == null) return VSConstants.VSITEMID_NIL;
+			if (pvar is int) return (uint)(int)pvar;
+			if (pvar is uint) return (uint)pvar;
+			if (pvar is short) return (uint)(short)pvar;
+			if (pvar is ushort) return (ushort)pvar;
+			if (pvar is long) return (uint)(long)pvar;
+			return VSConstants.VSITEMID_NIL;
 		}
 	}
 }
