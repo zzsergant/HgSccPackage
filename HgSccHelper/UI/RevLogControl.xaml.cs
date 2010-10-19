@@ -339,18 +339,21 @@ namespace HgSccHelper
 			p.OutputHandler = Output_Handler;
 			p.WorkingDir = WorkingDir;
 
-			var args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("log");
-			args.Append(" --debug");
-			args.Append(" -v");
+			args.AppendDebug();
+			args.AppendVerbose();
 	
 			if (max_count != 0)
-				args.Append(" -l " + max_count);
+			{
+				args.Append("-l");
+				args.Append(max_count.ToString());
+			}
 
 			if (rev.Length > 0)
-				args.Append(" -r " + rev);
+				args.AppendRevision(rev);
 
-			args.Append(" --style " + revlog_style.FileName.Quote());
+			args.AppendStyle(revlog_style.FileName);
 
 			p.Args = args.ToString();
 

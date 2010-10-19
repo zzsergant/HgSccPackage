@@ -24,11 +24,11 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public bool BundleAll(string work_dir, string destination)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("bundle");
-			args.Append(" --all");
+			args.Append("--all");
 
-			args.Append(" " + destination.Quote());
+			args.AppendPath(destination);
 
 			if (args.Length >= Hg.MaxCmdLength)
 				throw new HgCommandLineException("Bundle");
@@ -40,16 +40,22 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public bool Bundle(string work_dir, string base_rev, string revision, string destination)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("bundle");
 
 			if (revision.Length > 0)
-				args.Append(" --rev " + revision.Quote());
+			{
+				args.Append("--rev");
+				args.Append(revision.Quote());
+			}
 
 			if (base_rev.Length > 0)
-				args.Append(" --base " + base_rev.Quote());
+			{
+				args.Append("--base");
+				args.Append(base_rev.Quote());
+			}
 
-			args.Append(" " + destination.Quote());
+			args.AppendPath(destination);
 
 			if (args.Length >= Hg.MaxCmdLength)
 				throw new HgCommandLineException("Bundle");

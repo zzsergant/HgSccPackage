@@ -35,7 +35,7 @@ namespace HgSccHelper
 		/// <returns></returns>
 		public string GetBranchName(string work_dir)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("branch");
 
 			var hg = new Hg();
@@ -61,9 +61,9 @@ namespace HgSccHelper
 		/// <returns></returns>
 		public bool ResetBranchName(string work_dir)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("branch");
-			args.Append(" --clean");
+			args.Append("--clean");
 
 			var hg = new Hg();
 			return hg.RunHg(work_dir, args.ToString());
@@ -72,13 +72,13 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public bool SetBranchName(string work_dir, string branch_name, HgBranchOptions options)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("branch");
 
 			if (options == HgBranchOptions.Force)
-				args.Append(" --force");
+				args.Append("-f");
 
-			args.Append(" " + branch_name.Quote());
+			args.Append(branch_name.Quote());
 
 			var hg = new Hg();
 			return hg.RunHg(work_dir, args.ToString());

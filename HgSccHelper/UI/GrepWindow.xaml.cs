@@ -245,27 +245,33 @@ namespace HgSccHelper.UI
 			p.OutputHandler = Output_Handler;
 			p.WorkingDir = WorkingDir;
 
-			var args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("grep");
-			args.Append(" --line-number");
+			args.Append("--line-number");
 
 			if (checkFollowRenames.IsEnabled && checkFollowRenames.IsChecked == true)
-				args.Append(" --follow");
+				args.Append("--follow");
 
 			if (IsIgnoreCase)
-				args.Append(" --ignore-case");
+				args.Append("--ignore-case");
 
 			if (IsShowAllRevisions)
-				args.Append(" --all");
+				args.Append("--all");
 
 			if (!String.IsNullOrEmpty(textIncludes.Text))
-				args.Append(" -I " + textIncludes.Text.Quote());
+			{
+				args.Append("-I");
+				args.Append(textIncludes.Text.Quote());
+			}
 
 			if (!String.IsNullOrEmpty(textExcludes.Text))
-				args.Append(" -X " + textExcludes.Text.Quote());
+			{
+				args.Append("-X");
+				args.Append(textExcludes.Text.Quote());
+			}
 
 			if (!String.IsNullOrEmpty(textRegexp.Text))
-				args.Append(" " + textRegexp.Text.Quote());
+				args.Append(textRegexp.Text.Quote());
 
 			p.Args = args.ToString();
 

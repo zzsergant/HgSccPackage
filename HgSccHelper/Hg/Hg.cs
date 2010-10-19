@@ -141,19 +141,21 @@ namespace HgSccHelper
 		{
 			using (var style = new ChangeSetStyleFile())
 			{
-				var args = new StringBuilder();
+				var args = new HgArgsBuilder();
 				args.Append("log");
-				args.Append(" --debug");
-				args.Append(" -v");
-				args.Append(" -f");
-				if (rev.Length > 0)
-					args.Append(" -r " + rev);
 
-				args.Append(" --style " + style.FileName.Quote());
+				args.AppendDebug();
+				args.AppendVerbose();
+				args.Append("--follow");
+				
+				if (rev.Length > 0)
+					args.AppendRevision(rev);
+
+				args.AppendStyle(style.FileName);
 
 				if (path.Length > 0)
 				{
-					args.Append(" " + path.Quote());
+					args.AppendPath(path);
 				}
 
 				using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
@@ -176,11 +178,17 @@ namespace HgSccHelper
 		/// <returns></returns>
 		public List<RevLogChangeDesc> RevLogHgk(string work_dir, int max_count)
 		{
-			var args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("debug-rev-list");
-			args.Append(" --header --topo-order --parents");
+			args.Append("--header");
+			args.Append("--topo-order");
+			args.Append("--parents");
+
 			if (max_count > 0)
-				args.Append(" --max-count " + max_count);
+			{
+				args.Append("--max-count");
+				args.Append(max_count.ToString());
+			}
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
@@ -217,19 +225,25 @@ namespace HgSccHelper
 		/// <returns></returns>
 		public List<RevLogChangeDesc> RevLog(string work_dir, string rev, int max_count)
 		{
-			var args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("log");
-			args.Append(" --debug");
-			args.Append(" -v");
-			args.Append(" -f");
+
+			args.AppendDebug();
+			args.AppendVerbose();
+			args.Append("--follow");
+
 			if (max_count != 0)
-				args.Append(" -l " + max_count);
+			{
+				args.Append("-l");
+				args.Append(max_count.ToString());
+			}
+
 			if (rev.Length > 0)
-				args.Append(" -r " + rev);
+				args.AppendRevision(rev);
 
 			using (var revlog_style = new RevLogStyleFile())
 			{
-				args.Append(" --style " + revlog_style.FileName.Quote());
+				args.AppendStyle(revlog_style.FileName);
 
 				using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 				{
@@ -244,15 +258,17 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<RevLogChangeDesc> Parents(string work_dir, string rev)
 		{
-			var args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("parents");
-			args.Append(" --debug");
+
+			args.AppendDebug();
+
 			if (rev.Length > 0)
-				args.Append(" -r " + rev);
+				args.AppendRevision(rev);
 
 			using (var revlog_style = new RevLogStyleFile())
 			{
-				args.Append(" --style " + revlog_style.FileName.Quote());
+				args.AppendStyle(revlog_style.FileName);
 
 				using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 				{
@@ -346,11 +362,13 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<string> Manifest(string work_dir, string revision)
 		{
-			string args = "manifest";
-			if (revision.Length != 0)
-				args += " -r " + revision;
+			var args = new HgArgsBuilder();
+			args.Append("manifest");
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args)))
+			if (revision.Length != 0)
+				args.AppendRevision(revision);
+
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
 				var reader = proc.StandardOutput;
 				var files = new List<string>();
@@ -396,11 +414,11 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<HgFileInfo> Status(string work_dir, HgStatusOptions options, string path, string rev1, string rev2)
 		{
-			var args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("status");
 
 			if (options == HgStatusOptions.All)
-				args.Append(" -A");
+				args.Append("-A");
 			else
 			{
 				var opts = new StringBuilder();
@@ -422,17 +440,17 @@ namespace HgSccHelper
 					opts.Append("i");
 
 				if (opts.Length > 0)
-					args.Append(" -" + opts.ToString());
+					args.Append("-" + opts);
 			}
 
 			if (path.Length > 0)
-				args.Append(" " + path.Quote());
+				args.AppendPath(path);
 
 			if (rev1.Length > 0)
-				args.Append(" --rev " + rev1);
+				args.AppendRevision(rev1);
 
 			if (rev2.Length > 0)
-				args.Append(" --rev " + rev2);
+				args.AppendRevision(rev2);
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
@@ -453,20 +471,18 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<HgFileInfo> Status(string work_dir, IEnumerable<string> files)
 		{
-			var args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("status");
-			args.Append(" -amrdcC");
+			args.Append("-amrdcC");
 
-			var cmd_line = new StringBuilder();
+			var cmd_line = new HgArgsBuilder();
 			cmd_line.Append(args.ToString());
 
 			var files_info = new List<HgFileInfo>();
 
 			foreach (string f in files)
 			{
-				var str = " " + f.Quote();
-
-				if ((cmd_line.Length + str.Length) > MaxCmdLength)
+				if (!cmd_line.AppendFilenameWithLengthCheck(f))
 				{
 					using (Process proc = Process.Start(PrepareProcess(work_dir, cmd_line.ToString())))
 					{
@@ -482,11 +498,11 @@ namespace HgSccHelper
 						}
 					}
 
-					cmd_line.Remove(0, cmd_line.Length);
+					cmd_line.Clear();
 					cmd_line.Append(args.ToString());
 				}
 
-				cmd_line.Append(str);
+				cmd_line.AppendFilenameWithLengthCheck(f);
 			}
 
 			if (cmd_line.Length != args.Length)
@@ -512,7 +528,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool RunHg(string work_dir, string args)
 		{
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			using (Process proc = Process.Start(PrepareProcess(work_dir, args)))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode < 0)
@@ -525,26 +541,24 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool Add(string work_dir, IEnumerable<string> files)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("add");
 
-			var cmd_line = new StringBuilder();
+			var cmd_line = new HgArgsBuilder();
 			cmd_line.Append(args.ToString());
 
 			foreach (string f in files)
 			{
-				var str = " " + f.Quote();
-
-				if ((cmd_line.Length + str.Length) > MaxCmdLength)
+				if (!cmd_line.AppendFilenameWithLengthCheck(f))
 				{
 					if (!RunHg(work_dir, cmd_line.ToString()))
 						return false;
 
-					cmd_line.Remove(0, cmd_line.Length);
+					cmd_line.Clear();
 					cmd_line.Append(args.ToString());
 				}
 
-				cmd_line.Append(str);
+				cmd_line.AppendFilenameWithLengthCheck(f);
 			}
 
 			if (cmd_line.Length != args.Length)
@@ -560,22 +574,21 @@ namespace HgSccHelper
 		{
 			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
-				StringBuilder args = new StringBuilder();
+				var args = new HgArgsBuilder();
 				args.Append("commit");
+
 				if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
-					args.Append(" --close-branch");
+					args.Append("--close-branch");
 
-				args.Append(" -l " + commit_msg_file.FileName.Quote());
+				args.Append("-l");
+				args.AppendPath(commit_msg_file.FileName);
 
-				var cmd_line = new StringBuilder();
+				var cmd_line = new HgArgsBuilder();
 				cmd_line.Append(args.ToString());
 
 				foreach (string f in files)
 				{
-					var str = " " + f.Quote();
-					cmd_line.Append(str);
-
-					if (cmd_line.Length > MaxCmdLength)
+					if (!cmd_line.AppendFilenameWithLengthCheck(f))
 						throw new HgCommandLineException();
 				}
 
@@ -594,12 +607,14 @@ namespace HgSccHelper
 		{
 			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
-				StringBuilder args = new StringBuilder();
+				var args = new HgArgsBuilder();
 				args.Append("commit");
-				if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
-					args.Append(" --close-branch");
 
-				args.Append(" -l " + commit_msg_file.FileName.Quote());
+				if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
+					args.Append("--close-branch");
+
+				args.Append("-l");
+				args.AppendPath(commit_msg_file.FileName);
 
 				return RunHg(work_dir, args.ToString());
 			}
@@ -610,13 +625,17 @@ namespace HgSccHelper
 		{
 			using(var commit_msg_file = new CommitMessageFile(comment))
 			{
-				StringBuilder args = new StringBuilder();
+				var args = new HgArgsBuilder();
 				args.Append("commit");
-				if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
-					args.Append(" --close-branch");
 
-				args.Append(" -l " + commit_msg_file.FileName.Quote());
-				args.Append(" -d " + date_str.Quote());
+				if ((options & HgCommitOptions.CloseBranch) == HgCommitOptions.CloseBranch)
+					args.Append("--close-branch");
+
+				args.Append("-l");
+				args.AppendPath(commit_msg_file.FileName);
+
+				args.Append("-d");
+				args.Append(date_str.Quote());
 
 				return RunHg(work_dir, args.ToString());
 			}
@@ -625,17 +644,17 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public bool Revert(string work_dir, string revision, HgRevertOptions options)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("revert");
 
 			if ((options & HgRevertOptions.All) == HgRevertOptions.All)
-				args.Append(" -a ");
+				args.Append("-a");
 
 			if ((options & HgRevertOptions.NoBackup) == HgRevertOptions.NoBackup)
-				args.Append(" --no-backup");
+				args.Append("--no-backup");
 
 			if (revision.Length > 0)
-				args.Append(" -r " + revision);
+				args.AppendRevision(revision);
 
 			return RunHg(work_dir, args.ToString());
 		}
@@ -643,29 +662,25 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool Revert(string work_dir, IEnumerable<string> files)
 		{
-			bool no_backups = true;
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("revert");
-			if (no_backups)
-				args.Append(" --no-backup");
+			args.Append("--no-backup");
 
-			var cmd_line = new StringBuilder();
+			var cmd_line = new HgArgsBuilder();
 			cmd_line.Append(args.ToString());
 
 			foreach (string f in files)
 			{
-				var str = " " + f.Quote();
-
-				if ((cmd_line.Length + str.Length) > MaxCmdLength)
+				if (!cmd_line.AppendFilenameWithLengthCheck(f))
 				{
 					if (!RunHg(work_dir, cmd_line.ToString()))
 						return false;
 
-					cmd_line.Remove(0, cmd_line.Length);
+					cmd_line.Clear();
 					cmd_line.Append(args.ToString());
 				}
 
-				cmd_line.Append(str);
+				cmd_line.AppendFilenameWithLengthCheck(f);
 			}
 
 			if (cmd_line.Length != args.Length)
@@ -690,11 +705,7 @@ namespace HgSccHelper
 				if (proc.ExitCode != 0)
 					return false;
 
-				if (line == null || line.Length == 0)
-					is_different = false;
-				else
-					is_different = true;
-
+				is_different = line.Length != 0;
 				return true;
 			}
 		}
@@ -986,13 +997,15 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool CheckoutFile(string work_dir, string file, string rev, string temp_file)
 		{
-			var args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("cat");
-			args.Append(" -o " + temp_file.Quote());
-			if (rev.Length > 0)
-				args.Append(" -r " + rev.ToString());
+			args.Append("-o");
+			args.AppendPath(temp_file);
 
-			args.Append(" " + file.Quote());
+			if (rev.Length > 0)
+				args.AppendRevision(rev);
+
+			args.AppendPath(file);
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
@@ -1099,12 +1112,13 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool TrackRename(string work_dir, string file, string rev, out string old_file)
 		{
-			var args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("debugrename");
-			if (rev.Length > 0)
-				args.Append(" -r " + rev);
 
-			args.Append(" " + file.Quote());
+			if (rev.Length > 0)
+				args.AppendRevision(rev);
+
+			args.AppendPath(file);
 
 			old_file = string.Empty;
 
@@ -1116,7 +1130,10 @@ namespace HgSccHelper
 				if (proc.ExitCode < 0)
 					return false;
 
-				string[] arr = line.Split(new string[] { " renamed from ", ":" }, StringSplitOptions.RemoveEmptyEntries);
+				if (line == null)
+					return false;
+
+				string[] arr = line.Split(new[] { " renamed from ", ":" }, StringSplitOptions.RemoveEmptyEntries);
 				if (arr.Length != 3)
 				{
 					return false;
@@ -1131,26 +1148,24 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool Remove(string work_dir, IEnumerable<string> files)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("remove");
 
-			var cmd_line = new StringBuilder();
+			var cmd_line = new HgArgsBuilder();
 			cmd_line.Append(args.ToString());
 
 			foreach (string f in files)
 			{
-				var str = " " + f.Quote();
-
-				if ((cmd_line.Length + str.Length) > MaxCmdLength)
+				if (!cmd_line.AppendFilenameWithLengthCheck(f))
 				{
 					if (!RunHg(work_dir, cmd_line.ToString()))
 						return false;
 
-					cmd_line.Remove(0, cmd_line.Length);
+					cmd_line.Clear();
 					cmd_line.Append(args.ToString());
 				}
 
-				cmd_line.Append(str);
+				cmd_line.AppendFilenameWithLengthCheck(f);
 			}
 
 			if (cmd_line.Length != args.Length)
@@ -1164,11 +1179,11 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool Rename(string work_dir, string file, string new_file)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("rename");
-			args.Append(" -A");
-			args.Append(" " + file.Quote());
-			args.Append(" " + new_file.Quote());
+			args.Append("-A");
+			args.AppendPath(file);
+			args.AppendPath(new_file);
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
@@ -1183,7 +1198,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public List<PathAlias> GetPaths(string work_dir)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("paths");
 
 			var paths = new List<PathAlias>();
@@ -1197,7 +1212,7 @@ namespace HgSccHelper
 					if (str == null)
 						break;
 
-					var separators = new char[] { '=' };
+					var separators = new[] { '=' };
 					var path_parts = str.Split(separators, StringSplitOptions.RemoveEmptyEntries);
 					if (path_parts.Length == 2)
 					{
@@ -1290,8 +1305,10 @@ namespace HgSccHelper
 		/// <returns>Returns null on error</returns>
 		public IdentifyInfo Identify(string work_dir)
 		{
-			StringBuilder args = new StringBuilder();
-			args.Append("identify -ni --debug");
+			var args = new HgArgsBuilder();
+			args.Append("identify");
+			args.Append("-ni");
+			args.AppendDebug();
 			
 			IdentifyInfo info = null;
 
@@ -1367,8 +1384,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public List<TagInfo> Tags(string work_dir)
 		{
-			StringBuilder args = new StringBuilder();
-			args.Append("tags -v --debug");
+			var args = new HgArgsBuilder();
+			args.Append("tags");
+			args.AppendVerbose();
+			args.AppendDebug();
 
 			var tags = new List<TagInfo>();
 
@@ -1420,12 +1439,15 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public List<BranchInfo> Branches(string work_dir, HgBranchesOptions options)
 		{
-			StringBuilder args = new StringBuilder();
-			args.Append("branches --debug -v");
+			var args = new HgArgsBuilder();
+			args.Append("branches");
+			args.AppendDebug();
+			args.AppendVerbose();
+
 			if ((options & HgBranchesOptions.Active) == HgBranchesOptions.Active)
-				args.Append(" -a");
+				args.Append("-a");
 			if ((options & HgBranchesOptions.Closed) == HgBranchesOptions.Closed)
-				args.Append(" -c");
+				args.Append("-c");
 
 			var branches = new List<BranchInfo>();
 
@@ -1492,7 +1514,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool Update(string work_dir, string revision, HgUpdateOptions options)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("update");
 
 			switch (options)
@@ -1501,7 +1523,7 @@ namespace HgSccHelper
 					break;
 				case HgUpdateOptions.Clean:
 					{
-						args.Append(" -C");
+						args.Append("-C");
 						break;
 					}
 				default:
@@ -1511,7 +1533,7 @@ namespace HgSccHelper
 			}
 
 			if (revision.Length != 0)
-				args.Append(" " + revision);
+				args.AppendRevision(revision);
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
@@ -1526,22 +1548,25 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool AddTag(string work_dir, string tag, string revision, HgTagOptions options, string commit_message)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("tag");
 
 			if ((options & HgTagOptions.Force) == HgTagOptions.Force)
-				args.Append(" -f");
+				args.Append("-f");
 
 			if ((options & HgTagOptions.Local) == HgTagOptions.Local)
-				args.Append(" -l");
+				args.Append("-l");
 
 			if (revision.Length != 0)
-				args.Append(" -r " + revision);
+				args.AppendRevision(revision);
 
 			if (commit_message.Length != 0)
-				args.Append(" -m " + commit_message.Quote());
+			{
+				args.Append("-m");
+				args.Append(commit_message.Quote());
+			}
 
-			args.Append(" " + tag.Quote());
+			args.Append(tag.Quote());
 
 			if (args.Length > MaxCmdLength)
 				throw new ArgumentException("Command line length is too long");
@@ -1559,18 +1584,17 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool Copy(string work_dir, string dest_path, string src_path, HgCopyOptions options)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("copy");
 
 			if ((options & HgCopyOptions.Force) == HgCopyOptions.Force)
-				args.Append(" -f");
+				args.Append("-f");
 
 			if ((options & HgCopyOptions.After) == HgCopyOptions.After)
-				args.Append(" -A");
+				args.Append("-A");
 
-			args.Append(" " + src_path.Quote());
-			args.Append(" " + dest_path.Quote());
-
+			args.AppendPath(src_path);
+			args.AppendPath(dest_path);
 
 			if (args.Length > MaxCmdLength)
 				throw new ArgumentException("Command line length is too long");
@@ -1588,14 +1612,14 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool RemoveTag(string work_dir, string tag, HgTagOptions option)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("tag");
 
 			if ((option & HgTagOptions.Local) == HgTagOptions.Local)
-				args.Append(" -l");
+				args.Append("-l");
 
-			args.Append(" --remove");
-			args.Append(" " + tag.Quote());
+			args.Append("--remove");
+			args.Append(tag.Quote());
 
 			if (args.Length > MaxCmdLength)
 				throw new ArgumentException("Command line length is too long");
@@ -1613,14 +1637,14 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool Merge(string work_dir, string revision, HgMergeOptions options)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("merge");
 
 			if ((options & HgMergeOptions.Force) == HgMergeOptions.Force)
-				args.Append(" -f");
+				args.Append("-f");
 
 			if (revision.Length > 0)
-				args.Append(" -r " + revision);
+				args.AppendRevision(revision);
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
@@ -1635,7 +1659,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<string> ShowConfig(string work_dir)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("showconfig");
 
 			var lines = new List<string>();

@@ -43,20 +43,27 @@ namespace HgSccHelper
 		public bool Archive(string work_dir, string revision, HgArchiveOptions options,
 			HgArchiveTypes archive_type, string destination)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("archive");
 
 			if (options == HgArchiveOptions.NoDecode)
-				args.Append(" --no-decode");
+				args.Append("--no-decode");
 
 			var type_str = archive_type.HgTypeString();
 			if (!String.IsNullOrEmpty(type_str))
-				args.Append(" --type " + type_str);
+			{
+				args.Append("--type");
+				args.Append(type_str);
+			}
 
 			if (revision.Length > 0)
-				args.Append(" --rev " + revision.Quote());
+			{
+				// FIXME: Why revision with quote ?
+				args.Append("--rev");
+				args.Append(revision.Quote());
+			}
 
-			args.Append(" " + destination.Quote());
+			args.AppendPath(destination);
 
 			if (args.Length >= Hg.MaxCmdLength)
 				throw new HgCommandLineException("Archive");

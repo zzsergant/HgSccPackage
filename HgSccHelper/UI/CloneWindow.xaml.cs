@@ -167,22 +167,23 @@ namespace HgSccHelper
 			p.OutputHandler = Output_Handler;
 			p.WorkingDir = "";
 			
-			var builder = new StringBuilder();
-			builder.Append("-v clone");
+			var builder = new HgArgsBuilder();
+			builder.AppendVerbose();
+			builder.Append("clone");
 
 			if (CloneToRevision)
 			{
-				builder.Append(" --rev " + textRevision.Text);
+				builder.AppendRevision(textRevision.Text);
 			}
 
 			if (NoUpdate)
-				builder.Append(" --noupdate");
+				builder.Append("--noupdate");
 	
 			if (UsePullProtocol)
-				builder.Append(" --pull");
+				builder.Append("--pull");
 
 			if (UseUncompressedTransfer)
-				builder.Append(" --uncompressed");
+				builder.Append("--uncompressed");
 
 			var source_path = textSourcePath.Text;
 			if (Util.IsValidRemoteUrl(source_path))
@@ -199,8 +200,8 @@ namespace HgSccHelper
 				}
 			}
 
-			builder.Append(" " + source_path.Quote());
-			builder.Append(" " + textDestPath.Text.Quote());
+			builder.AppendPath(source_path);
+			builder.AppendPath(textDestPath.Text);
 
 			p.Args = builder.ToString();
 

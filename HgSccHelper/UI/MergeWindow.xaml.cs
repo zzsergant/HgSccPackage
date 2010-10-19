@@ -166,7 +166,7 @@ namespace HgSccHelper
 			p.OutputHandler = Output_Handler;
 			p.WorkingDir = WorkingDir;
 
-			var builder = new StringBuilder();
+			var builder = new HgArgsBuilder();
 			builder.Append("merge");
 
 			bool force_merge = false;
@@ -200,15 +200,16 @@ namespace HgSccHelper
 
 			if (merge_tool.Length > 0)
 			{
-				builder.Append(" --config ui.merge=" + merge_tool.Quote());
+				builder.Append("--config");
+				builder.Append("ui.merge=" + merge_tool.Quote());
 			}
 
 			var options = force_merge ? HgMergeOptions.Force : HgMergeOptions.None;
 			if ((options & HgMergeOptions.Force) == HgMergeOptions.Force)
-				builder.Append(" -f");
+				builder.Append("-f");
 
 			if (Target.SHA1.Length > 0)
-				builder.Append(" -r " + Target.SHA1);
+				builder.AppendRevision(Target.SHA1);
 
 			p.Args = builder.ToString();
 

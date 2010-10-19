@@ -236,25 +236,26 @@ namespace HgSccHelper
 			p.OutputHandler = Output_Handler;
 			p.WorkingDir = WorkingDir;
 			
-			var builder = new StringBuilder();
-			builder.Append("-v incoming");
+			var builder = new HgArgsBuilder();
+			builder.AppendVerbose();
+			builder.Append("incoming");
 
 			if (ShowPatch)
-				builder.Append(" --patch");
+				builder.Append("--patch");
 
 			if (ShowNewestFirst)
-				builder.Append(" --newest-first");
+				builder.Append("--newest-first");
 	
 			if (ShowNoMerges)
-				builder.Append(" --no-merges");
+				builder.Append("--no-merges");
 
 			var target_revision = GetTargetRevision();
 			if (!string.IsNullOrEmpty(target_revision))
-				builder.Append(" -r " + target_revision.Quote());
+				builder.AppendRevision(target_revision);
 
 			var repository = GetSelectedRepository();
 			if (!string.IsNullOrEmpty(repository))
-				builder.Append(" " + repository.Quote());
+				builder.Append(repository.Quote());
 
 			p.Args = builder.ToString();
 
@@ -282,25 +283,26 @@ namespace HgSccHelper
 			p.OutputHandler = Output_Handler;
 			p.WorkingDir = WorkingDir;
 
-			var builder = new StringBuilder();
-			builder.Append("-v outgoing");
+			var builder = new HgArgsBuilder();
+			builder.AppendVerbose();
+			builder.Append("outgoing");
 
 			if (ShowPatch)
-				builder.Append(" --patch");
+				builder.Append("--patch");
 
 			if (ShowNewestFirst)
-				builder.Append(" --newest-first");
+				builder.Append("--newest-first");
 
 			if (ShowNoMerges)
-				builder.Append(" --no-merges");
+				builder.Append("--no-merges");
 
 			var target_revision = GetTargetRevision();
 			if (!string.IsNullOrEmpty(target_revision))
-				builder.Append(" -r " + target_revision.Quote());
+				builder.AppendRevision(target_revision);
 
 			var repository = GetSelectedRepository();
 			if (!string.IsNullOrEmpty(repository))
-				builder.Append(" " + repository.Quote());
+				builder.Append(repository.Quote());
 
 			p.Args = builder.ToString();
 
@@ -327,19 +329,20 @@ namespace HgSccHelper
 			p.OutputHandler = Output_Handler;
 			p.WorkingDir = WorkingDir;
 
-			var builder = new StringBuilder();
-			builder.Append("-v pull");
+			var builder = new HgArgsBuilder();
+			builder.AppendVerbose();
+			builder.Append("pull");
 
 			if (UpdateAfterPull)
-				builder.Append(" -u");
+				builder.Append("-u");
 
 			var target_revision = GetTargetRevision();
 			if (!string.IsNullOrEmpty(target_revision))
-				builder.Append(" -r " + target_revision.Quote());
+				builder.AppendRevision(target_revision);
 
 			var repository = GetSelectedRepository();
 			if (!string.IsNullOrEmpty(repository))
-				builder.Append(" " + repository.Quote());
+				builder.Append(repository.Quote());
 
 			p.Args = builder.ToString();
 
@@ -366,16 +369,17 @@ namespace HgSccHelper
 			p.OutputHandler = Output_Handler;
 			p.WorkingDir = WorkingDir;
 
-			var builder = new StringBuilder();
-			builder.Append("-v push");
+			var builder = new HgArgsBuilder();
+			builder.AppendVerbose();
+			builder.Append("push");
 
 			var target_revision = GetTargetRevision();
 			if (!string.IsNullOrEmpty(target_revision))
-				builder.Append(" -r " + target_revision.Quote());
+				builder.AppendRevision(target_revision);
 
 			var repository = GetSelectedRepository();
 			if (!string.IsNullOrEmpty(repository))
-				builder.Append(" " + repository.Quote());
+				builder.Append(repository.Quote());
 
 			p.Args = builder.ToString();
 

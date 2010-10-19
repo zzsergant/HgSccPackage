@@ -34,15 +34,16 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public bool Resolve(string work_dir, string file, string merge_tool)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("resolve");
 			
 			if (merge_tool.Length > 0)
 			{
-				args.Append(" --config ui.merge=" + merge_tool.Quote());
+				args.Append("--config");
+				args.Append("ui.merge=" + merge_tool.Quote());
 			}
 
-			args.Append(" " + file.Quote());
+			args.AppendPath(file);
 
 			var hg = new Hg();
 			return hg.RunHg(work_dir, args.ToString());
@@ -51,29 +52,27 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public bool MarkAsResolved(string work_dir, IEnumerable<string> files)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("resolve");
-			args.Append(" -m");
+			args.Append("-m");
 
-			var cmd_line = new StringBuilder();
+			var cmd_line = new HgArgsBuilder();
 			cmd_line.Append(args.ToString());
 
 			var hg = new Hg();
 
 			foreach (string f in files)
 			{
-				var str = " " + f.Quote();
-
-				if ((cmd_line.Length + str.Length) > Hg.MaxCmdLength)
+				if (!cmd_line.AppendFilenameWithLengthCheck(f))
 				{
 					if (!hg.RunHg(work_dir, cmd_line.ToString()))
 						return false;
 
-					cmd_line.Remove(0, cmd_line.Length);
+					cmd_line.Clear();
 					cmd_line.Append(args.ToString());
 				}
 
-				cmd_line.Append(str);
+				cmd_line.AppendFilenameWithLengthCheck(f);
 			}
 
 			if (cmd_line.Length != args.Length)
@@ -87,10 +86,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public bool MarkAllAsResolved(string work_dir)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("resolve");
-			args.Append(" -m");
-			args.Append(" -a");
+			args.Append("-m");
+			args.Append("-a");
 
 			var hg = new Hg();
 			return hg.RunHg(work_dir, args.ToString());
@@ -99,29 +98,27 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public bool MarkAsUnresolved(string work_dir, IEnumerable<string> files)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("resolve");
-			args.Append(" -u");
+			args.Append("-u");
 
-			var cmd_line = new StringBuilder();
+			var cmd_line = new HgArgsBuilder();
 			cmd_line.Append(args.ToString());
 
 			var hg = new Hg();
 
 			foreach (string f in files)
 			{
-				var str = " " + f.Quote();
-
-				if ((cmd_line.Length + str.Length) > Hg.MaxCmdLength)
+				if (!cmd_line.AppendFilenameWithLengthCheck(f))
 				{
 					if (!hg.RunHg(work_dir, cmd_line.ToString()))
 						return false;
 
-					cmd_line.Remove(0, cmd_line.Length);
+					cmd_line.Clear();
 					cmd_line.Append(args.ToString());
 				}
 
-				cmd_line.Append(str);
+				cmd_line.AppendFilenameWithLengthCheck(f);
 			}
 
 			if (cmd_line.Length != args.Length)
@@ -135,14 +132,14 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public ResolveStatus GetResolveStatus(string work_dir, string file)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("resolve");
-			args.Append(" -l");
+			args.Append("-l");
 
 			if (file.Length == 0)
 				throw new ApplicationException("Resolve status, invalid filename");
 
-			args.Append(" " + file.Quote());
+			args.AppendPath(file);
 
 			var hg = new Hg();
 			using (Process proc = Process.Start(hg.PrepareProcess(work_dir, args.ToString())))
@@ -180,9 +177,9 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<ResolveInfo> List(string work_dir)
 		{
-			StringBuilder args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("resolve");
-			args.Append(" -l");
+			args.Append("-l");
 
 			var resolve_list = new List<ResolveInfo>();
 

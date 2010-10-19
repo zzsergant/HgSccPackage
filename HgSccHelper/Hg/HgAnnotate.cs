@@ -27,14 +27,14 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public List<AnnotateLineInfo> Annotate(string work_dir, string rev, string file)
 		{
-			var args = new StringBuilder();
+			var args = new HgArgsBuilder();
 			args.Append("annotate");
-			args.Append(" -fn");
+			args.Append("-fn");
 
 			if (rev.Length > 0)
-				args.Append(" --rev " + rev);
+				args.AppendRevision(rev);
 
-			args.Append(" " + file);
+			args.AppendPath(file);
 
 			var lines = new List<AnnotateLineInfo>();
 
