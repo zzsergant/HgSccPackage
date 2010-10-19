@@ -24,6 +24,15 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public static string Quote(this string str)
 		{
+			if (str.Length == 0)
+				return str;
+
+			if (str.Length >= 2)
+			{
+				if (str[0] == '\"' && str[str.Length - 1] == '\"')
+					return str;
+			}
+
 			return "\"" + str + "\"";
 		}
 
