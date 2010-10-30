@@ -83,6 +83,14 @@ namespace HgSccPackage
 		System.Windows.Forms.Timer rdt_timer;
 		Dictionary<SccProviderStorage, HashSet<string>> rdt_files_to_update;
 
+		class DeleteFilesParams
+		{
+			public SccProviderStorage Storage { get; set; }
+			public List<string> Files { get; set; }
+		}
+
+		private List<DeleteFilesParams> pending_delete;
+
 		// Indexes of icons in our custom image list
 		// NOTE: Only four custom glyphs allowed
 		enum CustomSccGlyphs
@@ -135,6 +143,8 @@ namespace HgSccPackage
 			rdt_timer.Tick += new EventHandler(rdt_timer_Tick);
 
 			rdt_files_to_update = new Dictionary<SccProviderStorage, HashSet<string>>();
+
+			pending_delete = new List<DeleteFilesParams>();
 		}
 
 		//------------------------------------------------------------------
@@ -176,6 +186,7 @@ namespace HgSccPackage
 				storage.Close();
 			}
 			storage_list.Clear();
+			pending_delete.Clear();
 		}
 
 		#endregion
@@ -203,21 +214,64 @@ namespace HgSccPackage
 
 				ManualyRegisterProjects();
 
-				var shell = _sccProvider.GetService<IVsUIShell>();
-				if (shell != null)
-				{
-					Logger.WriteLine("Queueing pending status update");
-
-					object a = new object();
-					Guid cmd_set = GuidList.guidSccProviderCmdSet;
-					int id = CommandId.icmdRefreshStatus;
-
-					shell.PostExecCommand(ref cmd_set,
-						unchecked((uint)id), (uint)OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT, ref a);
-				}
+				Logger.WriteLine("Queueing pending status update");
+				QueuePendingCommand(CommandId.icmdRefreshStatus);
 			}
 
 			return VSConstants.S_OK;
+		}
+
+		//------------------------------------------------------------------
+		public void HandlePendingCommand()
+		{
+			if (pending_delete.Count != 0)
+			{
+				foreach (var p in pending_delete)
+				{
+					var deleted_files = new List<string>();
+					foreach (var file in p.Files)
+					{
+						if (!File.Exists(file))
+						{
+							Logger.WriteLine("Pending delete: {0}", file);
+							deleted_files.Add(file);
+						}
+					}
+
+					if (deleted_files.Count > 0)
+					{
+						p.Storage.RemoveFiles(deleted_files);
+					}
+				}
+
+				pending_delete.Clear();
+			}
+		}
+
+		//------------------------------------------------------------------
+		private bool QueuePendingDelete(DeleteFilesParams delete_files)
+		{
+			bool need_queue = pending_delete.Count == 0;
+			pending_delete.Add(delete_files);
+
+			if (need_queue)
+				return QueuePendingCommand(CommandId.icmdPendingTask);
+			return true;
+		}
+
+		//------------------------------------------------------------------
+		private bool QueuePendingCommand(int cmd_id)
+		{
+			var shell = _sccProvider.GetService<IVsUIShell>();
+			if (shell == null)
+				return false;
+
+			Guid cmd_set = GuidList.guidSccProviderCmdSet;
+			object param = new object();
+			var result = shell.PostExecCommand(ref cmd_set,
+			                      unchecked((uint)cmd_id), (uint)OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT, ref param);
+
+			return result == VSConstants.S_OK;
 		}
 
 		// Called by the scc manager when the provider is deactivated. 
@@ -1561,6 +1615,7 @@ namespace HgSccPackage
 		public int OnAfterRemoveFiles([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSREMOVEFILEFLAGS[] rgFlags)
 		{
 			var files_map = new Dictionary<SccProviderStorage, List<string>>();
+			var pending_files_map = new Dictionary<SccProviderStorage, List<string>>();
 
 			// Start by iterating through all projects calling this function
 			for (int iProject = 0; iProject < cProjects; iProject++)
@@ -1605,11 +1660,25 @@ namespace HgSccPackage
 					files_map[project_storage] = files;
 				}
 
+				List<string> pending_files;
+				if (!pending_files_map.TryGetValue(project_storage, out pending_files))
+				{
+					pending_files = new List<string>();
+					pending_files_map[project_storage] = pending_files;
+				}
+
 				// Now that we know which files belong to this project, iterate the project files
 				for (int iFile = iProjectFilesStart; iFile < iNextProjecFilesStart; iFile++)
 				{
 					if (!File.Exists(rgpszMkDocuments[iFile]))
+					{
 						files.Add(rgpszMkDocuments[iFile]);
+					}
+					else
+					{
+						Logger.WriteLine("Queuing pending delete: {0}", rgpszMkDocuments[iFile]);
+						pending_files.Add(rgpszMkDocuments[iFile]);
+					}
 				}
 			}
 
@@ -1617,6 +1686,13 @@ namespace HgSccPackage
 			{
 				var files = files_map[storage];
 				storage.RemoveFiles(files);
+			}
+
+			foreach (var storage in pending_files_map.Keys)
+			{
+				var files = pending_files_map[storage];
+				if (files.Count != 0)
+					QueuePendingDelete(new DeleteFilesParams { Files = files, Storage = storage });
 			}
 
 			_sccProvider.SaveAllIfDirty();

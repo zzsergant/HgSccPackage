@@ -42,6 +42,8 @@ namespace HgSccPackage
         public const int icmdRefreshStatus              = 0x112;
         public const int icmdChangeSccBindings			= 0x113;
 
+		public const int icmdPendingTask				= 0x150;
+
 		// Define the list of icons (use decimal numbers here, to match the resource IDs)
 		public const int iiconProductIcon				= 400;
 

@@ -236,6 +236,15 @@
           <CommandName>Refresh Status (SccProvider)</CommandName>
         </Strings>
       </Button>
+      <Button guid="guidSccProviderCmdSet" id="icmdPendingTask" priority="0x0000" type="Button">
+        <Parent guid="guidSccProviderCmdSet" id="igrpFileSourceControl"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <Strings>
+          <ButtonText>Pending task</ButtonText>
+          <MenuText>Pending task</MenuText>
+        </Strings>
+      </Button>
     </Buttons>
     <Bitmaps>
       <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, iconSynchronize, iconCompare, icon7, icon8, iconGrep, icon10, iconUpdate, icon12, icon13, icon14, iconTags, icon16, icon17, iconChangeSccBindings, iconAnnotate, icon20, iconClone, icon22, icon23, icon24, icon25, iconViewHistory, iconRefreshStatus"/>
@@ -324,6 +333,8 @@
       <IDSymbol name="icmdTags" value="0x111"/>
       <IDSymbol name="icmdRefreshStatus" value="0x112"/>
       <IDSymbol name="icmdChangeSccBindings" value="0x113"/>
+
+      <IDSymbol name="icmdPendingTask" value="0x150"/>
 
       <IDSymbol name="imnuFileSourceControlMenu" value="0x200"/>
       <!--<IDSymbol name="imnuToolWindowToolbarMenu" value="0x201"/> -->

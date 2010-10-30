@@ -177,6 +177,7 @@ namespace HgSccPackage
 				AddMenuCommand(mcs, CommandId.icmdTags, Exec_icmdTags);
 				AddMenuCommand(mcs, CommandId.icmdRefreshStatus, Exec_icmdRefreshStatus);
 				AddMenuCommand(mcs, CommandId.icmdChangeSccBindings, Exec_icmdChangeSccBindings);
+				AddMenuCommand(mcs, CommandId.icmdPendingTask, Exec_icmdPendingTask);
 			}
 
 			// Register the provider with the source control manager
@@ -578,6 +579,10 @@ namespace HgSccPackage
 					cmdf |= QueryStatus_icmdChangeSccBindings();
 					break;
 
+				case CommandId.icmdPendingTask:
+					cmdf |= QueryStatus_icmdPendingTask();
+					break;
+
 				default:
 					return
 						(int)
@@ -824,6 +829,15 @@ namespace HgSccPackage
 			return OLECMDF.OLECMDF_SUPPORTED;
 		}
 
+		//------------------------------------------------------------------
+		private OLECMDF QueryStatus_icmdPendingTask()
+		{
+			if (!IsThereASolution())
+				return OLECMDF.OLECMDF_INVISIBLE;
+
+			return OLECMDF.OLECMDF_ENABLED | OLECMDF.OLECMDF_INVISIBLE;
+		}
+
 		#endregion
 
 		#region Source Control Commands Execution
@@ -988,6 +1002,15 @@ namespace HgSccPackage
 				return;
 
 			sccService.ChangeSccBindings();
+		}
+
+		//------------------------------------------------------------------
+		private void Exec_icmdPendingTask(object sender, EventArgs e)
+		{
+			if (!IsThereASolution())
+				return;
+
+			sccService.HandlePendingCommand();
 		}
 
 		//------------------------------------------------------------------
