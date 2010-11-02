@@ -771,37 +771,19 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public bool ViewFile(string work_dir, string file, string revision)
 		{
-			var editor = GetEditor();
-
 			if (revision == "")
 			{
-				return RunEditorOrNotepad(editor, Path.Combine(work_dir, file));
+				RunHgEditorAsync(Path.Combine(work_dir, file), DeleteFlag.Keep);
+				return true;
 			}
 
 			string temp_file = Util.GetTempFileNameForFile(file);
 
-			try
-			{
-				if (!CheckoutFile(work_dir, file, revision, temp_file))
-				{
-					return false;
-				}
+			if (!CheckoutFile(work_dir, file, revision, temp_file))
+				return false;
 
-				return RunEditorOrNotepad(editor, temp_file);
-			}
-			finally
-			{
-				// If editor redirects file to other opened editor,
-				// then we need to sleep for a while to prevent
-				// file deletion, until other copy of editor opens it
-
-				Util.QueueThreadPoolFn(() =>
-					{
-						var timeout_ms = 2000;
-						System.Threading.Thread.Sleep(timeout_ms);
-						System.IO.File.Delete(temp_file);
-					});
-			}
+			RunHgEditorAsync(temp_file, DeleteFlag.Delete);
+			return true;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -990,69 +972,46 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		private bool RunEditorOrNotepad(string editor, string file)
+		private void RunHgEditorAsync(string file, DeleteFlag del)
 		{
+			var editor = GetEditor();
+			var async_deleter = new AsyncDeleter();
+
+			if (del == DeleteFlag.Delete)
+				async_deleter.Add(file);
+
 			// The editor specified in .hgrc/Mercurial.ini may have quotes
 			// and/or command line switches, so run it using cmd.
 			// TODO: Find a better way of doing this
 
-			var info = new ProcessStartInfo("cmd");
-			var cmd_line = editor + " " + file.Quote();
-			info.Arguments = "/C " + cmd_line.Quote();
-			info.UseShellExecute = false;
-			info.CreateNoWindow = true;
-
-			using (var proc = Process.Start(info))
+			try
 			{
-				proc.WaitForExit();
-				if (proc.ExitCode == 0)
-					return true;
+				var info = new ProcessStartInfo("cmd");
+				var cmd_line = editor + " " + file.Quote();
+
+				// Forcing quote for command line
+				info.Arguments = "/C \"" + cmd_line + "\"";
+				info.UseShellExecute = false;
+				info.CreateNoWindow = true;
+
+				var proc = new Process();
+				proc.StartInfo = info;
+				proc.EnableRaisingEvents = true;
+				proc.Exited += async_deleter.OnDeleteEventHandler;
+
+				// If editor redirects file to other opened editor,
+				// then we need to sleep for a while to prevent
+				// file deletion, until other copy of editor opens it
+				async_deleter.DeleteEventDelay = TimeSpan.FromSeconds(2);
+
+				proc.Start();
 			}
-
-			// In case there is a problem with user editor,
-			// fallback to notepad
-
-			return RunEditor("notepad", file);
-		}
-
-		//-----------------------------------------------------------------------------
-		private bool RunEditor(string editor, string file)
-		{
-			var info = new ProcessStartInfo(editor);
-			info.Arguments = file.Quote();
-			info.UseShellExecute = false;
-
-			using (var proc = Process.Start(info))
+			catch (Exception)
 			{
-				proc.WaitForExit();
-				if (proc.ExitCode < 0)
-					return false;
-
-				return true;
+				async_deleter.Delete();
+				throw;
 			}
 		}
-
-		//-----------------------------------------------------------------------------
-/*
-		public bool RunDiffTool(string file1, string file2)
-		{
-			if (!File.Exists(HgSccOptions.Options.DiffTool))
-				throw new HgDiffException("DiffTool is not exist");
-
-			var info = new ProcessStartInfo(HgSccOptions.Options.DiffTool);
-			info.Arguments = file1.Quote() + " " + file2.Quote();
-			info.UseShellExecute = false;
-
-			using (var proc = Process.Start(info))
-			{
-				proc.WaitForExit();
-				if (proc.ExitCode < 0)
-					return false;
-
-				return true;
-			}
-		}
-*/
 
 		//-----------------------------------------------------------------------------
 		public void RunDiffToolAsync(string file1, DeleteFlag del1, string file2, DeleteFlag del2)

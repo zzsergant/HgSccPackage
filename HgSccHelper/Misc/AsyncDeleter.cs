@@ -23,6 +23,8 @@ namespace HgSccHelper.Misc
 		{
 			files = new List<string>();
 			critical = new object();
+
+			DeleteEventDelay = TimeSpan.Zero;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -30,6 +32,9 @@ namespace HgSccHelper.Misc
 		{
 			files.Add(file);
 		}
+
+		//-----------------------------------------------------------------------------
+		public TimeSpan DeleteEventDelay { get; set; }
 
 		//-----------------------------------------------------------------------------
 		public void Delete()
@@ -52,11 +57,23 @@ namespace HgSccHelper.Misc
 			var proc = o as Process;
 			if (proc != null)
 			{
+				Logger.WriteLine("Exit code: {0}", proc.ExitCode);
 				proc.Exited -= OnDeleteEventHandler;
 			}
 
-			// FIXME: wait few seconds in case of redirection ?
-			Delete();
+			if (DeleteEventDelay == TimeSpan.Zero)
+			{
+				Delete();
+			}
+			else
+			{
+				Util.QueueThreadPoolFn(() =>
+				{
+					Logger.WriteLine("Waiting delete delay: {0}", DeleteEventDelay);
+					System.Threading.Thread.Sleep((int)DeleteEventDelay.TotalMilliseconds);
+					Delete();
+				});
+			}
 		}
 	}
 }
