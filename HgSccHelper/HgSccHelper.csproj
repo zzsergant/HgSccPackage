@@ -82,6 +82,7 @@
       <DependentUpon>HgSettingsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Hg\HgArgsBuilder.cs" />
+    <Compile Include="Misc\AsyncDeleter.cs" />
     <Compile Include="Misc\GridViewColumnSorter.cs" />
     <Compile Include="UI\AnnotateControl.xaml.cs">
       <DependentUpon>AnnotateControl.xaml</DependentUpon>

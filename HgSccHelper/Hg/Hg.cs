@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.IO;
+using HgSccHelper.Misc;
 using Microsoft.Win32;
 
 //=============================================================================
@@ -819,19 +820,11 @@ namespace HgSccHelper
 			if (String.IsNullOrEmpty(file_info.CopiedFrom))
 			{
 				string temp1 = Util.GetTempFileNameForFile(file_info.File);
-				try
-				{
-					if (!CheckoutFile(work_dir, file_info.File, parent_revision, temp1))
-					{
-						return false;
-					}
+				if (!CheckoutFile(work_dir, file_info.File, parent_revision, temp1))
+					return false;
 
-					return RunDiffTool(temp1, Path.Combine(work_dir, file));
-				}
-				finally
-				{
-					File.Delete(temp1);
-				}
+				RunDiffToolAsync(temp1, DeleteFlag.Delete,
+					Path.Combine(work_dir, file), DeleteFlag.Keep);
 			}
 			else
 			{
@@ -840,7 +833,7 @@ namespace HgSccHelper
 				var file_manifest_compatible = file_info.File.Replace('\\', '/');
 				var file_copied_from = file_info.CopiedFrom.Replace('\\', '/');
 				
-				string parent_filename = null;
+				string parent_filename;
 				if (hg_files.Contains(file_manifest_compatible))
 					parent_filename = file_info.File;
 				else
@@ -850,20 +843,14 @@ namespace HgSccHelper
 						return false;
 
 				string temp1 = Util.GetTempFileNameForFile(parent_filename);
-				try
-				{
-					if (!CheckoutFile(work_dir, parent_filename, parent_revision, temp1))
-					{
-						return false;
-					}
+				if (!CheckoutFile(work_dir, parent_filename, parent_revision, temp1))
+					return false;
 
-					return RunDiffTool(temp1, Path.Combine(work_dir, file));
-				}
-				finally
-				{
-					File.Delete(temp1);
-				}
+				RunDiffToolAsync(temp1, DeleteFlag.Delete,
+					Path.Combine(work_dir, file), DeleteFlag.Keep);
 			}
+
+			return true;
 		}
 
 
@@ -881,20 +868,13 @@ namespace HgSccHelper
 				var file_info = files[0];
 
 				string temp1 = Util.GetTempFileNameForFile(file_info.CopiedFrom);
-				try
-				{
-					if (!CheckoutFile(work_dir, file_info.CopiedFrom, "", temp1))
-					{
-//						Logger.WriteLine("Checkout failed: " + file_info.CopiedFrom);
-						return false;
-					}
+				if (!CheckoutFile(work_dir, file_info.CopiedFrom, "", temp1))
+					return false;
 
-					return RunDiffTool(temp1, Path.Combine(work_dir, file));
-				}
-				finally
-				{
-					File.Delete(temp1);
-				}
+				RunDiffToolAsync(temp1, DeleteFlag.Delete,
+					Path.Combine(work_dir, file), DeleteFlag.Keep);
+				
+				return true;
 			}
 
 			if (	files.Count == 1
@@ -903,21 +883,13 @@ namespace HgSccHelper
 				var file_info = files[0];
 
 				string temp1 = Util.GetTempFileNameForFile(file_info.File);
-				try
-				{
-					if (!CheckoutFile(work_dir, file_info.File, "", temp1))
-					{
-						// Logger.WriteLine("Checkout failed: " + file_info.CopiedFrom);
-						return false;
-					}
+				if (!CheckoutFile(work_dir, file_info.File, "", temp1))
+					return false;
 
-					// Logger.WriteLine("KDiffing: " + temp1 + ", " + file);
-					return RunDiffTool(temp1, Path.Combine(work_dir, file));
-				}
-				finally
-				{
-					File.Delete(temp1);
-				}
+				RunDiffToolAsync(temp1, DeleteFlag.Delete,
+					Path.Combine(work_dir, file), DeleteFlag.Keep);
+
+				return true;
 			}
 
 			//-----------------------------------------------------------------------------
@@ -1061,6 +1033,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+/*
 		public bool RunDiffTool(string file1, string file2)
 		{
 			if (!File.Exists(HgSccOptions.Options.DiffTool))
@@ -1079,6 +1052,44 @@ namespace HgSccHelper
 				return true;
 			}
 		}
+*/
+
+		//-----------------------------------------------------------------------------
+		public void RunDiffToolAsync(string file1, DeleteFlag del1, string file2, DeleteFlag del2)
+		{
+			var async_deleter = new AsyncDeleter();
+
+			if (del1 == DeleteFlag.Delete)
+				async_deleter.Add(file1);
+	
+			if (del2 == DeleteFlag.Delete)
+				async_deleter.Add(file2);
+
+			if (!File.Exists(HgSccOptions.Options.DiffTool))
+			{
+				async_deleter.Delete();
+				throw new HgDiffException("DiffTool is not exist");
+			}
+
+			try
+			{
+				var info = new ProcessStartInfo(HgSccOptions.Options.DiffTool);
+				info.Arguments = file1.Quote() + " " + file2.Quote();
+				info.UseShellExecute = false;
+
+				var proc = new Process();
+				proc.StartInfo = info;
+				proc.EnableRaisingEvents = true;
+				proc.Exited += async_deleter.OnDeleteEventHandler;
+
+				proc.Start();
+			}
+			catch (Exception)
+			{
+				async_deleter.Delete();
+				throw;
+			}
+		}
 
 		//-----------------------------------------------------------------------------
 		public bool Diff(string work_dir, string file1, int rev1, string file2, int rev2)
@@ -1092,21 +1103,20 @@ namespace HgSccHelper
 			string temp1 = Util.GetTempFileNameForFile(file1);
 			string temp2 = Util.GetTempFileNameForFile(file2);
 
-			try
+			if (	!CheckoutFile(work_dir, file1, rev1, temp1)
+				||	!CheckoutFile(work_dir, file2, rev2, temp2))
 			{
-				if (!CheckoutFile(work_dir, file1, rev1, temp1)
-					|| !CheckoutFile(work_dir, file2, rev2, temp2))
-				{
-					return false;
-				}
+				if (File.Exists(temp1))
+					File.Delete(temp1);
 
-				return RunDiffTool(temp1, temp2);
+				if (File.Exists(temp2))
+					File.Delete(temp2);
+
+				return false;
 			}
-			finally
-			{
-				File.Delete(temp1);
-				File.Delete(temp2);
-			}
+
+			RunDiffToolAsync(temp1, DeleteFlag.Delete, temp2, DeleteFlag.Delete);
+			return true;
 		}
 
 		//-----------------------------------------------------------------------------
