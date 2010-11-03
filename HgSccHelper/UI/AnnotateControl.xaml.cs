@@ -74,7 +74,6 @@ namespace HgSccHelper
 		/// </summary>
 		Dictionary<string, FileHistoryInfo> file_history_map;
 
-		DeferredCommandExecutor deferred_executor;
 		List<AnnotateLineView> annotated_lines;
 
 		Dictionary<int, int> rev_to_change_idx_map;
@@ -90,7 +89,6 @@ namespace HgSccHelper
 			UpdateContext = new UpdateContext();
 			file_history_map = new Dictionary<string, FileHistoryInfo>();
 
-			deferred_executor = new DeferredCommandExecutor();
 			rev_to_change_idx_map = new Dictionary<int, int>();
 			rev_to_line_view = new Dictionary<int, List<AnnotateLineView>>();
 
@@ -285,7 +283,6 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Control_Unloaded(object sender, RoutedEventArgs e)
 		{
-			deferred_executor.Dispose();
 		}
 
 		//------------------------------------------------------------------
@@ -306,10 +303,7 @@ namespace HgSccHelper
 			var f1 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex];
 			var f2 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex + 1];
 
-			deferred_executor.QueueDefferedExecute(() =>
-			{
-				DiffTwoRevisions(f1, f2);
-			});
+			DiffTwoRevisions(f1, f2);
 
 			e.Handled = true;
 		}
@@ -364,17 +358,14 @@ namespace HgSccHelper
 			var file_info = (FileInfo)listViewFiles.SelectedItem;
 			var cs = file_history.ChangeDesc;
 
-			deferred_executor.QueueDefferedExecute(() =>
+			try
 			{
-				try
-				{
-					Hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
-				}
-				catch (HgDiffException)
-				{
-					Util.HandleHgDiffException();
-				}
-			});
+				Hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
 
 			e.Handled = true;
 		}
@@ -439,14 +430,11 @@ namespace HgSccHelper
 			var file_info = (FileInfo)listViewFiles.SelectedItem;
 			var cs = file_history.ChangeDesc;
 
-			deferred_executor.QueueDefferedExecute(() =>
-			{
-				var hg = new Hg();
-				if (file_info.Status == FileStatus.Removed)
-					hg.ViewFile(WorkingDir, file_info.Path, (cs.Rev - 1).ToString());
-				else
-					hg.ViewFile(WorkingDir, file_info.Path, cs.Rev.ToString());
-			});
+			var hg = new Hg();
+			if (file_info.Status == FileStatus.Removed)
+				hg.ViewFile(WorkingDir, file_info.Path, (cs.Rev - 1).ToString());
+			else
+				hg.ViewFile(WorkingDir, file_info.Path, cs.Rev.ToString());
 		}
 
 		//------------------------------------------------------------------

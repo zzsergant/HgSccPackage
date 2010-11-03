@@ -518,25 +518,22 @@ namespace HgSccHelper
 		{
 			var item = (CommitItem)listFiles.SelectedItem;
 
-			deferred_executor.QueueDefferedExecute(() =>
+			bool is_different = true;
+
+			try
 			{
-				bool is_different = true;
+				Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
 
-				try
-				{
-					Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
-				}
-				catch (HgDiffException)
-				{
-					Util.HandleHgDiffException();
-				}
-
-				if (!is_different)
-				{
-					MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
-						MessageBoxButton.OK, MessageBoxImage.Information);
-				}
-			});
+			if (!is_different)
+			{
+				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
+					MessageBoxButton.OK, MessageBoxImage.Information);
+			}
 
 			e.Handled = true;
 		}
@@ -563,26 +560,23 @@ namespace HgSccHelper
 		{
 			var item = (CommitItem)listFiles.SelectedItem;
 
-			deferred_executor.QueueDefferedExecute(() =>
+			bool is_different = true;
+
+			try
 			{
-				bool is_different = true;
+				Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
+					CurrentRevision.Parents[0].SHA1, out is_different);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
 
-				try
-				{
-					Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
-						CurrentRevision.Parents[0].SHA1, out is_different);
-				}
-				catch (HgDiffException)
-				{
-					Util.HandleHgDiffException();
-				}
-
-				if (!is_different)
-				{
-					MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
-						MessageBoxButton.OK, MessageBoxImage.Information);
-				}
-			});
+			if (!is_different)
+			{
+				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
+					MessageBoxButton.OK, MessageBoxImage.Information);
+			}
 
 			e.Handled = true;
 		}
@@ -592,26 +586,23 @@ namespace HgSccHelper
 		{
 			var item = (CommitItem)listFiles.SelectedItem;
 
-			deferred_executor.QueueDefferedExecute(() =>
+			bool is_different = true;
+
+			try
 			{
-				bool is_different = true;
+				Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
+					CurrentRevision.Parents[1].SHA1, out is_different);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
 
-				try
-				{
-					Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
-						CurrentRevision.Parents[1].SHA1, out is_different);
-				}
-				catch (HgDiffException)
-				{
-					Util.HandleHgDiffException();
-				}
-
-				if (!is_different)
-				{
-					MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
-						MessageBoxButton.OK, MessageBoxImage.Information);
-				}
-			});
+			if (!is_different)
+			{
+				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
+					MessageBoxButton.OK, MessageBoxImage.Information);
+			}
 
 			e.Handled = true;
 		}
@@ -789,20 +780,17 @@ namespace HgSccHelper
 		{
 			var item = (CommitItem)listFiles.SelectedItem;
 
-			deferred_executor.QueueDefferedExecute(() =>
+			var hg = new Hg();
+			if (	item.FileInfo.Status == HgFileStatus.Removed
+				||	item.FileInfo.Status == HgFileStatus.Deleted
+				)
 			{
-				var hg = new Hg();
-				if (	item.FileInfo.Status == HgFileStatus.Removed
-					||	item.FileInfo.Status == HgFileStatus.Deleted
-					)
-				{
-					hg.ViewFile(WorkingDir, item.FileInfo.File, CurrentRevision.Rev.ToString());
-				}
-				else
-				{
-					hg.ViewFile(WorkingDir, item.FileInfo.File, "");
-				}
-			});
+				hg.ViewFile(WorkingDir, item.FileInfo.File, CurrentRevision.Rev.ToString());
+			}
+			else
+			{
+				hg.ViewFile(WorkingDir, item.FileInfo.File, "");
+			}
 		}
 
 		//------------------------------------------------------------------

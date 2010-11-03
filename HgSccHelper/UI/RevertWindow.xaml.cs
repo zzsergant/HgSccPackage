@@ -22,7 +22,6 @@ namespace HgSccHelper
 	public partial class RevertWindow : Window
 	{
 		ObservableCollection<RevertItem> revert_items;
-		DeferredCommandExecutor deferred_executor;
 
 		GridViewColumnSorter files_sorter;
 
@@ -42,7 +41,6 @@ namespace HgSccHelper
 			VirtualizingStackPanel.SetVirtualizationMode(listFiles, VirtualizationMode.Recycling);
 
 			UpdateContext = new UpdateContext();
-			deferred_executor = new DeferredCommandExecutor();
 
 			files_sorter = new GridViewColumnSorter(listFiles);
 			files_sorter.ExcludeColumn(checkColumn);
@@ -119,8 +117,6 @@ namespace HgSccHelper
 		private void Window_Closed(object sender, EventArgs e)
 		{
 			listFilesGrid.SaveCfg(RevertWindow.CfgPath, "ListFilesGrid");
-
-			deferred_executor.Dispose();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -294,25 +290,22 @@ namespace HgSccHelper
 		{
 			var item = (RevertItem)listFiles.SelectedItem;
 
-			deferred_executor.QueueDefferedExecute(() =>
+			bool is_different = true;
+
+			try
 			{
-				bool is_different = true;
+				Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
 
-				try
-				{
-					Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
-				}
-				catch (HgDiffException)
-				{
-					Util.HandleHgDiffException();
-				}
-
-				if (!is_different)
-				{
-					MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
-						MessageBoxButton.OK, MessageBoxImage.Information);
-				}
-			});
+			if (!is_different)
+			{
+				MessageBox.Show("File: " + item.FileInfo.File + " is up to date", "Diff",
+					MessageBoxButton.OK, MessageBoxImage.Information);
+			}
 
 			e.Handled = true;
 		}
@@ -412,20 +405,17 @@ namespace HgSccHelper
 		{
 			var item = (RevertItem)listFiles.SelectedItem;
 
-			deferred_executor.QueueDefferedExecute(() =>
+			var hg = new Hg();
+			if (	item.FileInfo.Status == HgFileStatus.Removed
+				||	item.FileInfo.Status == HgFileStatus.Deleted
+				)
 			{
-				var hg = new Hg();
-				if (	item.FileInfo.Status == HgFileStatus.Removed
-					||	item.FileInfo.Status == HgFileStatus.Deleted
-					)
-				{
-					hg.ViewFile(WorkingDir, item.FileInfo.File, CurrentRevision.Rev.ToString());
-				}
-				else
-				{
-					hg.ViewFile(WorkingDir, item.FileInfo.File, "");
-				}
-			});
+				hg.ViewFile(WorkingDir, item.FileInfo.File, CurrentRevision.Rev.ToString());
+			}
+			else
+			{
+				hg.ViewFile(WorkingDir, item.FileInfo.File, "");
+			}
 		}
 
 		//------------------------------------------------------------------

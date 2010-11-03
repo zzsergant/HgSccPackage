@@ -40,8 +40,6 @@ namespace HgSccHelper
 
 		const int BatchSize = 500;
 
-		DeferredCommandExecutor deferred_executor;
-
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand ReadNextCommand = new RoutedUICommand("Read Next",
 			"ReadNext", typeof(RevLogControl));
@@ -124,7 +122,6 @@ namespace HgSccHelper
 			UpdateContext = new UpdateContext();
 
 			rev_log_hash_map = new Dictionary<string, RevLogLinesPair>();
-			deferred_executor = new DeferredCommandExecutor();
 
 			files_sorter = new Dictionary<ListView, GridViewColumnSorter>();
 		}
@@ -245,7 +242,6 @@ namespace HgSccHelper
 			worker.Cancel();
 			worker.Dispose();
 			revlog_style.Dispose();
-			deferred_executor.Dispose();
 		}
 
 		//------------------------------------------------------------------
@@ -274,25 +270,22 @@ namespace HgSccHelper
 			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
 			var file_info = SelectedParentFile.FileInfo;
 
-			deferred_executor.QueueDefferedExecute(() =>
+			try
 			{
-				try
-				{
-					var hg = new Hg();
+				var hg = new Hg();
 
-					var child_file = file_info.File;
-					var parent_file = file_info.File;
-					if (!String.IsNullOrEmpty(file_info.CopiedFrom))
-						parent_file = file_info.CopiedFrom;
+				var child_file = file_info.File;
+				var parent_file = file_info.File;
+				if (!String.IsNullOrEmpty(file_info.CopiedFrom))
+					parent_file = file_info.CopiedFrom;
 
-					hg.Diff(WorkingDir, parent_file, parent_diff.Desc.SHA1,
-						child_file, SelectedChangeset.Current.ChangeDesc.SHA1);
-				}
-				catch (HgDiffException)
-				{
-					Util.HandleHgDiffException();
-				}
-			});
+				hg.Diff(WorkingDir, parent_file, parent_diff.Desc.SHA1,
+					child_file, SelectedChangeset.Current.ChangeDesc.SHA1);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -472,14 +465,11 @@ namespace HgSccHelper
 			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
 			var file_info = SelectedParentFile.FileInfo;
 
-			deferred_executor.QueueDefferedExecute(() =>
-			{
-				var hg = new Hg();
-				if (file_info.Status == HgFileStatus.Removed)
-					hg.ViewFile(WorkingDir, file_info.File, parent_diff.Desc.Rev.ToString());
-				else
-					hg.ViewFile(WorkingDir, file_info.File, SelectedChangeset.Current.ChangeDesc.SHA1);
-			});
+			var hg = new Hg();
+			if (file_info.Status == HgFileStatus.Removed)
+				hg.ViewFile(WorkingDir, file_info.File, parent_diff.Desc.Rev.ToString());
+			else
+				hg.ViewFile(WorkingDir, file_info.File, SelectedChangeset.Current.ChangeDesc.SHA1);
 		}
 
 		//------------------------------------------------------------------

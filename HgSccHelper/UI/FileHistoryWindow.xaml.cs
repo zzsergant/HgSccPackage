@@ -61,7 +61,6 @@ namespace HgSccHelper
 		/// </summary>
 		Dictionary<string, FileHistoryInfo> file_history_map;
 
-		DeferredCommandExecutor deferred_executor;
 		GridViewColumnSorter files_sorter;
 
 		public const string CfgPath = @"GUI\FileHistoryWindow";
@@ -76,8 +75,6 @@ namespace HgSccHelper
 
 			UpdateContext = new UpdateContext();
 			file_history_map = new Dictionary<string, FileHistoryInfo>();
-
-			deferred_executor = new DeferredCommandExecutor();
 
 			files_sorter = new GridViewColumnSorter(listViewFiles);
 		}
@@ -183,8 +180,6 @@ namespace HgSccHelper
 		private void Window_Closed(object sender, EventArgs e)
 		{
 			listChangesGrid.SaveCfg(FileHistoryWindow.CfgPath, "ListChangesGrid");
-
-			deferred_executor.Dispose();
 		}
 
 		//------------------------------------------------------------------
@@ -205,10 +200,7 @@ namespace HgSccHelper
 			var f1 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex];
 			var f2 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex + 1];
 
-			deferred_executor.QueueDefferedExecute(() =>
-			{
-				DiffTwoRevisions(f1, f2);
-			});
+			DiffTwoRevisions(f1, f2);
 
 			e.Handled = true;
 		}
@@ -263,17 +255,14 @@ namespace HgSccHelper
 			var file_info = (FileInfo)listViewFiles.SelectedItem;
 			var cs = file_history.ChangeDesc;
 
-			deferred_executor.QueueDefferedExecute(() =>
+			try
 			{
-				try
-				{
-					Hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
-				}
-				catch (HgDiffException)
-				{
-					Util.HandleHgDiffException();
-				}
-			});
+				Hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
 
 			e.Handled = true;
 		}
@@ -373,14 +362,11 @@ namespace HgSccHelper
 			var file_info = (FileInfo)listViewFiles.SelectedItem;
 			var cs = file_history.ChangeDesc;
 
-			deferred_executor.QueueDefferedExecute(() =>
-			{
-				var hg = new Hg();
-				if (file_info.Status == FileStatus.Removed)
-					hg.ViewFile(WorkingDir, file_info.Path, (cs.Rev - 1).ToString());
-				else
-					hg.ViewFile(WorkingDir, file_info.Path, cs.Rev.ToString());
-			});
+			var hg = new Hg();
+			if (file_info.Status == FileStatus.Removed)
+				hg.ViewFile(WorkingDir, file_info.Path, (cs.Rev - 1).ToString());
+			else
+				hg.ViewFile(WorkingDir, file_info.Path, cs.Rev.ToString());
 		}
 
 		//------------------------------------------------------------------
@@ -396,10 +382,7 @@ namespace HgSccHelper
 			var f1 = (FileHistoryInfo)listChanges.SelectedItems[0];
 			var f2 = (FileHistoryInfo)listChanges.SelectedItems[1];
 
-			deferred_executor.QueueDefferedExecute(() =>
-			{
-				DiffTwoRevisions(f1, f2);
-			});
+			DiffTwoRevisions(f1, f2);
 
 			e.Handled = true;
 		}

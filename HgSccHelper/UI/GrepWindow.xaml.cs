@@ -81,7 +81,6 @@ namespace HgSccHelper.UI
 			set { this.SetValue(SelectedChangesetProperty, value); }
 		}
 
-		DeferredCommandExecutor deferred_executor;
 		ObservableCollection<GrepLineInfo> grep_lines;
 		HgThread worker;
 		DispatcherTimer timer;
@@ -101,7 +100,6 @@ namespace HgSccHelper.UI
 			InitializeComponent();
 
 			UpdateContext = new UpdateContext();
-			deferred_executor = new DeferredCommandExecutor();
 
 			grep_lines = new ObservableCollection<GrepLineInfo>();
 			listLines.ItemsSource = grep_lines;
@@ -194,7 +192,6 @@ namespace HgSccHelper.UI
 
 			worker.Cancel();
 			worker.Dispose();
-			deferred_executor.Dispose();
 		}
 
 		//------------------------------------------------------------------
@@ -385,17 +382,14 @@ namespace HgSccHelper.UI
 			var file_info = (FileInfo)listViewFiles.SelectedItem;
 			var cs = SelectedChangeset;
 
-			deferred_executor.QueueDefferedExecute(() =>
+			try
 			{
-				try
-				{
-					Hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
-				}
-				catch (HgDiffException)
-				{
-					Util.HandleHgDiffException();
-				}
-			});
+				Hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
+			}
+			catch (HgDiffException)
+			{
+				Util.HandleHgDiffException();
+			}
 
 			e.Handled = true;
 		}
@@ -487,14 +481,11 @@ namespace HgSccHelper.UI
 			var file_info = (FileInfo)listViewFiles.SelectedItem;
 			var cs = SelectedChangeset;
 
-			deferred_executor.QueueDefferedExecute(() =>
-			{
-				var hg = new Hg();
-				if (file_info.Status == FileStatus.Removed)
-					hg.ViewFile(WorkingDir, file_info.Path, (cs.Rev - 1).ToString());
-				else
-					hg.ViewFile(WorkingDir, file_info.Path, cs.Rev.ToString());
-			});
+			var hg = new Hg();
+			if (file_info.Status == FileStatus.Removed)
+				hg.ViewFile(WorkingDir, file_info.Path, (cs.Rev - 1).ToString());
+			else
+				hg.ViewFile(WorkingDir, file_info.Path, cs.Rev.ToString());
 		}
 
 		//-----------------------------------------------------------------------------
