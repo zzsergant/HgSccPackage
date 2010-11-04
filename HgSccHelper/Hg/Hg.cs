@@ -1040,14 +1040,16 @@ namespace HgSccHelper
 			args = args.Replace("\"$parent\"", "$parent");
 			args = args.Replace("\"$child\"", "$child");
 
-			args = args.Replace("\"$plabel\"", "$plabel");
+			args = args.Replace("\"$plabel1\"", "$plabel1");
 			args = args.Replace("\"$clabel\"", "$clabel");
 
 			args = args.Replace("$parent", file1.Quote());
-			args = args.Replace("$plabel", file1.Quote());
+			args = args.Replace("$plabel1", file1.Quote());
 
 			args = args.Replace("$child", file2.Quote());
 			args = args.Replace("$clabel", file2.Quote());
+
+			Logger.WriteLine("Diff args: {0}", args);
 
 			try
 			{
