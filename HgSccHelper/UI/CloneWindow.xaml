@@ -156,9 +156,9 @@
                     Name="btnStop"
                     Command="{x:Static ui:Commands.StopCommand}">
             </Button>
-            <Button Content="Cancel" MinWidth="75" MinHeight="25" Margin="5"
-                    Click="btnCancel_Click"
-                    Name="btnCancel" IsCancel="True"></Button>
+            <Button Content="Close" MinWidth="75" MinHeight="25" Margin="5"
+                    Click="btnClose_Click"
+                    Name="btnClose" IsCancel="True"></Button>
         </StackPanel>
     </Grid>
 </Window>

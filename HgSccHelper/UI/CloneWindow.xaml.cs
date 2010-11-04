@@ -323,7 +323,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private void btnCancel_Click(object sender, RoutedEventArgs e)
+		private void btnClose_Click(object sender, RoutedEventArgs e)
 		{
 			Close();
 		}
