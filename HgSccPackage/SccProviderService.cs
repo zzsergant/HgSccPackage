@@ -74,6 +74,7 @@ namespace HgSccPackage
 		private VsRunningDocumentTable Rdt { get; set; }
 
 		private readonly Dictionary<string, string> add_origin = new Dictionary<string, string>();
+		private readonly HashSet<string> outside_projects = new HashSet<string>();
 
 		// Remember the base index where our custom scc glyph start
 		private uint customSccGlyphBaseIndex = 0;
@@ -187,6 +188,7 @@ namespace HgSccPackage
 			}
 			storage_list.Clear();
 			pending_delete.Clear();
+			outside_projects.Clear();
 		}
 
 		#endregion
@@ -443,11 +445,22 @@ namespace HgSccPackage
 											else
 						*/
 						{
-							// This is an uncontrolled file, return a blank scc glyph for it
-							rgsiGlyphs[iFile] = VsStateIcon.STATEICON_BLANK;
-							if (rgdwSccStatus != null)
+							if (outside_projects.Contains(rgpszFullPaths[iFile]))
 							{
-								rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_NOTCONTROLLED;
+								rgsiGlyphs[iFile] = VsStateIcon.STATEICON_EXCLUDEDFROMSCC;
+								if (rgdwSccStatus != null)
+								{
+									rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
+								}
+							}
+							else
+							{
+								// This is an uncontrolled file, return a blank scc glyph for it
+								rgsiGlyphs[iFile] = VsStateIcon.STATEICON_BLANK;
+								if (rgdwSccStatus != null)
+								{
+									rgdwSccStatus[iFile] = (uint)__SccStatus.SCC_STATUS_NOTCONTROLLED;
+								}
 							}
 						}
 						break;
@@ -577,14 +590,14 @@ namespace HgSccPackage
 						return VSConstants.E_FAIL;
 				}
 
-				if (storage.GetFileStatus(solutionFile) != SourceControlStatus.scsUncontrolled)
+				if (storage.GetFileStatus(solutionFile) == SourceControlStatus.scsUncontrolled)
+					outside_projects.Add(solutionFile);
+
+				project_to_storage_map[solHier] = storage;
+				if (found_storage == null)
 				{
-					project_to_storage_map[solHier] = storage;
-					if (found_storage == null)
-					{
-						storage.UpdateEvent += UpdateEvent_Handler;
-						storage_list.Add(storage);
-					}
+					storage.UpdateEvent += UpdateEvent_Handler;
+					storage_list.Add(storage);
 				}
 			}
 			else
@@ -613,14 +626,14 @@ namespace HgSccPackage
 							return VSConstants.E_FAIL;
 					}
 
-					if (storage.GetFileStatus(project_path) != SourceControlStatus.scsUncontrolled)
+					if (storage.GetFileStatus(project_path) == SourceControlStatus.scsUncontrolled)
+						outside_projects.Add(project_path);
+
+					project_to_storage_map[hierProject] = storage;
+					if (found_storage == null)
 					{
-						project_to_storage_map[hierProject] = storage;
-						if (found_storage == null)
-						{
-							storage.UpdateEvent += UpdateEvent_Handler;
-							storage_list.Add(storage);
-						}
+						storage.UpdateEvent += UpdateEvent_Handler;
+						storage_list.Add(storage);
 					}
 				}
 
@@ -666,6 +679,11 @@ namespace HgSccPackage
 				}
 
 				projects_with_scc_bindings.Remove(hierProject);
+
+				if (pscp2Project == null)
+					outside_projects.Remove(_sccProvider.GetSolutionFileName());
+				else
+					outside_projects.Remove(_sccProvider.GetProjectFileName(pscp2Project));
 
 				return VSConstants.S_OK;
 			}
@@ -760,6 +778,7 @@ namespace HgSccPackage
 			}
 			storage_list.Clear();
 			_sccProvider.SolutionHaveSccBindings = false;
+			outside_projects.Clear();
 
 			return VSConstants.S_OK;
 		}
@@ -954,6 +973,7 @@ namespace HgSccPackage
 
 			UnregisterSccProject(null);
 			all_projects.Remove((IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution)));
+			outside_projects.Clear();
 
 			return VSConstants.S_OK;
 		}
@@ -1761,6 +1781,11 @@ namespace HgSccPackage
 					if (storage != null)
 					{
 						storage.RenameFileInStorage(rgszMkOldNames[iFile], rgszMkNewNames[iFile]);
+						if (outside_projects.Contains(rgszMkOldNames[iFile]))
+						{
+							outside_projects.Remove(rgszMkOldNames[iFile]);
+							outside_projects.Add(rgszMkNewNames[iFile]);
+						}
 
 						// And refresh the solution explorer glyphs because we affected the source control status of this file
 						// Note that by now, the project should already know about the new file name being part of its hierarchy
@@ -1817,6 +1842,24 @@ namespace HgSccPackage
 		{
 			set { _loadingControlledSolutionLocation = value; }
 		}
+
+		//-----------------------------------------------------------------------------
+		public bool IsProjectControlledOutside(IVsHierarchy pHier)
+		{
+			var solution_hier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
+			
+			if (pHier == null)
+			{
+				// this is solution, get the solution hierarchy
+				pHier = solution_hier;
+			}
+
+			if (pHier == solution_hier)
+				return outside_projects.Contains(_sccProvider.GetSolutionFileName());
+
+			return outside_projects.Contains(_sccProvider.GetProjectFileName((IVsSccProject2)pHier));
+		}
+
 
 		/// <summary>
 		/// Checks whether the specified project or solution (pHier==null) is under source control
@@ -1913,6 +1956,8 @@ namespace HgSccPackage
 					}
 				}
 
+				outside_projects.Remove(solutionFile);
+
 				project_to_storage_map[solHier] = storage;
 				if (found_storage == null)
 				{
@@ -1977,6 +2022,8 @@ namespace HgSccPackage
 					sccProject2.SetSccLocation(SccProjectName, SccAuxPath, SccLocalPath, _sccProvider.ProviderName);
 					projects_with_scc_bindings.Add(pHier);
 				}
+
+				outside_projects.Remove(project_path);
 
 				project_to_storage_map[pHier] = storage;
 				if (found_storage == null)
@@ -2759,7 +2806,7 @@ namespace HgSccPackage
 					if (project != null)
 					{
 						var project_path = _sccProvider.GetProjectFileName(project);
-						if (project_path != null)
+						if (project_path != null && !outside_projects.Contains(project_path))
 						{
 							item.Path = project_path;
 							item.Name = GetHierarchyName(hier);
@@ -2776,9 +2823,10 @@ namespace HgSccPackage
 					else
 					{
 						var scc_solution = hier as IVsSolution;
-						if (scc_solution != null)
+						var solution_path = _sccProvider.GetSolutionFileName();
+						if (scc_solution != null && !outside_projects.Contains(solution_path))
 						{
-							item.Path = _sccProvider.GetSolutionFileName();
+							item.Path = solution_path;
 							item.Name = GetHierarchyName(hier);
 							item.SccProjectType = SccProjectType.Solution;
 							item.SccBindStatus = SccBindStatus.NotBound;
