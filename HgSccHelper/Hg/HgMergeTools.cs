@@ -110,7 +110,7 @@ namespace HgSccHelper
 				}
 			}
 
-			return Util.FindExe(tool.Executalbe);
+			return Util.FindExe(tool.Executable);
 		}
 	}
 
@@ -181,7 +181,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public string Executalbe
+		public string Executable
 		{
 			get { return GetOption("executable", Alias); }
 			set { SetOption("executable", value); }
@@ -192,6 +192,13 @@ namespace HgSccHelper
 		{
 			get { return GetOption("args", "$local $base $other"); }
 			set { SetOption("args", value); }
+		}
+
+		//-----------------------------------------------------------------------------
+		public string DiffArgs
+		{
+			get { return GetOption("diffargs", "$parent $child"); }
+			set { SetOption("diffargs", value); }
 		}
 
 		//-----------------------------------------------------------------------------

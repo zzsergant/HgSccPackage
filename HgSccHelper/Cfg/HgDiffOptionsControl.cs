@@ -12,16 +12,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
 namespace HgSccHelper
 {
+	//=============================================================================
 	public partial class HgDiffOptionsControl : UserControl
 	{
+		private List<MergeToolInfo> merge_tools;
+
 		public HgDiffOptionsControl()
 		{
 			InitializeComponent();
@@ -30,93 +30,101 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private void radioAutoDetect_CheckedChanged(object sender, EventArgs e)
-		{
-			if (radioAutoDetect.Checked)
-			{
-				comboDiffTools.Enabled = true;
-			}
-			else
-			{
-				comboDiffTools.Enabled = false;
-			}
-		}
-
-		//-----------------------------------------------------------------------------
-		private void radioCustom_CheckedChanged(object sender, EventArgs e)
-		{
-			if (radioCustom.Checked)
-			{
-				btnBrowseCustom.Enabled = true;
-			}
-			else
-			{
-				btnBrowseCustom.Enabled = false;
-			}
-		}
-
-		//-----------------------------------------------------------------------------
-		private void btnBrowseCustom_Click(object sender, EventArgs e)
-		{
-			string diff_tool = textDiffTool.Text;
-			if (HgOptionsHelper.BrowseDiffTool(ref diff_tool))
-				textDiffTool.Text = diff_tool;
-		}
-
-		//------------------------------------------------------------------
 		public void Activate()
 		{
-			radioCustom.Checked = true;
+			comboTool.Items.Clear();
 
-			comboDiffTools.Items.Clear();
-
-			var lst = HgOptionsHelper.DetectDiffTools();
-			if (lst.Count == 0)
+			merge_tools = new HgMergeTools().GetMergeTools();
+			foreach (var tool in merge_tools)
 			{
-				radioAutoDetect.Enabled = false;
-				comboDiffTools.Enabled = false;
-
-				radioCustom.Checked = true;
-			}
-			else
-			{
-				comboDiffTools.Items.AddRange(lst.ToArray());
-
-				// TODO: Select the old
-				comboDiffTools.SelectedIndex = 0;
-				radioAutoDetect.Checked = true;
-
-				if (HgSccOptions.Options.DiffTool.Length != 0)
-				{
-					foreach (var item in comboDiffTools.Items)
-					{
-						if (String.Compare(HgSccOptions.Options.DiffTool, item.ToString(), true) == 0)
-						{
-							comboDiffTools.SelectedItem = item;
-							break;
-						}
-					}
-				}
+				comboTool.Items.Add(new DiffComboItem
+				                    	{
+				                    		DiffTool = tool.ExecutableFilename,
+											DiffArgs = tool.DiffArgs
+				                    	});
 			}
 
 			if (HgSccOptions.Options.DiffTool.Length != 0)
-				textDiffTool.Text = HgSccOptions.Options.DiffTool;
+				AddDiffTool(HgSccOptions.Options.DiffTool, HgSccOptions.Options.DiffArgs);
+		}
+
+		//-----------------------------------------------------------------------------
+		private void BtnBrowseClick(object sender, EventArgs e)
+		{
+			string diff_tool = comboTool.Text;
+			if (HgOptionsHelper.BrowseDiffTool(ref diff_tool))
+			{
+				AddDiffTool(diff_tool, "");
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void AddDiffTool(string diff_tool, string diff_args)
+		{
+			var new_tool = merge_tools.Find(tool =>
+											  String.Compare(tool.ExecutableFilename, diff_tool, true) == 0);
+
+			if (new_tool == null)
+			{
+				new_tool = new MergeToolInfo(Path.GetFileNameWithoutExtension(diff_tool));
+				new_tool.Executable = diff_tool;
+				if (!string.IsNullOrEmpty(diff_args))
+					new_tool.DiffArgs = diff_args;
+
+				new_tool.FindExecutable();
+			}
+
+			foreach (DiffComboItem item in comboTool.Items)
+			{
+				if (String.Compare(item.DiffTool, new_tool.ExecutableFilename, true) == 0)
+				{
+					if (!string.IsNullOrEmpty(diff_args))
+						item.DiffArgs = diff_args;
+					else
+						item.DiffArgs = new_tool.DiffArgs;
+
+					comboTool.SelectedItem = item;
+					textArgs.Text = item.DiffArgs;
+					return;
+				}
+			}
+
+			comboTool.Items.Add(new DiffComboItem {DiffTool = new_tool.ExecutableFilename, DiffArgs = new_tool.DiffArgs});
+			comboTool.SelectedIndex = comboTool.Items.Count - 1;
 		}
 
 		//------------------------------------------------------------------
 		public string DiffToolPath
 		{
-			get
-			{
-				if (radioAutoDetect.Checked)
-				{
-					return comboDiffTools.SelectedItem.ToString();
-				}
-				else
-				{
-					return textDiffTool.Text;
-				}
-			}
+			get { return comboTool.Text; }
+		}
+
+		//------------------------------------------------------------------
+		public string DiffToolArgs
+		{
+			get { return textArgs.Text; }
+		}
+
+		//-----------------------------------------------------------------------------
+		private void ComboToolSelectedIndexChanged(object sender, EventArgs e)
+		{
+			var item = comboTool.SelectedItem as DiffComboItem;
+			if (item != null)
+				textArgs.Text = item.DiffArgs;
+		}
+	}
+
+	//=============================================================================
+	internal class DiffComboItem
+	{
+		//-----------------------------------------------------------------------------
+		public string DiffTool { get; set; }
+		public string DiffArgs { get; set; }
+		
+		//-----------------------------------------------------------------------------
+		public override string ToString()
+		{
+			return DiffTool;
 		}
 	}
 }

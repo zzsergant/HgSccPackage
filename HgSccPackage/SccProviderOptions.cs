@@ -118,6 +118,7 @@ namespace HgSccPackage
 				}
 
 				HgSccOptions.Options.DiffTool = diff_tool;
+				HgSccOptions.Options.DiffArgs = page.DiffToolArgs;
 				HgSccOptions.Options.UseSccBindings = page.UseSccBindings;
 				HgSccOptions.Options.CheckProjectsForMercurialRepository = page.CheckProjectsForMercurialRepository;
 				HgSccOptions.Save();

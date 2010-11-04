@@ -99,7 +99,7 @@ namespace HgSccHelper
 			using (var f = new System.Windows.Forms.OpenFileDialog())
 			{
 				f.RestoreDirectory = true;
-				f.Filter = "Executables|*.exe";
+				f.Filter = "Executables|*.exe|All files (*.*)|*.*";
 				f.CheckFileExists = true;
 
 				if (diff_tool.Length != 0)

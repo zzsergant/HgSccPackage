@@ -189,6 +189,15 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		public string DiffToolArgs
+		{
+			get
+			{
+				return hgDiffOptionsControl1.DiffToolArgs;
+			}
+		}
+
+		//------------------------------------------------------------------
 		public bool UseSccBindings
 		{
 			get

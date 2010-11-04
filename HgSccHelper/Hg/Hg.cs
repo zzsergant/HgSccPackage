@@ -1030,10 +1030,29 @@ namespace HgSccHelper
 				throw new HgDiffException("DiffTool is not exist");
 			}
 
+			// FIXME: Change $plabel and $clabel to filename+revision
+
+			var args = HgSccOptions.Options.DiffArgs;
+			if (String.IsNullOrEmpty(args))
+				args = "$parent $child";
+
+			args = args.Replace('\'', '\"');
+			args = args.Replace("\"$parent\"", "$parent");
+			args = args.Replace("\"$child\"", "$child");
+
+			args = args.Replace("\"$plabel\"", "$plabel");
+			args = args.Replace("\"$clabel\"", "$clabel");
+
+			args = args.Replace("$parent", file1.Quote());
+			args = args.Replace("$plabel", file1.Quote());
+
+			args = args.Replace("$child", file2.Quote());
+			args = args.Replace("$clabel", file2.Quote());
+
 			try
 			{
 				var info = new ProcessStartInfo(HgSccOptions.Options.DiffTool);
-				info.Arguments = file1.Quote() + " " + file2.Quote();
+				info.Arguments = args;
 				info.UseShellExecute = false;
 
 				var proc = new Process();
