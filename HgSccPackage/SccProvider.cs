@@ -761,7 +761,7 @@ namespace HgSccPackage
 			// or when an uncontrolled project is selected
 			if (isSolutionSelected)
 			{
-				if (!sccService.IsProjectControlled(null))
+				if (!sccService.IsProjectControlled(null) || sccService.IsProjectControlledOutside(null))
 				{
 					return OLECMDF.OLECMDF_ENABLED;
 				}
@@ -770,7 +770,7 @@ namespace HgSccPackage
 			{
 				foreach (IVsHierarchy pHier in hash)
 				{
-					if (!sccService.IsProjectControlled(pHier))
+					if (!sccService.IsProjectControlled(pHier) ||  sccService.IsProjectControlledOutside(pHier))
 					{
 						return OLECMDF.OLECMDF_ENABLED;
 					}
@@ -1039,7 +1039,7 @@ namespace HgSccPackage
 
 			foreach (IVsHierarchy pHier in hash)
 			{
-				if (!sccService.IsProjectControlled(pHier))
+				if (!sccService.IsProjectControlled(pHier) ||  sccService.IsProjectControlledOutside(pHier))
 				{
 					hashUncontrolledProjects.Add(pHier);
 				}
