@@ -46,6 +46,9 @@ namespace HgSccHelper
 
 			if (HgSccOptions.Options.DiffTool.Length != 0)
 				AddDiffTool(HgSccOptions.Options.DiffTool, HgSccOptions.Options.DiffArgs);
+
+			if (comboTool.SelectedIndex == -1 && comboTool.Items.Count > 0)
+				comboTool.SelectedIndex = 0;
 		}
 
 		//-----------------------------------------------------------------------------
