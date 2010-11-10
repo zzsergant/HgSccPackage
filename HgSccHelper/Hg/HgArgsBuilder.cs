@@ -16,7 +16,7 @@ using System.Text;
 namespace HgSccHelper
 {
 	//=============================================================================
-	class HgArgsBuilder
+	public class HgArgsBuilder
 	{
 		private readonly StringBuilder args;
 
