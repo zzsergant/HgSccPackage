@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="HgSccHelper.UI.DiffColorizerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d"
+             Unloaded="UserControl_Unloaded"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <RichTextBox Name="richTextBox"
+                     HorizontalContentAlignment="Stretch"
+                     VerticalContentAlignment="Stretch"
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Visible" FontFamily="Courier New" IsReadOnly="True">
+        </RichTextBox>
+    </Grid>
+</UserControl>

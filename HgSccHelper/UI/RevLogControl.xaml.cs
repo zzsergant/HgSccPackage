@@ -840,8 +840,43 @@ namespace HgSccHelper
 						FileInfo = ((ParentDiffHgFileInfo)list_view.SelectedItem).FileInfo,
 						ParentFilesDiff = parent_diff
 					};
+
+					ShowFileDiff();
 				}
 			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void ShowFileDiff()
+		{
+			if (!expanderDiff.IsExpanded)
+				return;
+
+			diffColorizer.Clear();
+
+			if (SelectedParentFile == null)
+				return;
+
+			if (SelectedParentFile.FileInfo.Status == HgFileStatus.Added
+				&& !String.IsNullOrEmpty(SelectedParentFile.FileInfo.CopiedFrom))
+			{
+				// ok
+			}
+			else
+				if (SelectedParentFile.FileInfo.Status == HgFileStatus.Modified)
+				{
+					// ok
+				}
+				else
+				{
+					return;
+				}
+
+			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
+			
+			diffColorizer.RunHgDiffAsync(WorkingDir, SelectedParentFile.FileInfo.File,
+				parent_diff.Desc.Rev.ToString(),
+				SelectedChangeset.Current.ChangeDesc.Rev.ToString());
 		}
 
 		//------------------------------------------------------------------
@@ -867,6 +902,18 @@ namespace HgSccHelper
 
 				column_sorter.GridViewColumnHeaderClickedHandler(sender, e);
 			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void expanderDiff_Expanded(object sender, RoutedEventArgs e)
+		{
+			ShowFileDiff();
+		}
+
+		//-----------------------------------------------------------------------------
+		private void expanderDiff_Collapsed(object sender, RoutedEventArgs e)
+		{
+			diffColorizer.Clear();
 		}
 	}
 

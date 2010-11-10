@@ -115,6 +115,9 @@
     <Compile Include="UI\CreateRepositoryWindow.xaml.cs">
       <DependentUpon>CreateRepositoryWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\DiffColorizerControl.xaml.cs">
+      <DependentUpon>DiffColorizerControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\FileHistoryWindow.xaml.cs">
       <DependentUpon>FileHistoryWindow.xaml</DependentUpon>
     </Compile>
@@ -250,6 +253,10 @@
     <Page Include="UI\CreateRepositoryWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\DiffColorizerControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\FileHistoryWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
