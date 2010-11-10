@@ -857,21 +857,6 @@ namespace HgSccHelper
 			if (SelectedParentFile == null)
 				return;
 
-			if (SelectedParentFile.FileInfo.Status == HgFileStatus.Added
-				&& !String.IsNullOrEmpty(SelectedParentFile.FileInfo.CopiedFrom))
-			{
-				// ok
-			}
-			else
-				if (SelectedParentFile.FileInfo.Status == HgFileStatus.Modified)
-				{
-					// ok
-				}
-				else
-				{
-					return;
-				}
-
 			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
 			
 			diffColorizer.RunHgDiffAsync(WorkingDir, SelectedParentFile.FileInfo.File,
