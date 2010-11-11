@@ -7,19 +7,13 @@
              Unloaded="UserControl_Unloaded"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-<!--
-        <RichTextBox Name="richTextBox"
-                     HorizontalContentAlignment="Stretch"
-                     VerticalContentAlignment="Stretch"
-                     VerticalScrollBarVisibility="Auto"
-                     HorizontalScrollBarVisibility="Visible" FontFamily="Courier New" IsReadOnly="True">
-        </RichTextBox>
--->
-        <TextBox Name="richTextBox"
-                     HorizontalContentAlignment="Stretch"
-                     VerticalContentAlignment="Stretch"
-                     VerticalScrollBarVisibility="Auto"
-                     HorizontalScrollBarVisibility="Visible" FontFamily="Courier New" IsReadOnly="True">
-        </TextBox>
+        <Border BorderThickness="1"
+                BorderBrush="DarkGray">
+            <avalonEdit:TextEditor
+                xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                Name="richTextBox"
+                FontFamily="Consolas"
+                FontSize="10pt"/>
+        </Border>
     </Grid>
 </UserControl>

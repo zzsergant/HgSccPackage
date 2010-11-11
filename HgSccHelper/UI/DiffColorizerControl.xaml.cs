@@ -12,12 +12,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
 using System.Diagnostics;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Rendering;
 
 namespace HgSccHelper.UI
 {
@@ -26,16 +29,11 @@ namespace HgSccHelper.UI
 	/// </summary>
 	public partial class DiffColorizerControl
 	{
-		private readonly Dictionary<DiffType, Brush> type_brushes;
-
 		//------------------------------------------------------------------
 		readonly HgThread worker;
 
 		//-----------------------------------------------------------------------------
 		private readonly List<string> lines;
-
-		//-----------------------------------------------------------------------------
-		private int diff_start_index;
 
 		//-----------------------------------------------------------------------------
 		private PendingDiffArgs pending_diff;
@@ -48,19 +46,21 @@ namespace HgSccHelper.UI
 		{
 			InitializeComponent();
 
-			type_brushes = new Dictionary<DiffType, Brush>();
-			foreach (DiffType type in Enum.GetValues(typeof(DiffType)))
-			{
-				var brush = new SolidColorBrush(DiffTypeColor(type));
-				brush.Freeze();
-				type_brushes[type] = brush;
-			}
+			var rule_set = HighlightingManager.Instance.GetDefinition("Patch");
 
-			//richTextBox.Document.PageWidth = 1000;
+			// Redefining colors
+
+			rule_set.GetNamedColor("AddedText").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.Added));
+			rule_set.GetNamedColor("RemovedText").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.Removed));
+			rule_set.GetNamedColor("UnchangedText").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.None));
+			rule_set.GetNamedColor("Position").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.Patch));
+			rule_set.GetNamedColor("Header").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.Header));
+			rule_set.GetNamedColor("FileName").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.DiffHeader));
+
+			richTextBox.SyntaxHighlighting = rule_set;
+
 			worker = new HgThread();
-			
 			lines = new List<string>();
-			diff_start_index = 0;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -68,13 +68,7 @@ namespace HgSccHelper.UI
 		{
 			Cancel();
 
-/*
-			var all = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
-			all.Text = "";
-*/
 			richTextBox.Text = "";
-
-			diff_start_index = 0;
 			lines.Clear();
 		}
 
@@ -92,7 +86,7 @@ namespace HgSccHelper.UI
 
 			foreach (var line in lines)
 			{
-				AddDiffLine(line);
+				richTextBox.AppendText(line + "\n");
 			}
 		}
 
@@ -120,50 +114,6 @@ namespace HgSccHelper.UI
 				default:
 					throw new ArgumentOutOfRangeException("type");
 			}
-		}
-
-		//-----------------------------------------------------------------------------
-		private static DiffType DiffLineType(int line_index, string text)
-		{
-			if (text.StartsWith("diff"))
-				return DiffType.DiffHeader;
-			
-			if (text.StartsWith("!", StringComparison.Ordinal))
-				return DiffType.Changed;
-			
-			if (text.StartsWith("---", StringComparison.Ordinal))
-				return DiffType.Header;
-			
-			if (text.StartsWith("-", StringComparison.Ordinal))
-				return DiffType.Removed;
-
-			if (text.StartsWith("<", StringComparison.Ordinal))
-				return DiffType.Removed;
-
-			if (text.StartsWith("@@", StringComparison.Ordinal))
-				return DiffType.Patch;
-
-			if (text.StartsWith("+++", StringComparison.Ordinal))
-				return DiffType.Header;
-
-			if (text.StartsWith("+", StringComparison.Ordinal))
-				return DiffType.Added;
-
-			if (text.StartsWith(">", StringComparison.Ordinal))
-				return DiffType.Added;
-
-			if (text.StartsWith("***", StringComparison.Ordinal))
-			{
-				if (line_index < 2)
-					return DiffType.Header;
-
-				return DiffType.Info;
-			}
-			
-			if (text.Length > 0 && !char.IsWhiteSpace(text[0]))
-				return DiffType.Info;
-
-			return DiffType.None;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -221,47 +171,22 @@ namespace HgSccHelper.UI
 		{
 			if (!worker.CancellationPending)
 			{
-/*
-				Dispatcher.Invoke(DispatcherPriority.ApplicationIdle,
-					new Action<string>(AddDiffLine), msg);
-*/
 				lines.Add(msg);
 			}
 		}
 
 		//------------------------------------------------------------------
-		void AddDiffLine(string line)
-		{
-			if (worker.CancellationPending)
-				return;
-
-			var type = DiffLineType(lines.Count - diff_start_index, line);
-			if (type == DiffType.DiffHeader)
-				diff_start_index = lines.Count;
-
-//			lines.Add(line);
-
-			line = line.Replace("\t", "    ");
-
-/*
-			var range = new TextRange(richTextBox.Document.ContentEnd, richTextBox.Document.ContentEnd);
-			range.Text = line;
-			range.End.InsertLineBreak();
-			range.ApplyPropertyValue(TextElement.ForegroundProperty, type_brushes[type]);
-*/
-			richTextBox.AppendText(line + "\n");
-		}
-
-		//------------------------------------------------------------------
 		void Worker_Completed(HgThreadResult completed)
 		{
-			foreach (var line in lines)
-			{
-				AddDiffLine(line);
-			}
 			stopwatch.Stop();
-			AddDiffLine(String.Format("-- Time: {0} s", stopwatch.Elapsed));
 
+			if (!worker.CancellationPending)
+			{
+				foreach (var line in lines)
+					richTextBox.AppendText(line + "\n");
+
+				richTextBox.AppendText(String.Format("-- Time: {0} s\n", stopwatch.Elapsed));
+			}
 
 			// Updating commands state (CanExecute)
 			CommandManager.InvalidateRequerySuggested();
@@ -293,9 +218,87 @@ namespace HgSccHelper.UI
 		Info
 	}
 
+	//-----------------------------------------------------------------------------
 	internal class PendingDiffArgs
 	{
 		public string WorkingDir { get; set; }
 		public string Args { get; set; }
+	}
+
+	//-----------------------------------------------------------------------------
+	/// <summary>
+	/// Highlighting brush implementation that takes a frozen brush.
+	/// </summary>
+	[Serializable]
+	sealed class SimpleHighlightingBrush : HighlightingBrush, ISerializable
+	{
+		readonly SolidColorBrush brush;
+
+		public SimpleHighlightingBrush(SolidColorBrush brush)
+		{
+			brush.Freeze();
+			this.brush = brush;
+		}
+
+		public SimpleHighlightingBrush(Color color) : this(new SolidColorBrush(color)) { }
+
+		public override Brush GetBrush(ITextRunConstructionContext context)
+		{
+			return brush;
+		}
+
+		public override string ToString()
+		{
+			return brush.ToString();
+		}
+
+		SimpleHighlightingBrush(SerializationInfo info, StreamingContext context)
+		{
+			this.brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(info.GetString("color")));
+			brush.Freeze();
+		}
+
+		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			info.AddValue("color", brush.Color.ToString(CultureInfo.InvariantCulture));
+		}
+	}
+
+	/// <summary>
+	/// HighlightingBrush implementation that finds a brush using a resource.
+	/// </summary>
+	[Serializable]
+	sealed class SystemColorHighlightingBrush : HighlightingBrush, ISerializable
+	{
+		readonly PropertyInfo property;
+
+		public SystemColorHighlightingBrush(PropertyInfo property)
+		{
+			Debug.Assert(property.ReflectedType == typeof(SystemColors));
+			Debug.Assert(typeof(Brush).IsAssignableFrom(property.PropertyType));
+			this.property = property;
+		}
+
+		public override Brush GetBrush(ITextRunConstructionContext context)
+		{
+			return (Brush)property.GetValue(null, null);
+		}
+
+		public override string ToString()
+		{
+			return property.Name;
+		}
+
+		SystemColorHighlightingBrush(SerializationInfo info, StreamingContext context)
+		{
+			property = typeof(SystemColors).GetProperty(info.GetString("propertyName"));
+			if (property == null)
+				throw new ArgumentException("Error deserializing SystemColorHighlightingBrush");
+		}
+
+		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			info.AddValue("propertyName", property.Name);
+		}
 	}
 }
