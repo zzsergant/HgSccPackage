@@ -39,9 +39,6 @@ namespace HgSccHelper.UI
 		private PendingDiffArgs pending_diff;
 
 		//-----------------------------------------------------------------------------
-		private Stopwatch stopwatch;
-
-		//-----------------------------------------------------------------------------
 		public DiffColorizerControl()
 		{
 			InitializeComponent();
@@ -155,9 +152,6 @@ namespace HgSccHelper.UI
 				return;
 			}
 
-			stopwatch = new Stopwatch();
-			stopwatch.Start();
-
 			var p = new HgThreadParams();
 			p.CompleteHandler = Worker_Completed;
 			p.OutputHandler = Output_Handler;
@@ -178,14 +172,10 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		void Worker_Completed(HgThreadResult completed)
 		{
-			stopwatch.Stop();
-
 			if (!worker.CancellationPending)
 			{
 				foreach (var line in lines)
 					richTextBox.AppendText(line + "\n");
-
-				richTextBox.AppendText(String.Format("-- Time: {0} s\n", stopwatch.Elapsed));
 			}
 
 			// Updating commands state (CanExecute)
