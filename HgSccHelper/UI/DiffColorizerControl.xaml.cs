@@ -17,6 +17,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Diagnostics;
 
 namespace HgSccHelper.UI
 {
@@ -36,7 +37,11 @@ namespace HgSccHelper.UI
 		//-----------------------------------------------------------------------------
 		private int diff_start_index;
 
+		//-----------------------------------------------------------------------------
 		private PendingDiffArgs pending_diff;
+
+		//-----------------------------------------------------------------------------
+		private Stopwatch stopwatch;
 
 		//-----------------------------------------------------------------------------
 		public DiffColorizerControl()
@@ -197,6 +202,9 @@ namespace HgSccHelper.UI
 				return;
 			}
 
+			stopwatch = new Stopwatch();
+			stopwatch.Start();
+
 			var p = new HgThreadParams();
 			p.CompleteHandler = Worker_Completed;
 			p.OutputHandler = Output_Handler;
@@ -238,6 +246,10 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		void Worker_Completed(HgThreadResult completed)
 		{
+			stopwatch.Stop();
+			AddDiffLine(String.Format("-- Time: {0} s", stopwatch.Elapsed));
+
+
 			// Updating commands state (CanExecute)
 			CommandManager.InvalidateRequerySuggested();
 
