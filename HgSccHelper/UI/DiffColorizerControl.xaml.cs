@@ -56,7 +56,7 @@ namespace HgSccHelper.UI
 				type_brushes[type] = brush;
 			}
 
-			richTextBox.Document.PageWidth = 1000;
+			//richTextBox.Document.PageWidth = 1000;
 			worker = new HgThread();
 			
 			lines = new List<string>();
@@ -68,8 +68,11 @@ namespace HgSccHelper.UI
 		{
 			Cancel();
 
+/*
 			var all = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
 			all.Text = "";
+*/
+			richTextBox.Text = "";
 
 			diff_start_index = 0;
 			lines.Clear();
@@ -237,10 +240,13 @@ namespace HgSccHelper.UI
 
 			line = line.Replace("\t", "    ");
 
+/*
 			var range = new TextRange(richTextBox.Document.ContentEnd, richTextBox.Document.ContentEnd);
 			range.Text = line;
 			range.End.InsertLineBreak();
 			range.ApplyPropertyValue(TextElement.ForegroundProperty, type_brushes[type]);
+*/
+			richTextBox.AppendText(line + "\n");
 		}
 
 		//------------------------------------------------------------------
