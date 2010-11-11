@@ -221,8 +221,11 @@ namespace HgSccHelper.UI
 		{
 			if (!worker.CancellationPending)
 			{
+/*
 				Dispatcher.Invoke(DispatcherPriority.ApplicationIdle,
 					new Action<string>(AddDiffLine), msg);
+*/
+				lines.Add(msg);
 			}
 		}
 
@@ -236,7 +239,7 @@ namespace HgSccHelper.UI
 			if (type == DiffType.DiffHeader)
 				diff_start_index = lines.Count;
 
-			lines.Add(line);
+//			lines.Add(line);
 
 			line = line.Replace("\t", "    ");
 
@@ -252,6 +255,10 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		void Worker_Completed(HgThreadResult completed)
 		{
+			foreach (var line in lines)
+			{
+				AddDiffLine(line);
+			}
 			stopwatch.Stop();
 			AddDiffLine(String.Format("-- Time: {0} s", stopwatch.Elapsed));
 
