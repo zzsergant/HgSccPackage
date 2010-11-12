@@ -274,6 +274,8 @@
                 <TextBox Text="{Binding Path=Author}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
                 <Label Content="Date:" />
                 <TextBox Text="{Binding Path=Date}" IsReadOnly="True" Margin="5, 0" MinWidth="150"/>
+                <TextBlock x:Name="initTime" Text="Init" Margin="5, 0" MinWidth="70"></TextBlock>
+                <TextBlock x:Name="readTime" Text="Read" Margin="5, 0" MinWidth="70"></TextBlock>
             </StackPanel>
             <TextBox Name="textChangeDesc"
                      Grid.Row="2" Grid.ColumnSpan="2"

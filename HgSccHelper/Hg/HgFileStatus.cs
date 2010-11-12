@@ -55,8 +55,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public static List<HgFileInfo> ParseFileInfo(StreamReader reader)
 		{
-			var list = new List<HgFileInfo>();
-			HgFileInfo prev = null;
+			var parser = new HgFileInfoParser();
 
 			while (true)
 			{
@@ -64,19 +63,50 @@ namespace HgSccHelper
 				if (str == null)
 					break;
 
+				parser.AddLine(str);
+			}
+
+			return parser.Files;
+		}
+
+		//=============================================================================
+		public class HgFileInfoParser
+		{
+			public List<HgFileInfo> Files { get; private set; }
+			private HgFileInfo prev;
+
+			//-----------------------------------------------------------------------------
+			public HgFileInfoParser()
+			{
+				Files = new List<HgFileInfo>();
+			}
+
+			//-----------------------------------------------------------------------------
+			public void Clear()
+			{
+				Files.Clear();
+				prev = null;
+			}
+
+			//-----------------------------------------------------------------------------
+			public void AddLine(string str)
+			{
+				if (str == null)
+					return;
+
 				if (str.Length < 2)
-					continue;
+					return;
 
 				char mod = str[0];
 				if (str[1] != ' ')
-					continue;
+					return;
 
 				string file_path = str.Substring(2);
 
 				HgFileInfo info = new HgFileInfo();
 				info.File = file_path;
 
-				switch(mod)
+				switch (mod)
 				{
 					case 'M': info.Status = HgFileStatus.Modified; break;
 					case 'A': info.Status = HgFileStatus.Added; break;
@@ -89,8 +119,8 @@ namespace HgSccHelper
 						{
 							if (prev != null)
 							{
-								if (	prev.Status == HgFileStatus.Added
-									||	prev.Status == HgFileStatus.Modified
+								if (prev.Status == HgFileStatus.Added
+									|| prev.Status == HgFileStatus.Modified
 									)
 								{
 									prev.CopiedFrom = file_path;
@@ -99,17 +129,15 @@ namespace HgSccHelper
 							}
 
 							prev = null;
-							continue;
+							return;
 						}
 					default:
-						continue;
+						return;
 				}
 
-				list.Add(info);
+				Files.Add(info);
 				prev = info;
 			}
-
-			return list;
 		}
 	}
 }

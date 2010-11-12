@@ -11,6 +11,7 @@
 //=========================================================================
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using System;
@@ -21,6 +22,7 @@ using System.Collections.ObjectModel;
 using System.Text;
 using System.Windows.Media;
 using HgSccHelper.UI;
+using HgSccHelper.UI.RevLog;
 
 namespace HgSccHelper
 {
@@ -35,8 +37,6 @@ namespace HgSccHelper
 		RevLogChangeDescParser rev_log_parser;
 		RevLogIteratorParser rev_log_iterator;
 		RevLogLinesPairParser rev_log_lines_parser;
-
-		DispatcherTimer timer;
 
 		const int BatchSize = 500;
 
@@ -101,6 +101,12 @@ namespace HgSccHelper
 
 		Dictionary<ListView, GridViewColumnSorter> files_sorter;
 
+		private Stopwatch read_timer;
+
+		private List<RevLogChangeDesc> pending_changes;
+
+		private AsyncChangeDesc async_changedesc;
+
 		//------------------------------------------------------------------
 		public RevLogControl()
 		{
@@ -124,6 +130,10 @@ namespace HgSccHelper
 			rev_log_hash_map = new Dictionary<string, RevLogLinesPair>();
 
 			files_sorter = new Dictionary<ListView, GridViewColumnSorter>();
+			pending_changes = new List<RevLogChangeDesc>(BatchSize);
+
+			async_changedesc = new AsyncChangeDesc();
+			async_changedesc.Completed = new Action<AsyncChangeDescResult>(OnAsyncChangeDesc);
 		}
 
 		//------------------------------------------------------------------
@@ -135,10 +145,22 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
 		{
+			initTime.Text = "I ";
+
+			var init_stop_watch = new Stopwatch();
+			init_stop_watch.Start();
+
 			var hg = new Hg();
 			CurrentRevision = hg.Identify(WorkingDir);
 			if (CurrentRevision == null)
 				return;
+
+			init_stop_watch.Stop();
+			initTime.Text += String.Format(" br({0})",
+										   (float)init_stop_watch.Elapsed.TotalSeconds);
+
+			init_stop_watch.Reset();
+			init_stop_watch.Start();
 
 			Branches = new Dictionary<string, BranchInfo>();
 			foreach (var branch in hg.Branches(WorkingDir, HgBranchesOptions.Closed))
@@ -146,15 +168,25 @@ namespace HgSccHelper
 				Branches[branch.SHA1] = branch;
 			}
 
+			init_stop_watch.Stop();
+			initTime.Text += String.Format(" br({0})",
+										   (float)init_stop_watch.Elapsed.TotalSeconds);
+
+			init_stop_watch.Reset();
+			init_stop_watch.Start();
+
 			Tags = new Dictionary<string, TagInfo>();
 			foreach (var tag in hg.Tags(WorkingDir))
 			{
 				Tags[tag.Name] = tag;
 			}
 
-			timer = new DispatcherTimer();
-			timer.Interval = TimeSpan.FromMilliseconds(50);
-			timer.Tick += OnTimerTick;
+			init_stop_watch.Stop();
+			initTime.Text += String.Format(" tg({0})",
+										   (float)init_stop_watch.Elapsed.TotalSeconds);
+
+			init_stop_watch.Reset();
+			init_stop_watch.Start();
 
 			if (WorkingDir != null)
 			{
@@ -162,48 +194,22 @@ namespace HgSccHelper
 			}
 
 			graphView.Focus();
+
+			init_stop_watch.Stop();
+			initTime.Text += String.Format(" e({0})",
+										   (float)init_stop_watch.Elapsed.TotalSeconds);
 		}
 
-		//------------------------------------------------------------------
-		private void OnTimerTick(object o, EventArgs e)
+		//-----------------------------------------------------------------------------
+		void OnAsyncChangeDesc(AsyncChangeDescResult result)
 		{
-			timer.Stop();
-
-			if (graphView.SelectedItems.Count == 1)
+			if (	graphView.SelectedItems.Count == 1
+				&& result.Changeset == graphView.SelectedItem)
 			{
-				var rev_pair = (RevLogLinesPair)graphView.SelectedItem;
-				SelectedChangeset = rev_pair;
+				SelectedChangeset = result.Changeset;
 
-				var parents_diff = new List<ParentFilesDiff>();
+				var parents_diff = result.ParentFiles;
 
-				var hg = new Hg();
-				var parents = SelectedChangeset.Current.ChangeDesc.Parents;
-				if (parents.Count == 0)
-					parents = new ObservableCollection<string>(new[] { "null" });
-
-				foreach (var parent in parents)
-				{
-					var options = HgStatusOptions.Added | HgStatusOptions.Deleted
-						| HgStatusOptions.Modified
-						| HgStatusOptions.Copies | HgStatusOptions.Removed;
-
-					var files = hg.Status(WorkingDir, options, "", parent,
-						SelectedChangeset.Current.ChangeDesc.SHA1);
-
-					var desc = hg.GetRevisionDesc(WorkingDir, parent);
-					if (desc != null)
-					{
-						var parent_diff = new ParentFilesDiff();
-						parent_diff.Desc = desc;
-						parent_diff.Files = new List<ParentDiffHgFileInfo>();
-
-						foreach (var file in files)
-							parent_diff.Files.Add(new ParentDiffHgFileInfo { FileInfo = file });
-
-						parents_diff.Add(parent_diff);
-					}
-				}
-				
 				tabParentsDiff.ItemsSource = parents_diff;
 				if (parents_diff.Count > 0)
 				{
@@ -216,28 +222,28 @@ namespace HgSccHelper
 							parent.Files[0].IsSelected = true;
 					}
 				}
-
-				return;
 			}
 		}
 
 		//------------------------------------------------------------------
 		private void graphView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
+			diffColorizer.Clear(); 
 			SelectedChangeset = null;
 			tabParentsDiff.ItemsSource = null;
-			timer.Stop();
 
 			if (graphView.SelectedItems.Count == 1)
 			{
-				timer.Start();
+				var rev_pair = (RevLogLinesPair)graphView.SelectedItem;
+				async_changedesc.Run(WorkingDir, rev_pair);
 			}
 		}
 
 		//------------------------------------------------------------------
 		private void UserControl_Unloaded(object sender, System.Windows.RoutedEventArgs e)
 		{
-			timer.Tick -= OnTimerTick;
+			async_changedesc.Cancel();
+			async_changedesc.Dispose();
 
 			worker.Cancel();
 			worker.Dispose();
@@ -354,7 +360,12 @@ namespace HgSccHelper
 			
 			prev_cursor = Cursor;
 			Cursor = Cursors.Wait;
-			
+
+			pending_changes.Clear();
+
+			read_timer = new Stopwatch();
+			read_timer.Start();
+
 			worker.Run(p);
 		}
 
@@ -489,22 +500,53 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		void Worker_Completed(HgThreadResult completed)
 		{
+			if (pending_changes.Count != 0)
+			{
+				var changes = pending_changes;
+				pending_changes = new List<RevLogChangeDesc>(BatchSize);
+
+				Worker_NewRevLogChangeDescBatch(changes);
+			}
+
 			Cursor = prev_cursor;
 
 			// Updating commands state (CanExecute)
 			CommandManager.InvalidateRequerySuggested();
+
+			read_timer.Stop();
+			readTime.Text = String.Format("Read: {0} s", read_timer.Elapsed);
 		}
 
 		//------------------------------------------------------------------
 		void Output_Handler(string msg)
 		{
+			if (worker.CancellationPending)
+				return;
+
 			var change_desc = rev_log_parser.ParseLine(msg);
 			if (change_desc != null)
 			{
-				Dispatcher.Invoke(DispatcherPriority.Normal,
-					new Action<RevLogChangeDesc>(Worker_NewRevLogChangeDesc), change_desc);
+				pending_changes.Add(change_desc);
+				if (pending_changes.Count == BatchSize)
+				{
+					var changes = pending_changes;
+					pending_changes = new List<RevLogChangeDesc>(BatchSize);
+
+					Dispatcher.Invoke(DispatcherPriority.ApplicationIdle,
+						new Action<List<RevLogChangeDesc>>(Worker_NewRevLogChangeDescBatch), changes);
+				}
 			}
 		}
+
+		//------------------------------------------------------------------
+		void Worker_NewRevLogChangeDescBatch(List<RevLogChangeDesc> changes)
+		{
+			foreach (var change_desc in changes)
+			{
+				Worker_NewRevLogChangeDesc(change_desc);
+			}
+		}
+
 
 		//------------------------------------------------------------------
 		void Worker_NewRevLogChangeDesc(RevLogChangeDesc change_desc)
@@ -515,12 +557,15 @@ namespace HgSccHelper
 
 			var sha1 = new_lines_pair.Current.ChangeDesc.SHA1;
 
-			foreach (var parent in CurrentRevision.Parents)
+			if (CurrentRevision != null)
 			{
-				if (parent.SHA1 == sha1)
+				foreach (var parent in CurrentRevision.Parents)
 				{
-					new_lines_pair.IsCurrent = true;
-					break;
+					if (parent.SHA1 == sha1)
+					{
+						new_lines_pair.IsCurrent = true;
+						break;
+					}
 				}
 			}
 
@@ -612,19 +657,25 @@ namespace HgSccHelper
 			var hg = new Hg();
 			var new_current = hg.Identify(WorkingDir);
 
-			foreach (var parent in CurrentRevision.Parents)
+			if (CurrentRevision != null)
 			{
-				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
-					lines_pair.IsCurrent = false;
+				foreach (var parent in CurrentRevision.Parents)
+				{
+					RevLogLinesPair lines_pair;
+					if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
+						lines_pair.IsCurrent = false;
+				}
 			}
 
 			CurrentRevision = new_current;
-			foreach (var parent in CurrentRevision.Parents)
+			if (CurrentRevision != null)
 			{
-				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
-					lines_pair.IsCurrent = true;
+				foreach (var parent in CurrentRevision.Parents)
+				{
+					RevLogLinesPair lines_pair;
+					if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
+						lines_pair.IsCurrent = true;
+				}
 			}
 		}
 
@@ -736,7 +787,7 @@ namespace HgSccHelper
 		{
 			e.CanExecute = false;
 
-			if (SelectedChangeset != null)
+			if (SelectedChangeset != null && CurrentRevision != null)
 			{
 				if (CurrentRevision.Parents.Count == 1)
 				{

@@ -413,7 +413,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public List<HgFileInfo> Status(string work_dir, HgStatusOptions options, string path, string rev1, string rev2)
+		public static HgArgsBuilder BuildStatusParams(HgStatusOptions options, string path, string rev1, string rev2)
 		{
 			var args = new HgArgsBuilder();
 			args.Append("status");
@@ -452,6 +452,14 @@ namespace HgSccHelper
 
 			if (rev2.Length > 0)
 				args.AppendRevision(rev2);
+
+			return args;
+		}
+
+		//-----------------------------------------------------------------------------
+		public List<HgFileInfo> Status(string work_dir, HgStatusOptions options, string path, string rev1, string rev2)
+		{
+			var args = BuildStatusParams(options, path, rev1, rev2);
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
