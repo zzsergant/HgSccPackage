@@ -12,10 +12,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Diagnostics;
@@ -42,6 +46,12 @@ namespace HgSccHelper.UI
 		public Action<List<string>> Complete { get; set; }
 
 		//-----------------------------------------------------------------------------
+		ObservableCollection<EncodingItem> encodings;
+
+		//-----------------------------------------------------------------------------
+		public const string CfgPath = @"GUI\Diff";
+
+		//-----------------------------------------------------------------------------
 		public DiffColorizerControl()
 		{
 			InitializeComponent();
@@ -58,6 +68,13 @@ namespace HgSccHelper.UI
 			rule_set.GetNamedColor("FileName").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.DiffHeader));
 
 			richTextBox.SyntaxHighlighting = rule_set;
+			
+			richTextBox.IsReadOnly = true;
+
+			encodings = new ObservableCollection<EncodingItem>();
+			encodings.Add(new EncodingItem { Name = "Ansi", Encoding = Encoding.Default });
+			encodings.Add(new EncodingItem { Name = "Utf8", Encoding = Encoding.UTF8 });
+			comboEncodings.ItemsSource = encodings;
 
 			worker = new HgThread();
 			lines = new List<string>();
@@ -84,9 +101,15 @@ namespace HgSccHelper.UI
 		{
 			Clear();
 
+			var encoding = comboEncodings.SelectedItem as EncodingItem;
+
 			foreach (var line in lines)
 			{
-				richTextBox.AppendText(line + "\n");
+				var text_line = line;
+				if (encoding != null && encoding.Encoding != Encoding.Default)
+					 text_line = Util.Convert(line, encoding.Encoding, Encoding.Default);
+
+				richTextBox.AppendText(text_line + "\n");
 			}
 		}
 
@@ -117,10 +140,27 @@ namespace HgSccHelper.UI
 		}
 
 		//-----------------------------------------------------------------------------
+		private void UserControl_Loaded(object sender, RoutedEventArgs e)
+		{
+			string encoding_name;
+			Cfg.Get(DiffColorizerControl.CfgPath, "encoding", out encoding_name, encodings[0].Name);
+
+			var encoding = encodings.First(enc => enc.Name == encoding_name);
+			if (encoding != null)
+				comboEncodings.SelectedItem = encoding;
+			else
+				comboEncodings.SelectedIndex = 0;
+		}
+
+		//-----------------------------------------------------------------------------
 		private void UserControl_Unloaded(object sender, RoutedEventArgs e)
 		{
 			worker.Cancel();
 			worker.Dispose();
+
+			var encoding = comboEncodings.SelectedItem as EncodingItem;
+			if (encoding != null)
+				Cfg.Set(DiffColorizerControl.CfgPath, "encoding", encoding.Name);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -187,8 +227,16 @@ namespace HgSccHelper.UI
 
 			if (!worker.CancellationPending)
 			{
+				var encoding = comboEncodings.SelectedItem as EncodingItem;
+
 				foreach (var line in lines)
-					richTextBox.AppendText(line + "\n");
+				{
+					var text_line = line;
+					if (encoding != null && encoding.Encoding != Encoding.Default)
+						text_line = Util.Convert(line, encoding.Encoding, Encoding.Default);
+
+					richTextBox.AppendText(text_line + "\n");
+				}
 
 				if (Complete != null)
 				{
@@ -200,6 +248,28 @@ namespace HgSccHelper.UI
 			if (Complete != null)
 				Complete(null);
 		}
+
+		//------------------------------------------------------------------
+		private void comboEncodings_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			var encoding = comboEncodings.SelectedItem as EncodingItem;
+
+			if (encoding != null)
+			{
+				richTextBox.Clear();
+
+				foreach (var line_info in lines)
+				{
+					var text_line = line_info;
+
+					if (encoding.Encoding != Encoding.Default)
+						text_line = Util.Convert(line_info, encoding.Encoding, Encoding.Default);
+					
+					richTextBox.AppendText(text_line + "\n");
+				}
+			}
+		}
+
 
 		//-----------------------------------------------------------------------------
 		public bool IsWorking { get { return worker.IsBusy; } }
