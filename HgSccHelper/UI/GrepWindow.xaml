@@ -82,9 +82,8 @@
                         MinWidth="75" />
                 <Separator />
                 <StackPanel Orientation="Horizontal">
-                    <Label Content="Encoding:" Margin="5"></Label>
+                    <Label Content="Encoding:" Margin="5,0"></Label>
                     <ComboBox MinWidth="150"
-                              Margin="5"
                               Name="comboEncodings"
                               SelectionChanged="comboEncodings_SelectionChanged"
                               DisplayMemberPath="Name"
