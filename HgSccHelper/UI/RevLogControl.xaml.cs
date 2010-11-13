@@ -107,6 +107,16 @@ namespace HgSccHelper
 
 		private AsyncChangeDesc async_changedesc;
 
+		private AsyncIdentify async_identify;
+
+		private AsyncBranches async_branches;
+
+		private AsyncTags async_tags;
+
+		private bool first_batch;
+
+		private AsyncOperations async_ops;
+
 		//------------------------------------------------------------------
 		public RevLogControl()
 		{
@@ -132,8 +142,157 @@ namespace HgSccHelper
 			files_sorter = new Dictionary<ListView, GridViewColumnSorter>();
 			pending_changes = new List<RevLogChangeDesc>(BatchSize);
 
+			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
+
 			async_changedesc = new AsyncChangeDesc();
 			async_changedesc.Completed = new Action<AsyncChangeDescResult>(OnAsyncChangeDesc);
+
+			async_identify = new AsyncIdentify();
+			async_identify.Complete = new Action<IdentifyInfo>(OnAsyncIdentify);
+
+			async_branches = new AsyncBranches();
+			async_branches.Complete = new Action<List<BranchInfo>>(OnAsyncBranch);
+
+			async_tags = new AsyncTags();
+			async_tags.Complete = new Action<List<TagInfo>>(OnAsyncTags);
+
+			first_batch = true;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnDiffColorizer(List<string> obj)
+		{
+			RunningOperations &= ~AsyncOperations.Diff;
+		}
+
+		//-----------------------------------------------------------------------------
+		private AsyncOperations RunningOperations
+		{
+			get { return async_ops; }
+			set
+			{
+				if (async_ops != value)
+				{
+					if (async_ops == AsyncOperations.None)
+					{
+						prev_cursor = Cursor;
+						Cursor = Cursors.Wait;
+					}
+
+					async_ops = value;
+
+					if (async_ops == AsyncOperations.None)
+					{
+						Cursor = prev_cursor;
+					}
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncTags(List<TagInfo> tags_list)
+		{
+			RunningOperations &= ~AsyncOperations.Tags;
+
+			if (tags_list == null)
+				return;
+
+			var new_tags = new Dictionary<string, TagInfo>();
+
+			foreach (var tag in tags_list)
+			{
+				new_tags[tag.Name] = tag;
+			}
+
+			foreach (var tag in Tags.Values)
+			{
+				// removing old tags
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.TryGetValue(tag.SHA1, out lines_pair))
+				{
+					var change_desc = lines_pair.Current.ChangeDesc;
+					change_desc.Tags.Remove(tag.Name);
+				}
+			}
+
+			Tags = new_tags;
+
+			foreach (var tag in Tags.Values)
+			{
+				// adding or updating tags
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.TryGetValue(tag.SHA1, out lines_pair))
+				{
+					var change_desc = lines_pair.Current.ChangeDesc;
+					if (!change_desc.Tags.Contains(tag.Name))
+						change_desc.Tags.Add(tag.Name);
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncBranch(List<BranchInfo> branch_list)
+		{
+			RunningOperations &= ~AsyncOperations.Branches;
+
+			if (branch_list == null)
+				return;
+
+			var new_branches = new Dictionary<string, BranchInfo>();
+
+			foreach (var branch_info in branch_list)
+			{
+				new_branches[branch_info.SHA1] = branch_info;
+				Branches.Remove(branch_info.SHA1);
+			}
+
+			foreach (var branch_info in Branches.Values)
+			{
+				// removing old branch info
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.TryGetValue(branch_info.SHA1, out lines_pair))
+					lines_pair.BranchInfo = null;
+			}
+
+			Branches = new_branches;
+
+			foreach (var branch_info in Branches.Values)
+			{
+				// adding or updating branch info
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.TryGetValue(branch_info.SHA1, out lines_pair))
+					lines_pair.BranchInfo = branch_info;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncIdentify(IdentifyInfo new_current)
+		{
+			RunningOperations &= ~AsyncOperations.Identify;
+
+			if (new_current == null)
+				return;
+
+			if (CurrentRevision != null)
+			{
+				foreach (var parent in CurrentRevision.Parents)
+				{
+					RevLogLinesPair lines_pair;
+					if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
+						lines_pair.IsCurrent = false;
+				}
+			}
+
+			CurrentRevision = new_current;
+			if (CurrentRevision != null)
+			{
+				foreach (var parent in CurrentRevision.Parents)
+				{
+					RevLogLinesPair lines_pair;
+					if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
+						lines_pair.IsCurrent = true;
+				}
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -145,48 +304,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
 		{
-			initTime.Text = "I ";
-
-			var init_stop_watch = new Stopwatch();
-			init_stop_watch.Start();
-
-			var hg = new Hg();
-			CurrentRevision = hg.Identify(WorkingDir);
-			if (CurrentRevision == null)
-				return;
-
-			init_stop_watch.Stop();
-			initTime.Text += String.Format(" br({0})",
-										   (float)init_stop_watch.Elapsed.TotalSeconds);
-
-			init_stop_watch.Reset();
-			init_stop_watch.Start();
-
-			Branches = new Dictionary<string, BranchInfo>();
-			foreach (var branch in hg.Branches(WorkingDir, HgBranchesOptions.Closed))
-			{
-				Branches[branch.SHA1] = branch;
-			}
-
-			init_stop_watch.Stop();
-			initTime.Text += String.Format(" br({0})",
-										   (float)init_stop_watch.Elapsed.TotalSeconds);
-
-			init_stop_watch.Reset();
-			init_stop_watch.Start();
+			initTime.Text = "";
 
 			Tags = new Dictionary<string, TagInfo>();
-			foreach (var tag in hg.Tags(WorkingDir))
-			{
-				Tags[tag.Name] = tag;
-			}
-
-			init_stop_watch.Stop();
-			initTime.Text += String.Format(" tg({0})",
-										   (float)init_stop_watch.Elapsed.TotalSeconds);
-
-			init_stop_watch.Reset();
-			init_stop_watch.Start();
+			Branches = new Dictionary<string, BranchInfo>();
 
 			if (WorkingDir != null)
 			{
@@ -194,15 +315,16 @@ namespace HgSccHelper
 			}
 
 			graphView.Focus();
-
-			init_stop_watch.Stop();
-			initTime.Text += String.Format(" e({0})",
-										   (float)init_stop_watch.Elapsed.TotalSeconds);
 		}
 
 		//-----------------------------------------------------------------------------
 		void OnAsyncChangeDesc(AsyncChangeDescResult result)
 		{
+			RunningOperations &= ~AsyncOperations.ChangeDesc;
+
+			if (result == null)
+				return;
+
 			if (	graphView.SelectedItems.Count == 1
 				&& result.Changeset == graphView.SelectedItem)
 			{
@@ -234,6 +356,8 @@ namespace HgSccHelper
 
 			if (graphView.SelectedItems.Count == 1)
 			{
+				RunningOperations |= AsyncOperations.ChangeDesc;
+
 				var rev_pair = (RevLogLinesPair)graphView.SelectedItem;
 				async_changedesc.Run(WorkingDir, rev_pair);
 			}
@@ -244,6 +368,15 @@ namespace HgSccHelper
 		{
 			async_changedesc.Cancel();
 			async_changedesc.Dispose();
+
+			async_identify.Cancel();
+			async_identify.Dispose();
+
+			async_branches.Cancel();
+			async_branches.Dispose();
+
+			async_tags.Cancel();
+			async_tags.Dispose();
 
 			worker.Cancel();
 			worker.Dispose();
@@ -358,14 +491,12 @@ namespace HgSccHelper
 
 			rev_log_parser = new RevLogChangeDescParser();
 			
-			prev_cursor = Cursor;
-			Cursor = Cursors.Wait;
-
 			pending_changes.Clear();
 
 			read_timer = new Stopwatch();
 			read_timer.Start();
 
+			RunningOperations |= AsyncOperations.RevLog;
 			worker.Run(p);
 		}
 
@@ -508,7 +639,7 @@ namespace HgSccHelper
 				Worker_NewRevLogChangeDescBatch(changes);
 			}
 
-			Cursor = prev_cursor;
+			RunningOperations &= ~AsyncOperations.RevLog;
 
 			// Updating commands state (CanExecute)
 			CommandManager.InvalidateRequerySuggested();
@@ -541,6 +672,19 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		void Worker_NewRevLogChangeDescBatch(List<RevLogChangeDesc> changes)
 		{
+			if (first_batch)
+			{
+				first_batch = false;
+
+				RunningOperations |= AsyncOperations.Tags;
+				RunningOperations |= AsyncOperations.Branches;
+				RunningOperations |= AsyncOperations.Identify;
+
+				async_tags.RunAsync(WorkingDir);
+				async_branches.RunAsync(WorkingDir, HgBranchesOptions.Closed);
+				async_identify.RunAsync(WorkingDir);
+			}
+
 			foreach (var change_desc in changes)
 			{
 				Worker_NewRevLogChangeDesc(change_desc);
@@ -654,99 +798,22 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void HandleParentChange()
 		{
-			var hg = new Hg();
-			var new_current = hg.Identify(WorkingDir);
-
-			if (CurrentRevision != null)
-			{
-				foreach (var parent in CurrentRevision.Parents)
-				{
-					RevLogLinesPair lines_pair;
-					if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
-						lines_pair.IsCurrent = false;
-				}
-			}
-
-			CurrentRevision = new_current;
-			if (CurrentRevision != null)
-			{
-				foreach (var parent in CurrentRevision.Parents)
-				{
-					RevLogLinesPair lines_pair;
-					if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
-						lines_pair.IsCurrent = true;
-				}
-			}
+			RunningOperations |= AsyncOperations.Identify;
+			async_identify.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------
 		private void HandleBranchChanges()
 		{
-			var hg = new Hg();
-			var new_branches = new Dictionary<string, BranchInfo>();
-			var branch_list = hg.Branches(WorkingDir, HgBranchesOptions.Closed);
-
-			foreach (var branch_info in branch_list)
-			{
-				new_branches[branch_info.SHA1] = branch_info;
-				Branches.Remove(branch_info.SHA1);
-			}
-
-			foreach (var branch_info in Branches.Values)
-			{
-				// removing old branch info
-				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.TryGetValue(branch_info.SHA1, out lines_pair))
-					lines_pair.BranchInfo = null;
-			}
-
-			Branches = new_branches;
-
-			foreach (var branch_info in Branches.Values)
-			{
-				// adding or updating branch info
-				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.TryGetValue(branch_info.SHA1, out lines_pair))
-					lines_pair.BranchInfo = branch_info;
-			}
+			RunningOperations |= AsyncOperations.Branches;
+			async_branches.RunAsync(WorkingDir, HgBranchesOptions.Closed);
 		}
 
 		//------------------------------------------------------------------
 		private void HandleTagsChanges()
 		{
-			var hg = new Hg();
-			var new_tags = new Dictionary<string, TagInfo>();
-			var tags_list = hg.Tags(WorkingDir);
-
-			foreach (var tag in tags_list)
-			{
-				new_tags[tag.Name] = tag;
-			}
-
-			foreach (var tag in Tags.Values)
-			{
-				// removing old tags
-				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.TryGetValue(tag.SHA1, out lines_pair))
-				{
-					var change_desc = lines_pair.Current.ChangeDesc;
-					change_desc.Tags.Remove(tag.Name);
-				}
-			}
-
-			Tags = new_tags;
-
-			foreach (var tag in Tags.Values)
-			{
-				// adding or updating tags
-				RevLogLinesPair lines_pair;
-				if (rev_log_hash_map.TryGetValue(tag.SHA1, out lines_pair))
-				{
-					var change_desc = lines_pair.Current.ChangeDesc;
-					if (!change_desc.Tags.Contains(tag.Name))
-						change_desc.Tags.Add(tag.Name);
-				}
-			}
+			RunningOperations |= AsyncOperations.Tags;
+			async_tags.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------
@@ -909,7 +976,9 @@ namespace HgSccHelper
 				return;
 
 			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
-			
+
+			RunningOperations |= AsyncOperations.Diff;
+
 			diffColorizer.RunHgDiffAsync(WorkingDir, SelectedParentFile.FileInfo.File,
 				parent_diff.Desc.Rev.ToString(),
 				SelectedChangeset.Current.ChangeDesc.Rev.ToString());
@@ -1007,4 +1076,18 @@ namespace HgSccHelper
 		public ParentFilesDiff ParentFilesDiff { get; set; }
 		public HgFileInfo FileInfo { get; set; }
 	}
+
+	//-----------------------------------------------------------------------------
+	[Flags]
+	enum AsyncOperations
+	{
+		None			= 0x0000,
+		Identify		= 0x0001,
+		Tags			= 0x0002,
+		Branches		= 0x0004,
+		RevLog			= 0x0008,
+		ChangeDesc		= 0x0010,
+		Diff			= 0x0020
+	}
+
 }

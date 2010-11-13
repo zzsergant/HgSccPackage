@@ -173,7 +173,10 @@
     <Compile Include="UI\RevertWindow.xaml.cs">
       <DependentUpon>RevertWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\RevLog\AsyncBranches.cs" />
     <Compile Include="UI\RevLog\AsyncChangeDesc.cs" />
+    <Compile Include="UI\RevLog\AsyncIdentify.cs" />
+    <Compile Include="UI\RevLog\AsyncTags.cs" />
     <Compile Include="UI\RevLog\RevLogChangeDesc.cs" />
     <Compile Include="UI\RevLogControl.xaml.cs">
       <DependentUpon>RevLogControl.xaml</DependentUpon>

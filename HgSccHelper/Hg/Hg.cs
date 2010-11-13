@@ -1295,6 +1295,68 @@ namespace HgSccHelper
 			return renames;
 		}
 
+		//-----------------------------------------------------------------------------
+		public static IdentifyInfo ParseIdentifyLine(string str)
+		{
+			IdentifyInfo info = null;
+
+			// Identify output looks like:
+			// fb208ffc2324+ 15+
+			// where '+' means, that there are uncommited changes
+			//
+			// If there are active merge, then output will looks like:
+			// 1c12a72d2c7e+1df046e40fa9+ 1+2+
+
+			if (str != null)
+			{
+				var separators = new char[] { ' ' };
+				var parts = str.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+				if (parts.Length == 2)
+				{
+					string sha1 = parts[0];
+					string rev = parts[1];
+					bool have_uncommited_changes = false;
+
+					if (sha1.EndsWith("+") && rev.EndsWith("+"))
+					{
+						have_uncommited_changes = true;
+						sha1 = sha1.Substring(0, sha1.Length - 1);
+						rev = rev.Substring(0, rev.Length - 1);
+					}
+
+					var sha1_items = sha1.Split(new char[] { '+' },
+						StringSplitOptions.RemoveEmptyEntries);
+
+					var rev_items = rev.Split(new char[] { '+' },
+						StringSplitOptions.RemoveEmptyEntries);
+
+					if (sha1_items.Length == rev_items.Length
+						&& sha1_items.Length > 0
+						)
+					{
+						var ids = new List<IdentifyData>();
+						for (int i = 0; i < rev_items.Length; ++i)
+						{
+							int revision;
+							if (int.TryParse(rev_items[i], out revision))
+							{
+								ids.Add(new IdentifyData { Rev = revision, SHA1 = sha1_items[i] });
+							}
+						}
+
+						if (ids.Count > 0)
+						{
+							info = new IdentifyInfo();
+							info.HaveUncommitedChanges = have_uncommited_changes;
+							info.Parents = ids;
+						}
+					}
+				}
+			}
+
+			return info;
+		}
+
 		//------------------------------------------------------------------
 		/// <summary>
 		/// Identify current revision and check for uncommited changes
@@ -1308,68 +1370,17 @@ namespace HgSccHelper
 			args.Append("-ni");
 			args.AppendDebug();
 			
-			IdentifyInfo info = null;
-
-			// Identify output looks like:
-			// fb208ffc2324+ 15+
-			// where '+' means, that there are uncommited changes
-			//
-			// If there are active merge, then output will looks like:
-			// 1c12a72d2c7e+1df046e40fa9+ 1+2+
-
 			// FIXME: by default it shows short 6 bytes sha1
 			// to get full sha1 the --debug arg should be specified
+
+			IdentifyInfo info;
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
 				var stream = proc.StandardOutput;
 				var str = stream.ReadLine();
-				if (str != null)
-				{
-					var separators = new char[] { ' ' };
-					var parts = str.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-					if (parts.Length == 2)
-					{
-						string sha1 = parts[0];
-						string rev = parts[1];
-						bool have_uncommited_changes = false;
 
-						if (sha1.EndsWith("+") && rev.EndsWith("+"))
-						{
-							have_uncommited_changes = true;
-							sha1 = sha1.Substring(0, sha1.Length - 1);
-							rev = rev.Substring(0, rev.Length - 1);
-						}
-
-						var sha1_items = sha1.Split(new char[] { '+' },
-							StringSplitOptions.RemoveEmptyEntries);
-
-						var rev_items = rev.Split(new char[] { '+' },
-							StringSplitOptions.RemoveEmptyEntries);
-
-						if (	sha1_items.Length == rev_items.Length
-							&&	sha1_items.Length > 0
-							)
-						{
-							var ids = new List<IdentifyData>();
-							for(int i = 0; i < rev_items.Length; ++i)
-							{
-								int revision;
-								if (int.TryParse(rev_items[i], out revision))
-								{
-									ids.Add(new IdentifyData { Rev = revision, SHA1 = sha1_items[i] });
-								}
-							}
-
-							if (ids.Count > 0)
-							{
-								info = new IdentifyInfo();
-								info.HaveUncommitedChanges = have_uncommited_changes;
-								info.Parents = ids;
-							}
-						}
-					}
-				}
+				info = ParseIdentifyLine(str);
 
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)
@@ -1377,6 +1388,39 @@ namespace HgSccHelper
 			}
 
 			return info;
+		}
+
+		//-----------------------------------------------------------------------------
+		public static TagInfo ParseTagLine(string str)
+		{
+			var tag = new TagInfo();
+			const string local_suffix = " local";
+
+			if (str.EndsWith(local_suffix))
+			{
+				tag.IsLocal = true;
+				str = str.Substring(0, str.Length - local_suffix.Length);
+			}
+
+			int rev_start = str.LastIndexOf(' ') + 1;
+			tag.Name = str.Substring(0, rev_start).Trim();
+
+			var separators = new char[] { ':' };
+			var rev_parts = str.Substring(rev_start).Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+			if (rev_parts.Length == 2)
+			{
+				int revision;
+				if (int.TryParse(rev_parts[0], out revision))
+				{
+					tag.Rev = revision;
+					tag.SHA1 = rev_parts[1];
+
+					return tag;
+				}
+			}
+
+			return null;
 		}
 
 		//------------------------------------------------------------------
@@ -1398,32 +1442,9 @@ namespace HgSccHelper
 					if (str == null)
 						break;
 
-					var tag = new TagInfo();
-					var local_suffix = " local";
-
-					if (str.EndsWith(local_suffix))
-					{
-						tag.IsLocal = true;
-						str = str.Substring(0, str.Length - local_suffix.Length);
-					}
-
-					int rev_start = str.LastIndexOf(' ') + 1;
-					tag.Name = str.Substring(0, rev_start).Trim();
-
-					var separators = new char[] { ':' };
-					var rev_parts = str.Substring(rev_start).Split(separators, StringSplitOptions.RemoveEmptyEntries);
-
-					if (rev_parts.Length == 2)
-					{
-						int revision;
-						if (int.TryParse(rev_parts[0], out revision))
-						{
-							tag.Rev = revision;
-							tag.SHA1 = rev_parts[1];
-
-							tags.Add(tag);
-						}
-					}
+					var tag = ParseTagLine(str);
+					if (tag != null)
+						tags.Add(tag);
 				}
 
 				proc.WaitForExit();
@@ -1432,6 +1453,54 @@ namespace HgSccHelper
 			}
 
 			return tags;
+		}
+
+		//-----------------------------------------------------------------------------
+		public static BranchInfo ParseBranchLine(string str)
+		{
+			var branch = new BranchInfo();
+			var inactive_suffix = " (inactive)";
+			var closed_suffix = " (closed)";
+
+			if (str.EndsWith(inactive_suffix))
+			{
+				branch.IsActive = false;
+				str = str.Substring(0, str.Length - inactive_suffix.Length);
+			}
+			else
+			{
+				branch.IsActive = true;
+			}
+
+			if (str.EndsWith(closed_suffix))
+			{
+				branch.IsClosed = true;
+				str = str.Substring(0, str.Length - closed_suffix.Length);
+			}
+			else
+			{
+				branch.IsClosed = false;
+			}
+
+			int rev_start = str.LastIndexOf(' ') + 1;
+			branch.Name = str.Substring(0, rev_start).Trim();
+
+			var separators = new char[] { ':' };
+			var rev_parts = str.Substring(rev_start).Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+			if (rev_parts.Length == 2)
+			{
+				int revision;
+				if (int.TryParse(rev_parts[0], out revision))
+				{
+					branch.Rev = revision;
+					branch.SHA1 = rev_parts[1];
+
+					return branch;
+				}
+			}
+
+			return null;
 		}
 
 		//------------------------------------------------------------------
@@ -1458,47 +1527,9 @@ namespace HgSccHelper
 					if (str == null)
 						break;
 
-					var branch = new BranchInfo();
-					var inactive_suffix = " (inactive)";
-					var closed_suffix = " (closed)";
-
-					if (str.EndsWith(inactive_suffix))
-					{
-						branch.IsActive = false;
-						str = str.Substring(0, str.Length - inactive_suffix.Length);
-					}
-					else
-					{
-						branch.IsActive = true;
-					}
-
-					if (str.EndsWith(closed_suffix))
-					{
-						branch.IsClosed = true;
-						str = str.Substring(0, str.Length - closed_suffix.Length);
-					}
-					else
-					{
-						branch.IsClosed = false;
-					}
-
-					int rev_start = str.LastIndexOf(' ') + 1;
-					branch.Name = str.Substring(0, rev_start).Trim();
-
-					var separators = new char[] { ':' };
-					var rev_parts = str.Substring(rev_start).Split(separators, StringSplitOptions.RemoveEmptyEntries);
-
-					if (rev_parts.Length == 2)
-					{
-						int revision;
-						if (int.TryParse(rev_parts[0], out revision))
-						{
-							branch.Rev = revision;
-							branch.SHA1 = rev_parts[1];
-
-							branches.Add(branch);
-						}
-					}
+					var branch = ParseBranchLine(str);
+					if (branch != null)
+						branches.Add(branch);
 				}
 
 				proc.WaitForExit();

@@ -39,6 +39,9 @@ namespace HgSccHelper.UI
 		private PendingDiffArgs pending_diff;
 
 		//-----------------------------------------------------------------------------
+		public Action<List<string>> Complete { get; set; }
+
+		//-----------------------------------------------------------------------------
 		public DiffColorizerControl()
 		{
 			InitializeComponent();
@@ -172,15 +175,6 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		void Worker_Completed(HgThreadResult completed)
 		{
-			if (!worker.CancellationPending)
-			{
-				foreach (var line in lines)
-					richTextBox.AppendText(line + "\n");
-			}
-
-			// Updating commands state (CanExecute)
-			CommandManager.InvalidateRequerySuggested();
-
 			if (pending_diff != null)
 			{
 				var p = pending_diff;
@@ -188,7 +182,23 @@ namespace HgSccHelper.UI
 
 				Clear();
 				RunHgDiffThread(p.WorkingDir, p.Args);
+				return;
 			}
+
+			if (!worker.CancellationPending)
+			{
+				foreach (var line in lines)
+					richTextBox.AppendText(line + "\n");
+
+				if (Complete != null)
+				{
+					Complete(lines);
+					return;
+				}
+			}
+
+			if (Complete != null)
+				Complete(null);
 		}
 
 		//-----------------------------------------------------------------------------

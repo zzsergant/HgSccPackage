@@ -108,7 +108,7 @@ namespace HgSccHelper.UI.RevLog
 		}
 
 		//-----------------------------------------------------------------------------
-		public void RunStatusAsync(string work_dir, string parent, string rev)
+		private void RunStatusAsync(string work_dir, string parent, string rev)
 		{
 			var options = HgStatusOptions.Added | HgStatusOptions.Deleted
 				| HgStatusOptions.Modified
@@ -122,7 +122,7 @@ namespace HgSccHelper.UI.RevLog
 		}
 
 		//-----------------------------------------------------------------------------
-		public void RunChangedescAsync(string work_dir, string parent)
+		private void RunChangedescAsync(string work_dir, string parent)
 		{
 			state = AsyncChangeDescStates.Changedesc;
 
@@ -185,6 +185,16 @@ namespace HgSccHelper.UI.RevLog
 		//------------------------------------------------------------------
 		void Worker_Completed(HgThreadResult completed)
 		{
+			if (pending_args != null)
+			{
+				var p = pending_args;
+				pending_args = null;
+
+				Clear();
+				Run(p.WorkDir, p.Changeset);
+				return;
+			}
+
 			if (!worker.CancellationPending)
 			{
 				switch (state)
@@ -215,13 +225,13 @@ namespace HgSccHelper.UI.RevLog
 								if (parents_diff.Count < parents.Count)
 								{
 									RunStatusAsync(work_dir, parents[parents_diff.Count], changeset.Current.ChangeDesc.SHA1);
+									return;
 								}
-								else
+
+								if (Completed != null)
 								{
-									if (Completed != null)
-									{
-										Completed(new AsyncChangeDescResult { Changeset = changeset, ParentFiles = parents_diff });
-									}
+									Completed(new AsyncChangeDescResult { Changeset = changeset, ParentFiles = parents_diff });
+									return;
 								}
 							}
 						}
@@ -231,14 +241,8 @@ namespace HgSccHelper.UI.RevLog
 				}
 			}
 
-			if (pending_args != null)
-			{
-				var p = pending_args;
-				pending_args = null;
-
-				Clear();
-				Run(p.WorkDir, p.Changeset);
-			}
+			if (Completed != null)
+				Completed(null);
 		}
 	}
 
