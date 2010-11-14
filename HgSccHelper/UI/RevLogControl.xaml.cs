@@ -101,8 +101,6 @@ namespace HgSccHelper
 
 		Dictionary<ListView, GridViewColumnSorter> files_sorter;
 
-		private Stopwatch read_timer;
-
 		private List<RevLogChangeDesc> pending_changes;
 
 		private AsyncChangeDesc async_changedesc;
@@ -304,10 +302,16 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
 		{
-			initTime.Text = "";
-
 			Tags = new Dictionary<string, TagInfo>();
 			Branches = new Dictionary<string, BranchInfo>();
+
+			int diff_width;
+			Cfg.Get(RevLogWindow.CfgPath, DiffColorizerControl.DiffWidth, out diff_width, 650);
+			diffColorizer.Width = diff_width;
+
+			int diff_visible;
+			Cfg.Get(RevLogWindow.CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1);
+			expanderDiff.IsExpanded = (diff_visible != 0);
 
 			if (WorkingDir != null)
 			{
@@ -315,16 +319,6 @@ namespace HgSccHelper
 			}
 
 			graphView.Focus();
-
-			int diff_visible;
-			if (Cfg.Get(RevLogWindow.CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1))
-				expanderDiff.IsExpanded = (diff_visible != 0);
-
-			int diff_width;
-			if (Cfg.Get(RevLogWindow.CfgPath, DiffColorizerControl.DiffWidth, out diff_width, 650))
-			{
-				diffColorizer.Width = diff_width;	
-			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -500,15 +494,10 @@ namespace HgSccHelper
 				args.AppendRevision(rev);
 
 			args.AppendStyle(revlog_style.FileName);
-
 			p.Args = args.ToString();
 
 			rev_log_parser = new RevLogChangeDescParser();
-			
 			pending_changes.Clear();
-
-			read_timer = new Stopwatch();
-			read_timer.Start();
 
 			RunningOperations |= AsyncOperations.RevLog;
 			worker.Run(p);
@@ -657,9 +646,6 @@ namespace HgSccHelper
 
 			// Updating commands state (CanExecute)
 			CommandManager.InvalidateRequerySuggested();
-
-			read_timer.Stop();
-			readTime.Text = String.Format("Read: {0} s", read_timer.Elapsed);
 		}
 
 		//------------------------------------------------------------------
@@ -1010,7 +996,6 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void DiffGridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
 		{
-			Logger.WriteLine("Diff width = {0}", diffColumn.Width.Value);
 			diffColorizer.Width = Double.NaN;
 		}
 
@@ -1018,7 +1003,6 @@ namespace HgSccHelper
 		void GridViewColumnHeaderClickedHandler(object sender,
 												RoutedEventArgs e)
 		{
-			Logger.WriteLine("sender = {0}", sender);
 			GridViewColumnSorter column_sorter;
 			ListView list_view = sender as ListView;
 			if (list_view != null)
@@ -1036,7 +1020,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void expanderDiff_Expanded(object sender, RoutedEventArgs e)
 		{
-			if (diffColorizer != null)
+			if (diffColorizer != null && diffColorizer.ActualWidth != 0)
 			{
 				diffColorizer.Width = diffColorizer.ActualWidth;
 			}
