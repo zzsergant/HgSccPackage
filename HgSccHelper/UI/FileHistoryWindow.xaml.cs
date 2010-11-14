@@ -17,14 +17,12 @@ using System.Collections.Generic;
 using System;
 using System.Windows.Data;
 using HgSccHelper.UI;
+using HgSccHelper.UI.RevLog;
 
 namespace HgSccHelper
 {
 	public partial class FileHistoryWindow : Window
 	{
-
-		List<FileHistoryInfo> history;
-
 		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
 
@@ -72,6 +70,11 @@ namespace HgSccHelper
 		public const string CfgPath = @"GUI\FileHistoryWindow";
 		CfgWindowPosition wnd_cfg;
 
+		private AsyncChangeDescFull async_changedesc;
+		private AsyncIdentify async_identify;
+		private AsyncBranches async_branches;
+		private AsyncTags async_tags;
+
 		//------------------------------------------------------------------
 		public FileHistoryWindow()
 		{
@@ -84,6 +87,18 @@ namespace HgSccHelper
 
 			files_sorter = new GridViewColumnSorter(listViewFiles);
 			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
+
+			async_changedesc = new AsyncChangeDescFull();
+			async_changedesc.Complete = new Action<List<ChangeDesc>>(OnAsyncChangeDescFull);
+
+			async_identify = new AsyncIdentify();
+			async_identify.Complete = new Action<IdentifyInfo>(OnAsyncIdentify);
+
+			async_branches = new AsyncBranches();
+			async_branches.Complete = new Action<List<BranchInfo>>(OnAsyncBranch);
+
+			async_tags = new AsyncTags();
+			async_tags.Complete = new Action<List<TagInfo>>(OnAsyncTags);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -131,24 +146,10 @@ namespace HgSccHelper
 			Cfg.Get(CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1);
 			expanderDiff.IsExpanded = (diff_visible != 0);
 
-			Hg = new Hg();
-
-			CurrentRevision = Hg.Identify(WorkingDir);
-			if (CurrentRevision == null)
-				return;
-
-			Branches = new Dictionary<string, BranchInfo>();
-			foreach (var branch in Hg.Branches(WorkingDir, HgBranchesOptions.Closed))
-			{
-				Branches[branch.SHA1] = branch;
-			}
-
 			Tags = new Dictionary<string, TagInfo>();
-			foreach (var tag in Hg.Tags(WorkingDir))
-			{
-				Tags[tag.Name] = tag;
-			}
+			Branches = new Dictionary<string, BranchInfo>();
 
+			Hg = new Hg();
 
 			var files = Hg.Status(WorkingDir, FileName, Rev ?? "");
 			if (files.Count == 1
@@ -163,7 +164,44 @@ namespace HgSccHelper
 			if (!string.IsNullOrEmpty(Rev))
 				rev_range = string.Format("{0}:0", Rev);
 
-			var changes = Hg.ChangesFull(WorkingDir, FileName, rev_range);
+			RunningOperations |= AsyncOperations.ChangeDesc;
+			async_changedesc.RunAsync(WorkingDir, FileName, rev_range);
+		}
+
+		//------------------------------------------------------------------
+		private void Window_Closed(object sender, EventArgs e)
+		{
+			async_changedesc.Cancel();
+			async_changedesc.Dispose();
+
+			async_identify.Cancel();
+			async_identify.Dispose();
+
+			async_branches.Cancel();
+			async_branches.Dispose();
+
+			async_tags.Cancel();
+			async_tags.Dispose();
+
+			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
+			if (!Double.IsNaN(diffColorizer.ActualWidth))
+			{
+				int diff_width = (int)diffColorizer.ActualWidth;
+				if (diff_width > 0)
+					Cfg.Set(CfgPath, DiffColorizerControl.DiffWidth, diff_width);
+			}
+
+			listChangesGrid.SaveCfg(FileHistoryWindow.CfgPath, "ListChangesGrid");
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncChangeDescFull(List<ChangeDesc> changes)
+		{
+			RunningOperations &= ~AsyncOperations.ChangeDesc;
+
+			if (changes == null)
+				return;
+
 			if (changes.Count == 0)
 			{
 				Logger.WriteLine("Changes == 0");
@@ -171,9 +209,12 @@ namespace HgSccHelper
 				return;
 			}
 
-			var renames = Hg.FindRenames(WorkingDir, FileName, changes);
+			HandleBranchChanges();
+			HandleTagsChanges();
+			HandleParentChange();
 
-			history = new List<FileHistoryInfo>();
+			var renames = Hg.FindRenames(WorkingDir, FileName, changes);
+			var history = new List<FileHistoryInfo>();
 
 			int left_idx = 0;
 			int right_idx = 1;
@@ -192,12 +233,15 @@ namespace HgSccHelper
 				history_item.RenameInfo = renames[left_idx];
 				history_item.GroupText = String.Format("[{0}]: {1}", renames.Count - left_idx, history_item.RenameInfo.Path);
 
-				foreach (var parent in CurrentRevision.Parents)
+				if (CurrentRevision != null)
 				{
-					if (history_item.ChangeDesc.SHA1 == parent.SHA1)
+					foreach (var parent in CurrentRevision.Parents)
 					{
-						history_item.IsCurrent = true;
-						break;
+						if (history_item.ChangeDesc.SHA1 == parent.SHA1)
+						{
+							history_item.IsCurrent = true;
+							break;
+						}
 					}
 				}
 
@@ -213,7 +257,7 @@ namespace HgSccHelper
 			listChanges.ItemsSource = history;
 			if (listChanges.Items.Count > 0)
 				listChanges.SelectedIndex = 0;
-			
+
 			listChanges.Focus();
 
 			var myView = (CollectionView)CollectionViewSource.GetDefaultView(listChanges.ItemsSource);
@@ -221,18 +265,110 @@ namespace HgSccHelper
 			myView.GroupDescriptions.Add(groupDescription);
 		}
 
-		//------------------------------------------------------------------
-		private void Window_Closed(object sender, EventArgs e)
+		//-----------------------------------------------------------------------------
+		private void OnAsyncTags(List<TagInfo> tags_list)
 		{
-			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
-			if (!Double.IsNaN(diffColorizer.ActualWidth))
+			RunningOperations &= ~AsyncOperations.Tags;
+
+			if (tags_list == null)
+				return;
+
+			var new_tags = new Dictionary<string, TagInfo>();
+
+			foreach (var tag in tags_list)
 			{
-				int diff_width = (int)diffColorizer.ActualWidth;
-				if (diff_width > 0)
-					Cfg.Set(CfgPath, DiffColorizerControl.DiffWidth, diff_width);
+				new_tags[tag.Name] = tag;
 			}
 
-			listChangesGrid.SaveCfg(FileHistoryWindow.CfgPath, "ListChangesGrid");
+			foreach (var tag in Tags.Values)
+			{
+				// removing old tags
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
+				{
+					var change_desc = file_history.ChangeDesc;
+					change_desc.Tags.Remove(tag.Name);
+				}
+			}
+
+			Tags = new_tags;
+
+			foreach (var tag in Tags.Values)
+			{
+				// adding or updating tags
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
+				{
+					var change_desc = file_history.ChangeDesc;
+					if (!change_desc.Tags.Contains(tag.Name))
+						change_desc.Tags.Add(tag.Name);
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncBranch(List<BranchInfo> branch_list)
+		{
+			RunningOperations &= ~AsyncOperations.Branches;
+
+			if (branch_list == null)
+				return;
+
+			var new_branches = new Dictionary<string, BranchInfo>();
+
+			foreach (var branch_info in branch_list)
+			{
+				new_branches[branch_info.SHA1] = branch_info;
+				Branches.Remove(branch_info.SHA1);
+			}
+
+			foreach (var branch_info in Branches.Values)
+			{
+				// removing old branch info
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
+					file_history.BranchInfo = null;
+			}
+
+			Branches = new_branches;
+
+			foreach (var branch_info in Branches.Values)
+			{
+				// adding or updating branch info
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
+					file_history.BranchInfo = branch_info;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncIdentify(IdentifyInfo new_current)
+		{
+			RunningOperations &= ~AsyncOperations.Identify;
+
+			if (new_current == null)
+				return;
+
+			if (CurrentRevision != null)
+			{
+				foreach (var parent in CurrentRevision.Parents)
+				{
+					FileHistoryInfo file_history;
+					if (file_history_map.TryGetValue(parent.SHA1, out file_history))
+						file_history.IsCurrent = false;
+				}
+			}
+
+			CurrentRevision = new_current;
+			if (CurrentRevision != null)
+			{
+				foreach (var parent in CurrentRevision.Parents)
+				{
+					FileHistoryInfo file_history;
+					if (file_history_map.TryGetValue(parent.SHA1, out file_history))
+						file_history.IsCurrent = true;
+				}
+			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -627,93 +763,22 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void HandleParentChange()
 		{
-			var hg = new Hg();
-			var new_current = hg.Identify(WorkingDir);
-
-			foreach (var parent in CurrentRevision.Parents)
-			{
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(parent.SHA1, out file_history))
-					file_history.IsCurrent = false;
-			}
-
-			CurrentRevision = new_current;
-			foreach (var parent in CurrentRevision.Parents)
-			{
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(parent.SHA1, out file_history))
-					file_history.IsCurrent = true;
-			}
+			RunningOperations |= AsyncOperations.Identify;
+			async_identify.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------
 		private void HandleBranchChanges()
 		{
-			var hg = new Hg();
-			var new_branches = new Dictionary<string, BranchInfo>();
-			var branch_list = hg.Branches(WorkingDir, HgBranchesOptions.Closed);
-
-			foreach (var branch_info in branch_list)
-			{
-				new_branches[branch_info.SHA1] = branch_info;
-				Branches.Remove(branch_info.SHA1);
-			}
-
-			foreach (var branch_info in Branches.Values)
-			{
-				// removing old branch info
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
-					file_history.BranchInfo = null;
-			}
-
-			Branches = new_branches;
-
-			foreach (var branch_info in Branches.Values)
-			{
-				// adding or updating branch info
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
-					file_history.BranchInfo = branch_info;
-			}
+			RunningOperations |= AsyncOperations.Branches;
+			async_branches.RunAsync(WorkingDir, HgBranchesOptions.Closed);
 		}
 
 		//------------------------------------------------------------------
 		private void HandleTagsChanges()
 		{
-			var hg = new Hg();
-			var new_tags = new Dictionary<string, TagInfo>();
-			var tags_list = hg.Tags(WorkingDir);
-
-			foreach (var tag in tags_list)
-			{
-				new_tags[tag.Name] = tag;
-			}
-
-			foreach (var tag in Tags.Values)
-			{
-				// removing old tags
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
-				{
-					var change_desc = file_history.ChangeDesc;
-					change_desc.Tags.Remove(tag.Name);
-				}
-			}
-
-			Tags = new_tags;
-
-			foreach (var tag in Tags.Values)
-			{
-				// adding or updating tags
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
-				{
-					var change_desc = file_history.ChangeDesc;
-					if (!change_desc.Tags.Contains(tag.Name))
-						change_desc.Tags.Add(tag.Name);
-				}
-			}
+			RunningOperations |= AsyncOperations.Identify;
+			async_tags.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------

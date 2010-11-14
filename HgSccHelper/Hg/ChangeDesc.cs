@@ -58,7 +58,7 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		private static void RemoveDuplicates(Dictionary<string, FileInfo> dict, List<FileInfo> files)
+		public static void RemoveDuplicates(Dictionary<string, FileInfo> dict, List<FileInfo> files)
 		{
 			foreach (var file in files)
 			{
@@ -70,9 +70,7 @@ namespace HgSccHelper
 		public static List<ChangeDesc> ParseChanges(StreamReader reader)
 		{
 			var list = new List<ChangeDesc>();
-			var modified_files = new Dictionary<string, FileInfo>();
-			ChangeDesc cs = null;
-			var desc_builder = new StringBuilder();
+			var parser = new ChangeDescParser();
 
 			while (true)
 			{
@@ -80,125 +78,149 @@ namespace HgSccHelper
 				if (str == null)
 					break;
 
-				if (str.StartsWith("==:"))
-				{
-					cs = new ChangeDesc();
-					continue;
-				}
-
-				if (str.StartsWith("::="))
-				{
-					if (cs != null)
-					{
-						RemoveDuplicates(modified_files, cs.FilesAdded);
-						RemoveDuplicates(modified_files, cs.FilesRemoved);
-						foreach (var info in modified_files.Values)
-						{
-							cs.FilesModified.Add(info);
-						}
-
-						cs.Desc = desc_builder.ToString();
-
-						list.Add(cs);
-						modified_files.Clear();
-					}
-
-					continue;
-				}
-
-				if (str.StartsWith("date: "))
-				{
-					cs.Date = DateTime.Parse(str.Substring("date: ".Length));
-					continue;
-				}
-
-				if (str.StartsWith("author: "))
-				{
-					cs.Author = str.Substring("author: ".Length);
-					continue;
-				}
-
-				if (str.StartsWith("rev: "))
-				{
-					cs.Rev = Int32.Parse(str.Substring("rev: ".Length));
-					continue;
-				}
-				
-				if (str.StartsWith("node: "))
-				{
-					cs.SHA1 = str.Substring("node: ".Length);
-					continue;
-				}
-
-				if (str.StartsWith("tags: "))
-				{
-					var tags_str = str.Substring("tags: ".Length);
-					string[] tags = tags_str.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-					foreach (var tag in tags)
-						cs.Tags.Add(tag);
-					continue;
-				}
-
-				if (str.StartsWith("desc: "))
-				{
-					cs.OneLineDesc = str.Substring("desc: ".Length);
-					desc_builder.Remove(0, desc_builder.Length);
-					desc_builder.AppendLine(cs.OneLineDesc);
-					continue;
-				}
-
-				if (str.Length > 0)
-				{
-					if (str[0] == '\t')
-					{
-						desc_builder.AppendLine(str.Substring(1));
-						continue;
-					}
-				}
-
-				if (str.Length > 2)
-				{
-					var prefix = str.Substring(0, 2);
-					var status = new FileStatus();
-
-					switch (prefix)
-					{
-						case "A:": status = FileStatus.Added; break;
-						case "M:": status = FileStatus.Modified; break;
-						case "R:": status = FileStatus.Removed; break;
-						default:
-							throw new ApplicationException("Unknown prefix: " + prefix + ", " + str);
-					}
-
-					str = str.Substring(2);
-					string[] files = str.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-					foreach (var f in files)
-					{
-						switch(status)
-						{
-							case FileStatus.Added:
-								{
-									cs.FilesAdded.Add(new FileInfo { Status = status, Path = f });
-									break;
-								}
-							case FileStatus.Modified:
-								{
-									// cs.FilesModified.Add(new FileInfo { Status = status, Path = f });
-									modified_files.Add(f, new FileInfo { Status = status, Path = f });
-									break;
-								}
-							case FileStatus.Removed:
-								{
-									cs.FilesRemoved.Add(new FileInfo { Status = status, Path = f });
-									break;
-								}
-						}
-					}
-				}
-				//--
+				var cs = parser.ParseLine(str);
+				if (cs != null)
+					list.Add(cs);
 			}
 
 			return list;
+		}
+	}
+
+	//=============================================================================
+	public class ChangeDescParser
+	{
+		readonly Dictionary<string, FileInfo> modified_files;
+		ChangeDesc cs;
+		private readonly StringBuilder desc_builder;
+
+		//-----------------------------------------------------------------------------
+		public ChangeDescParser()
+		{
+			modified_files = new Dictionary<string, FileInfo>();
+			desc_builder = new StringBuilder();
+		}
+
+		//-----------------------------------------------------------------------------
+		public ChangeDesc ParseLine(string str)
+		{
+			if (str.StartsWith("==:"))
+			{
+				cs = new ChangeDesc();
+				return null;
+			}
+
+			if (str.StartsWith("::="))
+			{
+				if (cs != null)
+				{
+					ChangeDesc.RemoveDuplicates(modified_files, cs.FilesAdded);
+					ChangeDesc.RemoveDuplicates(modified_files, cs.FilesRemoved);
+					foreach (var info in modified_files.Values)
+					{
+						cs.FilesModified.Add(info);
+					}
+
+					cs.Desc = desc_builder.ToString();
+					modified_files.Clear();
+
+					return cs;
+				}
+
+				return null;
+			}
+
+			if (str.StartsWith("date: "))
+			{
+				cs.Date = DateTime.Parse(str.Substring("date: ".Length));
+				return null;
+			}
+
+			if (str.StartsWith("author: "))
+			{
+				cs.Author = str.Substring("author: ".Length);
+				return null;
+			}
+
+			if (str.StartsWith("rev: "))
+			{
+				cs.Rev = Int32.Parse(str.Substring("rev: ".Length));
+				return null;
+			}
+
+			if (str.StartsWith("node: "))
+			{
+				cs.SHA1 = str.Substring("node: ".Length);
+				return null;
+			}
+
+			if (str.StartsWith("tags: "))
+			{
+				var tags_str = str.Substring("tags: ".Length);
+				string[] tags = tags_str.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+				foreach (var tag in tags)
+					cs.Tags.Add(tag);
+				return null;
+			}
+
+			if (str.StartsWith("desc: "))
+			{
+				cs.OneLineDesc = str.Substring("desc: ".Length);
+				desc_builder.Remove(0, desc_builder.Length);
+				desc_builder.AppendLine(cs.OneLineDesc);
+				return null;
+			}
+
+			if (str.Length > 0)
+			{
+				if (str[0] == '\t')
+				{
+					desc_builder.AppendLine(str.Substring(1));
+					return null;
+				}
+			}
+
+			if (str.Length > 2)
+			{
+				var prefix = str.Substring(0, 2);
+				var status = new FileStatus();
+
+				switch (prefix)
+				{
+					case "A:": status = FileStatus.Added; break;
+					case "M:": status = FileStatus.Modified; break;
+					case "R:": status = FileStatus.Removed; break;
+					default:
+						throw new ApplicationException("Unknown prefix: " + prefix + ", " + str);
+				}
+
+				str = str.Substring(2);
+				string[] files = str.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+				foreach (var f in files)
+				{
+					switch (status)
+					{
+						case FileStatus.Added:
+							{
+								cs.FilesAdded.Add(new FileInfo { Status = status, Path = f });
+								break;
+							}
+						case FileStatus.Modified:
+							{
+								// cs.FilesModified.Add(new FileInfo { Status = status, Path = f });
+								modified_files.Add(f, new FileInfo { Status = status, Path = f });
+								break;
+							}
+						case FileStatus.Removed:
+							{
+								cs.FilesRemoved.Add(new FileInfo { Status = status, Path = f });
+								break;
+							}
+					}
+				}
+			}
+
+			return null;
 		}
 	}
 

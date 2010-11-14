@@ -175,6 +175,7 @@
     </Compile>
     <Compile Include="UI\RevLog\AsyncBranches.cs" />
     <Compile Include="UI\RevLog\AsyncChangeDesc.cs" />
+    <Compile Include="UI\RevLog\AsyncChangeDescFull.cs" />
     <Compile Include="UI\RevLog\AsyncIdentify.cs" />
     <Compile Include="UI\RevLog\AsyncTags.cs" />
     <Compile Include="UI\RevLog\RevLogChangeDesc.cs" />
