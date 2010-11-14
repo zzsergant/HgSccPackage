@@ -281,6 +281,20 @@ namespace HgSccHelper.UI
 
 		//-----------------------------------------------------------------------------
 		public bool IsWorking { get { return worker.IsBusy; } }
+
+		//-----------------------------------------------------------------------------
+		private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			if (richTextBox != null && !string.IsNullOrEmpty(richTextBox.SelectedText))
+				e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			richTextBox.Copy();
+		}
 	}
 
 	//-----------------------------------------------------------------------------

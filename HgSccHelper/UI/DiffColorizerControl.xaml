@@ -7,6 +7,12 @@
              Loaded="UserControl_Loaded"
              Unloaded="UserControl_Unloaded"
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.CommandBindings>
+        <CommandBinding Command="Copy"
+                        CanExecute="CommandBinding_CanExecute"
+                        Executed="CommandBinding_Executed">            
+        </CommandBinding>
+    </UserControl.CommandBindings>
     <Grid>
         <Grid>
             <Grid.RowDefinitions>
@@ -31,7 +37,13 @@
                     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
                     Name="richTextBox"
                     FontFamily="Consolas"
-                    FontSize="10pt"/>
+                    FontSize="10pt">
+                    <avalonEdit:TextEditor.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Command="Copy"></MenuItem>
+                        </ContextMenu>
+                    </avalonEdit:TextEditor.ContextMenu>
+                </avalonEdit:TextEditor>
             </Border>
         </Grid>
     </Grid>
