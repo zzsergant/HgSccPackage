@@ -243,9 +243,9 @@ namespace HgSccHelper.UI
 				Cfg.Set(GrepWindow.CfgPath, "encoding", encoding.Name);
 
 			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
-			if (!Double.IsNaN(diffColorizer.ActualWidth))
+			if (!Double.IsNaN(diffColorizer.Width))
 			{
-				int diff_width = (int)diffColorizer.ActualWidth;
+				int diff_width = (int)diffColorizer.Width;
 				if (diff_width > 0)
 					Cfg.Set(CfgPath, DiffColorizerControl.DiffWidth, diff_width);
 			}
@@ -298,16 +298,15 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		private void DiffGridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
 		{
-			diffColorizer.Width = Double.NaN;
+			if (diffColorizer.Width > e.HorizontalChange)
+				diffColorizer.Width -= e.HorizontalChange;
+			else
+				diffColorizer.Width = 0;
 		}
 
 		//-----------------------------------------------------------------------------
 		private void expanderDiff_Expanded(object sender, RoutedEventArgs e)
 		{
-			if (diffColorizer != null && diffColorizer.ActualWidth != 0)
-			{
-				diffColorizer.Width = diffColorizer.ActualWidth;
-			}
 			ShowFileDiff();
 		}
 
@@ -315,8 +314,6 @@ namespace HgSccHelper.UI
 		private void expanderDiff_Collapsed(object sender, RoutedEventArgs e)
 		{
 			diffColumn.Width = new GridLength(0, GridUnitType.Auto);
-			diffColorizer.Width = Double.NaN;
-
 			diffColorizer.Clear();
 		}
 
