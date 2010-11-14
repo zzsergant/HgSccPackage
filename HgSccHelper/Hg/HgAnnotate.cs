@@ -38,12 +38,12 @@ namespace HgSccHelper
 
 			var lines = new List<AnnotateLineInfo>();
 
-			var space_sep = new[] { ' ' };
+			var parser = new AnnotateParser();
+
 			var hg = new Hg();
 			using (Process proc = Process.Start(hg.PrepareProcess(work_dir, args.ToString())))
 			{
 				var stream = proc.StandardOutput;
-				bool is_first_line = true;
 
 				while (true)
 				{
@@ -51,29 +51,7 @@ namespace HgSccHelper
 					if (str == null)
 						break;
 
-					if (is_first_line)
-					{
-						if (str.EndsWith("binary file"))
-							throw new HgAnnotateBinaryException();
-
-						is_first_line = false;
-					}
-
-					str = str.TrimStart(space_sep);
-
-					int rev_end = str.IndexOf(' ');
-					int revision = 0;
-					if (!int.TryParse(str.Substring(0, rev_end), out revision))
-						throw new ApplicationException("Unable to parse a revision");
-
-					var line_info = new AnnotateLineInfo();
-					line_info.Rev = revision;
-
-					str = str.Substring(rev_end).TrimStart(space_sep);
-
-					int file_end = str.IndexOf(':');
-					line_info.Path = str.Substring(0, file_end);
-
+					var line_info = parser.ParseLine(str);
 					lines.Add(line_info);
 				}
 
@@ -82,15 +60,25 @@ namespace HgSccHelper
 					return new List<AnnotateLineInfo>();
 			}
 
+			if (!FixBom(work_dir, rev, file, lines))
+				return new List<AnnotateLineInfo>();
+
+			return lines;
+		}
+
+		//-----------------------------------------------------------------------------
+		public static bool FixBom(string work_dir, string rev, string file, List<AnnotateLineInfo> lines)
+		{
 			if (lines.Count > 0)
 			{
 				// retreive lines with respect for BOM
 				string temp1 = Path.GetTempFileName();
 				try
 				{
+					var hg = new Hg();
 					if (!hg.CheckoutFile(work_dir, file, rev, temp1))
 					{
-						return new List<AnnotateLineInfo>();
+						return false;
 					}
 
 					using (var stream = new StreamReader(File.OpenRead(temp1), System.Text.Encoding.Default))
@@ -103,7 +91,7 @@ namespace HgSccHelper
 								break;
 
 							if (counter >= lines.Count)
-								return new List<AnnotateLineInfo>();
+								return false;
 
 							lines[counter].Source = str;
 							lines[counter].Line = ++counter;
@@ -116,9 +104,53 @@ namespace HgSccHelper
 				}
 			}
 
-			return lines;
+			return true;
 		}
 	}
+
+	//=============================================================================
+	public class AnnotateParser
+	{
+		char[] space_sep;
+		bool is_first_line;
+
+		//-----------------------------------------------------------------------------
+		public AnnotateParser()
+		{
+			space_sep = new[] {' '};
+			is_first_line = true;
+		}
+
+		//-----------------------------------------------------------------------------
+		public AnnotateLineInfo ParseLine(string str)
+		{
+			if (is_first_line)
+			{
+				if (str.EndsWith("binary file"))
+					throw new HgAnnotateBinaryException();
+
+				is_first_line = false;
+			}
+
+			str = str.TrimStart(space_sep);
+
+			int rev_end = str.IndexOf(' ');
+			int revision = 0;
+			if (!int.TryParse(str.Substring(0, rev_end), out revision))
+				throw new ApplicationException("Unable to parse a revision");
+
+			var line_info = new AnnotateLineInfo();
+			line_info.Rev = revision;
+
+			str = str.Substring(rev_end).TrimStart(space_sep);
+
+			int file_end = str.IndexOf(':');
+			line_info.Path = str.Substring(0, file_end);
+
+			return line_info;
+		}
+	}
+
 
 	//==================================================================
 	public class AnnotateLineInfo

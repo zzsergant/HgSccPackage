@@ -19,6 +19,7 @@ using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Media;
 using HgSccHelper.UI;
+using HgSccHelper.UI.RevLog;
 
 namespace HgSccHelper
 {
@@ -35,8 +36,6 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand PrevChangeCommand = new RoutedUICommand("Prev Change",
 			"PrevChange", typeof(AnnotateControl));
-
-		List<FileHistoryInfo> history;
 
 		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
@@ -87,6 +86,12 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private Cursor prev_cursor;
 
+		private AsyncChangeDescFull async_changedesc;
+		private AsyncIdentify async_identify;
+		private AsyncBranches async_branches;
+		private AsyncTags async_tags;
+		private AsyncAnnotate async_annotate;
+
 		//------------------------------------------------------------------
 		public AnnotateControl()
 		{
@@ -101,6 +106,21 @@ namespace HgSccHelper
 			files_sorter = new GridViewColumnSorter(listViewFiles);
 
 			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
+
+			async_changedesc = new AsyncChangeDescFull();
+			async_changedesc.Complete = new Action<List<ChangeDesc>>(OnAsyncChangeDescFull);
+
+			async_identify = new AsyncIdentify();
+			async_identify.Complete = new Action<IdentifyInfo>(OnAsyncIdentify);
+
+			async_branches = new AsyncBranches();
+			async_branches.Complete = new Action<List<BranchInfo>>(OnAsyncBranch);
+
+			async_tags = new AsyncTags();
+			async_tags.Complete = new Action<List<TagInfo>>(OnAsyncTags);
+
+			async_annotate = new AsyncAnnotate();
+			async_annotate.Complete = new Action<AsyncAnnotateResults>(OnAsyncAnnotate);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -188,22 +208,8 @@ namespace HgSccHelper
 			Cfg.Get(AnnotateWindow.CfgPath, "FilesVisible", out files_visible, 0);
 			viewFilesExpander.IsExpanded = (files_visible != 0);
 
-			CurrentRevision = Hg.Identify(WorkingDir);
-			if (CurrentRevision == null)
-				return;
-
-			Branches = new Dictionary<string, BranchInfo>();
-			foreach (var branch in Hg.Branches(WorkingDir, HgBranchesOptions.Closed))
-			{
-				Branches[branch.SHA1] = branch;
-			}
-
 			Tags = new Dictionary<string, TagInfo>();
-			foreach (var tag in Hg.Tags(WorkingDir))
-			{
-				Tags[tag.Name] = tag;
-			}
-
+			Branches = new Dictionary<string, BranchInfo>();
 
 			var files = Hg.Status(WorkingDir, FileName, Rev ?? "");
 			if (files.Count == 1
@@ -214,26 +220,126 @@ namespace HgSccHelper
 				FileName = file_info.CopiedFrom;
 			}
 
-			if (!FillAnnotateInfo())
+			RunningOperations |= AsyncOperations.Annotate;
+			async_annotate.RunAsync(WorkingDir, FileName, Rev ?? "");
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncAnnotate(AsyncAnnotateResults results)
+		{
+			RunningOperations &= ~AsyncOperations.Annotate;
+
+			if (results == null)
+				return;
+
+			if (results.IsBinary)
 			{
+				MessageBox.Show("Unable to annotate binary file", "Error",
+				                MessageBoxButton.OK, MessageBoxImage.Error);
+
 				return;
 			}
 
+			var lines_info = results.Lines;
+			if (lines_info.Count == 0)
+				return;
+
+			int prev_rev = lines_info[0].Rev;
+			var even = SystemColors.ControlBrush;
+			var odd = SystemColors.ControlLightBrush;
+			int counter = 0;
+
+			annotated_lines = new List<AnnotateLineView>();
+			foreach (var line_info in lines_info)
+			{
+				var line_view = new AnnotateLineView();
+				line_view.Info = line_info;
+
+				if (prev_rev != line_info.Rev)
+				{
+					counter++;
+					prev_rev = line_info.Rev;
+				}
+
+				line_view.Background = ((counter & 1) == 0) ? odd : even;
+				annotated_lines.Add(line_view);
+
+				List<AnnotateLineView> rev_lines;
+				if (!rev_to_line_view.TryGetValue(line_view.Info.Rev, out rev_lines))
+				{
+					rev_lines = new List<AnnotateLineView>();
+					rev_to_line_view[line_view.Info.Rev] = rev_lines;
+				}
+
+				rev_lines.Add(line_view);
+			}
+
+			listLines.ItemsSource = annotated_lines;
 
 			var rev_range = "";
 			if (!string.IsNullOrEmpty(Rev))
 				rev_range = string.Format("{0}:0", Rev);
 
-			var changes = Hg.ChangesFull(WorkingDir, FileName, rev_range);
+			RunningOperations |= AsyncOperations.ChangeDesc;
+			async_changedesc.RunAsync(WorkingDir, FileName, rev_range);
+		}
+
+
+		//------------------------------------------------------------------
+		private void Control_Unloaded(object sender, RoutedEventArgs e)
+		{
+			async_changedesc.Cancel();
+			async_changedesc.Dispose();
+
+			async_identify.Cancel();
+			async_identify.Dispose();
+
+			async_branches.Cancel();
+			async_branches.Dispose();
+
+			async_tags.Cancel();
+			async_tags.Dispose();
+
+			async_annotate.Cancel();
+			async_annotate.Dispose();
+
+			Cfg.Set(AnnotateWindow.CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
+			if (!Double.IsNaN(diffColorizer.ActualWidth))
+			{
+				int diff_width = (int)diffColorizer.ActualWidth;
+				if (diff_width > 0)
+					Cfg.Set(AnnotateWindow.CfgPath, DiffColorizerControl.DiffWidth, diff_width);
+			}
+
+			Cfg.Set(AnnotateWindow.CfgPath, "FilesVisible", viewFilesExpander.IsExpanded ? 1 : 0);
+			if (!Double.IsNaN(gridFiles.ActualHeight))
+			{
+				int files_height = (int)gridFiles.ActualHeight;
+				if (files_height > 0)
+					Cfg.Set(AnnotateWindow.CfgPath, "FilesHeight", files_height);
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncChangeDescFull(List<ChangeDesc> changes)
+		{
+			RunningOperations &= ~AsyncOperations.ChangeDesc;
+
+			if (changes == null)
+				return;
+
 			if (changes.Count == 0)
 			{
 				Logger.WriteLine("Changes == 0");
 				return;
 			}
 
-			var renames = Hg.FindRenames(WorkingDir, FileName, changes);
+			HandleBranchChanges();
+			HandleTagsChanges();
+			HandleParentChange();
 
-			history = new List<FileHistoryInfo>();
+			var renames = Hg.FindRenames(WorkingDir, FileName, changes);
+			var history = new List<FileHistoryInfo>();
 
 			int left_idx = 0;
 			int right_idx = 1;
@@ -252,12 +358,15 @@ namespace HgSccHelper
 				history_item.RenameInfo = renames[left_idx];
 				history_item.GroupText = String.Format("[{0}]: {1}", renames.Count - left_idx, history_item.RenameInfo.Path);
 
-				foreach (var parent in CurrentRevision.Parents)
+				if (CurrentRevision != null)
 				{
-					if (history_item.ChangeDesc.SHA1 == parent.SHA1)
+					foreach (var parent in CurrentRevision.Parents)
 					{
-						history_item.IsCurrent = true;
-						break;
+						if (history_item.ChangeDesc.SHA1 == parent.SHA1)
+						{
+							history_item.IsCurrent = true;
+							break;
+						}
 					}
 				}
 
@@ -284,73 +393,109 @@ namespace HgSccHelper
 			myView.GroupDescriptions.Add(groupDescription);
 		}
 
-		//------------------------------------------------------------------
-		bool FillAnnotateInfo()
+		//-----------------------------------------------------------------------------
+		private void OnAsyncTags(List<TagInfo> tags_list)
 		{
-			var hg_annotate = new HgAnnotate();
-			try
+			RunningOperations &= ~AsyncOperations.Tags;
+
+			if (tags_list == null)
+				return;
+
+			var new_tags = new Dictionary<string, TagInfo>();
+
+			foreach (var tag in tags_list)
 			{
-				var lines_info = hg_annotate.Annotate(WorkingDir, Rev ?? "", FileName);
-				if (lines_info.Count == 0)
-					return false;
+				new_tags[tag.Name] = tag;
+			}
 
-				int prev_rev = lines_info[0].Rev;
-				var even = SystemColors.ControlBrush;
-				var odd = SystemColors.ControlLightBrush;
-				int counter = 0;
-
-				annotated_lines = new List<AnnotateLineView>();
-				foreach (var line_info in lines_info)
+			foreach (var tag in Tags.Values)
+			{
+				// removing old tags
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
 				{
-					var line_view = new AnnotateLineView();
-					line_view.Info = line_info;
-
-					if (prev_rev != line_info.Rev)
-					{
-						counter++;
-						prev_rev = line_info.Rev;
-					}
-
-					line_view.Background = ((counter & 1) == 0) ? odd : even;
-					annotated_lines.Add(line_view);
-
-					List<AnnotateLineView> rev_lines;
-					if (!rev_to_line_view.TryGetValue(line_view.Info.Rev, out rev_lines))
-					{
-						rev_lines = new List<AnnotateLineView>();
-						rev_to_line_view[line_view.Info.Rev] = rev_lines;
-					}
-
-					rev_lines.Add(line_view);
+					var change_desc = file_history.ChangeDesc;
+					change_desc.Tags.Remove(tag.Name);
 				}
 			}
-			catch (HgAnnotateBinaryException)
-			{
-				MessageBox.Show("Unable to annotate a binary file", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-				return false;
-			}
 
-			listLines.ItemsSource = annotated_lines;
-			return true;
+			Tags = new_tags;
+
+			foreach (var tag in Tags.Values)
+			{
+				// adding or updating tags
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
+				{
+					var change_desc = file_history.ChangeDesc;
+					if (!change_desc.Tags.Contains(tag.Name))
+						change_desc.Tags.Add(tag.Name);
+				}
+			}
 		}
 
-		//------------------------------------------------------------------
-		private void Control_Unloaded(object sender, RoutedEventArgs e)
+		//-----------------------------------------------------------------------------
+		private void OnAsyncBranch(List<BranchInfo> branch_list)
 		{
-			Cfg.Set(AnnotateWindow.CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
-			if (!Double.IsNaN(diffColorizer.ActualWidth))
+			RunningOperations &= ~AsyncOperations.Branches;
+
+			if (branch_list == null)
+				return;
+
+			var new_branches = new Dictionary<string, BranchInfo>();
+
+			foreach (var branch_info in branch_list)
 			{
-				int diff_width = (int)diffColorizer.ActualWidth;
-				if (diff_width > 0)
-					Cfg.Set(AnnotateWindow.CfgPath, DiffColorizerControl.DiffWidth, diff_width);
+				new_branches[branch_info.SHA1] = branch_info;
+				Branches.Remove(branch_info.SHA1);
 			}
 
-			Cfg.Set(AnnotateWindow.CfgPath, "FilesVisible", viewFilesExpander.IsExpanded ? 1 : 0);
-			if (!Double.IsNaN(gridFiles.ActualHeight))
+			foreach (var branch_info in Branches.Values)
 			{
-				int files_height = (int)gridFiles.ActualHeight;
-				if (files_height > 0)
-					Cfg.Set(AnnotateWindow.CfgPath, "FilesHeight", files_height);
+				// removing old branch info
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
+					file_history.BranchInfo = null;
+			}
+
+			Branches = new_branches;
+
+			foreach (var branch_info in Branches.Values)
+			{
+				// adding or updating branch info
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
+					file_history.BranchInfo = branch_info;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncIdentify(IdentifyInfo new_current)
+		{
+			RunningOperations &= ~AsyncOperations.Identify;
+
+			if (new_current == null)
+				return;
+
+			if (CurrentRevision != null)
+			{
+				foreach (var parent in CurrentRevision.Parents)
+				{
+					FileHistoryInfo file_history;
+					if (file_history_map.TryGetValue(parent.SHA1, out file_history))
+						file_history.IsCurrent = false;
+				}
+			}
+
+			CurrentRevision = new_current;
+			if (CurrentRevision != null)
+			{
+				foreach (var parent in CurrentRevision.Parents)
+				{
+					FileHistoryInfo file_history;
+					if (file_history_map.TryGetValue(parent.SHA1, out file_history))
+						file_history.IsCurrent = true;
+				}
 			}
 		}
 
@@ -620,93 +765,22 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void HandleParentChange()
 		{
-			var hg = new Hg();
-			var new_current = hg.Identify(WorkingDir);
-
-			foreach (var parent in CurrentRevision.Parents)
-			{
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(parent.SHA1, out file_history))
-					file_history.IsCurrent = false;
-			}
-
-			CurrentRevision = new_current;
-			foreach (var parent in CurrentRevision.Parents)
-			{
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(parent.SHA1, out file_history))
-					file_history.IsCurrent = true;
-			}
+			RunningOperations |= AsyncOperations.Identify;
+			async_identify.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------
 		private void HandleBranchChanges()
 		{
-			var hg = new Hg();
-			var new_branches = new Dictionary<string, BranchInfo>();
-			var branch_list = hg.Branches(WorkingDir, HgBranchesOptions.Closed);
-
-			foreach (var branch_info in branch_list)
-			{
-				new_branches[branch_info.SHA1] = branch_info;
-				Branches.Remove(branch_info.SHA1);
-			}
-
-			foreach (var branch_info in Branches.Values)
-			{
-				// removing old branch info
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
-					file_history.BranchInfo = null;
-			}
-
-			Branches = new_branches;
-
-			foreach (var branch_info in Branches.Values)
-			{
-				// adding or updating branch info
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
-					file_history.BranchInfo = branch_info;
-			}
+			RunningOperations |= AsyncOperations.Branches;
+			async_branches.RunAsync(WorkingDir, HgBranchesOptions.Closed);
 		}
 
 		//------------------------------------------------------------------
 		private void HandleTagsChanges()
 		{
-			var hg = new Hg();
-			var new_tags = new Dictionary<string, TagInfo>();
-			var tags_list = hg.Tags(WorkingDir);
-
-			foreach (var tag in tags_list)
-			{
-				new_tags[tag.Name] = tag;
-			}
-
-			foreach (var tag in Tags.Values)
-			{
-				// removing old tags
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
-				{
-					var change_desc = file_history.ChangeDesc;
-					change_desc.Tags.Remove(tag.Name);
-				}
-			}
-
-			Tags = new_tags;
-
-			foreach (var tag in Tags.Values)
-			{
-				// adding or updating tags
-				FileHistoryInfo file_history;
-				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
-				{
-					var change_desc = file_history.ChangeDesc;
-					if (!change_desc.Tags.Contains(tag.Name))
-						change_desc.Tags.Add(tag.Name);
-				}
-			}
+			RunningOperations |= AsyncOperations.Identify;
+			async_tags.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------

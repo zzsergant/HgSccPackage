@@ -1107,7 +1107,8 @@ namespace HgSccHelper
 		RevLog			= 0x0008,
 		ChangeDesc		= 0x0010,
 		Diff			= 0x0020,
-		Grep			= 0x0040
+		Grep			= 0x0040,
+		Annotate		= 0x0080
 	}
 
 }
