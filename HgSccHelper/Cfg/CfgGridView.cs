@@ -48,7 +48,7 @@ namespace HgSccHelper
 
 			foreach (var column in grid_view.Columns)
 			{
-				if (!Double.IsNaN(column.Width))
+				if (!Double.IsNaN(column.Width) && column.Header != null)
 				{
 					var header = column.Header.ToString();
 					var cfg_name = String.Format("{0}.{1}", header, "Width");
