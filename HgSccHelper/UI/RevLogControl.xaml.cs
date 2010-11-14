@@ -388,7 +388,11 @@ namespace HgSccHelper
 
 			Cfg.Set(RevLogWindow.CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
 			if (!Double.IsNaN(diffColorizer.ActualWidth))
-				Cfg.Set(RevLogWindow.CfgPath, DiffColorizerControl.DiffWidth, (int)diffColorizer.ActualWidth);
+			{
+				int diff_width = (int) diffColorizer.ActualWidth;
+				if (diff_width > 0)
+					Cfg.Set(RevLogWindow.CfgPath, DiffColorizerControl.DiffWidth, diff_width);
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -983,8 +987,8 @@ namespace HgSccHelper
 			RunningOperations |= AsyncOperations.Diff;
 
 			diffColorizer.RunHgDiffAsync(WorkingDir, SelectedParentFile.FileInfo.File,
-				parent_diff.Desc.Rev.ToString(),
-				SelectedChangeset.Current.ChangeDesc.Rev.ToString());
+				parent_diff.Desc.SHA1,
+				SelectedChangeset.Current.ChangeDesc.SHA1);
 		}
 
 		//------------------------------------------------------------------
@@ -1102,7 +1106,8 @@ namespace HgSccHelper
 		Branches		= 0x0004,
 		RevLog			= 0x0008,
 		ChangeDesc		= 0x0010,
-		Diff			= 0x0020
+		Diff			= 0x0020,
+		Grep			= 0x0040
 	}
 
 }

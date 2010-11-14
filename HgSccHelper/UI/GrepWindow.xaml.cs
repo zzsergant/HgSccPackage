@@ -84,13 +84,18 @@ namespace HgSccHelper.UI
 		ObservableCollection<GrepLineInfo> grep_lines;
 		HgThread worker;
 		DispatcherTimer timer;
-		Cursor prev_cursor;
 
 		public const string CfgPath = @"GUI\GrepWindow";
 		CfgWindowPosition wnd_cfg;
 
 		ObservableCollection<EncodingItem> encodings;
 		GridViewColumnSorter files_sorter;
+
+		//-----------------------------------------------------------------------------
+		private AsyncOperations async_ops;
+
+		//-----------------------------------------------------------------------------
+		private Cursor prev_cursor;
 
 		//------------------------------------------------------------------
 		public GrepWindow()
@@ -115,6 +120,37 @@ namespace HgSccHelper.UI
 			comboEncodings.ItemsSource = encodings;
 
 			files_sorter = new GridViewColumnSorter(listViewFiles);
+			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
+		}
+
+		//-----------------------------------------------------------------------------
+		private AsyncOperations RunningOperations
+		{
+			get { return async_ops; }
+			set
+			{
+				if (async_ops != value)
+				{
+					if (async_ops == AsyncOperations.None)
+					{
+						prev_cursor = Cursor;
+						Cursor = Cursors.Wait;
+					}
+
+					async_ops = value;
+
+					if (async_ops == AsyncOperations.None)
+					{
+						Cursor = prev_cursor;
+					}
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnDiffColorizer(List<string> obj)
+		{
+			RunningOperations &= ~AsyncOperations.Diff;
 		}
 
 		//------------------------------------------------------------------
@@ -167,6 +203,14 @@ namespace HgSccHelper.UI
 
 			Title = string.Format("Grep: '{0}'", WorkingDir);
 
+			int diff_width;
+			Cfg.Get(CfgPath, DiffColorizerControl.DiffWidth, out diff_width, 650);
+			diffColorizer.Width = diff_width;
+
+			int diff_visible;
+			Cfg.Get(CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1);
+			expanderDiff.IsExpanded = (diff_visible != 0);
+
 			Hg = new Hg();
 
 			CurrentRevision = Hg.Identify(WorkingDir);
@@ -190,6 +234,14 @@ namespace HgSccHelper.UI
 			if (encoding != null)
 				Cfg.Set(GrepWindow.CfgPath, "encoding", encoding.Name);
 
+			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
+			if (!Double.IsNaN(diffColorizer.ActualWidth))
+			{
+				int diff_width = (int)diffColorizer.ActualWidth;
+				if (diff_width > 0)
+					Cfg.Set(CfgPath, DiffColorizerControl.DiffWidth, diff_width);
+			}
+
 			worker.Cancel();
 			worker.Dispose();
 		}
@@ -199,6 +251,63 @@ namespace HgSccHelper.UI
 		{
 			if (e.Key == Key.Escape)
 				Close();
+		}
+
+		//-----------------------------------------------------------------------------
+		private void ShowFileDiff()
+		{
+			if (diffColorizer == null)
+				return;
+
+			if (!expanderDiff.IsExpanded)
+				return;
+
+			diffColorizer.Clear();
+
+			if (listViewFiles != null && listViewFiles.SelectedItems.Count == 1)
+			{
+				var file_info = (FileInfo)listViewFiles.SelectedItem;
+				var cs = SelectedChangeset;
+
+				RunningOperations |= AsyncOperations.Diff;
+				string rev2 = cs.SHA1;
+				string rev1 = (cs.Rev - 1).ToString();
+				if (cs.Rev == 0)
+					rev1 = "null";
+
+				diffColorizer.RunHgDiffAsync(WorkingDir, file_info.Path, rev1, rev2);
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void DiffGridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+		{
+			diffColorizer.Width = Double.NaN;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void expanderDiff_Expanded(object sender, RoutedEventArgs e)
+		{
+			if (diffColorizer != null && diffColorizer.ActualWidth != 0)
+			{
+				diffColorizer.Width = diffColorizer.ActualWidth;
+			}
+			ShowFileDiff();
+		}
+
+		//-----------------------------------------------------------------------------
+		private void expanderDiff_Collapsed(object sender, RoutedEventArgs e)
+		{
+			diffColumn.Width = new GridLength(0, GridUnitType.Auto);
+			diffColorizer.Width = Double.NaN;
+
+			diffColorizer.Clear();
+		}
+
+		//-----------------------------------------------------------------------------
+		private void listViewFiles_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+		{
+			ShowFileDiff();
 		}
 
 		//------------------------------------------------------------------
@@ -275,16 +384,14 @@ namespace HgSccHelper.UI
 			grep_lines.Clear();
 			SelectedChangeset = null;
 
-			prev_cursor = Cursor;
-			Cursor = Cursors.Wait;
-
+			RunningOperations |= AsyncOperations.Grep;
 			worker.Run(p);
 		}
 
 		//------------------------------------------------------------------
 		void Worker_Completed(HgThreadResult completed)
 		{
-			Cursor = prev_cursor;
+			RunningOperations &= ~AsyncOperations.Grep;
 
 			// Updating commands state (CanExecute)
 			CommandManager.InvalidateRequerySuggested();

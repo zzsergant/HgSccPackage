@@ -29,6 +29,12 @@ namespace HgSccHelper
 		CfgWindowPosition wnd_cfg;
 
 		//-----------------------------------------------------------------------------
+		private AsyncOperations async_ops;
+
+		//-----------------------------------------------------------------------------
+		private Cursor prev_cursor;
+
+		//-----------------------------------------------------------------------------
 		public RevertWindow()
 		{
 			wnd_cfg = new CfgWindowPosition(CfgPath, this);
@@ -44,6 +50,8 @@ namespace HgSccHelper
 
 			files_sorter = new GridViewColumnSorter(listFiles);
 			files_sorter.ExcludeColumn(checkColumn);
+			
+			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -80,11 +88,49 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		private AsyncOperations RunningOperations
+		{
+			get { return async_ops; }
+			set
+			{
+				if (async_ops != value)
+				{
+					if (async_ops == AsyncOperations.None)
+					{
+						prev_cursor = Cursor;
+						Cursor = Cursors.Wait;
+					}
+
+					async_ops = value;
+
+					if (async_ops == AsyncOperations.None)
+					{
+						Cursor = prev_cursor;
+					}
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnDiffColorizer(List<string> obj)
+		{
+			RunningOperations &= ~AsyncOperations.Diff;
+		}
+
+		//-----------------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			Title = string.Format("Revert: '{0}'", WorkingDir);
 
 			listFilesGrid.LoadCfg(RevertWindow.CfgPath, "ListFilesGrid");
+
+			int diff_width;
+			Cfg.Get(CfgPath, DiffColorizerControl.DiffWidth, out diff_width, 650);
+			diffColorizer.Width = diff_width;
+
+			int diff_visible;
+			Cfg.Get(CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1);
+			expanderDiff.IsExpanded = (diff_visible != 0);
 
 			Hg = new Hg();
 
@@ -117,6 +163,62 @@ namespace HgSccHelper
 		private void Window_Closed(object sender, EventArgs e)
 		{
 			listFilesGrid.SaveCfg(RevertWindow.CfgPath, "ListFilesGrid");
+
+			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
+			if (!Double.IsNaN(diffColorizer.ActualWidth))
+			{
+				int diff_width = (int)diffColorizer.ActualWidth;
+				if (diff_width > 0)
+					Cfg.Set(CfgPath, DiffColorizerControl.DiffWidth, diff_width);
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void ShowFileDiff()
+		{
+			if (diffColorizer == null)
+				return;
+
+			if (!expanderDiff.IsExpanded)
+				return;
+
+			diffColorizer.Clear();
+
+			if (listFiles.SelectedItems.Count == 1)
+			{
+				var item = (RevertItem)listFiles.SelectedItem;
+
+				RunningOperations |= AsyncOperations.Diff;
+				string rev2 = "";
+				string rev1 = "";
+
+				diffColorizer.RunHgDiffAsync(WorkingDir, item.FileInfo.File, rev1, rev2);
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void DiffGridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+		{
+			diffColorizer.Width = Double.NaN;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void expanderDiff_Expanded(object sender, RoutedEventArgs e)
+		{
+			if (diffColorizer != null && diffColorizer.ActualWidth != 0)
+			{
+				diffColorizer.Width = diffColorizer.ActualWidth;
+			}
+			ShowFileDiff();
+		}
+
+		//-----------------------------------------------------------------------------
+		private void expanderDiff_Collapsed(object sender, RoutedEventArgs e)
+		{
+			diffColumn.Width = new GridLength(0, GridUnitType.Auto);
+			diffColorizer.Width = Double.NaN;
+
+			diffColorizer.Clear();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -450,6 +552,12 @@ namespace HgSccHelper
 												RoutedEventArgs e)
 		{
 			files_sorter.GridViewColumnHeaderClickedHandler(sender, e);
+		}
+
+		//-----------------------------------------------------------------------------
+		private void listViewFiles_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+		{
+			ShowFileDiff();
 		}
 	}
 

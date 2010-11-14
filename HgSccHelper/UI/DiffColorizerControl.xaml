@@ -25,12 +25,13 @@
                           IsTextSearchEnabled="False"></ComboBox>
             </StackPanel>
             <Border BorderThickness="1" Grid.Row="1"
-                BorderBrush="DarkGray">
+                    SnapsToDevicePixels="True"
+                    BorderBrush="DarkGray">
                 <avalonEdit:TextEditor
-                xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
-                Name="richTextBox"
-                FontFamily="Consolas"
-                FontSize="10pt"/>
+                    xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                    Name="richTextBox"
+                    FontFamily="Consolas"
+                    FontSize="10pt"/>
             </Border>
         </Grid>
     </Grid>

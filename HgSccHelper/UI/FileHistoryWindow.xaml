@@ -218,59 +218,90 @@
                           Height="5" Background="Transparent"
                           DragDelta="GridSplitter_DragDelta"
                           IsTabStop="False" Cursor="SizeNS" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" />
-            <ListView Grid.Row="3" Name="listViewFiles"
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition x:Name="diffColumn"  Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <ListView Grid.Column="0" Name="listViewFiles"
+                          SelectionChanged="listViewFiles_SelectionChanged"
                       GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
-                <ListView.CommandBindings>
-                    <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                    <ListView.CommandBindings>
+                        <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         CanExecute="FilesDiffPrevious_CanExecute"
                         Executed="FilesDiffPrevious_Executed">
-                    </CommandBinding>
-                    <CommandBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
+                        </CommandBinding>
+                        <CommandBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
                         CanExecute="FileHistory_CanExecute"
                         Executed="FileHistory_Executed">
-                    </CommandBinding>
-                    <CommandBinding Command="{x:Static ui:Commands.AnnotateCommand}"
+                        </CommandBinding>
+                        <CommandBinding Command="{x:Static ui:Commands.AnnotateCommand}"
                         CanExecute="Annotate_CanExecute"
                         Executed="Annotate_Executed">
-                    </CommandBinding>
-                    <CommandBinding Command="{x:Static ui:Commands.ViewFileCommand}"
+                        </CommandBinding>
+                        <CommandBinding Command="{x:Static ui:Commands.ViewFileCommand}"
                         CanExecute="ViewFile_CanExecute"
                         Executed="ViewFile_Executed">
-                    </CommandBinding>
-                </ListView.CommandBindings>
-                <ListView.InputBindings>
-                    <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                        </CommandBinding>
+                    </ListView.CommandBindings>
+                    <ListView.InputBindings>
+                        <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
-                    <KeyBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
+                        <KeyBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
                             Modifiers="Control" Key="H" />
-                </ListView.InputBindings>
-                <ListView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                    </ListView.InputBindings>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
-                        <MenuItem Command="{x:Static ui:Commands.FileHistoryCommand}"
+                            <MenuItem Command="{x:Static ui:Commands.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
-                        <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
+                            <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
                               ></MenuItem>
-                        <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
-                        <MenuItem Command="{x:Static ui:Commands.ViewFileCommand}"
+                            <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
+                            <MenuItem Command="{x:Static ui:Commands.ViewFileCommand}"
                               ></MenuItem>
-                    </ContextMenu>
-                </ListView.ContextMenu>
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding Status}" />
-                        <GridViewColumn Header="File" Width="850"  DisplayMemberBinding="{Binding Path}" />
-                    </GridView>
-                </ListView.View>
-                <ListView.Resources>
-                    <Style TargetType="ListViewItem">
-                        <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
-                        <EventSetter Event="MouseDoubleClick"
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding Status}" />
+                            <GridViewColumn Header="File" Width="850"  DisplayMemberBinding="{Binding Path}" />
+                        </GridView>
+                    </ListView.View>
+                    <ListView.Resources>
+                        <Style TargetType="ListViewItem">
+                            <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                            <EventSetter Event="MouseDoubleClick"
                                  Handler="ListViewFiles_MouseDoubleClick" />
-                    </Style>
-                </ListView.Resources>
-            </ListView>
+                        </Style>
+                    </ListView.Resources>
+                </ListView>
+                <GridSplitter Margin="0"
+                          Grid.Column="0"
+                          DragDelta="DiffGridSplitter_DragDelta"
+                          Width="5" Background="Transparent" IsTabStop="False"
+                          Cursor="SizeWE" VerticalAlignment="Stretch"
+                          HorizontalAlignment="Right" />
+                <Expander ExpandDirection="Right"
+                          Grid.Column="1"
+                          Expanded="expanderDiff_Expanded"
+                          Collapsed="expanderDiff_Collapsed"
+                          x:Name="expanderDiff">
+                    <Expander.Header>
+                        <Label Content="Show Diff">
+                            <Label.LayoutTransform>
+                                <RotateTransform Angle="270"></RotateTransform>
+                            </Label.LayoutTransform>
+                        </Label>
+                    </Expander.Header>
+                    <ui:DiffColorizerControl x:Name="diffColorizer"
+                                                 Margin="0,0,5,0"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Stretch">
+                    </ui:DiffColorizerControl>
+                </Expander>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

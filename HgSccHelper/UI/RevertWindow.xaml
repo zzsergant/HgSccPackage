@@ -76,57 +76,88 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Margin="5"  Content="Files:"></Label>
-                <ListView Grid.Row="1"
-                          Margin="5,0"
-                      Name="listFiles"
-                      GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler"
-                      PreviewKeyDown="ListFiles_PreviewKeyDown"
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition x:Name="diffColumn"  Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <ListView Grid.Row="1"
+                              Margin="5,0"
+                              Name="listFiles"
+                              SelectionChanged="listViewFiles_SelectionChanged"
+                              GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler"
+                              PreviewKeyDown="ListFiles_PreviewKeyDown"
                       MinHeight="75">
-                    <ListView.View>
-                        <GridView x:Name="listFilesGrid">
-                            <GridViewColumn Width="Auto" x:Name="checkColumn" CellTemplate="{StaticResource CheckBoxCell}">
-                                <GridViewColumn.HeaderTemplate>
-                                    <DataTemplate>
-                                        <CheckBox Name="checkAll"
+                        <ListView.View>
+                            <GridView x:Name="listFilesGrid">
+                                <GridViewColumn Width="Auto" x:Name="checkColumn" CellTemplate="{StaticResource CheckBoxCell}">
+                                    <GridViewColumn.HeaderTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Name="checkAll"
                                               IsChecked="{Binding ElementName=root, Path=IsAllChecked}"
                                               Checked="checkAll_Checked"
                                               Focusable="False"
                                               Unchecked="checkAll_Unchecked">
-                                        </CheckBox>
-                                    </DataTemplate>
-                                </GridViewColumn.HeaderTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding FileInfo.Status}" />
-                            <GridViewColumn Header="Path" Width="850" DisplayMemberBinding="{Binding PathViewString}" />
-                        </GridView>
-                    </ListView.View>
-                    <ListView.InputBindings>
-                        <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </GridViewColumn.HeaderTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding FileInfo.Status}" />
+                                <GridViewColumn Header="Path" Width="850" DisplayMemberBinding="{Binding PathViewString}" />
+                            </GridView>
+                        </ListView.View>
+                        <ListView.InputBindings>
+                            <KeyBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                             Modifiers="Control" Key="D" />
-                        <KeyBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
+                            <KeyBinding Command="{x:Static ui:Commands.FileHistoryCommand}"
                             Modifiers="Control" Key="H" />
-                    </ListView.InputBindings>
-                    <ListView.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                        </ListView.InputBindings>
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"
                               InputGestureText="Ctrl + D"></MenuItem>
-                            <MenuItem Command="{x:Static ui:Commands.FileHistoryCommand}"
+                                <MenuItem Command="{x:Static ui:Commands.FileHistoryCommand}"
                               InputGestureText="Ctrl + H"></MenuItem>
-                            <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
+                                <MenuItem Command="{x:Static ui:Commands.AnnotateCommand}"
                               ></MenuItem>
-                            <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
-                            <MenuItem Command="{x:Static ui:Commands.ViewFileCommand}"
+                                <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
+                                <MenuItem Command="{x:Static ui:Commands.ViewFileCommand}"
                               ></MenuItem>
-                        </ContextMenu>
-                    </ListView.ContextMenu>
-                    <ListView.Resources>
-                        <Style TargetType="ListViewItem">
-                            <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
-                            <EventSetter Event="MouseDoubleClick"
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+                        <ListView.Resources>
+                            <Style TargetType="ListViewItem">
+                                <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                                <EventSetter Event="MouseDoubleClick"
                                  Handler="ListFiles_MouseDoubleClick" />
-                        </Style>
-                    </ListView.Resources>
-                </ListView>
+                            </Style>
+                        </ListView.Resources>
+                    </ListView>
+                    <GridSplitter Margin="0"
+                          Grid.Column="0"
+                          DragDelta="DiffGridSplitter_DragDelta"
+                          Width="5" Background="Transparent" IsTabStop="False"
+                          Cursor="SizeWE" VerticalAlignment="Stretch"
+                          HorizontalAlignment="Right" />
+                    <Expander ExpandDirection="Right"
+                          Grid.Column="1"
+                          Expanded="expanderDiff_Expanded"
+                          Collapsed="expanderDiff_Collapsed"
+                          x:Name="expanderDiff">
+                        <Expander.Header>
+                            <Label Content="Show Diff">
+                                <Label.LayoutTransform>
+                                    <RotateTransform Angle="270"></RotateTransform>
+                                </Label.LayoutTransform>
+                            </Label>
+                        </Expander.Header>
+                        <ui:DiffColorizerControl x:Name="diffColorizer"
+                                                 Margin="0,0,5,0"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Stretch">
+                        </ui:DiffColorizerControl>
+                    </Expander>
+                </Grid>
             </Grid>
             <StackPanel Grid.Row="1"
                     Orientation="Horizontal" HorizontalAlignment="Right">

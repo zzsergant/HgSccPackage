@@ -182,7 +182,9 @@ namespace HgSccHelper.UI
 
 			var args = new HgArgsBuilder();
 			args.Append("diff");
-			args.AppendRevision(rev1);
+			
+			if (!string.IsNullOrEmpty(rev1))
+				args.AppendRevision(rev1);
 			
 			if (!string.IsNullOrEmpty(rev2))
 				args.AppendRevision(rev2);
