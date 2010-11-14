@@ -283,7 +283,6 @@
                           VerticalAlignment="Top" />
             <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files"
                       Margin="0,5,0,0"
-                      Expanded="viewFilesExpander_Expanded"
                       Collapsed="viewFilesExpander_Collapsed">
                 <Grid x:Name="gridFiles">
                     <Grid.ColumnDefinitions>
