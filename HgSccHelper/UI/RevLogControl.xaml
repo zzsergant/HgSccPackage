@@ -296,7 +296,7 @@
                   Grid.ColumnSpan="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition x:Name="diffColumn"  Width="Auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <TabControl Grid.Column="0"
                             Name="tabParentsDiff">
@@ -350,8 +350,15 @@
                         </DataTemplate>
                     </TabControl.ContentTemplate>
                 </TabControl>
+                <GridSplitter Margin="0"
+                          Grid.Column="0"
+                          DragDelta="DiffGridSplitter_DragDelta"
+                          Width="5" Background="Transparent" IsTabStop="False"
+                          Cursor="SizeWE" VerticalAlignment="Stretch"
+                          HorizontalAlignment="Right" />
                 <Expander ExpandDirection="Right"
                           Grid.Column="1"
+                          IsExpanded="True"
                           Expanded="expanderDiff_Expanded"
                           Collapsed="expanderDiff_Collapsed"
                           x:Name="expanderDiff">
@@ -363,7 +370,8 @@
                         </Label>
                     </Expander.Header>
                     <ui:DiffColorizerControl x:Name="diffColorizer"
-                                             Width="700">
+                                             HorizontalAlignment="Stretch"
+                                             VerticalAlignment="Stretch">
                     </ui:DiffColorizerControl>
                 </Expander>
             </Grid>

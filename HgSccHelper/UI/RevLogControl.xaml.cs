@@ -315,6 +315,16 @@ namespace HgSccHelper
 			}
 
 			graphView.Focus();
+
+			int diff_visible;
+			if (Cfg.Get(RevLogWindow.CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1))
+				expanderDiff.IsExpanded = (diff_visible != 0);
+
+			int diff_width;
+			if (Cfg.Get(RevLogWindow.CfgPath, DiffColorizerControl.DiffWidth, out diff_width, 650))
+			{
+				diffColorizer.Width = diff_width;	
+			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -381,6 +391,10 @@ namespace HgSccHelper
 			worker.Cancel();
 			worker.Dispose();
 			revlog_style.Dispose();
+
+			Cfg.Set(RevLogWindow.CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
+			if (!Double.IsNaN(diffColorizer.ActualWidth))
+				Cfg.Set(RevLogWindow.CfgPath, DiffColorizerControl.DiffWidth, (int)diffColorizer.ActualWidth);
 		}
 
 		//------------------------------------------------------------------
@@ -967,6 +981,9 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void ShowFileDiff()
 		{
+			if (diffColorizer == null)
+				return;
+			
 			if (!expanderDiff.IsExpanded)
 				return;
 
@@ -991,6 +1008,13 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void DiffGridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+		{
+			Logger.WriteLine("Diff width = {0}", diffColumn.Width.Value);
+			diffColorizer.Width = Double.NaN;
+		}
+
+		//------------------------------------------------------------------
 		void GridViewColumnHeaderClickedHandler(object sender,
 												RoutedEventArgs e)
 		{
@@ -1012,12 +1036,19 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void expanderDiff_Expanded(object sender, RoutedEventArgs e)
 		{
+			if (diffColorizer != null)
+			{
+				diffColorizer.Width = diffColorizer.ActualWidth;
+			}
 			ShowFileDiff();
 		}
 
 		//-----------------------------------------------------------------------------
 		private void expanderDiff_Collapsed(object sender, RoutedEventArgs e)
 		{
+			diffColumn.Width = new GridLength(0, GridUnitType.Auto);
+			diffColorizer.Width = Double.NaN;
+
 			diffColorizer.Clear();
 		}
 	}

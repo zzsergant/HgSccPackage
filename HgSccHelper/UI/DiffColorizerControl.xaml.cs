@@ -52,6 +52,12 @@ namespace HgSccHelper.UI
 		public const string CfgPath = @"GUI\Diff";
 
 		//-----------------------------------------------------------------------------
+		public const string DiffVisible = "DiffVisible";
+
+		//-----------------------------------------------------------------------------
+		public const string DiffWidth = "DiffWidth";
+
+		//-----------------------------------------------------------------------------
 		public DiffColorizerControl()
 		{
 			InitializeComponent();
