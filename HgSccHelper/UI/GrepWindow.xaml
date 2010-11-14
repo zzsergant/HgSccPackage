@@ -96,7 +96,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" x:Name="filesRow"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0">
                 <Grid>
@@ -241,8 +241,16 @@
                          IsReadOnly="True" MinLines="2" MaxLines="5" VerticalScrollBarVisibility="Auto">
                 </TextBox>
             </Grid>
-            <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files">
-                <Grid Height="300">
+            <GridSplitter Grid.Row="2" Margin="0"
+                          DragDelta="GridFilesSplitter_DragDelta"
+                          Height="5" Background="Transparent" IsTabStop="False"
+                          Cursor="SizeNS" HorizontalAlignment="Stretch"
+                          VerticalAlignment="Top" />
+            <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files"
+                      Margin="0,5,0,0"
+                      Expanded="viewFilesExpander_Expanded"
+                      Collapsed="viewFilesExpander_Collapsed">
+                <Grid x:Name="gridFiles">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition x:Name="diffColumn"  Width="Auto"></ColumnDefinition>

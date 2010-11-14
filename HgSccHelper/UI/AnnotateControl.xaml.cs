@@ -180,6 +180,14 @@ namespace HgSccHelper
 			Cfg.Get(AnnotateWindow.CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1);
 			expanderDiff.IsExpanded = (diff_visible != 0);
 
+			int files_height;
+			Cfg.Get(AnnotateWindow.CfgPath, "FilesHeight", out files_height, 200);
+			gridFiles.Height = files_height;
+
+			int files_visible;
+			Cfg.Get(AnnotateWindow.CfgPath, "FilesVisible", out files_visible, 0);
+			viewFilesExpander.IsExpanded = (files_visible != 0);
+
 			CurrentRevision = Hg.Identify(WorkingDir);
 			if (CurrentRevision == null)
 				return;
@@ -335,6 +343,14 @@ namespace HgSccHelper
 				int diff_width = (int)diffColorizer.ActualWidth;
 				if (diff_width > 0)
 					Cfg.Set(AnnotateWindow.CfgPath, DiffColorizerControl.DiffWidth, diff_width);
+			}
+
+			Cfg.Set(AnnotateWindow.CfgPath, "FilesVisible", viewFilesExpander.IsExpanded ? 1 : 0);
+			if (!Double.IsNaN(gridFiles.ActualHeight))
+			{
+				int files_height = (int)gridFiles.ActualHeight;
+				if (files_height > 0)
+					Cfg.Set(AnnotateWindow.CfgPath, "FilesHeight", files_height);
 			}
 		}
 
@@ -920,6 +936,29 @@ namespace HgSccHelper
 												RoutedEventArgs e)
 		{
 			files_sorter.GridViewColumnHeaderClickedHandler(sender, e);
+		}
+
+		//------------------------------------------------------------------
+		private void GridFilesSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+		{
+			Logger.WriteLine("H {0}, A {1}", filesRow.Height, filesRow.ActualHeight);
+			gridFiles.Height = Double.NaN;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void viewFilesExpander_Expanded(object sender, RoutedEventArgs e)
+		{
+			if (gridFiles != null && gridFiles.ActualHeight != 0)
+			{
+				gridFiles.Height = gridFiles.ActualHeight;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void viewFilesExpander_Collapsed(object sender, RoutedEventArgs e)
+		{
+			filesRow.Height = new GridLength(0, GridUnitType.Auto);
+			gridFiles.Height = Double.NaN;
 		}
 	}
 

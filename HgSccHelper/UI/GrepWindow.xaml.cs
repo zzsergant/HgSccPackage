@@ -211,6 +211,14 @@ namespace HgSccHelper.UI
 			Cfg.Get(CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1);
 			expanderDiff.IsExpanded = (diff_visible != 0);
 
+			int files_height;
+			Cfg.Get(CfgPath, "FilesHeight", out files_height, 200);
+			gridFiles.Height = files_height;
+
+			int files_visible;
+			Cfg.Get(CfgPath, "FilesVisible", out files_visible, 0);
+			viewFilesExpander.IsExpanded = (files_visible != 0);
+
 			Hg = new Hg();
 
 			CurrentRevision = Hg.Identify(WorkingDir);
@@ -240,6 +248,14 @@ namespace HgSccHelper.UI
 				int diff_width = (int)diffColorizer.ActualWidth;
 				if (diff_width > 0)
 					Cfg.Set(CfgPath, DiffColorizerControl.DiffWidth, diff_width);
+			}
+
+			Cfg.Set(CfgPath, "FilesVisible", viewFilesExpander.IsExpanded ? 1 : 0);
+			if (!Double.IsNaN(gridFiles.ActualHeight))
+			{
+				int files_height = (int)gridFiles.ActualHeight;
+				if (files_height > 0)
+					Cfg.Set(CfgPath, "FilesHeight", files_height);
 			}
 
 			worker.Cancel();
@@ -676,6 +692,29 @@ namespace HgSccHelper.UI
 												RoutedEventArgs e)
 		{
 			files_sorter.GridViewColumnHeaderClickedHandler(sender, e);
+		}
+
+		//------------------------------------------------------------------
+		private void GridFilesSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+		{
+			Logger.WriteLine("H {0}, A {1}", filesRow.Height, filesRow.ActualHeight);
+			gridFiles.Height = Double.NaN;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void viewFilesExpander_Expanded(object sender, RoutedEventArgs e)
+		{
+			if (gridFiles != null && gridFiles.ActualHeight != 0)
+			{
+				gridFiles.Height = gridFiles.ActualHeight;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void viewFilesExpander_Collapsed(object sender, RoutedEventArgs e)
+		{
+			filesRow.Height = new GridLength(0, GridUnitType.Auto);
+			gridFiles.Height = Double.NaN;
 		}
 	}
 
