@@ -204,7 +204,7 @@ namespace HgSccHelper.UI
 			Title = string.Format("Grep: '{0}'", WorkingDir);
 
 			int diff_width;
-			Cfg.Get(CfgPath, DiffColorizerControl.DiffWidth, out diff_width, 650);
+			Cfg.Get(CfgPath, DiffColorizerControl.DiffWidth, out diff_width, DiffColorizerControl.DefaultWidth);
 			diffColorizer.Width = diff_width;
 
 			int diff_visible;

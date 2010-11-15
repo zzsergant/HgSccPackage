@@ -193,7 +193,7 @@ namespace HgSccHelper
 			Hg = new Hg();
 
 			int diff_width;
-			Cfg.Get(AnnotateWindow.CfgPath, DiffColorizerControl.DiffWidth, out diff_width, 650);
+			Cfg.Get(AnnotateWindow.CfgPath, DiffColorizerControl.DiffWidth, out diff_width, DiffColorizerControl.DefaultWidth);
 			diffColorizer.Width = diff_width;
 
 			int diff_visible;

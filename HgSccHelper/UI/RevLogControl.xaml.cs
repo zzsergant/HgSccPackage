@@ -306,7 +306,7 @@ namespace HgSccHelper
 			Branches = new Dictionary<string, BranchInfo>();
 
 			int diff_width;
-			Cfg.Get(RevLogWindow.CfgPath, DiffColorizerControl.DiffWidth, out diff_width, 650);
+			Cfg.Get(RevLogWindow.CfgPath, DiffColorizerControl.DiffWidth, out diff_width, DiffColorizerControl.DefaultWidth);
 			diffColorizer.Width = diff_width;
 
 			int diff_visible;
