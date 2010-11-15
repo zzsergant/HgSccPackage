@@ -113,6 +113,26 @@ namespace HgSccHelper
 		{
 			Title = string.Format("Arhive: '{0}'", WorkingDir);
 
+			string archive_type;
+			if (Cfg.Get(CfgPath, "ArchiveType", out archive_type, ""))
+			{
+				try
+				{
+					var type =
+						(HgArchiveTypes) Enum.Parse(typeof (HgArchiveTypes), archive_type);
+
+					var found_type = archive_types.FirstOrDefault(t => t.ArchiveType == type);
+					if (found_type != null)
+						comboArchiveType.SelectedItem = found_type;
+				}
+				catch (ArgumentException)
+				{
+				}
+				catch (OverflowException)
+				{
+				}
+			}
+
 			Hg = new Hg();
 
 			ArchiveDirPart = WorkingDir;
@@ -176,7 +196,8 @@ namespace HgSccHelper
 			comboRevision.SelectedIndex = 0;
 			comboRevision.Focus();
 
-			comboArchiveType.SelectedIndex = 0;
+			if (comboArchiveType.SelectedIndex == -1)
+				comboArchiveType.SelectedIndex = 0;
 
 			RefreshTarget();
 		}
@@ -222,6 +243,10 @@ namespace HgSccHelper
 		{
 			timer.Stop();
 			timer.Tick -= OnTimerTick;
+
+			var archive_type = comboArchiveType.SelectedItem as ArchiveTypeInfo;
+			if (archive_type != null)
+				Cfg.Set(CfgPath, "ArchiveType", archive_type.ArchiveType.ToString());
 		}
 
 		//------------------------------------------------------------------
