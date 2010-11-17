@@ -340,11 +340,14 @@ namespace HgSccHelper
 			{
 				var item = (CommitItem)listFiles.SelectedItem;
 
-				RunningOperations |= AsyncOperations.Diff;
 				string parent = "";
 				if (parents.Count != 0)
-					parent = parents[0].SHA1;
+				{
+					if (parents[0] != null)
+						parent = parents[0].SHA1;
+				}
 
+				RunningOperations |= AsyncOperations.Diff;
 				diffColorizer.RunHgDiffAsync(WorkingDir, item.FileInfo.File,
 					parent, "");
 			}
