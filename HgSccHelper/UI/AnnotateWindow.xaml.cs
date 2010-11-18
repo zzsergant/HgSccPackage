@@ -52,7 +52,7 @@ namespace HgSccHelper
 			annotateControl1.Rev = Rev;
 
 			annotateControl1.ListChangesGrid.LoadCfg(AnnotateWindow.CfgPath, "ListChangesGrid");
-			annotateControl1.ListLinesGrid.LoadCfg(AnnotateWindow.CfgPath, "ListLinesGrid");
+//			annotateControl1.ListLinesGrid.LoadCfg(AnnotateWindow.CfgPath, "ListLinesGrid");
 		}
 
 		//------------------------------------------------------------------
@@ -66,7 +66,7 @@ namespace HgSccHelper
 		private void Window_Closed(object sender, System.EventArgs e)
 		{
 			annotateControl1.ListChangesGrid.SaveCfg(AnnotateWindow.CfgPath, "ListChangesGrid");
-			annotateControl1.ListLinesGrid.SaveCfg(AnnotateWindow.CfgPath, "ListLinesGrid");
+//			annotateControl1.ListLinesGrid.SaveCfg(AnnotateWindow.CfgPath, "ListLinesGrid");
 		}
 	}
 }

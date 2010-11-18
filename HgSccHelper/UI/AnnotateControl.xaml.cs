@@ -20,6 +20,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using HgSccHelper.UI;
 using HgSccHelper.UI.RevLog;
+using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Rendering;
 
 namespace HgSccHelper
 {
@@ -92,6 +95,8 @@ namespace HgSccHelper
 		private AsyncTags async_tags;
 		private AsyncAnnotate async_annotate;
 
+		private ColorizeChanges colorizer;
+
 		//------------------------------------------------------------------
 		public AnnotateControl()
 		{
@@ -121,6 +126,52 @@ namespace HgSccHelper
 
 			async_annotate = new AsyncAnnotate();
 			async_annotate.Complete = new Action<AsyncAnnotateResults>(OnAsyncAnnotate);
+
+			textEditor.IsReadOnly = true;
+			textEditor.ShowLineNumbers = true;
+		}
+
+		//------------------------------------------------------------------
+		void Caret_PositionChanged(object sender, EventArgs e)
+		{
+			UpdateLineSelection(textEditor.TextArea.Caret.Line);
+		}
+
+		//------------------------------------------------------------------
+		void UpdateLineSelection(int editor_line)
+		{
+			if (annotated_lines.Count > 0)
+			{
+				if (editor_line > annotated_lines.Count)
+					return;
+
+				if (colorizer != null)
+					colorizer.CurrentLine = editor_line - 1;
+
+				if (!annotated_lines[editor_line - 1].IsSelected)
+				{
+					foreach (var line in annotated_lines)
+					{
+						if (line.IsSelected)
+							line.IsSelected = false;
+					}
+
+					var annotate_line = annotated_lines[editor_line - 1];
+					if (annotate_line != null)
+					{
+						foreach (var line_view in rev_to_line_view[annotate_line.Info.Rev])
+							line_view.IsSelected = true;
+
+						int idx;
+						if (rev_to_change_idx_map.TryGetValue(annotate_line.Info.Rev, out idx))
+						{
+							listChanges.SelectedIndex = idx;
+							listChanges.ScrollIntoView(listChanges.SelectedItem);
+						}
+					}
+				}
+			}
+			textEditor.TextArea.TextView.Redraw();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -153,38 +204,10 @@ namespace HgSccHelper
 			RunningOperations &= ~AsyncOperations.Diff;
 		}
 
-		//-----------------------------------------------------------------------------
-		void ListItemContainerGenerator_StatusChanged(object sender, EventArgs e)
-		{
-			var generator = (ItemContainerGenerator)sender;
-			if (generator.Status == System.Windows.Controls.Primitives.GeneratorStatus.ContainersGenerated)
-			{
-				if (listLines.SelectedIndex != -1)
-				{
-					var item = (ListViewItem)listLines.ItemContainerGenerator.ContainerFromIndex(listLines.SelectedIndex);
-					if (item != null)
-					{
-						listLines.ItemContainerGenerator.StatusChanged -= ListItemContainerGenerator_StatusChanged;
-						item.Focus();
-					}
-				}
-				else
-				{
-					listLines.ItemContainerGenerator.StatusChanged -= ListItemContainerGenerator_StatusChanged;
-				}
-			}
-		}
-
 		//------------------------------------------------------------------
 		public GridView ListChangesGrid
 		{
 			get { return listChangesGrid; }
-		}
-
-		//------------------------------------------------------------------
-		public GridView ListLinesGrid
-		{
-			get { return listLinesGrid; }
 		}
 
 		//------------------------------------------------------------------
@@ -244,24 +267,12 @@ namespace HgSccHelper
 			if (lines_info.Count == 0)
 				return;
 
-			int prev_rev = lines_info[0].Rev;
-			var even = SystemColors.ControlBrush;
-			var odd = SystemColors.ControlLightBrush;
-			int counter = 0;
-
 			annotated_lines = new List<AnnotateLineView>();
 			foreach (var line_info in lines_info)
 			{
 				var line_view = new AnnotateLineView();
 				line_view.Info = line_info;
 
-				if (prev_rev != line_info.Rev)
-				{
-					counter++;
-					prev_rev = line_info.Rev;
-				}
-
-				line_view.Background = ((counter & 1) == 0) ? odd : even;
 				annotated_lines.Add(line_view);
 
 				List<AnnotateLineView> rev_lines;
@@ -274,7 +285,8 @@ namespace HgSccHelper
 				rev_lines.Add(line_view);
 			}
 
-			listLines.ItemsSource = annotated_lines;
+			SetLines();
+			SetSyntaxHighlighting();
 
 			var rev_range = "";
 			if (!string.IsNullOrEmpty(Rev))
@@ -283,6 +295,48 @@ namespace HgSccHelper
 			RunningOperations |= AsyncOperations.ChangeDesc;
 			async_changedesc.RunAsync(WorkingDir, FileName, rev_range);
 		}
+
+		//------------------------------------------------------------------
+		private void SetSyntaxHighlighting()
+		{
+			textEditor.SyntaxHighlighting = HighlightingManager.Instance.
+				GetDefinitionByExtension(
+					System.IO.Path.GetExtension(FileName));
+
+			colorizer = new ColorizeChanges(annotated_lines);
+			textEditor.TextArea.TextView.LineTransformers.Add(colorizer);
+
+			textEditor.TextArea.Caret.PositionChanged += Caret_PositionChanged;
+		}
+
+		//------------------------------------------------------------------
+		private void SetLines()
+		{
+			textEditor.Clear();
+			foreach (var line in annotated_lines)
+			{
+				textEditor.AppendText(line.Info.Source + "\n");
+			}
+/*
+			var encoding = comboEncodings.SelectedItem as EncodingItem;
+
+			if (encoding != null)
+			{
+				richTextBox.Clear();
+
+				foreach (var line_info in lines)
+				{
+					var text_line = line_info;
+
+					if (encoding.Encoding != Encoding.Default)
+						text_line = Util.Convert(line_info, encoding.Encoding, Encoding.Default);
+
+					richTextBox.AppendText(text_line + "\n");
+				}
+			}
+*/
+		}
+
 
 
 		//------------------------------------------------------------------
@@ -317,6 +371,11 @@ namespace HgSccHelper
 				int files_height = (int)gridFiles.Height;
 				if (files_height > 0)
 					Cfg.Set(AnnotateWindow.CfgPath, "FilesHeight", files_height);
+			}
+
+			if (colorizer != null)
+			{
+				textEditor.TextArea.Caret.PositionChanged -= Caret_PositionChanged;
 			}
 		}
 
@@ -798,56 +857,42 @@ namespace HgSccHelper
 					if (rev_lines.Count > 0)
 					{
 						int line_number = rev_lines[0].Info.Line - 1;
-						if (line_number < listLines.Items.Count)
+						if (line_number < annotated_lines.Count)
 						{
-							var line_view = listLines.Items[line_number] as AnnotateLineView;
+							var line_view = annotated_lines[line_number];
 							if (!line_view.IsSelected)
-								ScrollSelectAndFocusLine(line_number);
+							{
+								if (textEditor.TextArea.Caret.Line != (line_number + 1))
+									textEditor.TextArea.Caret.Line = line_number + 1;
+								else
+									UpdateLineSelection(line_number + 1);
+
+								textEditor.ScrollToLine(line_number + 1);
+							}
 						}
 					}
 				}
 				else
 				{
-					listLines.SelectedItem = null;
+					foreach (var line in annotated_lines)
+					{
+						line.IsSelected = false;
+					}
 				}
-			}
-		}
 
-		//------------------------------------------------------------------
-		private void listLines_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			var removed = e.RemovedItems;
-			foreach (AnnotateLineView removed_line in removed)
-			{
-				foreach (var line_view in rev_to_line_view[removed_line.Info.Rev])
-					line_view.IsSelected = false;
-			}
-
-			var annotate_line = listLines.SelectedItem as AnnotateLineView;
-			if (annotate_line != null)
-			{
-				foreach (var line_view in rev_to_line_view[annotate_line.Info.Rev])
-					line_view.IsSelected = true;
-
-				int idx;
-				if (rev_to_change_idx_map.TryGetValue(annotate_line.Info.Rev, out idx))
-				{
-					listChanges.SelectedIndex = idx;
-					listChanges.ScrollIntoView(listChanges.SelectedItem);
-				}
+				textEditor.TextArea.TextView.Redraw();
 			}
 		}
 
 		//------------------------------------------------------------------
 		private void GotoLine_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			if (listLines != null)
+			if (textEditor != null)
 			{
 				int line;
 				if (int.TryParse(textLine.Text, out line))
 				{
-					line -= 1;
-					if (line >= 0 && line < listLines.Items.Count)
+					if (line > 0 && line <= annotated_lines.Count)
 						e.CanExecute = true;
 				}
 			}
@@ -861,8 +906,7 @@ namespace HgSccHelper
 			int line;
 			if (int.TryParse(textLine.Text, out line))
 			{
-				line -= 1;
-				ScrollSelectAndFocusLine(line);
+				textEditor.ScrollToLine(line);
 			}
 
 			e.Handled = true;
@@ -888,12 +932,14 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void NextChange_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			if (listLines == null)
+			if (textEditor == null)
 				return;
 
-			var line_view = listLines.SelectedItem as AnnotateLineView;
-			if (line_view == null)
+			int caret_line = textEditor.TextArea.Caret.Line;
+			if (caret_line < 1 || caret_line > annotated_lines.Count)
 				return;
+
+			var line_view = annotated_lines[caret_line - 1];
 
 			int revision = line_view.Info.Rev;
 			int line_number = line_view.Info.Line;
@@ -910,7 +956,8 @@ namespace HgSccHelper
 			if (next_change_idx == -1)
 				return;
 
-			ScrollSelectAndFocusLine(next_change_idx);
+			textEditor.TextArea.Caret.Line = next_change_idx + 1;
+			textEditor.ScrollToLine(next_change_idx + 1);
 		}
 
 		//------------------------------------------------------------------
@@ -936,38 +983,6 @@ namespace HgSccHelper
 		}  
 
 		//------------------------------------------------------------------
-		void ScrollSelectAndFocusLine(int idx)
-		{
-			if (idx >= 0 && idx < listLines.Items.Count)
-			{
-				// FIXME: Find a better way to centering on item
-
-				var scroll_viewer = FindVisualChild<ScrollViewer>(listLines);
-				if (scroll_viewer != null)
-				{
-					double top = Math.Max(0, idx - scroll_viewer.ViewportHeight / 2);
-					scroll_viewer.ScrollToVerticalOffset(top);
-				}
-				else
-				{
-					listLines.ScrollIntoView(listLines.Items[idx]);
-				}
-
-				listLines.SelectedIndex = idx;
-
-				var item = (ListViewItem)listLines.ItemContainerGenerator.ContainerFromIndex(listLines.SelectedIndex);
-				if (item != null)
-				{
-					item.Focus();
-				}
-				else
-				{
-					listLines.ItemContainerGenerator.StatusChanged += ListItemContainerGenerator_StatusChanged;
-				}
-			}
-		}
-
-		//------------------------------------------------------------------
 		private void PrevChange_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = true;
@@ -977,12 +992,14 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void PrevChange_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			if (listLines == null)
+			if (textEditor == null)
 				return;
 
-			var line_view = listLines.SelectedItem as AnnotateLineView;
-			if (line_view == null)
+			int caret_line = textEditor.TextArea.Caret.Line;
+			if (caret_line < 1 || caret_line > annotated_lines.Count)
 				return;
+
+			var line_view = annotated_lines[caret_line - 1];
 
 			int revision = line_view.Info.Rev;
 			int line_number = line_view.Info.Line;
@@ -999,7 +1016,8 @@ namespace HgSccHelper
 			if (next_change_idx == -1)
 				return;
 
-			ScrollSelectAndFocusLine(next_change_idx);
+			textEditor.TextArea.Caret.Line = next_change_idx + 1;
+			textEditor.ScrollToLine(next_change_idx + 1);
 		}
 
 		//------------------------------------------------------------------
@@ -1026,42 +1044,78 @@ namespace HgSccHelper
 	}
 
 	//==================================================================
-	class AnnotateLineView : DependencyObject
+	class AnnotateLineView
 	{
 		public AnnotateLineInfo Info { get; set; }
-		
-		//-----------------------------------------------------------------------------
-		public static readonly System.Windows.DependencyProperty BackgroundProperty =
-			System.Windows.DependencyProperty.Register("Background", typeof(Brush),
-			typeof(AnnotateLineView));
+		public bool IsSelected { get; set; }
+	}
 
-		//-----------------------------------------------------------------------------
-		public Brush Background
+	//------------------------------------------------------------------
+	internal class ColorizeChanges : DocumentColorizingTransformer
+	{
+		private readonly Brush selected_brush;
+		private readonly Brush current_brush;
+		private readonly List<AnnotateLineView> lines;
+
+		//------------------------------------------------------------------
+		public ColorizeChanges(List<AnnotateLineView> lines)
 		{
-			get { return (Brush)this.GetValue(BackgroundProperty); }
-			set { this.SetValue(BackgroundProperty, value); }
+			this.lines = lines;
+			
+			var selected_color = Colors.Blue;
+			selected_color.A = 25;
+
+			selected_brush = new SolidColorBrush(selected_color);
+			selected_brush.Freeze();
+
+			var current_color = Colors.Red;
+			current_color.A = 50;
+
+			current_brush = new SolidColorBrush(current_color);
+			current_brush.Freeze();
 		}
 
 		//------------------------------------------------------------------
-		public bool IsSelected
+		public int CurrentLine { get; set; }
+
+		//------------------------------------------------------------------
+		protected override void ColorizeLine(DocumentLine line)
 		{
-			get { return (bool)GetValue(IsSelectedProperty); }
-			set { SetValue(IsSelectedProperty, value); }
+			int line_zero_based = line.LineNumber - 1;
+			if (line_zero_based >= lines.Count)
+				return;
+
+			var log_line = lines[line_zero_based];
+			if (log_line.IsSelected)
+			{
+				var brush = selected_brush;
+				bool is_current = false;
+				
+				if (line_zero_based == CurrentLine)
+				{
+					brush = current_brush;
+					is_current = true;
+				}
+
+				ChangeLinePart(line.Offset, line.EndOffset,
+						(VisualLineElement element) =>
+						{
+							element.TextRunProperties.SetBackgroundBrush(brush);
+							if (is_current)
+							{
+								Typeface tf = element.TextRunProperties.Typeface;
+
+								// Replace the typeface with a modified version of
+								// the same typeface
+								element.TextRunProperties.SetTypeface(new Typeface(
+									tf.FontFamily,
+									tf.Style,
+									FontWeights.Bold,
+									tf.Stretch
+								));
+							}
+						});
+			}
 		}
-
-		//------------------------------------------------------------------
-		public static readonly DependencyProperty IsSelectedProperty =
-			DependencyProperty.Register("IsSelected", typeof(bool), typeof(AnnotateLineView));
-
-		//------------------------------------------------------------------
-		public bool IsCurrent
-		{
-			get { return (bool)GetValue(IsCurrentProperty); }
-			set { SetValue(IsCurrentProperty, value); }
-		}
-
-		//------------------------------------------------------------------
-		public static readonly DependencyProperty IsCurrentProperty =
-			DependencyProperty.Register("IsCurrent", typeof(bool), typeof(AnnotateLineView));
 	}
 }

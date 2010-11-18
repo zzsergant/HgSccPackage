@@ -193,6 +193,25 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
+                <Border BorderThickness="1" Grid.Row="0"
+                        SnapsToDevicePixels="True"
+                        BorderBrush="DarkGray">
+                    <avalonEdit:TextEditor
+                        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                        Name="textEditor"
+                        FontFamily="Consolas"
+                        FontSize="10pt">
+<!--
+                        <avalonEdit:TextEditor.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Command="Copy"></MenuItem>
+                            </ContextMenu>
+                        </avalonEdit:TextEditor.ContextMenu>
+-->
+                    </avalonEdit:TextEditor>
+                </Border>
+<!--
+
                 <ListView Grid.Row="0" Name="listLines"
                           SelectionMode="Single"
                           SelectionChanged="listLines_SelectionChanged"
@@ -235,7 +254,6 @@
                     </ListView.ContextMenu>
                     <ListView.Resources>
                         <Style TargetType="ListViewItem">
-                            <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
                             <EventSetter Event="MouseDoubleClick"
                                          Handler="ListChanges_MouseDoubleClick" />
                             <Setter Property="IsSelected" Value="{Binding Path=IsCurrent, Mode=OneWayToSource}" />
@@ -257,6 +275,7 @@
                         </Style>
                     </ListView.Resources>
                 </ListView>
+-->
                 <StackPanel Grid.Row="1"
                         DataContext="{Binding Path=SelectedItem.ChangeDesc, ElementName=listChanges, Mode=OneWay}"
                         Orientation="Horizontal" Margin="0, 5, 0, 5">
