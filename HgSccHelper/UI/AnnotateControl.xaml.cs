@@ -10,6 +10,9 @@
 //
 //=========================================================================
 
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -96,6 +99,7 @@ namespace HgSccHelper
 		private AsyncAnnotate async_annotate;
 
 		private ColorizeChanges colorizer;
+		private ObservableCollection<EncodingItem> encodings;
 
 		//------------------------------------------------------------------
 		public AnnotateControl()
@@ -129,6 +133,11 @@ namespace HgSccHelper
 
 			textEditor.IsReadOnly = true;
 			textEditor.ShowLineNumbers = true;
+
+			encodings = new ObservableCollection<EncodingItem>();
+			encodings.Add(new EncodingItem { Name = "Ansi", Encoding = Encoding.Default });
+			encodings.Add(new EncodingItem { Name = "Utf8", Encoding = Encoding.UTF8 });
+			comboEncodings.ItemsSource = encodings;
 		}
 
 		//------------------------------------------------------------------
@@ -214,6 +223,15 @@ namespace HgSccHelper
 		private void Control_Loaded(object sender, RoutedEventArgs e)
 		{
 			Hg = new Hg();
+
+			string encoding_name;
+			Cfg.Get(GrepWindow.CfgPath, "encoding", out encoding_name, encodings[0].Name);
+
+			var encoding = encodings.First(enc => enc.Name == encoding_name);
+			if (encoding != null)
+				comboEncodings.SelectedItem = encoding;
+			else
+				comboEncodings.SelectedIndex = 0;
 
 			int diff_width;
 			Cfg.Get(AnnotateWindow.CfgPath, DiffColorizerControl.DiffWidth, out diff_width, DiffColorizerControl.DefaultWidth);
@@ -312,31 +330,41 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void SetLines()
 		{
-			textEditor.Clear();
-			foreach (var line in annotated_lines)
+			if (annotated_lines != null)
 			{
-				textEditor.AppendText(line.Info.Source + "\n");
-			}
-/*
-			var encoding = comboEncodings.SelectedItem as EncodingItem;
+				var encoding = comboEncodings.SelectedItem as EncodingItem;
+				int caret_pos = textEditor.TextArea.Caret.Line;
 
-			if (encoding != null)
-			{
-				richTextBox.Clear();
+				var builder = new StringBuilder();
 
-				foreach (var line_info in lines)
+				foreach (var line in annotated_lines)
 				{
-					var text_line = line_info;
+					var text_line = line.Info.Source;
+					if (encoding != null && encoding.Encoding != Encoding.Default)
+						 text_line = Util.Convert(text_line, encoding.Encoding, Encoding.Default);
 
-					if (encoding.Encoding != Encoding.Default)
-						text_line = Util.Convert(line_info, encoding.Encoding, Encoding.Default);
+					builder.AppendLine(text_line);
+				}
 
-					richTextBox.AppendText(text_line + "\n");
+				bool save_caret_pos = textEditor.Document.LineCount ==
+				                      (annotated_lines.Count + 1);
+				var vertical_offset = textEditor.TextArea.TextView.VerticalOffset;
+
+				textEditor.Text = builder.ToString();
+
+				if (save_caret_pos)
+				{
+					textEditor.TextArea.Caret.Line = caret_pos;
+					textEditor.ScrollToVerticalOffset(vertical_offset);
 				}
 			}
-*/
 		}
 
+		//------------------------------------------------------------------
+		private void comboEncodings_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			SetLines();
+		}
 
 
 		//------------------------------------------------------------------
@@ -372,6 +400,10 @@ namespace HgSccHelper
 				if (files_height > 0)
 					Cfg.Set(AnnotateWindow.CfgPath, "FilesHeight", files_height);
 			}
+
+			var encoding = comboEncodings.SelectedItem as EncodingItem;
+			if (encoding != null)
+				Cfg.Set(GrepWindow.CfgPath, "encoding", encoding.Name);
 
 			if (colorizer != null)
 			{
