@@ -65,10 +65,6 @@
         </DataTemplate>
     </UserControl.Resources>
     <UserControl.CommandBindings>
-        <CommandBinding Command="{x:Static ui:Commands.ArchiveCommand}"
-                        CanExecute="Archive_CanExecute"
-                        Executed="Archive_Executed">
-        </CommandBinding>
         <CommandBinding Command="{x:Static local:AnnotateControl.GotoLineCommand}"
                         CanExecute="GotoLine_CanExecute"
                         Executed="GotoLine_Executed">
@@ -80,10 +76,6 @@
         <CommandBinding Command="{x:Static local:AnnotateControl.PrevChangeCommand}"
                         CanExecute="PrevChange_CanExecute"
                         Executed="PrevChange_Executed">
-        </CommandBinding>
-        <CommandBinding Command="{x:Static ui:Commands.GrepCommand}"
-                        CanExecute="Grep_CanExecute"
-                        Executed="Grep_Executed">
         </CommandBinding>
     </UserControl.CommandBindings>
     <Grid>
@@ -104,13 +96,6 @@
                         Command="{x:Static ui:Commands.ViewFileCommand}"
                         MinWidth="75" />
                 <Separator />
-                <Button Content="Archive Revision"
-                        Command="{x:Static ui:Commands.ArchiveCommand}"
-                        MinWidth="75" />
-                <Button Content="Grep"
-                        Command="{x:Static ui:Commands.GrepCommand}"
-                        MinWidth="75" />
-                <Separator />
                 <Label Content="Line:" Margin="5,0"></Label>
                 <TextBox Name="textLine" Margin="5,0"
                          Width="90" MaxLines="1" PreviewKeyDown="textLine_PreviewKeyDown"></TextBox>
@@ -118,18 +103,27 @@
                         Command="{x:Static local:AnnotateControl.GotoLineCommand}"
                         ></Button>
                 <Separator />
-                <Button Content="Next Change"
+                <Button Content="Next"
                         Command="{x:Static local:AnnotateControl.NextChangeCommand}"
-                        MinWidth="75" />
-                <Button Content="Prev Change"
+                        MinWidth="50" />
+                <Button Content="Prev"
                         Command="{x:Static local:AnnotateControl.PrevChangeCommand}"
-                        MinWidth="75" />
+                        MinWidth="50" />
                 <Separator />
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Encoding:" Margin="5,0"></Label>
                     <ComboBox MinWidth="60"
                               Name="comboEncodings"
                               SelectionChanged="comboEncodings_SelectionChanged"
+                              DisplayMemberPath="Name"
+                              IsTextSearchEnabled="False"></ComboBox>
+                </StackPanel>
+                <Separator />
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Highlighting:" Margin="5,0"></Label>
+                    <ComboBox MinWidth="60"
+                              Name="comboHighlighting"
+                              SelectionChanged="comboHighlightings_SelectionChanged"
                               DisplayMemberPath="Name"
                               IsTextSearchEnabled="False"></ComboBox>
                 </StackPanel>

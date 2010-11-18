@@ -100,6 +100,7 @@ namespace HgSccHelper
 
 		private ColorizeChanges colorizer;
 		private ObservableCollection<EncodingItem> encodings;
+		private ObservableCollection<IHighlightingDefinition> highlightings;
 
 		//------------------------------------------------------------------
 		public AnnotateControl()
@@ -138,6 +139,12 @@ namespace HgSccHelper
 			encodings.Add(new EncodingItem { Name = "Ansi", Encoding = Encoding.Default });
 			encodings.Add(new EncodingItem { Name = "Utf8", Encoding = Encoding.UTF8 });
 			comboEncodings.ItemsSource = encodings;
+
+			var defs = HighlightingManager.Instance.HighlightingDefinitions;
+			highlightings = new ObservableCollection<IHighlightingDefinition>(
+				defs.OrderBy(h => h.Name));
+
+			comboHighlighting.ItemsSource = highlightings;
 		}
 
 		//------------------------------------------------------------------
@@ -225,7 +232,7 @@ namespace HgSccHelper
 			Hg = new Hg();
 
 			string encoding_name;
-			Cfg.Get(GrepWindow.CfgPath, "encoding", out encoding_name, encodings[0].Name);
+			Cfg.Get(AnnotateWindow.CfgPath, "encoding", out encoding_name, encodings[0].Name);
 
 			var encoding = encodings.First(enc => enc.Name == encoding_name);
 			if (encoding != null)
@@ -317,9 +324,13 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void SetSyntaxHighlighting()
 		{
-			textEditor.SyntaxHighlighting = HighlightingManager.Instance.
+			var highlighting = HighlightingManager.Instance.
 				GetDefinitionByExtension(
 					System.IO.Path.GetExtension(FileName));
+
+			textEditor.SyntaxHighlighting = highlighting;
+			if (highlighting != null)
+				comboHighlighting.SelectedItem = highlighting;
 
 			colorizer = new ColorizeChanges(annotated_lines);
 			textEditor.TextArea.TextView.LineTransformers.Add(colorizer);
@@ -366,6 +377,12 @@ namespace HgSccHelper
 			SetLines();
 		}
 
+		//------------------------------------------------------------------
+		private void comboHighlightings_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (comboHighlighting.SelectedItem != null)
+			textEditor.SyntaxHighlighting = comboHighlighting.SelectedItem as IHighlightingDefinition;
+		}
 
 		//------------------------------------------------------------------
 		private void Control_Unloaded(object sender, RoutedEventArgs e)
@@ -403,7 +420,7 @@ namespace HgSccHelper
 
 			var encoding = comboEncodings.SelectedItem as EncodingItem;
 			if (encoding != null)
-				Cfg.Set(GrepWindow.CfgPath, "encoding", encoding.Name);
+				Cfg.Set(AnnotateWindow.CfgPath, "encoding", encoding.Name);
 
 			if (colorizer != null)
 			{
@@ -795,59 +812,6 @@ namespace HgSccHelper
 				hg.ViewFile(WorkingDir, file_info.Path, (cs.Rev - 1).ToString());
 			else
 				hg.ViewFile(WorkingDir, file_info.Path, cs.Rev.ToString());
-		}
-
-		//------------------------------------------------------------------
-		private void Grep_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-		{
-			e.CanExecute = true;
-			e.Handled = true;
-		}
-
-		//------------------------------------------------------------------
-		private void Grep_Executed(object sender, ExecutedRoutedEventArgs e)
-		{
-			var wnd = new GrepWindow();
-			wnd.WorkingDir = WorkingDir;
-
-			wnd.Owner = Window.GetWindow(this);
-			wnd.ShowDialog();
-
-			if (wnd.UpdateContext.IsParentChanged)
-				HandleParentChange();
-
-			UpdateContext.MergeWith(wnd.UpdateContext);
-		}
-
-		//-----------------------------------------------------------------------------
-		private void Archive_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-		{
-			e.CanExecute = false;
-
-			if (listChanges != null)
-			{
-				if (listChanges.SelectedItems.Count == 1)
-				{
-					var change = listChanges.SelectedItems[0] as FileHistoryInfo;
-					if (change != null)
-						e.CanExecute = true;
-				}
-			}
-
-			e.Handled = true;
-		}
-
-		//-----------------------------------------------------------------------------
-		private void Archive_Executed(object sender, ExecutedRoutedEventArgs e)
-		{
-			var change = (FileHistoryInfo)listChanges.SelectedItems[0];
-
-			var wnd = new ArchiveWindow();
-			wnd.WorkingDir = WorkingDir;
-			wnd.ArchiveRevision = change.ChangeDesc.Rev.ToString();
-
-			wnd.Owner = Window.GetWindow(this);
-			wnd.ShowDialog();
 		}
 
 		//------------------------------------------------------------------
