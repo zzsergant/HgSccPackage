@@ -15,21 +15,25 @@
         <converters:RemoveLastNewLineConverter x:Key="RemoveLastNewLineConverter" />
         <DataTemplate x:Key="myCellTemplateDesc">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding Path=BranchInfo.Name}" VerticalAlignment="Center"
-                           Background="GreenYellow"
-                           Foreground="Black"
-                           Padding="5,1"
-                           Margin="0,0,5,0">
-                    <TextBlock.Style>
-                        <Style TargetType="{x:Type TextBlock}">
+                <Border BorderThickness="1"
+                        Margin="0,0,5,0"
+                        SnapsToDevicePixels="True"
+                        BorderBrush="Green">
+                    <TextBlock Text="{Binding Path=BranchInfo.Name}" VerticalAlignment="Center"
+                               Background="GreenYellow"
+                               Foreground="Black"
+                               Padding="5,1">
+                    </TextBlock>
+                    <Border.Style>
+                        <Style TargetType="{x:Type Border}">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=BranchInfo}" Value="{x:Null}">
+                                <DataTrigger Binding="{Binding BranchInfo}" Value="{x:Null}">
                                     <Setter Property="Visibility" Value="Collapsed"></Setter>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </TextBlock.Style>
-                </TextBlock>
+                    </Border.Style>
+                </Border>
                 <ItemsControl ItemsSource="{Binding ChangeDesc.Tags}"
                               Focusable="False">
                     <ItemsControl.ItemsPanel>
@@ -39,11 +43,15 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding}" VerticalAlignment="Center"
+                            <Border BorderThickness="1"
+                                    Margin="0,0,5,0"
+                                    SnapsToDevicePixels="True"
+                                    BorderBrush="Goldenrod">
+                                <TextBlock Text="{Binding}" VerticalAlignment="Center"
                                        Background="Yellow"
                                        Foreground="Black"
-                                       Padding="5,1"
-                                       Margin="0,0,5,0"/>
+                                       Padding="5,1"/>
+                            </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
