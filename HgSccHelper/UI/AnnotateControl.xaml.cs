@@ -845,7 +845,18 @@ namespace HgSccHelper
 				var file_history = (FileHistoryInfo)listChanges.SelectedItem;
 				listViewFiles.ItemsSource = file_history.ChangeDesc.Files;
 				if (listViewFiles.Items.Count > 0)
-					listViewFiles.SelectedIndex = 0;
+				{
+					var file = file_history.ChangeDesc.Files.FirstOrDefault(
+						f => f.Path == file_history.RenameInfo.Path);
+
+					if (file != null)
+						listViewFiles.SelectedItem = file;
+
+					if (listViewFiles.SelectedIndex == -1)
+						listViewFiles.SelectedIndex = 0;
+
+					listViewFiles.ScrollIntoView(listViewFiles.SelectedItem);
+				}
 
 				List<AnnotateLineView> rev_lines;
 				if (rev_to_line_view.TryGetValue(file_history.ChangeDesc.Rev, out rev_lines))
