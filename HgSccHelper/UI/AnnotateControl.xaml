@@ -97,8 +97,11 @@
                         MinWidth="75" />
                 <Separator />
                 <Label Content="Line:" Margin="5,0"></Label>
-                <TextBox Name="textLine" Margin="5,0"
+                <Border BorderThickness="1" Margin="5,0"
+                        SnapsToDevicePixels="True">
+                    <TextBox Name="textLine"
                          Width="90" MaxLines="1" PreviewKeyDown="textLine_PreviewKeyDown"></TextBox>
+                </Border>
                 <Button Content="Goto"
                         Command="{x:Static local:AnnotateControl.GotoLineCommand}"
                         ></Button>
