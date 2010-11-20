@@ -238,16 +238,7 @@ namespace HgSccHelper.UI
 
 			if (!worker.CancellationPending)
 			{
-				var encoding = comboEncodings.SelectedItem as EncodingItem;
-
-				foreach (var line in lines)
-				{
-					var text_line = line;
-					if (encoding != null && encoding.Encoding != Encoding.Default)
-						text_line = Util.Convert(line, encoding.Encoding, Encoding.Default);
-
-					richTextBox.AppendText(text_line + "\n");
-				}
+				WriteLinesToColorizer();
 
 				if (Complete != null)
 				{
@@ -260,6 +251,22 @@ namespace HgSccHelper.UI
 				Complete(null);
 		}
 
+		//-----------------------------------------------------------------------------
+		void WriteLinesToColorizer()
+		{
+			var encoding = comboEncodings.SelectedItem as EncodingItem;
+
+			richTextBox.Clear();
+			foreach (var line in lines)
+			{
+				var text_line = line;
+				if (encoding != null && encoding.Encoding != Encoding.Default)
+					text_line = Util.Convert(line, encoding.Encoding, Encoding.Default);
+
+				richTextBox.AppendText(text_line + "\n");
+			}
+		}
+
 		//------------------------------------------------------------------
 		private void comboEncodings_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
@@ -267,16 +274,9 @@ namespace HgSccHelper.UI
 
 			if (encoding != null)
 			{
-				richTextBox.Clear();
-
-				foreach (var line_info in lines)
+				if (!IsWorking && !worker.CancellationPending)
 				{
-					var text_line = line_info;
-
-					if (encoding.Encoding != Encoding.Default)
-						text_line = Util.Convert(line_info, encoding.Encoding, Encoding.Default);
-					
-					richTextBox.AppendText(text_line + "\n");
+					WriteLinesToColorizer();
 				}
 			}
 		}
