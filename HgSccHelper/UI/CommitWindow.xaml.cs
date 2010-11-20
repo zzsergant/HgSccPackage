@@ -547,6 +547,20 @@ namespace HgSccHelper
 					return;
 				}
 
+				bool checked_deleted =
+					checked_list.Any(item => item.FileInfo.Status == HgFileStatus.Deleted);
+
+				if (checked_deleted)
+				{
+					var del_result =
+						MessageBox.Show(
+							"You are trying to commit the files which are deleted localy, but not removed in mercurial.\nAre you sure to proceed ?",
+							"Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+
+					if (del_result != MessageBoxResult.OK)
+						return;
+				}
+
 				var to_commit_files = new List<string>();
 				foreach (var commit_item in checked_list)
 				{
