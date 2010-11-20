@@ -10,11 +10,11 @@
 // 
 //=========================================================================
 
+using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Configuration.Install;
 using System.Diagnostics;
-using Microsoft.Win32;
 
 namespace HgSccInstaller.RunInstaller
 {
@@ -29,50 +29,43 @@ namespace HgSccInstaller.RunInstaller
 		}
 
 		//------------------------------------------------------------------
-		public override void Install(IDictionary stateSaver)
+		public override void Install(IDictionary state_saver)
 		{
-			base.Install(stateSaver);
+			base.Install(state_saver);
 
-			using (var vs2008_hgpkg = Registry.LocalMachine.OpenSubKey(
-				@"SOFTWARE\Microsoft\VisualStudio\9.0\Packages\{a7f26ca1-2000-4729-896e-0bbe9e380635}"))
+			bool install_vs2008 = false;
+			if (Context.Parameters.ContainsKey("ci_vs2008"))
 			{
-				if (vs2008_hgpkg != null)
+				int ci_vs2008;
+				if (int.TryParse(Context.Parameters["ci_vs2008"], out ci_vs2008))
+					install_vs2008 = ci_vs2008 == 1;
+			}
+
+			if (install_vs2008)
+			{
+				var ci_devenv2008 = Context.Parameters["ci_devenv2008"];
+				if (ci_devenv2008 != null && ci_devenv2008.EndsWith("devenv.exe", StringComparison.InvariantCultureIgnoreCase))
 				{
-					using (RegistryKey setupKey = Registry.LocalMachine.OpenSubKey(
-						  @"SOFTWARE\Microsoft\VisualStudio\9.0\Setup\VS"))
-					{
-						if (setupKey != null)
-						{
-							string devenv = setupKey.GetValue("EnvironmentPath").ToString();
-							if (!string.IsNullOrEmpty(devenv))
-							{
-								Process.Start(devenv, "/setup /nosetupvstemplates").WaitForExit();
-							}
-						}
-					}
+					Process.Start(ci_devenv2008, "/setup /nosetupvstemplates").WaitForExit();
 				}
 			}
 
-			using (var vs2010_hgpkg = Registry.LocalMachine.OpenSubKey(
-				@"SOFTWARE\Microsoft\VisualStudio\10.0\Packages\{a7f26ca1-2000-4729-896e-0bbe9e380635}"))
+			bool install_vs2010 = false;
+			if (Context.Parameters.ContainsKey("ci_vs2010"))
 			{
-				if (vs2010_hgpkg != null)
+				int ci_vs2010;
+				if (int.TryParse(Context.Parameters["ci_vs2010"], out ci_vs2010))
+					install_vs2010 = ci_vs2010 == 1;
+			}
+
+			if (install_vs2010)
+			{
+				var ci_devenv2010 = Context.Parameters["ci_devenv2010"];
+				if (ci_devenv2010 != null && ci_devenv2010.EndsWith("devenv.exe", StringComparison.InvariantCultureIgnoreCase))
 				{
-					using (RegistryKey setupKey = Registry.LocalMachine.OpenSubKey(
-					  @"SOFTWARE\Microsoft\VisualStudio\10.0\Setup\VS"))
-					{
-						if (setupKey != null)
-						{
-							string devenv = setupKey.GetValue("EnvironmentPath").ToString();
-							if (!string.IsNullOrEmpty(devenv))
-							{
-								Process.Start(devenv, "/setup /nosetupvstemplates").WaitForExit();
-							}
-						}
-					}
+					Process.Start(ci_devenv2010, "/setup /nosetupvstemplates").WaitForExit();
 				}
 			}
 		}
-
 	}
 }
