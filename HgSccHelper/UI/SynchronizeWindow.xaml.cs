@@ -101,6 +101,12 @@ namespace HgSccHelper
 		public const string CfgPath = @"GUI\SynchronizeWindow";
 		CfgWindowPosition wnd_cfg;
 
+		//-----------------------------------------------------------------------------
+		private AsyncOperations async_ops;
+
+		//-----------------------------------------------------------------------------
+		private Cursor prev_cursor;
+
 		//------------------------------------------------------------------
 		public SynchronizeWindow()
 		{
@@ -140,6 +146,30 @@ namespace HgSccHelper
 			UpdateAfterPull = true;
 
 			ReloadPaths();
+		}
+
+		//-----------------------------------------------------------------------------
+		private AsyncOperations RunningOperations
+		{
+			get { return async_ops; }
+			set
+			{
+				if (async_ops != value)
+				{
+					if (async_ops == AsyncOperations.None)
+					{
+						prev_cursor = Cursor;
+						Cursor = Cursors.Wait;
+					}
+
+					async_ops = value;
+
+					if (async_ops == AsyncOperations.None)
+					{
+						Cursor = prev_cursor;
+					}
+				}
+			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -259,6 +289,7 @@ namespace HgSccHelper
 
 			p.Args = builder.ToString();
 
+			RunningOperations |= AsyncOperations.Synchronize;
 			worker.Run(p);
 
 			e.Handled = true;
@@ -306,6 +337,7 @@ namespace HgSccHelper
 
 			p.Args = builder.ToString();
 
+			RunningOperations |= AsyncOperations.Synchronize;
 			worker.Run(p);
 			e.Handled = true;
 		}
@@ -346,6 +378,7 @@ namespace HgSccHelper
 
 			p.Args = builder.ToString();
 
+			RunningOperations |= AsyncOperations.Synchronize;
 			worker.Run(p);
 			e.Handled = true;
 		}
@@ -383,6 +416,7 @@ namespace HgSccHelper
 
 			p.Args = builder.ToString();
 
+			RunningOperations |= AsyncOperations.Synchronize;
 			worker.Run(p);
 			e.Handled = true;
 		}
@@ -397,6 +431,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Stop_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
+			RunningOperations &= ~AsyncOperations.Synchronize;
 			worker.Cancel();
 			e.Handled = true;
 		}
@@ -411,6 +446,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		void Worker_Completed(HgThreadResult completed)
 		{
+			RunningOperations &= ~AsyncOperations.Synchronize;
+
 			Worker_NewMsg("");
 
 			switch(completed.Status)

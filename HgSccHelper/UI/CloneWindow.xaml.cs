@@ -87,6 +87,12 @@ namespace HgSccHelper
 		public const string CfgPath = @"GUI\CloneWindow";
 		CfgWindowPosition wnd_cfg;
 
+		//-----------------------------------------------------------------------------
+		private AsyncOperations async_ops;
+
+		//-----------------------------------------------------------------------------
+		private Cursor prev_cursor;
+
 		//------------------------------------------------------------------
 		public CloneWindow()
 		{
@@ -125,6 +131,30 @@ namespace HgSccHelper
 		{
 			worker.Cancel();
 			worker.Dispose();
+		}
+
+		//-----------------------------------------------------------------------------
+		private AsyncOperations RunningOperations
+		{
+			get { return async_ops; }
+			set
+			{
+				if (async_ops != value)
+				{
+					if (async_ops == AsyncOperations.None)
+					{
+						prev_cursor = Cursor;
+						Cursor = Cursors.Wait;
+					}
+
+					async_ops = value;
+
+					if (async_ops == AsyncOperations.None)
+					{
+						Cursor = prev_cursor;
+					}
+				}
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -205,6 +235,7 @@ namespace HgSccHelper
 
 			p.Args = builder.ToString();
 
+			RunningOperations |= AsyncOperations.Clone;
 			worker.Run(p);
 
 			e.Handled = true;
@@ -220,6 +251,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Stop_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
+			RunningOperations &= ~AsyncOperations.Clone;
 			worker.Cancel();
 			e.Handled = true;
 		}
@@ -234,6 +266,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		void Worker_Completed(HgThreadResult completed)
 		{
+			RunningOperations &= ~AsyncOperations.Clone;
 			Worker_NewMsg("");
 
 			switch(completed.Status)

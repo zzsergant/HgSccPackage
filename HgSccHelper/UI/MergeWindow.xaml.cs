@@ -43,6 +43,12 @@ namespace HgSccHelper
 		public const string CfgPath = @"GUI\MergeWindow";
 		CfgWindowPosition wnd_cfg;
 
+		//-----------------------------------------------------------------------------
+		private AsyncOperations async_ops;
+
+		//-----------------------------------------------------------------------------
+		private Cursor prev_cursor;
+
 		//------------------------------------------------------------------
 		public MergeWindow()
 		{
@@ -120,6 +126,30 @@ namespace HgSccHelper
 			comboMergeTools.ItemsSource = tools_list;
 			comboMergeTools.SelectedIndex = 0;
 			targetDesc.Text = Hg.GetRevisionDesc(WorkingDir, Target.SHA1).GetDescription();
+		}
+
+		//-----------------------------------------------------------------------------
+		private AsyncOperations RunningOperations
+		{
+			get { return async_ops; }
+			set
+			{
+				if (async_ops != value)
+				{
+					if (async_ops == AsyncOperations.None)
+					{
+						prev_cursor = Cursor;
+						Cursor = Cursors.Wait;
+					}
+
+					async_ops = value;
+
+					if (async_ops == AsyncOperations.None)
+					{
+						Cursor = prev_cursor;
+					}
+				}
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -214,6 +244,7 @@ namespace HgSccHelper
 			p.Args = builder.ToString();
 
 			Worker_NewMsg("[Merge started]\n");
+			RunningOperations |= AsyncOperations.Merge;
 			worker.Run(p);
 
 			UpdateContext.IsParentChanged = true;
@@ -230,6 +261,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Stop_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
+			RunningOperations &= ~AsyncOperations.Merge;
 			worker.Cancel();
 			e.Handled = true;
 		}
@@ -243,6 +275,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		void Worker_Completed(HgThreadResult completed)
 		{
+			RunningOperations &= ~AsyncOperations.Merge;
 			Worker_NewMsg("");
 
 			switch (completed.Status)

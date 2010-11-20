@@ -1105,7 +1105,10 @@ namespace HgSccHelper
 		ChangeDesc		= 0x0010,
 		Diff			= 0x0020,
 		Grep			= 0x0040,
-		Annotate		= 0x0080
+		Annotate		= 0x0080,
+		Synchronize		= 0x0100,
+		Clone			= 0x0200,
+		Merge			= 0x0400
 	}
 
 }
