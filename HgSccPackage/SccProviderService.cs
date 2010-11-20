@@ -1084,7 +1084,7 @@ namespace HgSccPackage
 				//Iterate through all the files
 				for (int iFile = 0; iFile < cFiles; iFile++)
 				{
-					Logger.WriteLine("QueryEditFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
+//					Logger.WriteLine("QueryEditFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
 					 
 					uint fEditVerdict = (uint)tagVSQueryEditResult.QER_EditNotOK;
 					uint fMoreInfo = 0;
