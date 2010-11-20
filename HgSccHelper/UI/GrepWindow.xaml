@@ -21,6 +21,12 @@
                        FontFamily="Courier New" TextTrimming="CharacterEllipsis">
             </TextBlock>
         </DataTemplate>
+        <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
+        <DataTemplate x:Key="statusCellTemplate">
+            <TextBlock Text="{Binding Status}"
+                       Foreground="{Binding Path=Status, Converter={StaticResource HgStatusToColor}, ConverterParameter=FileStatus}">
+            </TextBlock>
+        </DataTemplate>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static ui:Commands.ArchiveCommand}"
@@ -279,7 +285,7 @@
                         </ListView.ContextMenu>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding Status}" />
+                                <GridViewColumn Header="Status" Width="90" CellTemplate="{StaticResource statusCellTemplate}" />
                                 <GridViewColumn Header="File" Width="850"  DisplayMemberBinding="{Binding Path}" />
                             </GridView>
                         </ListView.View>

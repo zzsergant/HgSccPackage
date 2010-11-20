@@ -5,8 +5,7 @@
     Title="CommitWindow"
     Height="600"
     Width="1026"
-    xmlns:local="clr-namespace:HgSccHelper"
-    x:Name="root"
+    xmlns:local="clr-namespace:HgSccHelper" xmlns:converters="clr-namespace:HgSccHelper.UI.Converters" x:Name="root"
     Loaded="Window_Loaded"
     Closed="Window_Closed"
     PreviewKeyDown="Window_PreviewKeyDown"
@@ -76,6 +75,12 @@
     <Window.Resources>
         <DataTemplate x:Key="CheckBoxCell">
             <CheckBox IsChecked="{Binding Path=IsChecked}" Focusable="False"></CheckBox>
+        </DataTemplate>
+        <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
+        <DataTemplate x:Key="statusCellTemplate">
+            <TextBlock Text="{Binding FileInfo.Status}"
+                       Foreground="{Binding Path=FileInfo.Status, Converter={StaticResource HgStatusToColor}}">
+            </TextBlock>
         </DataTemplate>
     </Window.Resources>
     <Grid>
@@ -204,7 +209,7 @@
                                         </DataTemplate>
                                     </GridViewColumn.HeaderTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding FileInfo.Status}" />
+                                <GridViewColumn Header="Status" Width="90" CellTemplate="{StaticResource statusCellTemplate}" />
                                 <GridViewColumn Header="Merge" Width="90" DisplayMemberBinding="{Binding ResolveStatus}" />
                                 <GridViewColumn Header="Path" Width="800" DisplayMemberBinding="{Binding PathViewString}" />
                             </GridView>

@@ -66,7 +66,12 @@
     </UserControl.CommandBindings>
     <UserControl.Resources>
         <converters:RemoveLastNewLineConverter x:Key="RemoveLastNewLineConverter" />
-    	<local:RevLogLinesPair x:Key="RevLogLinesPairDataSource" d:IsDataSource="True"/>
+        <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
+        <DataTemplate x:Key="statusCellTemplate">
+            <TextBlock Text="{Binding FileInfo.Status}"
+                       Foreground="{Binding Path=FileInfo.Status, Converter={StaticResource HgStatusToColor}}">
+            </TextBlock>
+        </DataTemplate>
         <DataTemplate x:Key="myCellTemplateDesc">
         	<StackPanel Orientation="Horizontal">
         		<local:RevLogLinesVisual Height="20"
@@ -242,7 +247,7 @@
                 <ListView.View>
                     <GridView x:Name="graphViewGrid">
                         <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding Current.ChangeDesc.Rev}" />
-                        <GridViewColumn Header="Desc" Width="450"  CellTemplate="{StaticResource myCellTemplateDesc}"/>
+                        <GridViewColumn Header="Desc" Width="450" CellTemplate="{StaticResource myCellTemplateDesc}"/>
                         <!--<GridViewColumn Header="Desc" Width="250" DisplayMemberBinding="{Binding Current.ChangeDesc.OneLineDesc}" />-->
                         <GridViewColumn Header="Author" Width="250" DisplayMemberBinding="{Binding Current.ChangeDesc.Author}" />
                         <GridViewColumn Header="Date" Width="150" DisplayMemberBinding="{Binding Current.ChangeDesc.Date}" />
@@ -341,7 +346,7 @@
                                 </ListView.ContextMenu>
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding FileInfo.Status}" />
+                                        <GridViewColumn Header="Status" Width="90" CellTemplate="{StaticResource statusCellTemplate}" />
                                         <GridViewColumn Header="File" Width="850"  DisplayMemberBinding="{Binding FileInfo.FileViewString}" />
                                     </GridView>
                                 </ListView.View>

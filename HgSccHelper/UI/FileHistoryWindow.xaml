@@ -12,6 +12,12 @@
     PreviewKeyDown="Window_PreviewKeyDown"
     WindowStartupLocation="CenterScreen">
     <Window.Resources>
+        <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
+        <DataTemplate x:Key="statusCellTemplate">
+            <TextBlock Text="{Binding Status}"
+                       Foreground="{Binding Path=Status, Converter={StaticResource HgStatusToColor}, ConverterParameter=FileStatus}">
+            </TextBlock>
+        </DataTemplate>
         <converters:RemoveLastNewLineConverter x:Key="RemoveLastNewLineConverter" />
         <DataTemplate x:Key="myCellTemplateDesc">
             <StackPanel Orientation="Horizontal">
@@ -273,7 +279,7 @@
                     </ListView.ContextMenu>
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Status" Width="90" DisplayMemberBinding="{Binding Status}" />
+                            <GridViewColumn Header="Status" Width="90" CellTemplate="{StaticResource statusCellTemplate}" />
                             <GridViewColumn Header="File" Width="850"  DisplayMemberBinding="{Binding Path}" />
                         </GridView>
                     </ListView.View>
