@@ -65,12 +65,6 @@
                 </TextBlock>
             </StackPanel>
         </DataTemplate>
-        <DataTemplate x:Key="SourceTemplate">
-            <TextBlock Text="{Binding Path=Info.Source}"
-                       HorizontalAlignment="Stretch"
-                       FontFamily="Courier New">
-            </TextBlock>
-        </DataTemplate>
     </UserControl.Resources>
     <UserControl.CommandBindings>
         <CommandBinding Command="{x:Static local:AnnotateControl.GotoLineCommand}"
@@ -165,9 +159,8 @@
                 <ListView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"
-                              InputGestureText="Ctrl + D"></MenuItem>
-                        <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"
-                              ></MenuItem>
+                                  InputGestureText="Ctrl + D"></MenuItem>
+                        <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
@@ -215,13 +208,20 @@
                         Name="textEditor"
                         FontFamily="Consolas"
                         FontSize="10pt">
-<!--
+                        <avalonEdit:TextEditor.CommandBindings>
+                            <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                                            CanExecute="HistoryDiffPrevious_CanExecute"
+                                            Executed="HistoryDiffPrevious_Executed">
+                            </CommandBinding>
+                        </avalonEdit:TextEditor.CommandBindings>
                         <avalonEdit:TextEditor.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Command="Copy"></MenuItem>
+                                <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"></MenuItem>
+                                <Separator />
+                                <MenuItem Command="{x:Static local:AnnotateControl.PrevChangeCommand}"></MenuItem>
+                                <MenuItem Command="{x:Static local:AnnotateControl.NextChangeCommand}"></MenuItem>
                             </ContextMenu>
                         </avalonEdit:TextEditor.ContextMenu>
--->
                     </avalonEdit:TextEditor>
                 </Border>
 <!--
