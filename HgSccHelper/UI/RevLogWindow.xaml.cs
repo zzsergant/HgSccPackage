@@ -66,6 +66,7 @@ namespace HgSccHelper
 		private void Window_Closed(object sender, System.EventArgs e)
 		{
 			revLogControl1.GraphViewGrid.SaveCfg(RevLogWindow.CfgPath, "GraphViewGrid");
+			revLogControl1.Dispose();
 		}
 	}
 }

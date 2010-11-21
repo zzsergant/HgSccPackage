@@ -171,6 +171,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Closed(object sender, EventArgs e)
 		{
+			diffColorizer.Dispose();
+
 			async_changedesc.Cancel();
 			async_changedesc.Dispose();
 

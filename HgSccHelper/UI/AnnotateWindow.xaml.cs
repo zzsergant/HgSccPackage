@@ -66,6 +66,7 @@ namespace HgSccHelper
 		private void Window_Closed(object sender, System.EventArgs e)
 		{
 			annotateControl1.ListChangesGrid.SaveCfg(AnnotateWindow.CfgPath, "ListChangesGrid");
+			annotateControl1.Dispose();
 //			annotateControl1.ListLinesGrid.SaveCfg(AnnotateWindow.CfgPath, "ListLinesGrid");
 		}
 	}

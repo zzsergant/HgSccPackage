@@ -237,6 +237,8 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		private void Window_Closed(object sender, EventArgs e)
 		{
+			diffColorizer.Dispose();
+
 			listLinesGrid.SaveCfg(GrepWindow.CfgPath, "ListLinesGrid");
 			var encoding = comboEncodings.SelectedItem as EncodingItem;
 			if (encoding != null)

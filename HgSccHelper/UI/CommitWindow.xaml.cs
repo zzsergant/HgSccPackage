@@ -490,6 +490,8 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void Window_Closed(object sender, EventArgs e)
 		{
+			diffColorizer.Dispose();
+
 			async_identify.Cancel();
 			async_identify.Dispose();
             

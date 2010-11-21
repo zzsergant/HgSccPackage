@@ -162,6 +162,8 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void Window_Closed(object sender, EventArgs e)
 		{
+			diffColorizer.Dispose();
+
 			listFilesGrid.SaveCfg(RevertWindow.CfgPath, "ListFilesGrid");
 
 			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);

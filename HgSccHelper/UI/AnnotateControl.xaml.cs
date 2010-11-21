@@ -29,7 +29,7 @@ using ICSharpCode.AvalonEdit.Rendering;
 
 namespace HgSccHelper
 {
-	public partial class AnnotateControl : UserControl
+	public partial class AnnotateControl : IDisposable
 	{
 		//-----------------------------------------------------------------------------
 		public static RoutedUICommand GotoLineCommand = new RoutedUICommand("Goto Line",
@@ -85,6 +85,9 @@ namespace HgSccHelper
 		Dictionary<int, List<AnnotateLineView>> rev_to_line_view;
 
 		GridViewColumnSorter files_sorter;
+
+		//-----------------------------------------------------------------------------
+		private bool disposed;
 
 		//-----------------------------------------------------------------------------
 		private AsyncOperations async_ops;
@@ -384,48 +387,61 @@ namespace HgSccHelper
 			textEditor.SyntaxHighlighting = comboHighlighting.SelectedItem as IHighlightingDefinition;
 		}
 
+		//-----------------------------------------------------------------------------
+		public void Dispose()
+		{
+			if (!disposed)
+			{
+				disposed = true;
+
+				async_changedesc.Cancel();
+				async_changedesc.Dispose();
+
+				async_identify.Cancel();
+				async_identify.Dispose();
+
+				async_branches.Cancel();
+				async_branches.Dispose();
+
+				async_tags.Cancel();
+				async_tags.Dispose();
+
+				async_annotate.Cancel();
+				async_annotate.Dispose();
+
+				Cfg.Set(AnnotateWindow.CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
+				if (!Double.IsNaN(diffColorizer.Width))
+				{
+					int diff_width = (int)diffColorizer.Width;
+					if (diff_width > 0)
+						Cfg.Set(AnnotateWindow.CfgPath, DiffColorizerControl.DiffWidth, diff_width);
+				}
+
+				Cfg.Set(AnnotateWindow.CfgPath, "FilesVisible", viewFilesExpander.IsExpanded ? 1 : 0);
+				if (!Double.IsNaN(gridFiles.Height))
+				{
+					int files_height = (int)gridFiles.Height;
+					if (files_height > 0)
+						Cfg.Set(AnnotateWindow.CfgPath, "FilesHeight", files_height);
+				}
+
+				var encoding = comboEncodings.SelectedItem as EncodingItem;
+				if (encoding != null)
+					Cfg.Set(AnnotateWindow.CfgPath, "encoding", encoding.Name);
+
+				if (colorizer != null)
+				{
+					textEditor.TextArea.Caret.PositionChanged -= Caret_PositionChanged;
+				}
+
+				diffColorizer.Dispose();
+			}
+		}
+
 		//------------------------------------------------------------------
 		private void Control_Unloaded(object sender, RoutedEventArgs e)
 		{
-			async_changedesc.Cancel();
-			async_changedesc.Dispose();
-
-			async_identify.Cancel();
-			async_identify.Dispose();
-
-			async_branches.Cancel();
-			async_branches.Dispose();
-
-			async_tags.Cancel();
-			async_tags.Dispose();
-
-			async_annotate.Cancel();
-			async_annotate.Dispose();
-
-			Cfg.Set(AnnotateWindow.CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
-			if (!Double.IsNaN(diffColorizer.Width))
-			{
-				int diff_width = (int)diffColorizer.Width;
-				if (diff_width > 0)
-					Cfg.Set(AnnotateWindow.CfgPath, DiffColorizerControl.DiffWidth, diff_width);
-			}
-
-			Cfg.Set(AnnotateWindow.CfgPath, "FilesVisible", viewFilesExpander.IsExpanded ? 1 : 0);
-			if (!Double.IsNaN(gridFiles.Height))
-			{
-				int files_height = (int)gridFiles.Height;
-				if (files_height > 0)
-					Cfg.Set(AnnotateWindow.CfgPath, "FilesHeight", files_height);
-			}
-
-			var encoding = comboEncodings.SelectedItem as EncodingItem;
-			if (encoding != null)
-				Cfg.Set(AnnotateWindow.CfgPath, "encoding", encoding.Name);
-
-			if (colorizer != null)
-			{
-				textEditor.TextArea.Caret.PositionChanged -= Caret_PositionChanged;
-			}
+			Dispose();
 		}
 
 		//-----------------------------------------------------------------------------

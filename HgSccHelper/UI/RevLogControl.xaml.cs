@@ -29,7 +29,7 @@ namespace HgSccHelper
 	/// <summary>
 	/// Interaction logic for RevLogControl.xaml
 	/// </summary>
-	public partial class RevLogControl : UserControl
+	public partial class RevLogControl : IDisposable
 	{
 		List<RevLogChangeDesc> revs;
 		ObservableCollection<RevLogLinesPair> rev_lines;
@@ -65,6 +65,9 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		IdentifyInfo CurrentRevision { get; set; }
+
+		//-----------------------------------------------------------------------------
+		private bool disposed;
 
 		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty SelectedChangesetProperty =
@@ -367,32 +370,43 @@ namespace HgSccHelper
 			}
 		}
 
+		//-----------------------------------------------------------------------------
+		public void Dispose()
+		{
+			if (!disposed)
+			{
+				disposed = true;
+
+				async_changedesc.Cancel();
+				async_changedesc.Dispose();
+
+				async_identify.Cancel();
+				async_identify.Dispose();
+
+				async_branches.Cancel();
+				async_branches.Dispose();
+
+				async_tags.Cancel();
+				async_tags.Dispose();
+
+				worker.Cancel();
+				worker.Dispose();
+				revlog_style.Dispose();
+
+				Cfg.Set(RevLogWindow.CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
+				if (!Double.IsNaN(diffColorizer.Width))
+				{
+					int diff_width = (int)diffColorizer.Width;
+					if (diff_width > 0)
+						Cfg.Set(RevLogWindow.CfgPath, DiffColorizerControl.DiffWidth, diff_width);
+				}
+			}
+		}
+
 		//------------------------------------------------------------------
 		private void UserControl_Unloaded(object sender, System.Windows.RoutedEventArgs e)
 		{
-			async_changedesc.Cancel();
-			async_changedesc.Dispose();
-
-			async_identify.Cancel();
-			async_identify.Dispose();
-
-			async_branches.Cancel();
-			async_branches.Dispose();
-
-			async_tags.Cancel();
-			async_tags.Dispose();
-
-			worker.Cancel();
-			worker.Dispose();
-			revlog_style.Dispose();
-
-			Cfg.Set(RevLogWindow.CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
-			if (!Double.IsNaN(diffColorizer.Width))
-			{
-				int diff_width = (int) diffColorizer.Width;
-				if (diff_width > 0)
-					Cfg.Set(RevLogWindow.CfgPath, DiffColorizerControl.DiffWidth, diff_width);
-			}
+			Dispose();
 		}
 
 		//------------------------------------------------------------------

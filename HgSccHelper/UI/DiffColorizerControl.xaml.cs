@@ -31,7 +31,7 @@ namespace HgSccHelper.UI
 	/// <summary>
 	/// Interaction logic for DiffColorizerControl.xaml
 	/// </summary>
-	public partial class DiffColorizerControl
+	public partial class DiffColorizerControl : IDisposable
 	{
 		//------------------------------------------------------------------
 		readonly HgThread worker;
@@ -47,6 +47,9 @@ namespace HgSccHelper.UI
 
 		//-----------------------------------------------------------------------------
 		ObservableCollection<EncodingItem> encodings;
+
+		//-----------------------------------------------------------------------------
+		private bool disposed;
 
 		//-----------------------------------------------------------------------------
 		public const string CfgPath = @"GUI\Diff";
@@ -162,14 +165,25 @@ namespace HgSccHelper.UI
 		}
 
 		//-----------------------------------------------------------------------------
+		public void Dispose()
+		{
+			if (!disposed)
+			{
+				disposed = true;
+
+				worker.Cancel();
+				worker.Dispose();
+
+				var encoding = comboEncodings.SelectedItem as EncodingItem;
+				if (encoding != null)
+					Cfg.Set(DiffColorizerControl.CfgPath, "encoding", encoding.Name);
+			}
+		}
+
+		//-----------------------------------------------------------------------------
 		private void UserControl_Unloaded(object sender, RoutedEventArgs e)
 		{
-			worker.Cancel();
-			worker.Dispose();
-
-			var encoding = comboEncodings.SelectedItem as EncodingItem;
-			if (encoding != null)
-				Cfg.Set(DiffColorizerControl.CfgPath, "encoding", encoding.Name);
+			Dispose();
 		}
 
 		//-----------------------------------------------------------------------------
