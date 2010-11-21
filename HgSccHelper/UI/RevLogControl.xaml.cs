@@ -1108,7 +1108,10 @@ namespace HgSccHelper
 		Annotate		= 0x0080,
 		Synchronize		= 0x0100,
 		Clone			= 0x0200,
-		Merge			= 0x0400
+		Merge			= 0x0400,
+		ResolveList		= 0x0800,
+		Status			= 0x1000,
+		BranchName		= 0x2000
 	}
 
 }

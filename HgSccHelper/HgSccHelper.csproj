@@ -176,9 +176,13 @@
     </Compile>
     <Compile Include="UI\RevLog\AsyncAnnotate.cs" />
     <Compile Include="UI\RevLog\AsyncBranches.cs" />
+    <Compile Include="UI\RevLog\AsyncBranchName.cs" />
     <Compile Include="UI\RevLog\AsyncChangeDesc.cs" />
     <Compile Include="UI\RevLog\AsyncChangeDescFull.cs" />
     <Compile Include="UI\RevLog\AsyncIdentify.cs" />
+    <Compile Include="UI\RevLog\AsyncResolveList.cs" />
+    <Compile Include="UI\RevLog\AsyncRevLogChangeDesc.cs" />
+    <Compile Include="UI\RevLog\AsyncStatus.cs" />
     <Compile Include="UI\RevLog\AsyncTags.cs" />
     <Compile Include="UI\RevLog\RevLogChangeDesc.cs" />
     <Compile Include="UI\RevLogControl.xaml.cs">

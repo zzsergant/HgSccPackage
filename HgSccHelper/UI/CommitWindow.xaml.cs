@@ -25,6 +25,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using HgSccHelper.UI;
+using HgSccHelper.UI.RevLog;
 
 namespace HgSccHelper
 {
@@ -75,6 +76,14 @@ namespace HgSccHelper
 		public const string CfgPath = @"GUI\CommitWindow";
 		CfgWindowPosition wnd_cfg;
 
+		private AsyncIdentify async_identify;
+		private AsyncRevLogChangeDesc async_changedesc;
+		private AsyncResolveList async_resolve_list;
+		private AsyncStatus async_status;
+		private AsyncBranchName async_branch_name;
+
+		private Dictionary<string, ResolveStatus> resolve_dict;
+
 		//-----------------------------------------------------------------------------
 		public CommitWindow()
 		{
@@ -99,6 +108,23 @@ namespace HgSccHelper
 			files_sorter.ExcludeColumn(checkColumn);
 
 			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
+
+			async_identify = new AsyncIdentify();
+			async_identify.Complete = new Action<IdentifyInfo>(OnAsyncIdentify);
+
+			async_changedesc = new AsyncRevLogChangeDesc();
+			async_changedesc.Complete = new Action<AsyncRevLogChangeDescResult>(OnAsyncChangeDesc);
+
+			async_resolve_list = new AsyncResolveList();
+			async_resolve_list.Complete = new Action<List<ResolveInfo>>(OnAsyncResolveList);
+
+			async_status = new AsyncStatus();
+			async_status.Complete = new Action<AsyncStatusResult>(OnAsyncStatus);
+
+			async_branch_name = new AsyncBranchName();
+			async_branch_name.Complete = new Action<string>(OnAsyncBranchName);
+
+			resolve_dict = new Dictionary<string, ResolveStatus>();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -184,78 +210,8 @@ namespace HgSccHelper
 
 			Hg = new Hg();
 
-			CurrentRevision = Hg.Identify(WorkingDir);
-			if (CurrentRevision == null)
-			{
-				// error
-				Close();
-				return;
-			}
-
-			if (CurrentRevision.Parents.Count == 2)
-			{
-				IsMergeActive = true;
-				var grid_view = (GridView)listFiles.View;
-				grid_view.Columns.RemoveAt(0);
-			}
-			else
-			{
-				var grid_view = (GridView)listFiles.View;
-				grid_view.Columns.RemoveAt(2);
-			}
-
-			foreach (var parent in CurrentRevision.Parents)
-				parents.Add(Hg.GetRevisionDesc(WorkingDir, parent.SHA1));
-
-			if (!Prepare())
-			{
-				Close();
-				return;
-			}
-
-			if (commit_items.Count == 0)
-			{
-				Close();
-				return;
-			}
-
-			listFiles.ItemsSource = commit_items;
-			if (listFiles.Items.Count > 0)
-				listFiles.SelectedIndex = 0;
-
-			if (IsMergeActive)
-			{
-				textParent1.Text = parents[0].GetDescription();
-				textParent2.Text = parents[1].GetDescription();
-
-				var hg_merge_tools = new HgMergeTools();
-				merge_tools = hg_merge_tools.GetMergeTools();
-				if (merge_tools.Count > 0)
-				{
-					menuRestartMergeWith.Items.Add(new Separator());
-
-					foreach (var tool in merge_tools)
-					{
-						var item = new MenuItem();
-						item.Header = tool.Alias;
-						item.Command = RestartMergeCommand;
-						item.CommandParameter = tool.Alias;
-
-						menuRestartMergeWith.Items.Add(item);
-					}
-				}
-			}
-			else
-			{
-				parentsGrid.ColumnDefinitions.RemoveAt(1);
-				
-				// FIXME: It should be textParent1, but
-				// after removing column definition from the grid
-				// it leaves textParent2 textBox
-				textParent2.Text = parents[0].GetDescription();
-			}
-
-			UpdateBranchName();
+			RunningOperations |= AsyncOperations.Identify;
+			async_identify.RunAsync(WorkingDir);
 
 			textCommitMessage.Focus();
 		}
@@ -290,29 +246,253 @@ namespace HgSccHelper
 			RunningOperations &= ~AsyncOperations.Diff;
 		}
 
-		//------------------------------------------------------------------
-		void UpdateBranchName()
+		//-----------------------------------------------------------------------------
+		private void OnAsyncIdentify(IdentifyInfo new_current)
 		{
-			var hg_branch = new HgBranch();
-			NamedBranchOp.BranchName = hg_branch.GetBranchName(WorkingDir);
-			NamedBranchOp.IsNewBranch = false;
+			RunningOperations &= ~AsyncOperations.Identify;
 
-			// FIXME: Comparing only with first parent ?
-			if (parents[0] == null && NamedBranchOp.BranchName != "default")
+			CurrentRevision = new_current;
+			if (CurrentRevision == null)
 			{
-				// If the branch name changed from the very first commit
-				NamedBranchOp.IsNewBranch = true;
+				Close();
+				return;
+			}
+
+			if (CurrentRevision.Parents.Count == 2)
+			{
+				IsMergeActive = true;
+				var grid_view = (GridView)listFiles.View;
+				grid_view.Columns.RemoveAt(0);
 			}
 			else
-				if (parents[0] != null && parents[0].Branch != NamedBranchOp.BranchName)
+			{
+				var grid_view = (GridView)listFiles.View;
+				grid_view.Columns.RemoveAt(2);
+			}
+
+			RunningOperations |= AsyncOperations.ChangeDesc;
+			async_changedesc.Run(WorkingDir, CurrentRevision.Parents[0].SHA1);
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncChangeDesc(AsyncRevLogChangeDescResult result)
+		{
+			RunningOperations &= ~AsyncOperations.ChangeDesc;
+
+			if (result == null)
+			{
+				Close();
+				return;
+			}
+
+			parents.Add(result.Changeset);
+			if (parents.Count < CurrentRevision.Parents.Count)
+			{
+				RunningOperations |= AsyncOperations.ChangeDesc;
+				async_changedesc.Run(WorkingDir, CurrentRevision.Parents[parents.Count].SHA1);
+				return;
+			}
+
+			RunningOperations |= AsyncOperations.BranchName;
+			async_branch_name.RunAsync(WorkingDir);
+
+			if (IsMergeActive)
+			{
+				textParent1.Text = parents[0].GetDescription();
+				textParent2.Text = parents[1].GetDescription();
+
+				var hg_merge_tools = new HgMergeTools();
+				merge_tools = hg_merge_tools.GetMergeTools();
+				if (merge_tools.Count > 0)
 				{
+					menuRestartMergeWith.Items.Add(new Separator());
+
+					foreach (var tool in merge_tools)
+					{
+						var item = new MenuItem();
+						item.Header = tool.Alias;
+						item.Command = RestartMergeCommand;
+						item.CommandParameter = tool.Alias;
+
+						menuRestartMergeWith.Items.Add(item);
+					}
+				}
+			}
+			else
+			{
+				parentsGrid.ColumnDefinitions.RemoveAt(1);
+
+				// FIXME: It should be textParent1, but
+				// after removing column definition from the grid
+				// it leaves textParent2 textBox
+				textParent2.Text = parents[0].GetDescription();
+			}
+
+			if (IsMergeActive)
+			{
+				RunningOperations |= AsyncOperations.ResolveList;
+				async_resolve_list.RunAsync(WorkingDir);
+			}
+			else
+			{
+				RunningOperations |= AsyncOperations.Status;
+				async_status.Run(WorkingDir);
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncResolveList(List<ResolveInfo> resolve_list)
+		{
+			RunningOperations &= ~AsyncOperations.ResolveList;
+
+			if (resolve_list == null)
+			{
+				Close();
+				return;
+			}
+
+			foreach (var file in resolve_list)
+				resolve_dict[file.Path.ToLower()] = file.Status;
+
+			RunningOperations |= AsyncOperations.Status;
+			async_status.Run(WorkingDir);
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncStatus(AsyncStatusResult result)
+		{
+			RunningOperations &= ~AsyncOperations.Status;
+
+			if (result == null)
+			{
+				Close();
+				return;
+			}
+
+			var files_status_dict = new Dictionary<string, HgFileInfo>();
+			foreach (var file_status in result.Files)
+			{
+				files_status_dict.Add(file_status.File, file_status);
+			}
+
+			var dict = new Dictionary<string, HgFileStatus>();
+			if (FilesToCommit != null)
+			{
+				foreach (var f in FilesToCommit)
+				{
+					string file;
+					if (!Util.GetRelativePath(WorkingDir, f, out file))
+					{
+						Close();
+						return;
+					}
+
+					dict.Add(file.ToLower(), HgFileStatus.NotTracked);
+				}
+			}
+
+			var commit_removed = new Dictionary<string, CommitItem>();
+			foreach (var tuple in files_status_dict)
+			{
+				var f = tuple.Value;
+
+				switch (f.Status)
+				{
+					case HgFileStatus.Added:
+					case HgFileStatus.Modified:
+					case HgFileStatus.Removed:
+					case HgFileStatus.Deleted:
+						{
+							var item = new CommitItem();
+							string lower_f = f.File.ToLower();
+							item.IsChecked = dict.ContainsKey(lower_f);
+							item.FileInfo = f;
+							item.ResolveStatus = ResolveStatus.None;
+
+							if (IsMergeActive)
+							{
+								var resolve_status = ResolveStatus.None;
+								if (resolve_dict.TryGetValue(lower_f, out resolve_status))
+									item.ResolveStatus = resolve_status;
+							}
+
+							commit_items.Add(item);
+							if (f.Status == HgFileStatus.Removed)
+								commit_removed.Add(f.File, item);
+							break;
+						}
+				}
+			}
+
+			foreach (var f in commit_items)
+			{
+				if (f.IsChecked
+					&& f.FileInfo.Status == HgFileStatus.Added
+					&& !String.IsNullOrEmpty(f.FileInfo.CopiedFrom))
+				{
+					CommitItem item;
+
+					if (commit_removed.TryGetValue(f.FileInfo.CopiedFrom, out item))
+					{
+						Logger.WriteLine("commit_removed: " + item.FileInfo.File);
+						item.IsChecked = true;
+					}
+				}
+			}
+
+			if (CheckAllFiles)
+				IsAllChecked = true;
+
+			if (commit_items.Count == 0)
+			{
+				Close();
+				return;
+			}
+
+			listFiles.ItemsSource = commit_items;
+			if (listFiles.Items.Count > 0)
+				listFiles.SelectedIndex = 0;
+		}
+
+		//------------------------------------------------------------------
+		void OnAsyncBranchName(string branch_name)
+		{
+			RunningOperations &= ~AsyncOperations.BranchName;
+
+			if (branch_name != null)
+			{
+				NamedBranchOp.BranchName = branch_name;
+				NamedBranchOp.IsNewBranch = false;
+
+				// FIXME: Comparing only with first parent ?
+				if (parents[0] == null && NamedBranchOp.BranchName != "default")
+				{
+					// If the branch name changed from the very first commit
 					NamedBranchOp.IsNewBranch = true;
 				}
+				else
+					if (parents[0] != null && parents[0].Branch != NamedBranchOp.BranchName)
+					{
+						NamedBranchOp.IsNewBranch = true;
+					}
+			}
 		}
 
 		//-----------------------------------------------------------------------------
 		private void Window_Closed(object sender, EventArgs e)
 		{
+			async_identify.Cancel();
+			async_identify.Dispose();
+            
+			async_changedesc.Cancel();
+			async_changedesc.Dispose();
+
+			async_resolve_list.Cancel();
+			async_resolve_list.Dispose();
+
+			async_branch_name.Cancel();
+			async_branch_name.Dispose();
+
 			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
 			if (!Double.IsNaN(diffColorizer.Width))
 			{
@@ -391,93 +571,6 @@ namespace HgSccHelper
 			{
 				item.IsChecked = false;
 			}
-		}
-
-		//-----------------------------------------------------------------------------
-		private bool Prepare()
-		{
-			var resolve_dict = new Dictionary<string, ResolveStatus>();
-			if (IsMergeActive)
-			{
-				var hg_resolve = new HgResolve();
-				var resolve_list = hg_resolve.List(WorkingDir);
-				foreach (var file in resolve_list)
-					resolve_dict[file.Path.ToLower()] = file.Status;
-			}
-
-			var files_status_dict = new Dictionary<string, HgFileInfo>();
-
-			foreach (var file_status in Hg.Status(WorkingDir))
-			{
-				files_status_dict.Add(file_status.File, file_status);
-			}
-
-			var dict = new Dictionary<string, HgFileStatus>();
-			if (FilesToCommit != null)
-			{
-				foreach (var f in FilesToCommit)
-				{
-					string file;
-					if (!Util.GetRelativePath(WorkingDir, f, out file))
-						return false;
-
-					dict.Add(file.ToLower(), HgFileStatus.NotTracked);
-				}
-			}
-
-			var commit_removed = new Dictionary<string, CommitItem>();
-			foreach (var tuple in files_status_dict)
-			{
-				var f = tuple.Value;
-
-				switch (f.Status)
-				{
-					case HgFileStatus.Added:
-					case HgFileStatus.Modified:
-					case HgFileStatus.Removed:
-					case HgFileStatus.Deleted:
-						{
-							var item = new CommitItem();
-							string lower_f = f.File.ToLower();
-							item.IsChecked = dict.ContainsKey(lower_f);
-							item.FileInfo = f;
-							item.ResolveStatus = ResolveStatus.None;
-
-							if (IsMergeActive)
-							{
-								var resolve_status = ResolveStatus.None;
-								if (resolve_dict.TryGetValue(lower_f, out resolve_status))
-									item.ResolveStatus = resolve_status;
-							}
-
-							commit_items.Add(item);
-							if (f.Status == HgFileStatus.Removed)
-								commit_removed.Add(f.File, item);
-							break;
-						}
-				}
-			}
-
-			foreach (var f in commit_items)
-			{
-				if (f.IsChecked
-					&& f.FileInfo.Status == HgFileStatus.Added
-					&& !String.IsNullOrEmpty(f.FileInfo.CopiedFrom))
-				{
-					CommitItem item;
-
-					if (commit_removed.TryGetValue(f.FileInfo.CopiedFrom, out item))
-					{
-						Logger.WriteLine("commit_removed: " + item.FileInfo.File);
-						item.IsChecked = true;
-					}
-				}
-			}
-
-			if (CheckAllFiles)
-				IsAllChecked = true;
-
-			return true;
 		}
 
 		//------------------------------------------------------------------
@@ -987,8 +1080,9 @@ namespace HgSccHelper
 					MessageBox.Show("Unable to set branch name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 					return;
 				}
-				
-				UpdateBranchName();
+
+				RunningOperations |= AsyncOperations.BranchName;
+				async_branch_name.RunAsync(WorkingDir);
 			}
 		}
 
@@ -1006,7 +1100,9 @@ namespace HgSccHelper
 		{
 			var hg_branch = new HgBranch();
 			hg_branch.ResetBranchName(WorkingDir);
-			UpdateBranchName();
+
+			RunningOperations |= AsyncOperations.BranchName;
+			async_branch_name.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------

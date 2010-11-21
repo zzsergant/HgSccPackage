@@ -188,35 +188,15 @@ namespace HgSccHelper
 			{
 				var stream = proc.StandardOutput;
 
-				var resolved_prefix = "R ";
-				var unresolved_prefix = "U ";
-
 				while (true)
 				{
 					var str = stream.ReadLine();
 					if (str == null)
 						break;
 
-					ResolveInfo info = null;
-
-					if (str.StartsWith(unresolved_prefix))
-					{
-						info = new ResolveInfo();
-						info.Status = ResolveStatus.Unresolved;
-						info.Path = str.Substring(resolved_prefix.Length);
-					}
-					else if (str.StartsWith(resolved_prefix))
-					{
-						info = new ResolveInfo();
-						info.Status = ResolveStatus.Resolved;
-						info.Path = str.Substring(unresolved_prefix.Length);
-					}
-
+					ResolveInfo info = ParseResolveListLine(str);
 					if (info != null)
-					{
-						info.Path = info.Path.Replace('/', '\\');
 						resolve_list.Add(info);
-					}
 				}
 
 				proc.WaitForExit();
@@ -227,6 +207,34 @@ namespace HgSccHelper
 			return resolve_list;
 		}
 
+		//-----------------------------------------------------------------------------
+		public static ResolveInfo ParseResolveListLine(string str)
+		{
+			const string resolved_prefix = "R ";
+			const string unresolved_prefix = "U ";
+
+			ResolveInfo info = null;
+
+			if (str.StartsWith(unresolved_prefix))
+			{
+				info = new ResolveInfo();
+				info.Status = ResolveStatus.Unresolved;
+				info.Path = str.Substring(resolved_prefix.Length);
+			}
+			else if (str.StartsWith(resolved_prefix))
+			{
+				info = new ResolveInfo();
+				info.Status = ResolveStatus.Resolved;
+				info.Path = str.Substring(unresolved_prefix.Length);
+			}
+
+			if (info != null)
+			{
+				info.Path = info.Path.Replace('/', '\\');
+			}
+
+			return info;
+		}
 	}
 
 	//------------------------------------------------------------------
