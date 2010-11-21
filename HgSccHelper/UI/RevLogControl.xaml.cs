@@ -1074,6 +1074,9 @@ namespace HgSccHelper
 		public HgFileInfo FileInfo { get; set; }
 
 		//-----------------------------------------------------------------------------
+		public HgFileStatus Status { get { return FileInfo.Status; } }
+
+		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty IsSelectedProperty =
 			DependencyProperty.Register("IsSelected", typeof(bool),
 			typeof(ParentDiffHgFileInfo));

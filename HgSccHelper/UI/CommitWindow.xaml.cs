@@ -1181,7 +1181,11 @@ namespace HgSccHelper
 			DependencyProperty.Register("IsChecked", typeof(bool),
 			typeof(CommitItem));
 
+		//-----------------------------------------------------------------------------
 		public HgFileInfo FileInfo { get; set; }
+
+		//-----------------------------------------------------------------------------
+		public HgFileStatus Status { get { return FileInfo.Status; } }
 
 		//-----------------------------------------------------------------------------
 		public ResolveStatus ResolveStatus

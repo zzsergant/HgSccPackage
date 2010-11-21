@@ -573,7 +573,11 @@ namespace HgSccHelper
 			DependencyProperty.Register("IsChecked", typeof(bool),
 			typeof(RevertItem));
 
+		//-----------------------------------------------------------------------------
 		public HgFileInfo FileInfo { get; set; }
+
+		//-----------------------------------------------------------------------------
+		public HgFileStatus Status { get { return FileInfo.Status; } }
 
 		//-----------------------------------------------------------------------------
 		public string PathViewString
