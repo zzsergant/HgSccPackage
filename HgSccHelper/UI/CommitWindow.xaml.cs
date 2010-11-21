@@ -210,8 +210,11 @@ namespace HgSccHelper
 
 			Hg = new Hg();
 
-			RunningOperations |= AsyncOperations.Identify;
-			async_identify.RunAsync(WorkingDir);
+			const HgStatusOptions options = HgStatusOptions.Added
+											| HgStatusOptions.Deleted | HgStatusOptions.Modified
+											| HgStatusOptions.Copies | HgStatusOptions.Removed;
+			RunningOperations |= AsyncOperations.Status;
+			async_status.Run(WorkingDir, options);
 
 			textCommitMessage.Focus();
 		}
@@ -236,6 +239,8 @@ namespace HgSccHelper
 					{
 						Cursor = prev_cursor;
 					}
+
+					CommandManager.InvalidateRequerySuggested();
 				}
 			}
 		}
@@ -333,11 +338,6 @@ namespace HgSccHelper
 				RunningOperations |= AsyncOperations.ResolveList;
 				async_resolve_list.RunAsync(WorkingDir);
 			}
-			else
-			{
-				RunningOperations |= AsyncOperations.Status;
-				async_status.Run(WorkingDir);
-			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -354,8 +354,14 @@ namespace HgSccHelper
 			foreach (var file in resolve_list)
 				resolve_dict[file.Path.ToLower()] = file.Status;
 
-			RunningOperations |= AsyncOperations.Status;
-			async_status.Run(WorkingDir);
+			foreach (var item in commit_items)
+			{
+				var lower_f = item.FileInfo.File.ToLower();
+				var resolve_status = ResolveStatus.None;
+				
+				if (resolve_dict.TryGetValue(lower_f, out resolve_status))
+					item.ResolveStatus = resolve_status;
+			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -368,6 +374,9 @@ namespace HgSccHelper
 				Close();
 				return;
 			}
+
+			RunningOperations |= AsyncOperations.Identify;
+			async_identify.RunAsync(WorkingDir);
 
 			var files_status_dict = new Dictionary<string, HgFileInfo>();
 			foreach (var file_status in result.Files)
@@ -583,7 +592,10 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Commit_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = true;
+			if (commit_items != null)
+			{
+				e.CanExecute = (commit_items.Count != 0) && (RunningOperations == AsyncOperations.None);
+			}
 			e.Handled = true;
 		}
 
@@ -754,7 +766,7 @@ namespace HgSccHelper
 		{
 			e.CanExecute = false;
 
-			if (listFiles != null && listFiles.SelectedItems.Count == 1)
+			if (listFiles != null && listFiles.SelectedItems.Count == 1 && CurrentRevision != null)
 			{
 				if (IsMergeActive)
 				{

@@ -62,6 +62,12 @@ namespace HgSccHelper.UI.RevLog
 		}
 
 		//-----------------------------------------------------------------------------
+		public void Run(string work_dir, HgStatusOptions options)
+		{
+			Run(work_dir, options, "", "", "");
+		}
+
+		//-----------------------------------------------------------------------------
 		public void Run(string work_dir, string path)
 		{
 			Run(work_dir, path, "");
