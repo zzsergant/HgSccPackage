@@ -166,8 +166,6 @@
                     <ContextMenu>
                         <MenuItem Command="{x:Static ui:Commands.DiffPreviousCommand}"
                                   InputGestureText="Ctrl + D"></MenuItem>
-                        <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"></MenuItem>
-                        <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.GroupStyle>
