@@ -10,6 +10,7 @@
 //
 //=========================================================================
 
+using System.Linq;
 using System.Windows;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -797,7 +798,18 @@ namespace HgSccHelper
 				var file_history = (FileHistoryInfo)listChanges.SelectedItem;
 				listViewFiles.ItemsSource = file_history.ChangeDesc.Files;
 				if (listViewFiles.Items.Count > 0)
-					listViewFiles.SelectedIndex = 0;
+				{
+					var file = file_history.ChangeDesc.Files.FirstOrDefault(
+						f => f.Path == file_history.RenameInfo.Path);
+
+					if (file != null)
+						listViewFiles.SelectedItem = file;
+
+					if (listViewFiles.SelectedIndex == -1)
+						listViewFiles.SelectedIndex = 0;
+
+					listViewFiles.ScrollIntoView(listViewFiles.SelectedItem);
+				}
 			}
 		}
 
