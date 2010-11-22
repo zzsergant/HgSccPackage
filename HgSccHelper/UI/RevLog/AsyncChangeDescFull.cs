@@ -113,9 +113,13 @@ namespace HgSccHelper.UI.RevLog
 		{
 			if (!worker.CancellationPending)
 			{
-				var cs = parser.ParseLine(msg);
-				if (cs != null)
-					changes.Add(cs);
+				var local_changes = changes;
+				if (local_changes != null)
+				{
+					var cs = parser.ParseLine(msg);
+					if (cs != null)
+						local_changes.Add(cs);
+				}
 			}
 		}
 

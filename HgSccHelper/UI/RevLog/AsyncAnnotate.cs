@@ -118,8 +118,12 @@ namespace HgSccHelper.UI.RevLog
 			{
 				try
 				{
-					var line_info = parser.ParseLine(msg);
-					lines.Add(line_info);
+					var local_lines = lines;
+					if (local_lines != null)
+					{
+						var line_info = parser.ParseLine(msg);
+						local_lines.Add(line_info);
+					}
 				}
 				catch (HgAnnotateBinaryException)
 				{

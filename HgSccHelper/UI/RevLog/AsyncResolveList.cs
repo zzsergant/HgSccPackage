@@ -87,9 +87,13 @@ namespace HgSccHelper.UI.RevLog
 		{
 			if (!worker.CancellationPending)
 			{
-				var info = HgResolve.ParseResolveListLine(msg);
-				if (info != null)
-					resolve_list.Add(info);
+				var local_resolve_list = resolve_list;
+				if (local_resolve_list != null)
+				{
+					var info = HgResolve.ParseResolveListLine(msg);
+					if (info != null)
+						local_resolve_list.Add(info);
+				}
 			}
 		}
 

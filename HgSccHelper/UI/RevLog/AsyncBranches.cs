@@ -93,9 +93,13 @@ namespace HgSccHelper.UI.RevLog
 		{
 			if (!worker.CancellationPending)
 			{
-				var branch = Hg.ParseBranchLine(msg);
-				if (branch != null)
-					branches.Add(branch);
+				var local_branches = branches;
+				if (local_branches != null)
+				{
+					var branch = Hg.ParseBranchLine(msg);
+					if (branch != null)
+						local_branches.Add(branch);
+				}
 			}
 		}
 

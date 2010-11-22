@@ -88,9 +88,13 @@ namespace HgSccHelper.UI.RevLog
 		{
 			if (!worker.CancellationPending)
 			{
-				var tag = Hg.ParseTagLine(msg);
-				if (tag != null)
-					tags.Add(tag);
+				var local_tags = tags;
+				if (local_tags != null)
+				{
+					var tag = Hg.ParseTagLine(msg);
+					if (tag != null)
+						local_tags.Add(tag);
+				}
 			}
 		}
 
