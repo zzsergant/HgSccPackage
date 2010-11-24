@@ -18,7 +18,8 @@
         <DataTemplate x:Key="myCellTemplateDesc">
             <StackPanel Orientation="Horizontal">
                 <Border BorderThickness="1"
-                        Margin="0,0,5,0"
+                        VerticalAlignment="Center"
+                        Margin="0,1,5,1"
                         SnapsToDevicePixels="True"
                         BorderBrush="Green">
                     <TextBlock Text="{Binding Path=BranchInfo.Name}" VerticalAlignment="Center"
@@ -46,7 +47,8 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border BorderThickness="1"
-                                    Margin="0,0,5,0"
+                                    Margin="0,1,5,1"
+                                    VerticalAlignment="Center"
                                     SnapsToDevicePixels="True"
                                     BorderBrush="Goldenrod">
                                 <TextBlock Text="{Binding}" VerticalAlignment="Center"

@@ -77,7 +77,8 @@
         		<local:RevLogLinesVisual Height="20"
 										 RevLogLines="{Binding}" />
                 <Border BorderThickness="1"
-                        Margin="0,0,5,0"
+                        Margin="0,1,5,1"
+                        VerticalAlignment="Center"
                         SnapsToDevicePixels="True"
                         BorderBrush="Green">
                     <TextBlock Text="{Binding BranchInfo.Name}" VerticalAlignment="Center"
@@ -105,7 +106,8 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border BorderThickness="1"
-                                    Margin="0,0,5,0"
+                                    Margin="0,1,5,1"
+                                    VerticalAlignment="Center"
                                     SnapsToDevicePixels="True"
                                     BorderBrush="Goldenrod">
                                 <TextBlock Text="{Binding}" VerticalAlignment="Center"
