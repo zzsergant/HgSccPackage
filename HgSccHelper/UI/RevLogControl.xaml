@@ -74,7 +74,7 @@
         </DataTemplate>
         <DataTemplate x:Key="myCellTemplateDesc">
         	<StackPanel Orientation="Horizontal">
-        		<local:RevLogLinesVisual Height="20"
+        		<local:RevLogLinesVisual Height="22"
 										 RevLogLines="{Binding}" />
                 <Border BorderThickness="1"
                         Margin="0,1,5,1"
