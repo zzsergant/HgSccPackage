@@ -271,7 +271,7 @@ namespace HgSccPackage
 			Guid cmd_set = GuidList.guidSccProviderCmdSet;
 			object param = new object();
 			var result = shell.PostExecCommand(ref cmd_set,
-			                      unchecked((uint)cmd_id), (uint)OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT, ref param);
+								  unchecked((uint)cmd_id), (uint)OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT, ref param);
 
 			return result == VSConstants.S_OK;
 		}
@@ -523,7 +523,19 @@ namespace HgSccPackage
 		{
 			foreach (var storage in storage_list)
 			{
-				if (storage.IsPathUnderRoot(filename))
+				if (storage.IsStorageControlled(filename))
+					return storage;
+			}
+
+			return null;
+		}
+
+		//-----------------------------------------------------------------
+		SccProviderStorage GetStorageParentForFile(string filename)
+		{
+			foreach (var storage in storage_list)
+			{
+				if (storage.IsPathUnderRoot(filename) && !storage.IsStorageControlled(filename))
 					return storage;
 			}
 
@@ -624,6 +636,12 @@ namespace HgSccPackage
 						var err = storage.Init(work_dir, SccOpenProjectFlags.None);
 						if (err != SccErrors.Ok)
 							return VSConstants.E_FAIL;
+
+						var parent = GetStorageParentForFile(project_path);
+						if (parent != null) //means that this is a sub repo
+						{
+							parent.AddSubrepoStorage(work_dir, storage);
+						}
 					}
 
 					if (storage.GetFileStatus(project_path) == SourceControlStatus.scsUncontrolled)
@@ -1602,7 +1620,7 @@ namespace HgSccPackage
 					}
 				}
 				
-                if (projectName != null)
+				if (projectName != null)
 				{
 					for (int iFile = 0; iFile < cFiles; iFile++)
 					{

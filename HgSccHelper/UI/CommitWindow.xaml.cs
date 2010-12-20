@@ -74,6 +74,11 @@ namespace HgSccHelper
 		GridViewColumnSorter files_sorter;
 
 		public const string CfgPath = @"GUI\CommitWindow";
+
+		private const HgStatusOptions StatusOptions = HgStatusOptions.Added
+		                                              | HgStatusOptions.Deleted | HgStatusOptions.Modified
+		                                              | HgStatusOptions.Copies | HgStatusOptions.Removed;
+
 		CfgWindowPosition wnd_cfg;
 
 		private AsyncIdentify async_identify;
@@ -131,6 +136,9 @@ namespace HgSccHelper
 		public string WorkingDir { get; set; }
 
 		//------------------------------------------------------------------
+		public List<string> SubRepoDirs { get; set; }
+
+		//------------------------------------------------------------------
 		public UpdateContext UpdateContext { get; private set; }
 
 		//-----------------------------------------------------------------------------
@@ -153,6 +161,18 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		public List<string> CommitedFiles { private set; get; }
+
+		//------------------------------------------------------------------
+		public Dictionary<string, List<string>> CommitedSubrepoFiles { private set; get; }
+
+		//------------------------------------------------------------------
+		private List<string> dirty_sub_repos;
+
+		//------------------------------------------------------------------
+		private Queue<StatusTask> pending_status_tasks;
+
+		//------------------------------------------------------------------
+		private StatusTask async_status_task;
 
 		//-----------------------------------------------------------------------------
 		private Hg Hg { get; set; }
@@ -193,6 +213,17 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private Cursor prev_cursor;
 
+		//------------------------------------------------------------------
+		class StatusTask
+		{
+			public string Path { get; set; }
+			public string SubRepoDir { get; set; }
+			public bool IsSubrepo
+			{
+				get { return !string.IsNullOrEmpty(SubRepoDir); }
+			}
+		}
+
 		//-----------------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
@@ -209,12 +240,23 @@ namespace HgSccHelper
 			expanderDiff.IsExpanded = (diff_visible != 0);
 
 			Hg = new Hg();
+			dirty_sub_repos = new List<string>();
 
-			const HgStatusOptions options = HgStatusOptions.Added
-											| HgStatusOptions.Deleted | HgStatusOptions.Modified
-											| HgStatusOptions.Copies | HgStatusOptions.Removed;
+			pending_status_tasks = new Queue<StatusTask>();
+			foreach (var sub_repo_dir in SubRepoDirs)
+			{
+				pending_status_tasks.Enqueue(new StatusTask
+				                             	{
+				                             		Path = System.IO.Path.Combine(WorkingDir, sub_repo_dir),
+													SubRepoDir = sub_repo_dir
+				                             	});
+			}
+
+			pending_status_tasks.Enqueue(new StatusTask { Path = WorkingDir });
+
 			RunningOperations |= AsyncOperations.Status;
-			async_status.Run(WorkingDir, options);
+			async_status_task = pending_status_tasks.Dequeue();
+			async_status.Run(async_status_task.Path, StatusOptions);
 
 			textCommitMessage.Focus();
 		}
@@ -373,6 +415,46 @@ namespace HgSccHelper
 			{
 				Close();
 				return;
+			}
+
+			if (async_status_task.IsSubrepo)
+			{
+				// Subrepo status
+				if (result.Files.Count != 0)
+				{
+					dirty_sub_repos.Add(async_status_task.SubRepoDir);
+				}
+
+				// There is either a pending subrepo or pending WorkDir
+				RunningOperations |= AsyncOperations.Status;
+				async_status_task = pending_status_tasks.Dequeue();
+				async_status.Run(async_status_task.Path, StatusOptions);
+				return;
+			}
+
+			// This is all I can do for subrepo atm. Still thinking of better design. Should we list all changes in subrepo also?
+			// The behavior of TortoiseHg is not good either (show that subrepo change, but doesn't list what changes).
+			// People at mercurial mail list seems to prefer not to commit recursively.
+
+			if (dirty_sub_repos.Count > 0)
+			{
+				var msg = new StringBuilder();
+				msg.AppendLine("Please commit the following subrepo(s) individually:");
+				msg.AppendLine();
+				foreach (var sub_repo in dirty_sub_repos)
+					msg.AppendLine(sub_repo);
+
+				msg.AppendLine();
+				msg.AppendLine("Do you want to force commit from main repo? [NOT RECOMMENDED]");
+
+				var msg_result = MessageBox.Show(msg.ToString(), "One or more sub repository contain uncommitted changes",
+					MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
+				
+				if (msg_result != MessageBoxResult.OK)
+				{
+					Close();
+					return;
+				}
 			}
 
 			RunningOperations |= AsyncOperations.Identify;
@@ -623,14 +705,25 @@ namespace HgSccHelper
 				}
 
 
-				if (Hg.CommitAll(WorkingDir, options, CommitMessage))
+				CommitResult commit_result = Hg.CommitAll(WorkingDir, options, CommitMessage);
+				if (commit_result.IsSuccess)
 				{
 					CommitedFiles = new List<string>();
+					CommitedSubrepoFiles = new Dictionary<string, List<string>>();
 
-					foreach (var f in commit_items)
+					foreach (var f in commit_result.CommitedFiles)
 					{
 						CommitedFiles.Add(System.IO.Path.GetFullPath(
-							System.IO.Path.Combine(WorkingDir, f.FileInfo.File)));
+							System.IO.Path.Combine(WorkingDir, f)));
+					}
+					foreach (var kvp in commit_result.CommitedSubrepoFiles)
+					{
+						CommitedSubrepoFiles.Add(kvp.Key, new List<string>());
+						foreach (var file in kvp.Value)
+						{
+							CommitedSubrepoFiles[kvp.Key].Add(System.IO.Path.GetFullPath(System.IO.Path.Combine(
+									System.IO.Path.Combine(WorkingDir, kvp.Key), file)));
+						}
 					}
 
 					UpdateContext.IsParentChanged = true;
@@ -674,17 +767,17 @@ namespace HgSccHelper
 					to_commit_files.Add(commit_item.FileInfo.File);
 				}
 
-				bool result = false;
+				CommitResult commit_result;
 
 				if (checked_list.Count == commit_items.Count)
 				{
-					result = Hg.CommitAll(WorkingDir, options, CommitMessage);
+					commit_result = Hg.CommitAll(WorkingDir, options, CommitMessage);
 				}
 				else if (to_commit_files.Count > 0)
 				{
 					try
 					{
-						result = Hg.Commit(WorkingDir, options, to_commit_files, CommitMessage);
+						commit_result = Hg.Commit(WorkingDir, options, to_commit_files, CommitMessage);
 					}
 					catch (HgCommandLineException)
 					{
@@ -697,14 +790,25 @@ namespace HgSccHelper
 					return;
 				}
 
-				if (result)
+				if (commit_result.IsSuccess)
 				{
 					CommitedFiles = new List<string>();
+					CommitedSubrepoFiles = new Dictionary<string, List<string>>();
 
-					foreach (var f in to_commit_files)
+					foreach (var f in commit_result.CommitedFiles)
 					{
 						CommitedFiles.Add(System.IO.Path.GetFullPath(
 							System.IO.Path.Combine(WorkingDir, f)));
+					}
+					foreach (var kvp in commit_result.CommitedSubrepoFiles)
+					{
+						string subrepo_root = System.IO.Path.Combine(WorkingDir, kvp.Key);
+						CommitedSubrepoFiles.Add(subrepo_root, new List<string>());
+						foreach (var file in kvp.Value)
+						{
+							CommitedSubrepoFiles[subrepo_root].Add(System.IO.Path.GetFullPath(
+								System.IO.Path.Combine(subrepo_root, file)));
+						}
 					}
 
 					UpdateContext.IsParentChanged = true;
