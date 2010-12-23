@@ -509,9 +509,9 @@ namespace HgSccHelper
 
 					cmd_line.Clear();
 					cmd_line.Append(args.ToString());
-				}
 
-				cmd_line.AppendFilenameWithLengthCheck(f);
+					cmd_line.AppendFilenameWithLengthCheck(f);
+				}
 			}
 
 			if (cmd_line.Length != args.Length)
@@ -582,9 +582,9 @@ namespace HgSccHelper
 
 					cmd_line.Clear();
 					cmd_line.Append(args.ToString());
-				}
 
-				cmd_line.AppendFilenameWithLengthCheck(f);
+					cmd_line.AppendFilenameWithLengthCheck(f);
+				}
 			}
 
 			if (cmd_line.Length != args.Length)
@@ -773,9 +773,9 @@ namespace HgSccHelper
 
 					cmd_line.Clear();
 					cmd_line.Append(args.ToString());
-				}
 
-				cmd_line.AppendFilenameWithLengthCheck(f);
+					cmd_line.AppendFilenameWithLengthCheck(f);
+				}
 			}
 
 			if (cmd_line.Length != args.Length)
@@ -1247,9 +1247,9 @@ namespace HgSccHelper
 
 					cmd_line.Clear();
 					cmd_line.Append(args.ToString());
-				}
 
-				cmd_line.AppendFilenameWithLengthCheck(f);
+					cmd_line.AppendFilenameWithLengthCheck(f);
+				}
 			}
 
 			if (cmd_line.Length != args.Length)
