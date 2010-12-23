@@ -711,11 +711,15 @@ namespace HgSccHelper
 					CommitedFiles = new List<string>();
 					CommitedSubrepoFiles = new Dictionary<string, List<string>>();
 
-					foreach (var f in commit_result.CommitedFiles)
+					foreach (var f in commit_items)
 					{
 						CommitedFiles.Add(System.IO.Path.GetFullPath(
-							System.IO.Path.Combine(WorkingDir, f)));
+							System.IO.Path.Combine(WorkingDir, f.FileInfo.File)));
 					}
+
+					// FIXME: commit_result does not list all commited files, for example it does not
+					// list removed files. Need the other way to get that info or reset subrepo status cache.
+
 					foreach (var kvp in commit_result.CommitedSubrepoFiles)
 					{
 						CommitedSubrepoFiles.Add(kvp.Key, new List<string>());
@@ -795,11 +799,15 @@ namespace HgSccHelper
 					CommitedFiles = new List<string>();
 					CommitedSubrepoFiles = new Dictionary<string, List<string>>();
 
-					foreach (var f in commit_result.CommitedFiles)
+					foreach (var f in to_commit_files)
 					{
 						CommitedFiles.Add(System.IO.Path.GetFullPath(
 							System.IO.Path.Combine(WorkingDir, f)));
 					}
+
+					// FIXME: commit_result does not list all commited files, for example it does not
+					// list removed files. Need the other way to get that info or reset subrepo status cache.
+
 					foreach (var kvp in commit_result.CommitedSubrepoFiles)
 					{
 						string subrepo_root = System.IO.Path.Combine(WorkingDir, kvp.Key);

@@ -379,20 +379,31 @@ namespace HgSccPackage
 
 				if (wnd.DialogResult == true)
 				{
-					commited_files = new List<string>();
-					((List<string>)commited_files).AddRange(wnd.CommitedFiles);
+					var files_list = new List<string>(wnd.CommitedFiles);
 					UpdateCache(wnd.CommitedFiles);
+
 					foreach (var kvp in Subs)
 					{
 						foreach (var sub_storage in kvp.Value)
 						{
 							if (wnd.CommitedSubrepoFiles.ContainsKey(kvp.Key))
 							{
-								((List<string>)commited_files).AddRange(wnd.CommitedSubrepoFiles[kvp.Key]);
+								files_list.AddRange(wnd.CommitedSubrepoFiles[kvp.Key]);
+
+								// FIXME: Since not all commited files are listed in CommitedSubrepoFiles
+								// (for example Removed files are not listed)
+								// updating only part of files leaves the file cache in wrong state.
+								// So, we are reseting a subrepo cache completely
+
+								sub_storage.ReloadCache();
+/*
 								sub_storage.UpdateCache(wnd.CommitedSubrepoFiles[kvp.Key]);
+*/
 							}
 						}
 					}
+
+					commited_files = files_list;
 					return SccErrors.Ok;
 				}
 			}
