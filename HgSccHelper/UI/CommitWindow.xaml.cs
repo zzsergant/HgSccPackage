@@ -543,7 +543,17 @@ namespace HgSccHelper
 
 			listFiles.ItemsSource = commit_items;
 			if (listFiles.Items.Count > 0)
-				listFiles.SelectedIndex = 0;
+			{
+				var first_checked = commit_items.FirstOrDefault(item => item.IsChecked);
+
+				if (first_checked != null)
+					listFiles.SelectedItem = first_checked;
+
+				if (listFiles.SelectedIndex == -1)
+					listFiles.SelectedIndex = 0;
+
+				listFiles.ScrollIntoView(listFiles.SelectedItem);
+			}
 		}
 
 		//------------------------------------------------------------------
