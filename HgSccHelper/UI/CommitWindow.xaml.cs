@@ -103,6 +103,7 @@ namespace HgSccHelper
 			VirtualizingStackPanel.SetVirtualizationMode(listFiles, VirtualizationMode.Recycling);
 
 			UpdateContext = new UpdateContext();
+			SubRepoDirs = new List<string>();
 
 			NamedBranchOp = new NamedBranchOperation();
 			branchPanel.DataContext = NamedBranchOp;
