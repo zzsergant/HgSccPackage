@@ -86,6 +86,8 @@
       <DependentUpon>HgSettingsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Hg\HgArgsBuilder.cs" />
+    <Compile Include="Hg\HgBookmarks.cs" />
+    <Compile Include="Hg\HgExtensions.cs" />
     <Compile Include="Misc\AsyncDeleter.cs" />
     <Compile Include="Misc\GridViewColumnSorter.cs" />
     <Compile Include="UI\AnnotateControl.xaml.cs">
@@ -175,6 +177,7 @@
       <DependentUpon>RevertWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\RevLog\AsyncAnnotate.cs" />
+    <Compile Include="UI\RevLog\AsyncBookmarks.cs" />
     <Compile Include="UI\RevLog\AsyncBranches.cs" />
     <Compile Include="UI\RevLog\AsyncBranchName.cs" />
     <Compile Include="UI\RevLog\AsyncChangeDesc.cs" />
