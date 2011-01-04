@@ -31,12 +31,14 @@ namespace HgSccHelper
 		public DateTime Date { get; set; }
 		public string Branch { get; set; }
 		public ObservableCollection<string> Tags { get; set; }
+		public ObservableCollection<string> Bookmarks { get; set; }
 
 		//------------------------------------------------------------------
 		public RevLogChangeDesc()
 		{
 			Parents = new ObservableCollection<string>();
 			Tags = new ObservableCollection<string>();
+			Bookmarks = new ObservableCollection<string>();
 		}
 
 		//------------------------------------------------------------------
@@ -184,13 +186,15 @@ namespace HgSccHelper
 				builder.Append(@"rev: {rev}\n");
 				builder.Append(@"node: {node}\n");
 				builder.Append(@"branch: {branches}\n");
-				builder.Append(@"tags: {tags}\n");
+//				builder.Append(@"tags: {tags}\n");
 				builder.Append(@"parents: {parents}\n");
 				builder.Append(@"::=\n");
 
 				stream.WriteLine(String.Format("changeset_verbose = '{0}'", builder.ToString()));
+/*
 				stream.WriteLine(@"tag = '{tag}:'");
 				stream.WriteLine(@"last_tag = '{tag}'");
+*/
 			}
 		}
 
