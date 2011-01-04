@@ -77,7 +77,7 @@ namespace HgSccHelper.UI.RevLog
 			// FIXME: Probably we need to disable this extension for every tag command
 			// to prevent name collisions
 
-			args.Append("--config extensions.bookmarks=!");
+			args.AppendDisableExtension(HgExtension.Bookmarks);
 
 			RunHgThread(work_dir, args.ToString());
 		}

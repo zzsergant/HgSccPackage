@@ -1526,7 +1526,7 @@ namespace HgSccHelper
 			// FIXME: Probably we need to disable this extension for every tag command
 			// to prevent name collisions
 
-			args.Append("--config extensions.bookmarks=!");
+			args.AppendDisableExtension(HgExtension.Bookmarks);
 
 			var tags = new List<TagInfo>();
 

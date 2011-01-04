@@ -10,6 +10,7 @@
 // 
 //=========================================================================
 
+using System;
 using System.Text;
 
 //=============================================================================
@@ -85,6 +86,19 @@ namespace HgSccHelper
 		public void AppendPath(string path)
 		{
 			Append(path.Quote());
+		}
+
+		//-----------------------------------------------------------------------------
+		public void AppendDisableExtension(HgExtension extension)
+		{
+			AppendDisableExtension(HgExtensionNames.GetExtensionName(extension));
+		}
+
+		//-----------------------------------------------------------------------------
+		public void AppendDisableExtension(string extension)
+		{
+			Append("--config");
+			Append(String.Format("extensions.{0}=!", extension));
 		}
 
 		//-----------------------------------------------------------------------------
