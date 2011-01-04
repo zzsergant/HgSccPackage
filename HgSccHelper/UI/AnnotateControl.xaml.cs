@@ -847,7 +847,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void HandleTagsChanges()
 		{
-			RunningOperations |= AsyncOperations.Identify;
+			RunningOperations |= AsyncOperations.Tags;
 			async_tags.RunAsync(WorkingDir);
 		}
 
