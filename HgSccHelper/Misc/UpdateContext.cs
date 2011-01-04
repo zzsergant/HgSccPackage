@@ -12,6 +12,7 @@ namespace HgSccHelper
 		public bool IsTagsChanged { get; set; }
 		public bool IsBranchChanged { get; set; }
 		public bool IsCommited { get; set; }
+		public bool IsBookmarksChanged { get; set; }
 
 		//------------------------------------------------------------------
 		public void MergeWith(UpdateContext context)
@@ -20,6 +21,7 @@ namespace HgSccHelper
 			IsTagsChanged |= context.IsTagsChanged;
 			IsBranchChanged |= context.IsBranchChanged;
 			IsCommited |= context.IsCommited;
+			IsBookmarksChanged |= context.IsBookmarksChanged;
 		}
 	}
 }
