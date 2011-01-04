@@ -82,6 +82,9 @@ namespace HgSccHelper.UI.RevLog
 			args.AppendVerbose();
 			args.Append("--follow");
 
+			// FIXME: Tags lists bookmarks by default
+			args.AppendDisableExtension(HgExtension.Bookmarks);
+
 			if (rev.Length > 0)
 				args.AppendRevision(rev);
 

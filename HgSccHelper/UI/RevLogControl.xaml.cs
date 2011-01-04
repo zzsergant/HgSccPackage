@@ -568,6 +568,10 @@ namespace HgSccHelper
 				args.AppendRevision(rev);
 
 			args.AppendStyle(revlog_style.FileName);
+	
+			// FIXME: Tags lists bookmarks by default
+			args.AppendDisableExtension(HgExtension.Bookmarks);
+
 			p.Args = args.ToString();
 
 			rev_log_parser = new RevLogChangeDescParser();

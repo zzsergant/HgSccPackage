@@ -148,6 +148,9 @@ namespace HgSccHelper
 				args.AppendDebug();
 				args.AppendVerbose();
 				args.Append("--follow");
+
+				// FIXME: Tags lists bookmarks by default
+				args.AppendDisableExtension(HgExtension.Bookmarks);
 				
 				if (rev.Length > 0)
 					args.AppendRevision(rev);
@@ -233,6 +236,9 @@ namespace HgSccHelper
 			args.AppendVerbose();
 			args.Append("--follow");
 
+			// FIXME: Tags lists bookmarks by default
+			args.AppendDisableExtension(HgExtension.Bookmarks);
+
 			if (max_count != 0)
 			{
 				args.Append("-l");
@@ -266,6 +272,9 @@ namespace HgSccHelper
 
 			if (rev.Length > 0)
 				args.AppendRevision(rev);
+
+			// FIXME: Tags lists bookmarks by default
+			args.AppendDisableExtension(HgExtension.Bookmarks);
 
 			using (var revlog_style = new RevLogStyleFile())
 			{

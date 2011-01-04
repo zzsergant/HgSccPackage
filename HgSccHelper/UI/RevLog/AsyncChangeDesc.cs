@@ -141,6 +141,9 @@ namespace HgSccHelper.UI.RevLog
 			args.AppendRevision(parent);
 			args.AppendStyle(revlog_style.FileName);
 
+			// FIXME: Tags lists bookmarks by default
+			args.AppendDisableExtension(HgExtension.Bookmarks);
+
 			RunHgThread(work_dir, args.ToString());
 		}
 

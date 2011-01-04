@@ -239,18 +239,15 @@ namespace HgSccHelper
 
 			using (var stream = new StreamWriter(File.OpenWrite(FileName)))
 			{
-//				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\ntags: {tags}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n::=\n'");
-				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n::=\n'");
+				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\ntags: {tags}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n::=\n'");
 				stream.WriteLine(@"file = '{file}:'");
 				stream.WriteLine(@"last_file = '{file}'");
 				stream.WriteLine(@"file_add = '{file_add}:'");
 				stream.WriteLine(@"last_file_add = '{file_add}'");
 				stream.WriteLine(@"file_del = '{file_del}:'");
 				stream.WriteLine(@"last_file_del = '{file_del}'");
-/*
 				stream.WriteLine(@"tag = '{tag}:'");
 				stream.WriteLine(@"last_tag = '{tag}'");
-*/
 			}
 		}
 
