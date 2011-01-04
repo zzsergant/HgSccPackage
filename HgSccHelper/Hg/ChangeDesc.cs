@@ -31,6 +31,7 @@ namespace HgSccHelper
 		public List<FileInfo> FilesModified { get; set; }
 		public List<FileInfo> FilesRemoved { get; set; }
 		public ObservableCollection<string> Tags { get; set; }
+		public ObservableCollection<string> Bookmarks { get; set; }
 
 		public ChangeDesc()
 		{
@@ -38,6 +39,7 @@ namespace HgSccHelper
 			FilesModified = new List<FileInfo>();
 			FilesRemoved = new List<FileInfo>();
 			Tags = new ObservableCollection<string>();
+			Bookmarks = new ObservableCollection<string>();
 		}
 
 		//-----------------------------------------------------------------------------

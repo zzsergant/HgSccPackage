@@ -41,6 +41,28 @@
                         </Style>
                     </Border.Style>
                 </Border>
+                <ItemsControl ItemsSource="{Binding ChangeDesc.Bookmarks}"
+                              Focusable="False">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"></StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderThickness="1"
+                                    Margin="0,1,5,1"
+                                    VerticalAlignment="Center"
+                                    SnapsToDevicePixels="True"
+                                    BorderBrush="Indigo">
+                                <TextBlock Text="{Binding}" VerticalAlignment="Center"
+                                       Background="LightSkyBlue"
+                                       Foreground="Black"
+                                       Padding="5,1"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
                 <ItemsControl ItemsSource="{Binding ChangeDesc.Tags}"
                               Focusable="False">
                     <ItemsControl.ItemsPanel>

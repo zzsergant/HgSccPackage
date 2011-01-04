@@ -60,6 +60,12 @@ namespace HgSccHelper
 		/// </summary>
 		Dictionary<string, FileHistoryInfo> file_history_map;
 
+		//------------------------------------------------------------------
+		/// <summary>
+		/// Bookmark Name -> BookmarkInfo map
+		/// </summary>
+		Dictionary<string, BookmarkInfo> Bookmarks { get; set; }
+
 		//-----------------------------------------------------------------------------
 		private AsyncOperations async_ops;
 
@@ -75,6 +81,7 @@ namespace HgSccHelper
 		private AsyncIdentify async_identify;
 		private AsyncBranches async_branches;
 		private AsyncTags async_tags;
+		private AsyncBookmarks async_bookmarks;
 
 		//------------------------------------------------------------------
 		public FileHistoryWindow()
@@ -100,6 +107,9 @@ namespace HgSccHelper
 
 			async_tags = new AsyncTags();
 			async_tags.Complete = new Action<List<TagInfo>>(OnAsyncTags);
+
+			async_bookmarks = new AsyncBookmarks();
+			async_bookmarks.Complete = new Action<List<BookmarkInfo>>(OnAsyncBookmarks);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -149,6 +159,7 @@ namespace HgSccHelper
 
 			Tags = new Dictionary<string, TagInfo>();
 			Branches = new Dictionary<string, BranchInfo>();
+			Bookmarks = new Dictionary<string, BookmarkInfo>();
 
 			Hg = new Hg();
 
@@ -186,6 +197,9 @@ namespace HgSccHelper
 			async_tags.Cancel();
 			async_tags.Dispose();
 
+			async_bookmarks.Cancel();
+			async_bookmarks.Dispose();
+
 			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
 			if (!Double.IsNaN(diffColorizer.Width))
 			{
@@ -215,6 +229,7 @@ namespace HgSccHelper
 			HandleBranchChanges();
 			HandleTagsChanges();
 			HandleParentChange();
+			HandleBookmarksChanges();
 
 			var renames = Hg.FindRenames(WorkingDir, FileName, changes);
 			var history = new List<FileHistoryInfo>();
@@ -305,6 +320,47 @@ namespace HgSccHelper
 					var change_desc = file_history.ChangeDesc;
 					if (!change_desc.Tags.Contains(tag.Name))
 						change_desc.Tags.Add(tag.Name);
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncBookmarks(List<BookmarkInfo> bookmarks_list)
+		{
+			RunningOperations &= ~AsyncOperations.Bookmarks;
+
+			if (bookmarks_list == null)
+				return;
+
+			var new_bookmarks = new Dictionary<string, BookmarkInfo>();
+
+			foreach (var bookmark in bookmarks_list)
+			{
+				new_bookmarks[bookmark.Name] = bookmark;
+			}
+
+			foreach (var bookmark in Bookmarks.Values)
+			{
+				// removing old bookmark
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(bookmark.SHA1, out file_history))
+				{
+					var change_desc = file_history.ChangeDesc;
+					change_desc.Bookmarks.Remove(bookmark.Name);
+				}
+			}
+
+			Bookmarks = new_bookmarks;
+
+			foreach (var bookmark in Bookmarks.Values)
+			{
+				// adding or updating bookmarks
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(bookmark.SHA1, out file_history))
+				{
+					var change_desc = file_history.ChangeDesc;
+					if (!change_desc.Bookmarks.Contains(bookmark.Name))
+						change_desc.Bookmarks.Add(bookmark.Name);
 				}
 			}
 		}
@@ -551,6 +607,9 @@ namespace HgSccHelper
 			if (wnd.UpdateContext.IsTagsChanged)
 				HandleTagsChanges();
 
+			if (wnd.UpdateContext.IsBookmarksChanged)
+				HandleBookmarksChanges();
+
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
 
@@ -585,6 +644,9 @@ namespace HgSccHelper
 
 			if (wnd.UpdateContext.IsTagsChanged)
 				HandleTagsChanges();
+
+			if (wnd.UpdateContext.IsBookmarksChanged)
+				HandleBookmarksChanges();
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
@@ -779,6 +841,13 @@ namespace HgSccHelper
 		{
 			RunningOperations |= AsyncOperations.Tags;
 			async_tags.RunAsync(WorkingDir);
+		}
+
+		//------------------------------------------------------------------
+		private void HandleBookmarksChanges()
+		{
+			RunningOperations |= AsyncOperations.Bookmarks;
+			async_bookmarks.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------

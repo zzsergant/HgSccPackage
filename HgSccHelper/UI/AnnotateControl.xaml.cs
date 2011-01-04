@@ -75,6 +75,12 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		/// <summary>
+		/// Bookmark Name -> BookmarkInfo map
+		/// </summary>
+		Dictionary<string, BookmarkInfo> Bookmarks { get; set; }
+
+		//------------------------------------------------------------------
+		/// <summary>
 		/// SHA1 -> FileHistoryInfo map
 		/// </summary>
 		Dictionary<string, FileHistoryInfo> file_history_map;
@@ -100,6 +106,7 @@ namespace HgSccHelper
 		private AsyncBranches async_branches;
 		private AsyncTags async_tags;
 		private AsyncAnnotate async_annotate;
+		private AsyncBookmarks async_bookmarks;
 
 		private ColorizeChanges colorizer;
 		private ObservableCollection<EncodingItem> encodings;
@@ -134,6 +141,9 @@ namespace HgSccHelper
 
 			async_annotate = new AsyncAnnotate();
 			async_annotate.Complete = new Action<AsyncAnnotateResults>(OnAsyncAnnotate);
+
+			async_bookmarks = new AsyncBookmarks();
+			async_bookmarks.Complete = new Action<List<BookmarkInfo>>(OnAsyncBookmarks);
 
 			textEditor.IsReadOnly = true;
 			textEditor.ShowLineNumbers = true;
@@ -261,6 +271,7 @@ namespace HgSccHelper
 
 			Tags = new Dictionary<string, TagInfo>();
 			Branches = new Dictionary<string, BranchInfo>();
+			Bookmarks = new Dictionary<string, BookmarkInfo>();
 
 			var files = Hg.Status(WorkingDir, FileName, Rev ?? "");
 			if (files.Count == 1
@@ -409,6 +420,9 @@ namespace HgSccHelper
 				async_annotate.Cancel();
 				async_annotate.Dispose();
 
+				async_bookmarks.Cancel();
+				async_bookmarks.Dispose();
+
 				Cfg.Set(AnnotateWindow.CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
 				if (!Double.IsNaN(diffColorizer.Width))
 				{
@@ -461,6 +475,7 @@ namespace HgSccHelper
 			HandleBranchChanges();
 			HandleTagsChanges();
 			HandleParentChange();
+			HandleBookmarksChanges();
 
 			var renames = Hg.FindRenames(WorkingDir, FileName, changes);
 			var history = new List<FileHistoryInfo>();
@@ -554,6 +569,47 @@ namespace HgSccHelper
 					var change_desc = file_history.ChangeDesc;
 					if (!change_desc.Tags.Contains(tag.Name))
 						change_desc.Tags.Add(tag.Name);
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncBookmarks(List<BookmarkInfo> bookmarks_list)
+		{
+			RunningOperations &= ~AsyncOperations.Bookmarks;
+
+			if (bookmarks_list == null)
+				return;
+
+			var new_bookmarks = new Dictionary<string, BookmarkInfo>();
+
+			foreach (var bookmark in bookmarks_list)
+			{
+				new_bookmarks[bookmark.Name] = bookmark;
+			}
+
+			foreach (var bookmark in Bookmarks.Values)
+			{
+				// removing old bookmark
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(bookmark.SHA1, out file_history))
+				{
+					var change_desc = file_history.ChangeDesc;
+					change_desc.Bookmarks.Remove(bookmark.Name);
+				}
+			}
+
+			Bookmarks = new_bookmarks;
+
+			foreach (var bookmark in Bookmarks.Values)
+			{
+				// adding or updating bookmarks
+				FileHistoryInfo file_history;
+				if (file_history_map.TryGetValue(bookmark.SHA1, out file_history))
+				{
+					var change_desc = file_history.ChangeDesc;
+					if (!change_desc.Bookmarks.Contains(bookmark.Name))
+						change_desc.Bookmarks.Add(bookmark.Name);
 				}
 			}
 		}
@@ -806,6 +862,9 @@ namespace HgSccHelper
 			if (wnd.UpdateContext.IsTagsChanged)
 				HandleTagsChanges();
 
+			if (wnd.UpdateContext.IsBookmarksChanged)
+				HandleBookmarksChanges();
+
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
 
@@ -849,6 +908,13 @@ namespace HgSccHelper
 		{
 			RunningOperations |= AsyncOperations.Tags;
 			async_tags.RunAsync(WorkingDir);
+		}
+
+		//------------------------------------------------------------------
+		private void HandleBookmarksChanges()
+		{
+			RunningOperations |= AsyncOperations.Bookmarks;
+			async_bookmarks.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------
