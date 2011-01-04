@@ -98,6 +98,12 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		/// <summary>
+		/// Bookmark Name -> BookmarkInfo map
+		/// </summary>
+		Dictionary<string, BookmarkInfo> Bookmarks { get; set; }
+
+		//------------------------------------------------------------------
+		/// <summary>
 		/// SHA1 -> RevLogLinesPair map
 		/// </summary>
 		Dictionary<string, RevLogLinesPair> rev_log_hash_map;
@@ -113,6 +119,8 @@ namespace HgSccHelper
 		private AsyncBranches async_branches;
 
 		private AsyncTags async_tags;
+
+		private AsyncBookmarks async_bookmarks;
 
 		private bool first_batch;
 
@@ -156,6 +164,9 @@ namespace HgSccHelper
 
 			async_tags = new AsyncTags();
 			async_tags.Complete = new Action<List<TagInfo>>(OnAsyncTags);
+
+			async_bookmarks = new AsyncBookmarks();
+			async_bookmarks.Complete = new Action<List<BookmarkInfo>>(OnAsyncBookmarks);
 
 			first_batch = true;
 		}
@@ -227,6 +238,47 @@ namespace HgSccHelper
 					var change_desc = lines_pair.Current.ChangeDesc;
 					if (!change_desc.Tags.Contains(tag.Name))
 						change_desc.Tags.Add(tag.Name);
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncBookmarks(List<BookmarkInfo> bookmarks_list)
+		{
+			RunningOperations &= ~AsyncOperations.Bookmarks;
+
+			if (bookmarks_list == null)
+				return;
+
+			var new_bookmarks = new Dictionary<string, BookmarkInfo>();
+
+			foreach (var bookmark in bookmarks_list)
+			{
+				new_bookmarks[bookmark.Name] = bookmark;
+			}
+
+			foreach (var bookmark in Bookmarks.Values)
+			{
+				// removing old bookmarks
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.TryGetValue(bookmark.SHA1, out lines_pair))
+				{
+					var change_desc = lines_pair.Current.ChangeDesc;
+					change_desc.Bookmarks.Remove(bookmark.Name);
+				}
+			}
+
+			Bookmarks = new_bookmarks;
+
+			foreach (var bookmark in Bookmarks.Values)
+			{
+				// adding or updating bookmarks
+				RevLogLinesPair lines_pair;
+				if (rev_log_hash_map.TryGetValue(bookmark.SHA1, out lines_pair))
+				{
+					var change_desc = lines_pair.Current.ChangeDesc;
+					if (!change_desc.Bookmarks.Contains(bookmark.Name))
+						change_desc.Bookmarks.Add(bookmark.Name);
 				}
 			}
 		}
@@ -307,6 +359,7 @@ namespace HgSccHelper
 		{
 			Tags = new Dictionary<string, TagInfo>();
 			Branches = new Dictionary<string, BranchInfo>();
+			Bookmarks = new Dictionary<string, BookmarkInfo>();
 
 			int diff_width;
 			Cfg.Get(RevLogWindow.CfgPath, DiffColorizerControl.DiffWidth, out diff_width, DiffColorizerControl.DefaultWidth);
@@ -388,6 +441,9 @@ namespace HgSccHelper
 
 				async_tags.Cancel();
 				async_tags.Dispose();
+
+				async_bookmarks.Cancel();
+				async_bookmarks.Dispose();
 
 				worker.Cancel();
 				worker.Dispose();
@@ -571,6 +627,9 @@ namespace HgSccHelper
 			if (wnd.UpdateContext.IsTagsChanged)
 				HandleTagsChanges();
 
+			if (wnd.UpdateContext.IsBookmarksChanged)
+				HandleBookmarksChanged();
+
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
 
@@ -607,6 +666,9 @@ namespace HgSccHelper
 
 			if (wnd.UpdateContext.IsTagsChanged)
 				HandleTagsChanges();
+
+			if (wnd.UpdateContext.IsBookmarksChanged)
+				HandleBookmarksChanged();
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
@@ -697,10 +759,12 @@ namespace HgSccHelper
 				RunningOperations |= AsyncOperations.Tags;
 				RunningOperations |= AsyncOperations.Branches;
 				RunningOperations |= AsyncOperations.Identify;
+				RunningOperations |= AsyncOperations.Bookmarks;
 
 				async_tags.RunAsync(WorkingDir);
 				async_branches.RunAsync(WorkingDir, HgBranchesOptions.Closed);
 				async_identify.RunAsync(WorkingDir);
+				async_bookmarks.RunAsync(WorkingDir);
 			}
 
 			foreach (var change_desc in changes)
@@ -835,6 +899,13 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void HandleBookmarksChanged()
+		{
+			RunningOperations |= AsyncOperations.Bookmarks;
+			async_bookmarks.RunAsync(WorkingDir);
+		}
+
+		//------------------------------------------------------------------
 		private void Tags_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;
@@ -863,6 +934,9 @@ namespace HgSccHelper
 
 			if (wnd.UpdateContext.IsTagsChanged)
 				HandleTagsChanges();
+
+			if (wnd.UpdateContext.IsBookmarksChanged)
+				HandleBookmarksChanged();
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
@@ -1128,7 +1202,7 @@ namespace HgSccHelper
 		Merge			= 0x0400,
 		ResolveList		= 0x0800,
 		Status			= 0x1000,
-		BranchName		= 0x2000
+		BranchName		= 0x2000,
+		Bookmarks		= 0x4000
 	}
-
 }
