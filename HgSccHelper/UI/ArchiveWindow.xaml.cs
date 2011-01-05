@@ -162,6 +162,19 @@ namespace HgSccHelper
 				comboRevision.Items.Add(item);
 			}
 
+			var bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+			foreach (var bookmark in bookmarks)
+			{
+				var item = new ArchiveComboItem();
+				item.GroupText = "Bookmark";
+				item.Name = bookmark.Name;
+				item.Rev = bookmark.Rev;
+				item.SHA1 = bookmark.SHA1;
+				item.Misc = bookmark.IsCurrent ? "Current" : "";
+
+				comboRevision.Items.Add(item);
+			}
+
 			var tags = Hg.Tags(WorkingDir);
 			foreach (var tag in tags)
 			{
