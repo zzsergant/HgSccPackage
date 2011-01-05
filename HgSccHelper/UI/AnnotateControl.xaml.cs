@@ -595,7 +595,10 @@ namespace HgSccHelper
 				if (file_history_map.TryGetValue(bookmark.SHA1, out file_history))
 				{
 					var change_desc = file_history.ChangeDesc;
-					change_desc.Bookmarks.Remove(bookmark.Name);
+					var book_name = bookmark.Name;
+					var book = change_desc.Bookmarks.FirstOrDefault(b => b.Name == book_name);
+					if (book != null)
+						change_desc.Bookmarks.Remove(book);
 				}
 			}
 
@@ -608,8 +611,9 @@ namespace HgSccHelper
 				if (file_history_map.TryGetValue(bookmark.SHA1, out file_history))
 				{
 					var change_desc = file_history.ChangeDesc;
-					if (!change_desc.Bookmarks.Contains(bookmark.Name))
-						change_desc.Bookmarks.Add(bookmark.Name);
+					var book_name = bookmark.Name;
+					if (!change_desc.Bookmarks.Any(b => b.Name == book_name))
+						change_desc.Bookmarks.Add(bookmark);
 				}
 			}
 		}

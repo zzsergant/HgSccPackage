@@ -23,6 +23,7 @@ using System.Text;
 using System.Windows.Media;
 using HgSccHelper.UI;
 using HgSccHelper.UI.RevLog;
+using System.Linq;
 
 namespace HgSccHelper
 {
@@ -264,7 +265,10 @@ namespace HgSccHelper
 				if (rev_log_hash_map.TryGetValue(bookmark.SHA1, out lines_pair))
 				{
 					var change_desc = lines_pair.Current.ChangeDesc;
-					change_desc.Bookmarks.Remove(bookmark.Name);
+					var book_name = bookmark.Name;
+					var book = change_desc.Bookmarks.FirstOrDefault(b => b.Name == book_name);
+					if (book != null)
+						change_desc.Bookmarks.Remove(book);
 				}
 			}
 
@@ -277,8 +281,9 @@ namespace HgSccHelper
 				if (rev_log_hash_map.TryGetValue(bookmark.SHA1, out lines_pair))
 				{
 					var change_desc = lines_pair.Current.ChangeDesc;
-					if (!change_desc.Bookmarks.Contains(bookmark.Name))
-						change_desc.Bookmarks.Add(bookmark.Name);
+					var book_name = bookmark.Name;
+					if (!change_desc.Bookmarks.Any(b => b.Name == book_name))
+						change_desc.Bookmarks.Add(bookmark);
 				}
 			}
 		}
@@ -834,6 +839,9 @@ namespace HgSccHelper
 			if (wnd.UpdateContext.IsParentChanged)
 				HandleParentChange();
 
+			if (wnd.UpdateContext.IsBookmarksChanged)
+				HandleBookmarksChanged();
+
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
 
@@ -855,6 +863,9 @@ namespace HgSccHelper
 
 			if (wnd.UpdateContext.IsParentChanged)
 				HandleParentChange();
+
+			if (wnd.UpdateContext.IsBookmarksChanged)
+				HandleBookmarksChanged();
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}
@@ -977,6 +988,9 @@ namespace HgSccHelper
 
 			if (wnd.UpdateContext.IsBranchChanged)
 				HandleBranchChanges();
+
+			if (wnd.UpdateContext.IsBookmarksChanged)
+				HandleBookmarksChanged();
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
 		}

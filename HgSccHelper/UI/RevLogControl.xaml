@@ -110,10 +110,19 @@
                                     VerticalAlignment="Center"
                                     SnapsToDevicePixels="True"
                                     BorderBrush="Indigo">
-                                <TextBlock Text="{Binding}" VerticalAlignment="Center"
-                                       Background="LightSkyBlue"
-                                       Foreground="Black"
+                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
                                        Padding="5,1">
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="Background" Value="LightSkyBlue"></Setter>
+                                            <Setter Property="Foreground" Value="Black"></Setter>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                    <Setter Property="Background" Value="Cyan"></Setter>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
                                 </TextBlock>
                             </Border>
                         </DataTemplate>

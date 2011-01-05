@@ -31,14 +31,14 @@ namespace HgSccHelper
 		public DateTime Date { get; set; }
 		public string Branch { get; set; }
 		public ObservableCollection<string> Tags { get; set; }
-		public ObservableCollection<string> Bookmarks { get; set; }
+		public ObservableCollection<BookmarkInfo> Bookmarks { get; set; }
 
 		//------------------------------------------------------------------
 		public RevLogChangeDesc()
 		{
 			Parents = new ObservableCollection<string>();
 			Tags = new ObservableCollection<string>();
-			Bookmarks = new ObservableCollection<string>();
+			Bookmarks = new ObservableCollection<BookmarkInfo>();
 		}
 
 		//------------------------------------------------------------------
