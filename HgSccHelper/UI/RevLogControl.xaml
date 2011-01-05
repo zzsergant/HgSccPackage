@@ -39,6 +39,10 @@
                         CanExecute="Tags_CanExecute"
                         Executed="Tags_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static ui:Commands.BookmarksCommand}"
+                        CanExecute="Bookmarks_CanExecute"
+                        Executed="Bookmarks_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static ui:Commands.MergeCommand}"
                         CanExecute="Merge_CanExecute"
                         Executed="Merge_Executed">
@@ -227,6 +231,9 @@
                 <Button Content="Add/Remove Tag"
                         Command="{x:Static ui:Commands.TagsCommand}"
                         MinWidth="75" />
+                <Button Content="Bookmarks"
+                        Command="{x:Static ui:Commands.BookmarksCommand}"
+                        MinWidth="75" />
                 <Separator />
                 <Button Content="Merge with Revision"
                         Command="{x:Static ui:Commands.MergeCommand}"
@@ -271,6 +278,7 @@
                               InputGestureText="Ctrl + U"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.TagsCommand}"
                               InputGestureText="Ctrl + T"></MenuItem>
+                        <MenuItem Command="{x:Static ui:Commands.BookmarksCommand}"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.MergeCommand}"
                               InputGestureText="Ctrl + M"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"></MenuItem>

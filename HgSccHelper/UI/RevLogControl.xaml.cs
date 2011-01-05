@@ -957,6 +957,42 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void Bookmarks_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (SelectedChangeset != null)
+				e.CanExecute = true;
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Bookmarks_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var wnd = new BookmarksWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.TargetRevision = SelectedChangeset.Current.ChangeDesc.Rev.ToString();
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
+
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			if (wnd.UpdateContext.IsBranchChanged)
+				HandleBranchChanges();
+
+			if (wnd.UpdateContext.IsTagsChanged)
+				HandleTagsChanges();
+
+			if (wnd.UpdateContext.IsBookmarksChanged)
+				HandleBookmarksChanged();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//------------------------------------------------------------------
 		private void Merge_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;

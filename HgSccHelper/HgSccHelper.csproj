@@ -99,6 +99,9 @@
     <Compile Include="UI\ArchiveWindow.xaml.cs">
       <DependentUpon>ArchiveWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\BookmarksWindow.xaml.cs">
+      <DependentUpon>BookmarksWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\BranchNameWindow.xaml.cs">
       <DependentUpon>BranchNameWindow.xaml</DependentUpon>
     </Compile>
@@ -249,6 +252,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\ArchiveWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\BookmarksWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

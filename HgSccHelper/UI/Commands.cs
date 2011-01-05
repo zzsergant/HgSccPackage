@@ -73,6 +73,10 @@ namespace HgSccHelper.UI
 			"Tags", typeof(Commands));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand BookmarksCommand = new RoutedUICommand("Bookmarks",
+			"Bookmarks", typeof(Commands));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand UpdateCommand = new RoutedUICommand("Update to Revision",
 			"Update", typeof(Commands));
 
