@@ -248,6 +248,7 @@ namespace HgSccHelper
 			worker.Run(p);
 
 			UpdateContext.IsParentChanged = true;
+			UpdateContext.IsBookmarksChanged = true;
 			e.Handled = true;
 		}
 

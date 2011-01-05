@@ -294,6 +294,7 @@ namespace HgSccHelper
 				{
 					UpdateContext.IsParentChanged = true;
 					UpdateContext.IsBranchChanged = true;
+					UpdateContext.IsBookmarksChanged = true;
 				}
 
 				UpdateTags();
@@ -347,6 +348,7 @@ namespace HgSccHelper
 				{
 					UpdateContext.IsParentChanged = true;
 					UpdateContext.IsBranchChanged = true;
+					UpdateContext.IsBookmarksChanged = true;
 				}
 
 				UpdateTags();

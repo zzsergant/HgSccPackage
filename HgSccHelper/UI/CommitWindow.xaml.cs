@@ -744,6 +744,7 @@ namespace HgSccHelper
 					UpdateContext.IsParentChanged = true;
 					UpdateContext.IsCommited = true;
 					UpdateContext.IsBranchChanged = true;
+					UpdateContext.IsBookmarksChanged = true;
 
 					DialogResult = true;
 					Close();
@@ -833,6 +834,7 @@ namespace HgSccHelper
 					UpdateContext.IsParentChanged = true;
 					UpdateContext.IsCommited = true;
 					UpdateContext.IsBranchChanged = true;
+					UpdateContext.IsBookmarksChanged = true;
 
 					DialogResult = true;
 					Close();
