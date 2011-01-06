@@ -273,8 +273,13 @@ namespace HgSccHelper
 			}
 
 			var options = discard_changes ? HgUpdateOptions.Clean : HgUpdateOptions.None;
+			
+			// If several bookmarks points to one changeset,
+			// then we can not use SHA1 as revision
 
-			if (!Hg.Update(WorkingDir, Target.SHA1, options))
+			var rev = comboRevision.Text;
+
+			if (!Hg.Update(WorkingDir, rev, options))
 			{
 				MessageBox.Show("An error occured while update", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;
