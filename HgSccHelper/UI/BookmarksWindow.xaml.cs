@@ -246,6 +246,7 @@ namespace HgSccHelper.UI
 			if (!hg_bookmarks.Add(WorkingDir, bookmark_name, RevDesc.SHA1))
 			{
 				var msg = String.Format("An error occured while adding bookmark '{0}'", bookmark_name);
+				msg += "\nMake sure that bookmarks extension is enabled in your Mercurial.ini configuration file.";
 				MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 			}
 			else
