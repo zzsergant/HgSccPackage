@@ -22,6 +22,9 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public static BookmarkInfo ParseBookmarkLine(string str)
 		{
+			if (String.IsNullOrEmpty(str))
+				return null;
+
 			var bookmark = new BookmarkInfo();
 			const string current_prefix = " * ";
 
