@@ -96,6 +96,17 @@ namespace HgSccHelper
 			set { this.SetValue(ShowNoMergesProperty, value); }
 		}
 
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty CompareBookmarksProperty =
+			DependencyProperty.Register("CompareBookmarks", typeof(bool), typeof(SynchronizeWindow));
+
+		//-----------------------------------------------------------------------------
+		public bool CompareBookmarks
+		{
+			get { return (bool)this.GetValue(CompareBookmarksProperty); }
+			set { this.SetValue(CompareBookmarksProperty, value); }
+		}
+
 		List<PathAlias> paths;
 
 		public const string CfgPath = @"GUI\SynchronizeWindow";
@@ -279,6 +290,11 @@ namespace HgSccHelper
 			if (ShowNoMerges)
 				builder.Append("--no-merges");
 
+			if (CompareBookmarks)
+			{
+				builder.Append("--bookmarks");
+			}
+
 			var target_revision = GetTargetRevision();
 			if (!string.IsNullOrEmpty(target_revision))
 				builder.AppendRevision(target_revision);
@@ -326,6 +342,11 @@ namespace HgSccHelper
 
 			if (ShowNoMerges)
 				builder.Append("--no-merges");
+
+			if (CompareBookmarks)
+			{
+				builder.Append("--bookmarks");
+			}
 
 			var target_revision = GetTargetRevision();
 			if (!string.IsNullOrEmpty(target_revision))

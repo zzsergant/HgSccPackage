@@ -159,6 +159,9 @@
                         <CheckBox Content="Do not show merges"
                                   IsChecked="{Binding ElementName=root, Path=ShowNoMerges}">
                         </CheckBox>
+                        <CheckBox Content="Compare bookmarks"
+                                  IsChecked="{Binding ElementName=root, Path=CompareBookmarks}">
+                        </CheckBox>
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Header="Pull options:"
