@@ -765,15 +765,10 @@ namespace HgSccHelper
 			{
 				first_batch = false;
 
-				RunningOperations |= AsyncOperations.Tags;
-				RunningOperations |= AsyncOperations.Branches;
-				RunningOperations |= AsyncOperations.Identify;
-				RunningOperations |= AsyncOperations.Bookmarks;
-
-				async_tags.RunAsync(WorkingDir);
-				async_branches.RunAsync(WorkingDir, HgBranchesOptions.Closed);
-				async_identify.RunAsync(WorkingDir);
-				async_bookmarks.RunAsync(WorkingDir);
+				HandleTagsChanges();
+				HandleBranchChanges();
+				HandleParentChange();
+				HandleBookmarksChanged();
 			}
 
 			foreach (var change_desc in changes)
@@ -916,8 +911,11 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void HandleBookmarksChanged()
 		{
-			RunningOperations |= AsyncOperations.Bookmarks;
-			async_bookmarks.RunAsync(WorkingDir);
+			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
+			{
+				RunningOperations |= AsyncOperations.Bookmarks;
+				async_bookmarks.RunAsync(WorkingDir);
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -961,8 +959,11 @@ namespace HgSccHelper
 		{
 			e.CanExecute = false;
 
-			if (SelectedChangeset != null)
+			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
+			{
+				if (SelectedChangeset != null)
 				e.CanExecute = true;
+			}
 
 			e.Handled = true;
 		}

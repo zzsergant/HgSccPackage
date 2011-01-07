@@ -199,6 +199,12 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public bool IsBookmarksEnabled
+		{
+			get { return HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks); }
+		}
+
+		//-----------------------------------------------------------------------------
 		void ReloadPaths()
 		{
 			var hg = new Hg();
@@ -685,18 +691,21 @@ namespace HgSccHelper
 
 				// FIXME: make the folowing asynchronous
 
-				var bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
-				foreach (var bookmark in bookmarks)
+				if (IsBookmarksEnabled)
 				{
-					var item = new UpdateComboItem();
-					item.GroupText = "Bookmark";
-					item.Name = bookmark.Name;
-					item.Rev = bookmark.Rev;
-					item.SHA1 = bookmark.SHA1;
-					item.Misc = bookmark.IsCurrent ? "Current" : "";
+					var bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+					foreach (var bookmark in bookmarks)
+					{
+						var item = new UpdateComboItem();
+						item.GroupText = "Bookmark";
+						item.Name = bookmark.Name;
+						item.Rev = bookmark.Rev;
+						item.SHA1 = bookmark.SHA1;
+						item.Misc = bookmark.IsCurrent ? "Current" : "";
 
-					comboRevision.Items.Add(item);
-					comboBookmark.Items.Add(item);
+						comboRevision.Items.Add(item);
+						comboBookmark.Items.Add(item);
+					}
 				}
 
 				var tags = new Hg().Tags(WorkingDir);

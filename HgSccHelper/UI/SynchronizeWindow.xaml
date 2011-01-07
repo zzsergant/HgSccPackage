@@ -184,6 +184,7 @@
                                   IsChecked="{Binding ElementName=root, Path=ShowNoMerges}">
                         </CheckBox>
                         <CheckBox Content="Compare bookmarks"
+                                  IsEnabled="{Binding ElementName=root, Path=IsBookmarksEnabled}"
                                   IsChecked="{Binding ElementName=root, Path=CompareBookmarks}">
                         </CheckBox>
                     </StackPanel>
@@ -241,11 +242,13 @@
                                       IsEditable="True">
                             </ComboBox>
                             <RadioButton Name="radioBookmark"  Grid.Row="2" Grid.Column="0"
+                                         IsEnabled="{Binding ElementName=root, Path=IsBookmarksEnabled}"
                                          Content="Bookmark:"
                                          Margin="5"
                                          GroupName="RevisionGroup">
                             </RadioButton>
                             <ComboBox Name="comboBookmark"  Grid.Row="2" Grid.Column="1"
+                                      IsEnabled="{Binding ElementName=root, Path=IsBookmarksEnabled}"
                                       TextSearch.TextPath="Name"
                                       VerticalAlignment="Center"
                                       ItemTemplate="{StaticResource RevisionComboItemTemplate}"

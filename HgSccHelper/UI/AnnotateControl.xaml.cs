@@ -917,8 +917,11 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void HandleBookmarksChanges()
 		{
-			RunningOperations |= AsyncOperations.Bookmarks;
-			async_bookmarks.RunAsync(WorkingDir);
+			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
+			{
+				RunningOperations |= AsyncOperations.Bookmarks;
+				async_bookmarks.RunAsync(WorkingDir);
+			}
 		}
 
 		//------------------------------------------------------------------

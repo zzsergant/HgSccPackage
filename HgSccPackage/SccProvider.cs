@@ -107,6 +107,10 @@ namespace HgSccPackage
 			// Set the configuration name
 			Cfg.Program = "HgSccPackage";
 
+
+			// Update a cache for enabled mercurial extensions
+			HgExtensionsCache.Instance.GetExtensions();
+
 			// The provider implements the IVsPersistSolutionProps interface which is derived from IVsPersistSolutionOpts,
 			// The base class MsVsShell.Package also implements IVsPersistSolutionOpts, so we're overriding its functionality
 			// Therefore, to persist user options in the suo file we will not use the set of AddOptionKey/OnLoadOptions/OnSaveOptions 
