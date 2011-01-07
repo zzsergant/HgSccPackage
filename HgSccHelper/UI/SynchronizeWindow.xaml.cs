@@ -107,10 +107,23 @@ namespace HgSccHelper
 			set { this.SetValue(CompareBookmarksProperty, value); }
 		}
 
+		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty AllowNewBranchProperty =
+			DependencyProperty.Register("AllowNewBranch", typeof(bool), typeof(SynchronizeWindow));
+
+		//-----------------------------------------------------------------------------
+		public bool AllowNewBranch
+		{
+			get { return (bool)this.GetValue(AllowNewBranchProperty); }
+			set { this.SetValue(AllowNewBranchProperty, value); }
+		}
+
 		List<PathAlias> paths;
 
 		public const string CfgPath = @"GUI\SynchronizeWindow";
 		CfgWindowPosition wnd_cfg;
+
+		private bool is_revisions_initialized;
 
 		//-----------------------------------------------------------------------------
 		private AsyncOperations async_ops;
@@ -153,6 +166,8 @@ namespace HgSccHelper
 
 			textUsername.IsEnabled = false;
 			passwordBox.IsEnabled = false;
+
+			radioRevision.IsChecked = true;
 
 			UpdateAfterPull = true;
 
@@ -248,7 +263,28 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private string GetTargetRevision()
 		{
-			return textBoxRevision.Text;
+			if (radioRevision.IsChecked != true)
+				return string.Empty;
+
+			return comboRevision.Text;
+		}
+
+		//------------------------------------------------------------------
+		private string GetTargetBranch()
+		{
+			if (radioBranch.IsChecked != true)
+				return string.Empty;
+
+			return comboBranch.Text;
+		}
+
+		//------------------------------------------------------------------
+		private string GetTargetBookmark()
+		{
+			if (radioBookmark.IsChecked != true)
+				return string.Empty;
+
+			return comboBookmark.Text;
 		}
 
 		//------------------------------------------------------------------
@@ -298,6 +334,13 @@ namespace HgSccHelper
 			var target_revision = GetTargetRevision();
 			if (!string.IsNullOrEmpty(target_revision))
 				builder.AppendRevision(target_revision);
+
+			var target_branch = GetTargetBranch();
+			if (!string.IsNullOrEmpty(target_branch))
+			{
+				builder.Append("--branch");
+				builder.Append(target_branch.Quote());
+			}
 
 			var repository = GetSelectedRepository();
 			if (!string.IsNullOrEmpty(repository))
@@ -352,6 +395,13 @@ namespace HgSccHelper
 			if (!string.IsNullOrEmpty(target_revision))
 				builder.AppendRevision(target_revision);
 
+			var target_branch = GetTargetBranch();
+			if (!string.IsNullOrEmpty(target_branch))
+			{
+				builder.Append("--branch");
+				builder.Append(target_branch.Quote());
+			}
+
 			var repository = GetSelectedRepository();
 			if (!string.IsNullOrEmpty(repository))
 				builder.Append(repository.Quote());
@@ -393,6 +443,20 @@ namespace HgSccHelper
 			if (!string.IsNullOrEmpty(target_revision))
 				builder.AppendRevision(target_revision);
 
+			var target_branch = GetTargetBranch();
+			if (!string.IsNullOrEmpty(target_branch))
+			{
+				builder.Append("--branch");
+				builder.Append(target_branch.Quote());
+			}
+
+			var target_bookmark = GetTargetBookmark();
+			if (!string.IsNullOrEmpty(target_bookmark))
+			{
+				builder.Append("--bookmark");
+				builder.Append(target_bookmark.Quote());
+			}
+
 			var repository = GetSelectedRepository();
 			if (!string.IsNullOrEmpty(repository))
 				builder.Append(repository.Quote());
@@ -427,9 +491,26 @@ namespace HgSccHelper
 			builder.AppendVerbose();
 			builder.Append("push");
 
+			if (AllowNewBranch)
+				builder.Append("--new-branch");
+
 			var target_revision = GetTargetRevision();
 			if (!string.IsNullOrEmpty(target_revision))
 				builder.AppendRevision(target_revision);
+
+			var target_branch = GetTargetBranch();
+			if (!string.IsNullOrEmpty(target_branch))
+			{
+				builder.Append("--branch");
+				builder.Append(target_branch.Quote());
+			}
+
+			var target_bookmark = GetTargetBookmark();
+			if (!string.IsNullOrEmpty(target_bookmark))
+			{
+				builder.Append("--bookmark");
+				builder.Append(target_bookmark.Quote());
+			}
 
 			var repository = GetSelectedRepository();
 			if (!string.IsNullOrEmpty(repository))
@@ -592,6 +673,63 @@ namespace HgSccHelper
 			{
 				textUsername.IsEnabled = false;
 				passwordBox.IsEnabled = false;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void TargetRevision_Expanded(object sender, RoutedEventArgs e)
+		{
+			if (!is_revisions_initialized)
+			{
+				is_revisions_initialized = true;
+
+				// FIXME: make the folowing asynchronous
+
+				var bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+				foreach (var bookmark in bookmarks)
+				{
+					var item = new UpdateComboItem();
+					item.GroupText = "Bookmark";
+					item.Name = bookmark.Name;
+					item.Rev = bookmark.Rev;
+					item.SHA1 = bookmark.SHA1;
+					item.Misc = bookmark.IsCurrent ? "Current" : "";
+
+					comboRevision.Items.Add(item);
+					comboBookmark.Items.Add(item);
+				}
+
+				var tags = new Hg().Tags(WorkingDir);
+				foreach (var tag in tags)
+				{
+					var item = new UpdateComboItem();
+					item.GroupText = "Tag";
+					item.Name = tag.Name;
+					item.Rev = tag.Rev;
+					item.SHA1 = tag.SHA1;
+					item.Misc = tag.IsLocal ? "Local" : "";
+
+					comboRevision.Items.Add(item);
+				}
+
+				var branches = new Hg().Branches(WorkingDir, HgBranchesOptions.Closed);
+				foreach (var branch in branches)
+				{
+					var item = new UpdateComboItem();
+					item.GroupText = "Branch";
+					item.Name = branch.Name;
+					item.Rev = branch.Rev;
+					item.SHA1 = branch.SHA1;
+					item.Misc = "";
+					if (!branch.IsActive)
+						item.Misc = "Not Active";
+					else
+						if (branch.IsClosed)
+							item.Misc = "Closed";
+
+					comboRevision.Items.Add(item);
+					comboBranch.Items.Add(item);
+				}
 			}
 		}
 	}

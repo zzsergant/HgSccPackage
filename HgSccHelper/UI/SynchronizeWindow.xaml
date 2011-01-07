@@ -57,6 +57,30 @@
                             Text="{Binding Path=Path}" />
             </Grid>
         </DataTemplate>
+        <ItemsPanelTemplate x:Key="RevisionPanelTemplate">
+            <StackPanel Orientation="Vertical"
+                        Grid.IsSharedSizeScope="True"
+                        HorizontalAlignment="Stretch">
+            </StackPanel>
+        </ItemsPanelTemplate>
+        <DataTemplate x:Key="RevisionComboItemTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition SharedSizeGroup="Name" Width="Auto" />
+                    <ColumnDefinition SharedSizeGroup="GroupText" Width="Auto" />
+                    <ColumnDefinition SharedSizeGroup="Misc" Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Path=Name}"
+                           Grid.Column="0"
+                           Margin="0, 0, 20, 0"
+                           FontWeight="Bold"/>
+                <TextBlock Grid.Column="1"
+                           Margin="0, 0, 10, 0"
+                           Text="{Binding Path=GroupText}" />
+                <TextBlock Grid.Column="2"
+                           Text="{Binding Path=Misc}" />
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -164,28 +188,73 @@
                         </CheckBox>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox Header="Pull options:"
+                <GroupBox Header="Pull/Push options:"
                           Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
                           Margin="5,5,0,5"
                           Padding="5">
                     <StackPanel>
                         <CheckBox Content="Update after pull"
-                          IsChecked="{Binding ElementName=root, Path=UpdateAfterPull}">
+                                  IsChecked="{Binding ElementName=root, Path=UpdateAfterPull}">
+                        </CheckBox>
+                        <CheckBox Content="Allow pushing a new branch"
+                                  IsChecked="{Binding ElementName=root, Path=AllowNewBranch}">
                         </CheckBox>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox Header="Other options:"
-                          Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
-                          Margin="5"
-                          Padding="5">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="Target Revision:"></Label>
-                            <TextBox Name="textBoxRevision" MinWidth="250">
-                            </TextBox>
-                        </StackPanel>
+                <Expander Header="Target revision:"
+                          IsExpanded="False"
+                          Expanded="TargetRevision_Expanded"
+                          Margin="5">
+                    <StackPanel MinWidth="300">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <RadioButton Name="radioRevision"  Grid.Row="0" Grid.Column="0"
+                                         Content="Revision:"
+                                         Margin="5"
+                                         GroupName="RevisionGroup">
+                            </RadioButton>
+                            <ComboBox Name="comboRevision"  Grid.Row="0" Grid.Column="1"
+                                      TextSearch.TextPath="Name"
+                                      VerticalAlignment="Center"
+                                      ItemTemplate="{StaticResource RevisionComboItemTemplate}"
+                                      ItemsPanel="{StaticResource RevisionPanelTemplate}"
+                                      IsEditable="True">
+                            </ComboBox>
+                            <RadioButton Name="radioBranch"  Grid.Row="1" Grid.Column="0"
+                                         Content="Branch:"
+                                         Margin="5"
+                                         GroupName="RevisionGroup">
+                            </RadioButton>
+                            <ComboBox Name="comboBranch"  Grid.Row="1" Grid.Column="1"
+                                      TextSearch.TextPath="Name"
+                                      VerticalAlignment="Center"
+                                      ItemTemplate="{StaticResource RevisionComboItemTemplate}"
+                                      ItemsPanel="{StaticResource RevisionPanelTemplate}"
+                                      IsEditable="True">
+                            </ComboBox>
+                            <RadioButton Name="radioBookmark"  Grid.Row="2" Grid.Column="0"
+                                         Content="Bookmark:"
+                                         Margin="5"
+                                         GroupName="RevisionGroup">
+                            </RadioButton>
+                            <ComboBox Name="comboBookmark"  Grid.Row="2" Grid.Column="1"
+                                      TextSearch.TextPath="Name"
+                                      VerticalAlignment="Center"
+                                      ItemTemplate="{StaticResource RevisionComboItemTemplate}"
+                                      ItemsPanel="{StaticResource RevisionPanelTemplate}"
+                                      IsEditable="True">
+                            </ComboBox>
+                        </Grid>
                     </StackPanel>
-                </GroupBox>
+                </Expander>
             </StackPanel>
         </StackPanel>
         <TextBox Grid.Row="2"
