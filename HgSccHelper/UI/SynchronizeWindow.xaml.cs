@@ -10,6 +10,7 @@
 //
 //=========================================================================
 
+using System.Linq;
 using System.Windows;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -21,6 +22,7 @@ using Microsoft.Win32;
 using System.Windows.Controls;
 using HgSccHelper.UI;
 using System.Web;
+using HgSccHelper.UI.RevLog;
 
 namespace HgSccHelper
 {
@@ -129,6 +131,15 @@ namespace HgSccHelper
 		private AsyncOperations async_ops;
 
 		//-----------------------------------------------------------------------------
+		private AsyncTags async_tags;
+
+		//-----------------------------------------------------------------------------
+		private AsyncBranches async_branches;
+
+		//-----------------------------------------------------------------------------
+		private AsyncBookmarks async_bookmarks;
+
+		//-----------------------------------------------------------------------------
 		private Cursor prev_cursor;
 
 		//------------------------------------------------------------------
@@ -157,6 +168,15 @@ namespace HgSccHelper
 					editTextBox.TextChanged -= OnComboTextChanged;
 				}
 			};
+
+			async_branches = new AsyncBranches();
+			async_branches.Complete = new Action<List<BranchInfo>>(OnAsyncBranch);
+
+			async_tags = new AsyncTags();
+			async_tags.Complete = new Action<List<TagInfo>>(OnAsyncTags);
+
+			async_bookmarks = new AsyncBookmarks();
+			async_bookmarks.Complete = new Action<List<BookmarkInfo>>(OnAsyncBookmarks);
 		}
 
 		//------------------------------------------------------------------
@@ -296,6 +316,15 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Closed(object sender, EventArgs e)
 		{
+			async_tags.Cancel();
+			async_tags.Dispose();
+
+			async_bookmarks.Cancel();
+			async_bookmarks.Dispose();
+
+			async_branches.Cancel();
+			async_branches.Dispose();
+
 			worker.Cancel();
 			worker.Dispose();
 		}
@@ -683,62 +712,97 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		private void OnAsyncTags(List<TagInfo> tags_list)
+		{
+			RunningOperations &= ~AsyncOperations.Tags;
+
+			if (tags_list == null)
+				return;
+
+			foreach (var tag in tags_list)
+			{
+				var item = new UpdateComboItem();
+				item.GroupText = "Tag";
+				item.Name = tag.Name;
+				item.Rev = tag.Rev;
+				item.SHA1 = tag.SHA1;
+				item.Misc = tag.IsLocal ? "Local" : "";
+
+				comboRevision.Items.Add(item);
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncBookmarks(List<BookmarkInfo> bookmarks_list)
+		{
+			RunningOperations &= ~AsyncOperations.Bookmarks;
+
+			if (bookmarks_list == null)
+				return;
+
+			foreach (var bookmark in bookmarks_list)
+			{
+				var item = new UpdateComboItem();
+				item.GroupText = "Bookmark";
+				item.Name = bookmark.Name;
+				item.Rev = bookmark.Rev;
+				item.SHA1 = bookmark.SHA1;
+				item.Misc = bookmark.IsCurrent ? "Current" : "";
+
+				comboRevision.Items.Add(item);
+				comboBookmark.Items.Add(item);
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void OnAsyncBranch(List<BranchInfo> branch_list)
+		{
+			RunningOperations &= ~AsyncOperations.Branches;
+
+			if (branch_list == null)
+				return;
+
+			foreach (var branch in branch_list)
+			{
+				var item = new UpdateComboItem();
+				item.GroupText = "Branch";
+				item.Name = branch.Name;
+				item.Rev = branch.Rev;
+				item.SHA1 = branch.SHA1;
+				item.Misc = "";
+				if (!branch.IsActive)
+					item.Misc = "Not Active";
+				else
+					if (branch.IsClosed)
+						item.Misc = "Closed";
+
+				comboRevision.Items.Add(item);
+				comboBranch.Items.Add(item);
+			}
+		}
+
+		//-----------------------------------------------------------------------------
 		private void TargetRevision_Expanded(object sender, RoutedEventArgs e)
 		{
 			if (!is_revisions_initialized)
 			{
 				is_revisions_initialized = true;
 
-				// FIXME: make the folowing asynchronous
+				// TODO: Preserve an order of Bookmarks/Tags/Branches.
+				// Since all commands are run asynchronous,
+				// they can have different ordering on each run
 
 				if (IsBookmarksEnabled)
 				{
-					var bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
-					foreach (var bookmark in bookmarks)
-					{
-						var item = new UpdateComboItem();
-						item.GroupText = "Bookmark";
-						item.Name = bookmark.Name;
-						item.Rev = bookmark.Rev;
-						item.SHA1 = bookmark.SHA1;
-						item.Misc = bookmark.IsCurrent ? "Current" : "";
-
-						comboRevision.Items.Add(item);
-						comboBookmark.Items.Add(item);
-					}
+					RunningOperations |= AsyncOperations.Bookmarks;
+					async_bookmarks.RunAsync(WorkingDir);
 				}
 
-				var tags = new Hg().Tags(WorkingDir);
-				foreach (var tag in tags)
-				{
-					var item = new UpdateComboItem();
-					item.GroupText = "Tag";
-					item.Name = tag.Name;
-					item.Rev = tag.Rev;
-					item.SHA1 = tag.SHA1;
-					item.Misc = tag.IsLocal ? "Local" : "";
+				RunningOperations |= AsyncOperations.Tags;
+				async_tags.RunAsync(WorkingDir);
 
-					comboRevision.Items.Add(item);
-				}
-
-				var branches = new Hg().Branches(WorkingDir, HgBranchesOptions.Closed);
-				foreach (var branch in branches)
-				{
-					var item = new UpdateComboItem();
-					item.GroupText = "Branch";
-					item.Name = branch.Name;
-					item.Rev = branch.Rev;
-					item.SHA1 = branch.SHA1;
-					item.Misc = "";
-					if (!branch.IsActive)
-						item.Misc = "Not Active";
-					else
-						if (branch.IsClosed)
-							item.Misc = "Closed";
-
-					comboRevision.Items.Add(item);
-					comboBranch.Items.Add(item);
-				}
+				RunningOperations |= AsyncOperations.Branches;
+				async_branches.RunAsync(WorkingDir, HgBranchesOptions.Closed);
 			}
 		}
 	}
