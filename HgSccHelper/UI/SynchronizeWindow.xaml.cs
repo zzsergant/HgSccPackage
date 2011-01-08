@@ -55,17 +55,6 @@ namespace HgSccHelper
 		HgThread worker;
 
 		//-----------------------------------------------------------------------------
-		public static readonly DependencyProperty UpdateAfterPullProperty =
-			DependencyProperty.Register("UpdateAfterPull", typeof(bool), typeof(SynchronizeWindow));
-
-		//-----------------------------------------------------------------------------
-		public bool UpdateAfterPull
-		{
-			get { return (bool)this.GetValue(UpdateAfterPullProperty); }
-			set { this.SetValue(UpdateAfterPullProperty, value); }
-		}
-
-		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty ShowNewestFirstProperty =
 			DependencyProperty.Register("ShowNewestFirst", typeof(bool), typeof(SynchronizeWindow));
 
@@ -121,6 +110,7 @@ namespace HgSccHelper
 		}
 
 		List<PathAlias> paths;
+		private List<string> after_pull_actions;
 
 		public const string CfgPath = @"GUI\SynchronizeWindow";
 		CfgWindowPosition wnd_cfg;
@@ -169,6 +159,15 @@ namespace HgSccHelper
 				}
 			};
 
+			after_pull_actions = new List<string>();
+   			after_pull_actions.Add("Nothing");
+			after_pull_actions.Add("Update");
+			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Rebase))
+				after_pull_actions.Add("Rebase");
+
+			comboAfterPull.ItemsSource = after_pull_actions;
+			comboAfterPull.SelectedItem = "Update";
+
 			async_branches = new AsyncBranches();
 			async_branches.Complete = new Action<List<BranchInfo>>(OnAsyncBranch);
 
@@ -189,7 +188,10 @@ namespace HgSccHelper
 
 			radioRevision.IsChecked = true;
 
-			UpdateAfterPull = true;
+			string after_pull;
+			Cfg.Get(CfgPath, "AfterPull", out after_pull, "Update");
+			if (after_pull_actions.Contains(after_pull))
+				comboAfterPull.SelectedItem = after_pull;
 
 			ReloadPaths();
 		}
@@ -316,6 +318,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Closed(object sender, EventArgs e)
 		{
+			Cfg.Set(CfgPath, "AfterPull", comboAfterPull.Text);
+
 			async_tags.Cancel();
 			async_tags.Dispose();
 
@@ -471,8 +475,23 @@ namespace HgSccHelper
 			builder.AppendVerbose();
 			builder.Append("pull");
 
-			if (UpdateAfterPull)
-				builder.Append("-u");
+			switch (comboAfterPull.Text)
+			{
+				case "Nothing":
+					{
+						break;
+					}
+				case "Update":
+					{
+						builder.Append("-u");
+						break;
+					}
+				case "Rebase":
+					{
+						builder.Append("--rebase");
+						break;;
+					}
+			}
 
 			var target_revision = GetTargetRevision();
 			if (!string.IsNullOrEmpty(target_revision))

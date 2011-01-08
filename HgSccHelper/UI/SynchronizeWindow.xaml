@@ -194,9 +194,15 @@
                           Margin="5,5,0,5"
                           Padding="5">
                     <StackPanel>
-                        <CheckBox Content="Update after pull"
-                                  IsChecked="{Binding ElementName=root, Path=UpdateAfterPull}">
-                        </CheckBox>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Action after pull:"
+                                   Margin="0,5,5,5">                                
+                            </Label>
+                            <ComboBox Name="comboAfterPull"
+                                      MinWidth="100"
+                                      VerticalAlignment="Center">
+                            </ComboBox>
+                        </StackPanel>
                         <CheckBox Content="Allow pushing a new branch"
                                   IsChecked="{Binding ElementName=root, Path=AllowNewBranch}">
                         </CheckBox>
