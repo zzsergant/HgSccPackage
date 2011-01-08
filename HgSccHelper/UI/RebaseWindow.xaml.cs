@@ -190,7 +190,7 @@ namespace HgSccHelper.UI
 		//-----------------------------------------------------------------------------
 		void UpdateRebaseButton()
 		{
-			btnRebase.IsEnabled = (Destination != null) && (Source != null);
+			btnRebase.IsEnabled = (Destination != null) && (Source != null) && (Source.Rev != Destination.Rev);
 		}
 
 		//------------------------------------------------------------------
@@ -247,9 +247,6 @@ namespace HgSccHelper.UI
 				return;
 			}
 
-			var source_rev = comboSourceRevision.Text;
-			var dest_rev = comboDestRevision.Text;
-
 			var msg = String.Format("Rebase revision {0} on top of {1} ?", Source.Rev, Destination.Rev);
 			var dlg_result = MessageBox.Show(msg, "Confirm rebase",
 			                                 MessageBoxButton.OKCancel,
@@ -259,7 +256,7 @@ namespace HgSccHelper.UI
 				return;
 
 			var hg_rebase = new HgRebase();
-			if (!hg_rebase.Rebase(WorkingDir, source_rev, dest_rev))
+			if (!hg_rebase.Rebase(WorkingDir, Source.Rev.ToString(), Destination.Rev.ToString()))
 			{
 				MessageBox.Show("An error occured while rebase", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;
