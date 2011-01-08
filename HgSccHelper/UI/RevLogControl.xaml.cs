@@ -1118,9 +1118,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Rebase_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = false;
-
-			if (graphView != null)
+			if (graphView != null & worker != null && !worker.IsBusy)
 			{
 				if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Rebase))
 				{
