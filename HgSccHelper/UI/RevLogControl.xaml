@@ -55,6 +55,10 @@
                         CanExecute="Bundle_CanExecute"
                         Executed="Bundle_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static ui:Commands.RebaseCommand}"
+                        CanExecute="Rebase_CanExecute"
+                        Executed="Rebase_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static local:RevLogControl.ReadNextCommand}"
                         CanExecute="ReadNext_CanExecute"
                         Executed="ReadNext_Executed">
@@ -235,10 +239,13 @@
                         Command="{x:Static ui:Commands.BookmarksCommand}"
                         MinWidth="75" />
                 <Separator />
-                <Button Content="Merge with Revision"
+                <Button Content="Merge"
                         Command="{x:Static ui:Commands.MergeCommand}"
                         MinWidth="75" />
-                <Button Content="Archive Revision"
+                <Button Content="Rebase"
+                        Command="{x:Static ui:Commands.RebaseCommand}"
+                        MinWidth="75" />
+                <Button Content="Archive"
                         Command="{x:Static ui:Commands.ArchiveCommand}"
                         MinWidth="75" />
                 <Button Content="Bundle"
@@ -279,8 +286,11 @@
                         <MenuItem Command="{x:Static ui:Commands.TagsCommand}"
                               InputGestureText="Ctrl + T"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.BookmarksCommand}"></MenuItem>
+                        <Separator></Separator>
                         <MenuItem Command="{x:Static ui:Commands.MergeCommand}"
                               InputGestureText="Ctrl + M"></MenuItem>
+                        <MenuItem Command="{x:Static ui:Commands.RebaseCommand}"></MenuItem>
+                        <Separator></Separator>
                         <MenuItem Command="{x:Static ui:Commands.ArchiveCommand}"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.BundleCommand}"></MenuItem>
                         <MenuItem Command="{x:Static ui:Commands.GrepCommand}"></MenuItem>

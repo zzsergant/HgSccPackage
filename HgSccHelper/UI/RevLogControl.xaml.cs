@@ -1089,6 +1089,67 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private void Rebase_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+
+			if (graphView != null)
+			{
+				if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Rebase))
+				{
+					if (graphView.SelectedItems.Count == 1 || graphView.SelectedItems.Count == 2)
+						e.CanExecute = true;
+				}
+			}
+
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Rebase_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			string src_rev = "";
+			string dest_rev = "";
+
+			if (graphView.SelectedItems.Count == 1)
+			{
+				var change = (RevLogLinesPair)graphView.SelectedItem;
+				src_rev = change.Current.ChangeDesc.Rev.ToString();
+			}
+
+			if (graphView.SelectedItems.Count == 2)
+			{
+				var change1 = (RevLogLinesPair)graphView.SelectedItems[0];
+				var change2 = (RevLogLinesPair)graphView.SelectedItems[1];
+
+				var rev1 = change1.Current.ChangeDesc.Rev;
+				var rev2 = change2.Current.ChangeDesc.Rev;
+
+				src_rev = rev1.ToString();
+				dest_rev = rev2.ToString();
+			}
+
+			var wnd = new RebaseWindow();
+			wnd.WorkingDir = WorkingDir;
+			wnd.SourceRevision = src_rev;
+			wnd.DestinationRevision = dest_rev;
+
+			wnd.Owner = Window.GetWindow(this);
+			wnd.ShowDialog();
+
+			if (wnd.UpdateContext.IsParentChanged)
+				HandleParentChange();
+
+			if (wnd.UpdateContext.IsBranchChanged)
+				HandleBranchChanges();
+
+			if (wnd.UpdateContext.IsBookmarksChanged)
+				HandleBookmarksChanged();
+
+			UpdateContext.MergeWith(wnd.UpdateContext);
+		}
+
+		//------------------------------------------------------------------
 		private void listFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			SelectedParentFile = null;

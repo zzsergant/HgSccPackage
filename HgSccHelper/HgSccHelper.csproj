@@ -88,6 +88,7 @@
     <Compile Include="Hg\HgArgsBuilder.cs" />
     <Compile Include="Hg\HgBookmarks.cs" />
     <Compile Include="Hg\HgExtensions.cs" />
+    <Compile Include="Hg\HgRebase.cs" />
     <Compile Include="Misc\AsyncDeleter.cs" />
     <Compile Include="Misc\GridViewColumnSorter.cs" />
     <Compile Include="UI\AnnotateControl.xaml.cs">
@@ -176,6 +177,9 @@
       <DependentUpon>PathEditWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\RebaseWindow.xaml.cs">
+      <DependentUpon>RebaseWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\RevertWindow.xaml.cs">
       <DependentUpon>RevertWindow.xaml</DependentUpon>
     </Compile>
@@ -298,6 +302,10 @@
     <Page Include="UI\PathEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\RebaseWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\RevertWindow.xaml">
       <SubType>Designer</SubType>

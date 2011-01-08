@@ -1,0 +1,103 @@
+﻿<Window x:Class="HgSccHelper.UI.RebaseWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="RebaseWindow"
+    Height="Auto"
+    Width="Auto"
+    MinWidth="400"
+    MaxWidth="800"
+    SizeToContent="WidthAndHeight"
+    xmlns:local="clr-namespace:HgSccHelper"
+    Loaded="Window_Loaded"
+    Closed="Window_Closed"
+    x:Name="root"
+    WindowStartupLocation="CenterScreen"
+    ShowInTaskbar="False"
+    ResizeMode="NoResize">
+    <Window.Resources>
+        <ItemsPanelTemplate x:Key="PathItemsPanelTemplate">
+            <StackPanel Orientation="Vertical"
+                        Grid.IsSharedSizeScope="True"
+                        HorizontalAlignment="Stretch">
+            </StackPanel>
+        </ItemsPanelTemplate>
+        <DataTemplate x:Key="PathComboItemTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition SharedSizeGroup="Name" Width="Auto" />
+                    <ColumnDefinition SharedSizeGroup="GroupText" Width="Auto" />
+                    <ColumnDefinition SharedSizeGroup="Misc" Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Path=Name}"
+                           Grid.Column="0"
+                           Margin="0, 0, 20, 0"
+                           FontWeight="Bold"/>
+                <TextBlock Grid.Column="1"
+                           Margin="0, 0, 10, 0"
+                           Text="{Binding Path=GroupText}" />
+                <TextBlock Grid.Column="2"
+                           Text="{Binding Path=Misc}" />
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid>
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Content="Dest Revision:"
+                       HorizontalAlignment="Right"
+                       Margin="5"></Label>
+                <ComboBox Grid.Row="0" Grid.Column="1" Name="comboDestRevision"
+                          TextSearch.TextPath="Name"
+                          HorizontalContentAlignment="Stretch"
+                          ItemTemplate="{StaticResource PathComboItemTemplate}"
+                          ItemsPanel="{StaticResource PathItemsPanelTemplate}"
+                          Margin="5" IsEditable="True">
+                </ComboBox>
+                <Label Grid.Row="1" Grid.Column="0" Content="Dest Desc:"
+                       HorizontalAlignment="Right"
+                       Margin="5"></Label>
+                <TextBox Grid.Row="1" Grid.Column="1"
+                         Margin="5" IsTabStop="False"
+                         Name="targetDesc" IsReadOnly="True">
+                </TextBox>
+                <Label Grid.Row="2" Grid.Column="0" Content="Source Revision:"
+                       HorizontalAlignment="Right"
+                       Margin="5"></Label>
+                <ComboBox Grid.Row="2" Grid.Column="1" Name="comboSourceRevision"
+                          TextSearch.TextPath="Name"
+                          HorizontalContentAlignment="Stretch"
+                          ItemTemplate="{StaticResource PathComboItemTemplate}"
+                          ItemsPanel="{StaticResource PathItemsPanelTemplate}"
+                          Margin="5" IsEditable="True">
+                </ComboBox>
+                <Label Grid.Row="3" Grid.Column="0" Content="Source Desc:"
+                       HorizontalAlignment="Right"
+                       Margin="5"></Label>
+                <TextBox Grid.Row="3" Grid.Column="1"
+                         Margin="5" IsTabStop="False"
+                         Name="sourceDesc" IsReadOnly="True">
+                </TextBox>
+            </Grid>
+            <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <Button Name="btnRebase" Height="23" Width="75"
+                        Content="Rebase" IsDefault="True" Click="btnRebase_Click"></Button>
+                <Button Name="Cancel" Height="23" Width="75"
+                        IsCancel="True"
+                        Content="Cancel" Margin="5" Click="Cancel_Click"></Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
