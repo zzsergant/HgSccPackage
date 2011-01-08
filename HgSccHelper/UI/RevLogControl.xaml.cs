@@ -50,6 +50,11 @@ namespace HgSccHelper
 			"ReadAll", typeof(RevLogControl));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand ReloadCommand = new RoutedUICommand("Reload",
+			"Reload", typeof(RevLogControl),  new InputGestureCollection(
+				new[] { new KeyGesture(Key.F5) }));
+
+		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
 
 		//------------------------------------------------------------------
@@ -126,6 +131,8 @@ namespace HgSccHelper
 		private bool first_batch;
 
 		private AsyncOperations async_ops;
+
+		private string sha1_to_scroll_on_reload;
 
 		//------------------------------------------------------------------
 		public RevLogControl()
@@ -627,19 +634,23 @@ namespace HgSccHelper
 
 			wnd.ShowDialog();
 
-			if (wnd.UpdateContext.IsParentChanged)
-				HandleParentChange();
-
-			if (wnd.UpdateContext.IsBranchChanged)
-				HandleBranchChanges();
+			UpdateContext.MergeWith(wnd.UpdateContext);
 
 			if (wnd.UpdateContext.IsTagsChanged)
-				HandleTagsChanges();
+			{
+				ReloadChangeLog();
+			}
+			else
+			{
+				if (wnd.UpdateContext.IsParentChanged)
+					HandleParentChange();
 
-			if (wnd.UpdateContext.IsBookmarksChanged)
-				HandleBookmarksChanged();
+				if (wnd.UpdateContext.IsBranchChanged)
+					HandleBranchChanges();
 
-			UpdateContext.MergeWith(wnd.UpdateContext);
+				if (wnd.UpdateContext.IsBookmarksChanged)
+					HandleBookmarksChanged();
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -667,19 +678,23 @@ namespace HgSccHelper
 
 			wnd.ShowDialog();
 
-			if (wnd.UpdateContext.IsParentChanged)
-				HandleParentChange();
-
-			if (wnd.UpdateContext.IsBranchChanged)
-				HandleBranchChanges();
+			UpdateContext.MergeWith(wnd.UpdateContext);
 
 			if (wnd.UpdateContext.IsTagsChanged)
-				HandleTagsChanges();
+			{
+				ReloadChangeLog();
+			}
+			else
+			{
+				if (wnd.UpdateContext.IsParentChanged)
+					HandleParentChange();
 
-			if (wnd.UpdateContext.IsBookmarksChanged)
-				HandleBookmarksChanged();
+				if (wnd.UpdateContext.IsBranchChanged)
+					HandleBranchChanges();
 
-			UpdateContext.MergeWith(wnd.UpdateContext);
+				if (wnd.UpdateContext.IsBookmarksChanged)
+					HandleBookmarksChanged();
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -731,6 +746,12 @@ namespace HgSccHelper
 				Worker_NewRevLogChangeDescBatch(changes);
 			}
 
+			if (sha1_to_scroll_on_reload != null)
+			{
+				sha1_to_scroll_on_reload = null;
+				if (graphView.SelectedItem != null)
+					graphView.ScrollIntoView(graphView.SelectedItem);
+			}
 			RunningOperations &= ~AsyncOperations.RevLog;
 
 			// Updating commands state (CanExecute)
@@ -808,6 +829,11 @@ namespace HgSccHelper
 
 			if (graphView.SelectedIndex == -1 && graphView.Items.Count > 0)
 				graphView.SelectedIndex = 0;
+
+			if (sha1 == sha1_to_scroll_on_reload)
+			{
+				graphView.SelectedIndex = graphView.Items.Count - 1;
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -939,19 +965,23 @@ namespace HgSccHelper
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
 
-			if (wnd.UpdateContext.IsParentChanged)
-				HandleParentChange();
-
-			if (wnd.UpdateContext.IsBranchChanged)
-				HandleBranchChanges();
+			UpdateContext.MergeWith(wnd.UpdateContext);
 
 			if (wnd.UpdateContext.IsTagsChanged)
-				HandleTagsChanges();
+			{
+				ReloadChangeLog();
+			}
+			else
+			{
+				if (wnd.UpdateContext.IsParentChanged)
+					HandleParentChange();
 
-			if (wnd.UpdateContext.IsBookmarksChanged)
-				HandleBookmarksChanged();
+				if (wnd.UpdateContext.IsBranchChanged)
+					HandleBranchChanges();
 
-			UpdateContext.MergeWith(wnd.UpdateContext);
+				if (wnd.UpdateContext.IsBookmarksChanged)
+					HandleBookmarksChanged();
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -983,9 +1013,6 @@ namespace HgSccHelper
 
 			if (wnd.UpdateContext.IsBranchChanged)
 				HandleBranchChanges();
-
-			if (wnd.UpdateContext.IsTagsChanged)
-				HandleTagsChanges();
 
 			if (wnd.UpdateContext.IsBookmarksChanged)
 				HandleBookmarksChanged();
@@ -1135,18 +1162,18 @@ namespace HgSccHelper
 			wnd.DestinationRevision = dest_rev;
 
 			wnd.Owner = Window.GetWindow(this);
-			wnd.ShowDialog();
+			var result = wnd.ShowDialog();
 
-			if (wnd.UpdateContext.IsParentChanged)
-				HandleParentChange();
+			if (result == true)
+			{
+				UpdateContext.IsBookmarksChanged = true;
+				UpdateContext.IsParentChanged = true;
+				UpdateContext.IsTagsChanged = true;
+				UpdateContext.IsBranchChanged = true;
+				UpdateContext.IsCommited = true;
 
-			if (wnd.UpdateContext.IsBranchChanged)
-				HandleBranchChanges();
-
-			if (wnd.UpdateContext.IsBookmarksChanged)
-				HandleBookmarksChanged();
-
-			UpdateContext.MergeWith(wnd.UpdateContext);
+				ReloadChangeLog();
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -1239,6 +1266,44 @@ namespace HgSccHelper
 		{
 			diffColumn.Width = new GridLength(0, GridUnitType.Auto);
 			diffColorizer.Clear();
+		}
+
+		//------------------------------------------------------------------
+		private void Reload_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+			if (WorkingDir != null)
+			{
+				if (worker != null && !worker.IsBusy)
+					e.CanExecute = true;
+			}
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void Reload_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			ReloadChangeLog();
+			e.Handled = true;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void ReloadChangeLog()
+		{
+			// TODO: Remember current revision and scroll to it after reload
+			sha1_to_scroll_on_reload = null;
+			if (SelectedChangeset != null)
+				sha1_to_scroll_on_reload = SelectedChangeset.Current.ChangeDesc.SHA1;
+
+			rev_log_iterator = new RevLogIteratorParser();
+			rev_log_lines_parser = new RevLogLinesPairParser();
+
+			revs.Clear();
+			rev_lines.Clear();
+			rev_log_hash_map.Clear();
+
+			first_batch = true;
+			RunRevLogThread(WorkingDir, "", BatchSize);
 		}
 	}
 

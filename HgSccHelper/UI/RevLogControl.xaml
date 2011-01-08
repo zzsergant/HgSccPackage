@@ -59,6 +59,10 @@
                         CanExecute="Rebase_CanExecute"
                         Executed="Rebase_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:RevLogControl.ReloadCommand}"
+                        CanExecute="Reload_CanExecute"
+                        Executed="Reload_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static local:RevLogControl.ReadNextCommand}"
                         CanExecute="ReadNext_CanExecute"
                         Executed="ReadNext_Executed">
@@ -321,6 +325,10 @@
                 </Button>
                 <Button Content="All"
                     Command="{x:Static local:RevLogControl.ReadAllCommand}"
+                    Margin="5,5,0,0" Padding="5, 0" Focusable="False" IsTabStop="False">
+                </Button>
+                <Button Content="Reload"
+                    Command="{x:Static local:RevLogControl.ReloadCommand}"
                     Margin="5,5,0,5" Padding="5, 0" Focusable="False" IsTabStop="False">
                 </Button>
             </StackPanel>

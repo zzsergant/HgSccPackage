@@ -30,9 +30,6 @@ namespace HgSccHelper.UI
 		public string SourceRevision { get; set; }
 
 		//------------------------------------------------------------------
-		public UpdateContext UpdateContext { get; private set; }
-
-		//------------------------------------------------------------------
 		Hg Hg { get; set; }
 
 		DispatcherTimer timer;
@@ -49,8 +46,6 @@ namespace HgSccHelper.UI
 		{
 			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
 			InitializeComponent();
-
-			UpdateContext = new UpdateContext();
 
 			// Since WPF combo box does not provide TextChanged event
 			// register it from edit text box through combo box template
@@ -270,10 +265,9 @@ namespace HgSccHelper.UI
 				return;
 			}
 
-			UpdateContext.IsParentChanged = true;
-			UpdateContext.IsBookmarksChanged = true;
-
 			MessageBox.Show("Rebase was successfull", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+
+			DialogResult = true;
 			Close();
 		}
 
