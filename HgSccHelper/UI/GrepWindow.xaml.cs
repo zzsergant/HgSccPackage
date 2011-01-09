@@ -66,9 +66,6 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		Hg Hg { get; set; }
 
-		//------------------------------------------------------------------
-		IdentifyInfo CurrentRevision { get; set; }
-
 		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty SelectedChangesetProperty =
 			DependencyProperty.Register("SelectedChangeset", typeof(ChangeDesc),
@@ -220,10 +217,6 @@ namespace HgSccHelper.UI
 			viewFilesExpander.IsExpanded = (files_visible != 0);
 
 			Hg = new Hg();
-
-			CurrentRevision = Hg.Identify(WorkingDir);
-			if (CurrentRevision == null)
-				return;
 
 			var encoding = encodings.First(enc => enc.Name == encoding_name);
 			if (encoding != null)
