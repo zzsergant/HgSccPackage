@@ -639,12 +639,16 @@ namespace HgSccHelper
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
 
-			if (wnd.UpdateContext.IsTagsChanged)
+			if (wnd.UpdateContext.IsTagsChanged && wnd.UpdateContext.IsParentChanged)
 			{
+				// There was non-local tag, need to reload graph
 				ReloadChangeLog();
 			}
 			else
 			{
+				if (wnd.UpdateContext.IsTagsChanged)
+					HandleTagsChanges();
+
 				if (wnd.UpdateContext.IsParentChanged)
 					HandleParentChange();
 
@@ -686,12 +690,16 @@ namespace HgSccHelper
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
 
-			if (wnd.UpdateContext.IsTagsChanged)
+			if (wnd.UpdateContext.IsTagsChanged && wnd.UpdateContext.IsParentChanged)
 			{
+				// There was non-local tag, need to reload graph
 				ReloadChangeLog();
 			}
 			else
 			{
+				if (wnd.UpdateContext.IsTagsChanged)
+					HandleTagsChanges();
+
 				if (wnd.UpdateContext.IsParentChanged)
 					HandleParentChange();
 
@@ -1017,12 +1025,16 @@ namespace HgSccHelper
 
 			UpdateContext.MergeWith(wnd.UpdateContext);
 
-			if (wnd.UpdateContext.IsTagsChanged)
+			if (wnd.UpdateContext.IsTagsChanged && wnd.UpdateContext.IsParentChanged)
 			{
+				// There was non-local tag, need to reload graph
 				ReloadChangeLog();
 			}
 			else
 			{
+				if (wnd.UpdateContext.IsTagsChanged)
+					HandleTagsChanges();
+
 				if (wnd.UpdateContext.IsParentChanged)
 					HandleParentChange();
 
