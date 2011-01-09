@@ -108,7 +108,10 @@ namespace HgSccHelper.UI
 			string target_rev = TargetRevision;
 			if (string.IsNullOrEmpty(target_rev))
 			{
-				var current_revision = Hg.Identify(WorkingDir);
+				var current_revision = UpdateContext.Cache.CurrentRevision;
+				if (current_revision == null)
+					current_revision = Hg.Identify(WorkingDir);
+
 				if (current_revision == null)
 				{
 					// error
@@ -121,7 +124,11 @@ namespace HgSccHelper.UI
 
 			textRev.Text = target_rev;
 
-			UpdateBookmarks();
+			if (UpdateContext.Cache.Bookmarks != null)
+				UpdateBookmarks(UpdateContext.Cache.Bookmarks);
+			else
+				UpdateBookmarks();
+
 			RefreshRev();
 
 			if (RevDesc != null)
@@ -144,15 +151,13 @@ namespace HgSccHelper.UI
 		}
 
 		//------------------------------------------------------------------
-		private void UpdateBookmarks()
+		private void UpdateBookmarks(List<BookmarkInfo> bookmarks)
 		{
 			var current_bookmark = comboBookmarks.Text;
 
 			bookmarks_map.Clear();
 			comboBookmarks.Items.Clear();
 
-			var hg_bookmarks = new HgBookmarks();
-			var bookmarks = hg_bookmarks.Bookmarks(WorkingDir);
 			int counter = 0;
 
 			foreach (var bookmark in bookmarks)
@@ -172,6 +177,14 @@ namespace HgSccHelper.UI
 
 				counter++;
 			}
+		}
+
+		//------------------------------------------------------------------
+		private void UpdateBookmarks()
+		{
+			var hg_bookmarks = new HgBookmarks();
+			var bookmarks = hg_bookmarks.Bookmarks(WorkingDir);
+			UpdateBookmarks(bookmarks);
 		}
 
 		//-----------------------------------------------------------------------------

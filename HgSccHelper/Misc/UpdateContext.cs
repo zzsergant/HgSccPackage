@@ -14,6 +14,14 @@ namespace HgSccHelper
 		public bool IsCommited { get; set; }
 		public bool IsBookmarksChanged { get; set; }
 
+		public UpdateContextCache Cache { get; set; }
+
+		//------------------------------------------------------------------
+		public UpdateContext()
+		{
+			Cache = new UpdateContextCache();
+		}
+
 		//------------------------------------------------------------------
 		public void MergeWith(UpdateContext context)
 		{
@@ -23,5 +31,16 @@ namespace HgSccHelper
 			IsCommited |= context.IsCommited;
 			IsBookmarksChanged |= context.IsBookmarksChanged;
 		}
+	}
+
+	//------------------------------------------------------------------
+	public class UpdateContextCache
+	{
+		public IdentifyInfo CurrentRevision { get; set; }
+		public RevLogChangeDesc TargetRevision { get; set; }
+		public List<RevLogChangeDesc> Parents { get; set; }
+		public List<BranchInfo> Branches { get; set; }
+		public List<TagInfo> Tags { get; set; }
+		public List<BookmarkInfo> Bookmarks { get; set; }
 	}
 }

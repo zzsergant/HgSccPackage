@@ -30,6 +30,9 @@ namespace HgSccHelper.UI
 		public string SourceRevision { get; set; }
 
 		//------------------------------------------------------------------
+		public UpdateContextCache UpdateContextCache { get; set; }
+
+		//------------------------------------------------------------------
 		Hg Hg { get; set; }
 
 		DispatcherTimer timer;
@@ -46,6 +49,8 @@ namespace HgSccHelper.UI
 		{
 			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
 			InitializeComponent();
+
+			UpdateContextCache = new UpdateContextCache();
 
 			// Since WPF combo box does not provide TextChanged event
 			// register it from edit text box through combo box template

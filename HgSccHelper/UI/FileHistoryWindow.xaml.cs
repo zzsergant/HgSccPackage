@@ -226,10 +226,25 @@ namespace HgSccHelper
 				return;
 			}
 
-			HandleBranchChanges();
-			HandleTagsChanges();
-			HandleParentChange();
-			HandleBookmarksChanges();
+			if (UpdateContext.Cache.Branches != null)
+				OnAsyncBranch(UpdateContext.Cache.Branches);
+			else
+				HandleBranchChanges();
+
+			if (UpdateContext.Cache.Tags != null)
+				OnAsyncTags(UpdateContext.Cache.Tags);
+			else
+				HandleTagsChanges();
+
+			if (UpdateContext.Cache.CurrentRevision != null)
+				OnAsyncIdentify(UpdateContext.Cache.CurrentRevision);
+			else
+				HandleParentChange();
+
+			if (UpdateContext.Cache.Bookmarks != null)
+				OnAsyncBookmarks(UpdateContext.Cache.Bookmarks);
+			else
+				HandleBookmarksChanges();
 
 			var renames = Hg.FindRenames(WorkingDir, FileName, changes);
 			var history = new List<FileHistoryInfo>();
@@ -579,6 +594,28 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private UpdateContextCache BuildUpdateContextCache()
+		{
+			var cache = new UpdateContextCache();
+
+			if ((RunningOperations & AsyncOperations.Identify) != AsyncOperations.Identify)
+			{
+				cache.CurrentRevision = CurrentRevision;
+			}
+
+			if ((RunningOperations & AsyncOperations.Tags) != AsyncOperations.Tags)
+				cache.Tags = new List<TagInfo>(Tags.Values);
+
+			if ((RunningOperations & AsyncOperations.Branches) != AsyncOperations.Branches)
+				cache.Branches = new List<BranchInfo>(Branches.Values);
+
+			if ((RunningOperations & AsyncOperations.Bookmarks) != AsyncOperations.Bookmarks)
+				cache.Bookmarks = new List<BookmarkInfo>(Bookmarks.Values);
+
+			return cache;
+		}
+
+		//------------------------------------------------------------------
 		private void FileHistory_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = listViewFiles.SelectedItems.Count == 1;
@@ -592,10 +629,12 @@ namespace HgSccHelper
 			var file_info = (FileInfo)listViewFiles.SelectedItem;
 			var cs = file_history.ChangeDesc;
 
-			FileHistoryWindow wnd = new FileHistoryWindow();
+			var wnd = new FileHistoryWindow();
 			wnd.WorkingDir = WorkingDir;
 			wnd.Rev = cs.Rev.ToString();
 			wnd.FileName = file_info.Path;
+
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
 
 			// FIXME:
 			wnd.Owner = Window.GetWindow(this);
@@ -635,6 +674,8 @@ namespace HgSccHelper
 			wnd.WorkingDir = WorkingDir;
 			wnd.Rev = cs.Rev.ToString();
 			wnd.FileName = file_info.Path;
+
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
 
 			wnd.Owner = Window.GetWindow(this);
 
@@ -717,9 +758,11 @@ namespace HgSccHelper
 		{
 			var change = (FileHistoryInfo)listChanges.SelectedItems[0];
 
-			UpdateWindow wnd = new UpdateWindow();
+			var wnd = new UpdateWindow();
 			wnd.WorkingDir = WorkingDir;
 			wnd.TargetRevision = change.ChangeDesc.Rev.ToString();
+
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
@@ -745,6 +788,8 @@ namespace HgSccHelper
 		{
 			var wnd = new GrepWindow();
 			wnd.WorkingDir = WorkingDir;
+
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
@@ -785,6 +830,8 @@ namespace HgSccHelper
 			wnd.WorkingDir = WorkingDir;
 			wnd.ArchiveRevision = change.ChangeDesc.Rev.ToString();
 
+			wnd.UpdateContextCache = BuildUpdateContextCache();
+
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
 		}
@@ -816,6 +863,8 @@ namespace HgSccHelper
 			TagsWindow wnd = new TagsWindow();
 			wnd.WorkingDir = WorkingDir;
 			wnd.TargetRevision = change.ChangeDesc.Rev.ToString();
+
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();

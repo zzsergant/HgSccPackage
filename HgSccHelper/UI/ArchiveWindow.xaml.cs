@@ -38,6 +38,9 @@ namespace HgSccHelper
 		public string ArchiveRevision { get; set; }
 
 		//------------------------------------------------------------------
+		public UpdateContextCache UpdateContextCache { get; set; }
+
+		//------------------------------------------------------------------
 		Hg Hg { get; set; }
 
 		DispatcherTimer timer;
@@ -71,6 +74,8 @@ namespace HgSccHelper
 		{
 			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
 			InitializeComponent();
+
+			UpdateContextCache = new UpdateContextCache();
 
 			// Since WPF combo box does not provide TextChanged event
 			// register it from edit text box through combo box template
@@ -144,8 +149,11 @@ namespace HgSccHelper
 
 			if (!string.IsNullOrEmpty(ArchiveRevision))
 			{
-				var target_dec = Hg.GetRevisionDesc(WorkingDir, ArchiveRevision);
-				if (target_dec == null)
+				var target_desc = UpdateContextCache.TargetRevision;
+				if (target_desc == null)
+					target_desc = Hg.GetRevisionDesc(WorkingDir, ArchiveRevision);
+
+				if (target_desc == null)
 				{
 					// error
 					Close();
@@ -154,9 +162,9 @@ namespace HgSccHelper
 
 				var item = new ArchiveComboItem();
 				item.GroupText = "Rev";
-				item.Rev = target_dec.Rev;
-				item.Name = target_dec.Rev.ToString();
-				item.SHA1 = target_dec.SHA1;
+				item.Rev = target_desc.Rev;
+				item.Name = target_desc.Rev.ToString();
+				item.SHA1 = target_desc.SHA1;
 				item.Misc = "Target";
 
 				comboRevision.Items.Add(item);
@@ -164,7 +172,10 @@ namespace HgSccHelper
 
 			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
 			{
-				var bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+				var bookmarks = UpdateContextCache.Bookmarks;
+				if (bookmarks == null)
+					bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+
 				foreach (var bookmark in bookmarks)
 				{
 					var item = new ArchiveComboItem();
@@ -178,7 +189,10 @@ namespace HgSccHelper
 				}
 			}
 
-			var tags = Hg.Tags(WorkingDir);
+			var tags = UpdateContextCache.Tags;
+			if (tags == null)
+				tags = Hg.Tags(WorkingDir);
+
 			foreach (var tag in tags)
 			{
 				var item = new ArchiveComboItem();
@@ -191,7 +205,10 @@ namespace HgSccHelper
 				comboRevision.Items.Add(item);
 			}
 
-			var branches = Hg.Branches(WorkingDir, HgBranchesOptions.Closed);
+			var branches = UpdateContextCache.Branches;
+			if (branches == null)
+				branches = Hg.Branches(WorkingDir, HgBranchesOptions.Closed);
+
 			foreach (var branch in branches)
 			{
 				var item = new ArchiveComboItem();

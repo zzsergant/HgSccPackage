@@ -59,6 +59,9 @@ namespace HgSccHelper
 			set { this.SetValue(DestinationPathProperty, value); }
 		}
 
+		//------------------------------------------------------------------
+		public UpdateContextCache UpdateContextCache { get; set; }
+
 		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty DestinationPathProperty =
 			DependencyProperty.Register("DestinationPath", typeof(string),
@@ -72,6 +75,8 @@ namespace HgSccHelper
 		{
 			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
 			InitializeComponent();
+
+			UpdateContextCache = new UpdateContextCache();
 
 			// Since WPF combo box does not provide TextChanged event
 			// register it from edit text box through combo box template
@@ -126,7 +131,10 @@ namespace HgSccHelper
 
 			if (!string.IsNullOrEmpty(TargetRevision))
 			{
-				var target_desc = Hg.GetRevisionDesc(WorkingDir, TargetRevision);
+				var target_desc = UpdateContextCache.TargetRevision;
+				if (target_desc == null)
+					target_desc = Hg.GetRevisionDesc(WorkingDir, TargetRevision);
+
 				if (target_desc == null)
 				{
 					// error
@@ -168,7 +176,10 @@ namespace HgSccHelper
 
 			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
 			{
-				var bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+				var bookmarks = UpdateContextCache.Bookmarks;
+				if (bookmarks == null)
+					bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+
 				foreach (var bookmark in bookmarks)
 				{
 					var item = new BundleComboItem();
@@ -183,7 +194,10 @@ namespace HgSccHelper
 				}
 			}
 
-			var tags = Hg.Tags(WorkingDir);
+			var tags = UpdateContextCache.Tags;
+			if (tags == null)
+				tags = Hg.Tags(WorkingDir);
+
 			foreach (var tag in tags)
 			{
 				var item = new BundleComboItem();
@@ -197,7 +211,10 @@ namespace HgSccHelper
 				comboBaseRevision.Items.Add(item);
 			}
 
-			var branches = Hg.Branches(WorkingDir, HgBranchesOptions.Closed);
+			var branches = UpdateContextCache.Branches;
+			if (branches == null)
+				branches = Hg.Branches(WorkingDir, HgBranchesOptions.Closed);
+
 			foreach (var branch in branches)
 			{
 				var item = new BundleComboItem();

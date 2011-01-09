@@ -94,7 +94,11 @@ namespace HgSccHelper
 			timer.Interval = TimeSpan.FromMilliseconds(200);
 			timer.Tick += OnTimerTick;
 
-			CurrentRevision = Hg.Identify(WorkingDir);
+			if (UpdateContext.Cache.CurrentRevision != null)
+				CurrentRevision = UpdateContext.Cache.CurrentRevision;
+			else
+				CurrentRevision = Hg.Identify(WorkingDir);
+
 			if (CurrentRevision == null)
 			{
 				// error
@@ -102,13 +106,24 @@ namespace HgSccHelper
 				return;
 			}
 
-			foreach (var parent in CurrentRevision.Parents)
-				parents.Add(Hg.GetRevisionDesc(WorkingDir, parent.SHA1).GetDescription());
+			var rev_parents = UpdateContext.Cache.Parents;
+			if (rev_parents == null)
+			{
+				rev_parents = new List<RevLogChangeDesc>();
+				foreach (var parent in CurrentRevision.Parents)
+					rev_parents.Add(Hg.GetRevisionDesc(WorkingDir, parent.SHA1));
+			}
+			
+			foreach (var parent in rev_parents)
+				parents.Add(parent.GetDescription());
 
 			if (!string.IsNullOrEmpty(TargetRevision))
 			{
-				var target_dec = Hg.GetRevisionDesc(WorkingDir, TargetRevision);
-				if (target_dec == null)
+				var target_desc = UpdateContext.Cache.TargetRevision;
+				if (target_desc == null)
+					target_desc = Hg.GetRevisionDesc(WorkingDir, TargetRevision);
+
+				if (target_desc == null)
 				{
 					// error
 					Close();
@@ -117,9 +132,9 @@ namespace HgSccHelper
 
 				var item = new UpdateComboItem();
 				item.GroupText = "Rev";
-				item.Rev = target_dec.Rev;
-				item.Name = target_dec.Rev.ToString();
-				item.SHA1 = target_dec.SHA1;
+				item.Rev = target_desc.Rev;
+				item.Name = target_desc.Rev.ToString();
+				item.SHA1 = target_desc.SHA1;
 				item.Misc = "Target";
 
 				comboRevision.Items.Add(item);
@@ -151,7 +166,10 @@ namespace HgSccHelper
 
 			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
 			{
-				var bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+				var bookmarks = UpdateContext.Cache.Bookmarks;
+				if (bookmarks == null)
+					bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+
 				foreach (var bookmark in bookmarks)
 				{
 					var item = new UpdateComboItem();
@@ -165,7 +183,10 @@ namespace HgSccHelper
 				}
 			}
 
-			var tags = Hg.Tags(WorkingDir);
+			var tags = UpdateContext.Cache.Tags;
+			if (tags == null)
+				tags = Hg.Tags(WorkingDir);
+
 			foreach (var tag in tags)
 			{
 				var item = new UpdateComboItem();
@@ -178,7 +199,10 @@ namespace HgSccHelper
 				comboRevision.Items.Add(item);
 			}
 
-			var branches = Hg.Branches(WorkingDir, HgBranchesOptions.Closed);
+			var branches = UpdateContext.Cache.Branches;
+			if (branches == null)
+				branches = Hg.Branches(WorkingDir, HgBranchesOptions.Closed);
+
 			foreach (var branch in branches)
 			{
 				var item = new UpdateComboItem();

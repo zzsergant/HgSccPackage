@@ -67,7 +67,7 @@ namespace HgSccHelper
 
 			Hg = new Hg();
 
-			CurrentRevision = Hg.Identify(WorkingDir);
+			CurrentRevision = UpdateContext.Cache.CurrentRevision ?? Hg.Identify(WorkingDir);
 			if (CurrentRevision == null)
 			{
 				// error
@@ -85,7 +85,7 @@ namespace HgSccHelper
 
 			currentDesc.Text = Hg.GetRevisionDesc(WorkingDir, CurrentRevision.SHA1).GetDescription();
 
-			Target = Hg.GetRevisionDesc(WorkingDir, TargetRevision);
+			Target = UpdateContext.Cache.TargetRevision ?? Hg.GetRevisionDesc(WorkingDir, TargetRevision);
 			if (Target == null)
 			{
 				// error

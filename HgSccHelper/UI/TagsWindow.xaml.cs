@@ -100,7 +100,10 @@ namespace HgSccHelper
 			string target_rev = TargetRevision;
 			if (string.IsNullOrEmpty(target_rev))
 			{
-				var current_revision = Hg.Identify(WorkingDir);
+				var current_revision = UpdateContext.Cache.CurrentRevision;
+				if (current_revision == null)
+					current_revision = Hg.Identify(WorkingDir);
+
 				if (current_revision == null)
 				{
 					// error
@@ -113,7 +116,10 @@ namespace HgSccHelper
 
 			textRev.Text = target_rev;
 
-			UpdateTags();
+			if (UpdateContext.Cache.Tags != null)
+				UpdateTags(UpdateContext.Cache.Tags);
+			else
+				UpdateTags();
 
 			RefreshRev();
 			if (RevDesc != null)
@@ -142,14 +148,13 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		private void UpdateTags()
+		private void UpdateTags(List<TagInfo> tags)
 		{
 			var current_tag = comboTag.Text;
 
 			tag_map.Clear();
 			comboTag.Items.Clear();
 
-			var tags = Hg.Tags(WorkingDir);
 			int counter = 0;
 
 			foreach (var tag in tags)
@@ -172,6 +177,13 @@ namespace HgSccHelper
 					counter++;
 				}
 			}
+		}
+
+		//------------------------------------------------------------------
+		private void UpdateTags()
+		{
+			var tags = Hg.Tags(WorkingDir);
+			UpdateTags(tags);
 		}
 
 		//------------------------------------------------------------------

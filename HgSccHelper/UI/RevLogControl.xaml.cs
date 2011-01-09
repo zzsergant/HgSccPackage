@@ -626,11 +626,14 @@ namespace HgSccHelper
 			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
 			var file_info = SelectedParentFile.FileInfo;
 
-			FileHistoryWindow wnd = new FileHistoryWindow();
+			var wnd = new FileHistoryWindow();
 			wnd.WorkingDir = WorkingDir;
 			wnd.Rev = SelectedChangeset.Current.ChangeDesc.SHA1;
 			wnd.FileName = file_info.File;
 			wnd.Owner = Window.GetWindow(this);
+
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
+			wnd.UpdateContext.Cache.TargetRevision = SelectedChangeset.Current.ChangeDesc;
 
 			wnd.ShowDialog();
 
@@ -675,6 +678,9 @@ namespace HgSccHelper
 			wnd.Rev = SelectedChangeset.Current.ChangeDesc.SHA1;
 			wnd.FileName = file_info.File;
 			wnd.Owner = Window.GetWindow(this);
+
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
+			wnd.UpdateContext.Cache.TargetRevision = SelectedChangeset.Current.ChangeDesc;
 
 			wnd.ShowDialog();
 
@@ -848,11 +854,47 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		private UpdateContextCache BuildUpdateContextCache()
+		{
+			var cache = new UpdateContextCache();
+
+			if ((RunningOperations & AsyncOperations.Identify) != AsyncOperations.Identify)
+			{
+				cache.CurrentRevision = CurrentRevision;
+				var parents = new List<RevLogChangeDesc>();
+
+				foreach (var parent in CurrentRevision.Parents)
+				{
+					RevLogLinesPair p;
+					if (rev_log_hash_map.TryGetValue(parent.SHA1, out p))
+						parents.Add(p.Current.ChangeDesc);
+				}
+
+				if (parents.Count == CurrentRevision.Parents.Count)
+					cache.Parents = parents;
+			}
+
+			if ((RunningOperations & AsyncOperations.Tags) != AsyncOperations.Tags)
+				cache.Tags = new List<TagInfo>(Tags.Values);
+
+			if ((RunningOperations & AsyncOperations.Branches) != AsyncOperations.Branches)
+				cache.Branches = new List<BranchInfo>(Branches.Values);
+
+			if ((RunningOperations & AsyncOperations.Bookmarks) != AsyncOperations.Bookmarks)
+				cache.Bookmarks = new List<BookmarkInfo>(Bookmarks.Values);
+
+			return cache;
+		}
+
+		//------------------------------------------------------------------
 		private void Update_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			UpdateWindow wnd = new UpdateWindow();
 			wnd.WorkingDir = WorkingDir;
 			wnd.TargetRevision = SelectedChangeset.Current.ChangeDesc.SHA1;
+
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
+			wnd.UpdateContext.Cache.TargetRevision = SelectedChangeset.Current.ChangeDesc;
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
@@ -879,6 +921,8 @@ namespace HgSccHelper
 			var wnd = new GrepWindow();
 			wnd.WorkingDir = WorkingDir;
 
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
+	
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
 
@@ -908,6 +952,9 @@ namespace HgSccHelper
 			var wnd = new ArchiveWindow();
 			wnd.WorkingDir = WorkingDir;
 			wnd.ArchiveRevision = SelectedChangeset.Current.ChangeDesc.Rev.ToString();
+
+			wnd.UpdateContextCache = BuildUpdateContextCache();
+			wnd.UpdateContextCache.TargetRevision = SelectedChangeset.Current.ChangeDesc;
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
@@ -962,6 +1009,9 @@ namespace HgSccHelper
 			wnd.WorkingDir = WorkingDir;
 			wnd.TargetRevision = SelectedChangeset.Current.ChangeDesc.Rev.ToString();
 
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
+			wnd.UpdateContext.Cache.TargetRevision = SelectedChangeset.Current.ChangeDesc;
+
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
 
@@ -1005,6 +1055,9 @@ namespace HgSccHelper
 			wnd.WorkingDir = WorkingDir;
 			wnd.TargetRevision = SelectedChangeset.Current.ChangeDesc.Rev.ToString();
 
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
+			wnd.UpdateContext.Cache.TargetRevision = SelectedChangeset.Current.ChangeDesc;
+
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
 
@@ -1043,6 +1096,9 @@ namespace HgSccHelper
 			var wnd = new MergeWindow();
 			wnd.WorkingDir = WorkingDir;
 			wnd.TargetRevision = SelectedChangeset.Current.ChangeDesc.SHA1;
+
+			wnd.UpdateContext.Cache = BuildUpdateContextCache();
+			wnd.UpdateContext.Cache.TargetRevision = SelectedChangeset.Current.ChangeDesc;
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
@@ -1111,6 +1167,8 @@ namespace HgSccHelper
 			wnd.BaseRevision = base_rev;
 			wnd.TargetRevision = target_rev;
 
+			wnd.UpdateContextCache = BuildUpdateContextCache();
+	
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
 		}
@@ -1158,6 +1216,8 @@ namespace HgSccHelper
 			wnd.WorkingDir = WorkingDir;
 			wnd.SourceRevision = src_rev;
 			wnd.DestinationRevision = dest_rev;
+
+			wnd.UpdateContextCache = BuildUpdateContextCache();
 
 			wnd.Owner = Window.GetWindow(this);
 			var result = wnd.ShowDialog();
