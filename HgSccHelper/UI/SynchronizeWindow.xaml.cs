@@ -54,6 +54,9 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		HgThread worker;
 
+		//------------------------------------------------------------------
+		public UpdateContext UpdateContext { get; private set; }
+
 		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty ShowNewestFirstProperty =
 			DependencyProperty.Register("ShowNewestFirst", typeof(bool), typeof(SynchronizeWindow));
@@ -140,6 +143,7 @@ namespace HgSccHelper
 			InitializeComponent();
 
 			worker = new HgThread();
+			UpdateContext = new UpdateContext();
 
 			comboBoxPaths.Loaded += delegate
 			{
@@ -484,12 +488,14 @@ namespace HgSccHelper
 				case "Update":
 					{
 						builder.Append("-u");
+						UpdateContext.IsParentChanged = true;
 						break;
 					}
 				case "Rebase":
 					{
 						builder.Append("--rebase");
-						break;;
+						UpdateContext.IsParentChanged = true;
+						break; ;
 					}
 			}
 

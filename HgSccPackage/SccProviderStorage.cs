@@ -657,6 +657,9 @@ namespace HgSccPackage
 				wnd.WorkingDir = hgscc.WorkingDir;
 
 				proxy.ShowDialog();
+
+				if (wnd.UpdateContext.IsParentChanged)
+					RaiseUpdateEvent();
 			}
 		}
 
