@@ -25,7 +25,8 @@ namespace HgSccHelper
 	/// </summary>
 	public class HgThread : IDisposable
 	{
-		private const int TimeoutForCancellation = 300;
+		private const int InitialTimeoutForCancellation = 500;
+		private const int CancellationTimeoutStep = 30;
 		BackgroundWorker worker;
 		HgThreadParams work_params;
 
@@ -167,9 +168,10 @@ namespace HgSccHelper
 				process.BeginOutputReadLine();
 				process.BeginErrorReadLine();
 
+				int cancellation_timeout = InitialTimeoutForCancellation;
 				while (true)
 				{
-					if (process.WaitForExit(TimeoutForCancellation))
+					if (process.WaitForExit(cancellation_timeout))
 					{
 						// Wait until all redirected output is written
 						process.WaitForExit();
@@ -181,6 +183,8 @@ namespace HgSccHelper
 						process.ErrorDataReceived -= proc_ErrorDataReceived;
 						break;
 					}
+
+					cancellation_timeout = CancellationTimeoutStep;
 
 					if (worker.CancellationPending)
 					{
