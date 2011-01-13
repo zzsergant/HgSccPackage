@@ -25,18 +25,14 @@ namespace HgSccHelper
 	/// </summary>
 	public class HgThread : IDisposable
 	{
+		private const int TimeoutForCancellation = 300;
 		BackgroundWorker worker;
-
 		HgThreadParams work_params;
-
-		Process work_process;
-		object critical;
 
 		//-----------------------------------------------------------------------------
 		public HgThread()
 		{
 			worker = new BackgroundWorker();
-			critical = new object();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -88,11 +84,6 @@ namespace HgSccHelper
 			if (IsBusy && !worker.CancellationPending)
 			{
 				worker.CancelAsync();
-				lock (critical)
-				{
-					if (work_process != null && !work_process.HasExited)
-						KillProcess(work_process);
-				}
 			}
 		}
 
@@ -176,39 +167,38 @@ namespace HgSccHelper
 				process.BeginOutputReadLine();
 				process.BeginErrorReadLine();
 
-				lock (critical)
+				while (true)
 				{
+					if (process.WaitForExit(TimeoutForCancellation))
+					{
+						// Wait until all redirected output is written
+						process.WaitForExit();
+
+						process.CancelOutputRead();
+						process.CancelErrorRead();
+
+						process.OutputDataReceived -= proc_OutputDataReceived;
+						process.ErrorDataReceived -= proc_ErrorDataReceived;
+						break;
+					}
+
 					if (worker.CancellationPending)
 					{
-						// Work is allready cancelled
-						// Need to kill process
+						process.CancelOutputRead();
+						process.CancelErrorRead();
+
+						process.OutputDataReceived -= proc_OutputDataReceived;
+						process.ErrorDataReceived -= proc_ErrorDataReceived;
 
 						KillProcess(process);
-					}
-					else
-					{
-						this.work_process = process;
+						break;
 					}
 				}
 
-				// Wait until all redirected output is written
-				process.WaitForExit();
-
-				lock (critical)
-				{
-					this.work_process = null;
-				}
-
-				process.CancelOutputRead();
-				process.CancelErrorRead();
-
-				process.OutputDataReceived -= proc_OutputDataReceived;
-				process.ErrorDataReceived -= proc_ErrorDataReceived;
-
-				e.Result = process.ExitCode;
-				
 				if (worker.CancellationPending)
 					e.Cancel = true;
+				else
+					e.Result = process.ExitCode;
 			}
 		}
 
