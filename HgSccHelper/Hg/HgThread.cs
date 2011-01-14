@@ -194,6 +194,17 @@ namespace HgSccHelper
 						process.OutputDataReceived -= proc_OutputDataReceived;
 						process.ErrorDataReceived -= proc_ErrorDataReceived;
 
+						// Logger.WriteLine("Kill PID: {0}, args = {1}", process.Id, work_params.Args);
+
+						// FIXME: The only reliable way to kill the procs (with all subprocs)
+						// is using a Job object.
+						// But, since .Net wrapper for process does not able to
+						// create process in suspended mode there is no easy workaround.
+						
+						// TODO: Create an own wrapper for process with support of redirected output
+						// and with ability to create it in suspended mode. Then, use Job object
+						// to control process lifetime.
+
 						KillProcess(process);
 						break;
 					}
