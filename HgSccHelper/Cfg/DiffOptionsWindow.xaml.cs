@@ -72,7 +72,8 @@ namespace HgSccHelper
 				if (!string.IsNullOrEmpty(diff_args))
 					new_tool.DiffArgs = diff_args;
 
-				new_tool.FindExecutable();
+				if (!new_tool.FindExecutable())
+					return;
 			}
 
 			foreach (DiffComboItem item in comboTool.Items)
