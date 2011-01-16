@@ -91,6 +91,11 @@
     <Compile Include="Hg\HgRebase.cs" />
     <Compile Include="Misc\AsyncDeleter.cs" />
     <Compile Include="Misc\GridViewColumnSorter.cs" />
+    <Compile Include="ProcessWrapper\AsyncStreamReader.cs" />
+    <Compile Include="ProcessWrapper\Job.cs" />
+    <Compile Include="ProcessWrapper\NativeMethods.cs" />
+    <Compile Include="ProcessWrapper\Process.cs" />
+    <Compile Include="ProcessWrapper\ProcessStartInfo.cs" />
     <Compile Include="UI\AnnotateControl.xaml.cs">
       <DependentUpon>AnnotateControl.xaml</DependentUpon>
     </Compile>
