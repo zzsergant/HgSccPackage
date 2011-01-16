@@ -306,6 +306,8 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		static public string FindExe(string command)
 		{
+			command = command.UnQuote();
+
 			var pathext = Environment.GetEnvironmentVariable("PATHEXT") ?? ".COM;.EXE;.BAT;.CMD";
 			var path_sep = new[] { ';' };
 			var pathexts = pathext.ToLower().Split(path_sep, StringSplitOptions.RemoveEmptyEntries);

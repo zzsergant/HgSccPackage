@@ -104,7 +104,7 @@ namespace HgSccHelper
 				var p = Util.LookupRegistry(tool.RegKey, tool.RegName);
 				if (!String.IsNullOrEmpty(p))
 				{
-					p = Util.FindExe(p + tool.RegAppend);
+					p = Util.FindExe(p.UnQuote() + tool.RegAppend);
 					if (!String.IsNullOrEmpty(p))
 						return p;
 				}
