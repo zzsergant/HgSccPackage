@@ -115,26 +115,6 @@ namespace HgSccHelper
 				on_complete(completed);
 		}
 
-		//------------------------------------------------------------------
-		private void KillProcess(Process process)
-		{
-			if (process != null)
-			{
-				try
-				{
-					process.Kill();
-				}
-				catch (InvalidOperationException ex)
-				{
-					Logger.WriteLine("Invalid operation exception from HgThread: {0}", ex.Message);
-				}
-				catch (Win32Exception ex)
-				{
-					Logger.WriteLine("Win32Exception exception from HgThread: {0}", ex.Message);
-				}
-			}
-		}
-
 		//-----------------------------------------------------------------------------
 		public ProcessStartInfo PrepareProcess(string work_dir, string arguments)
 		{
@@ -160,8 +140,6 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		void Worker_DoWork(object sender, DoWorkEventArgs e)
 		{
-			var hg = new Hg();
-
 			using (var job = new Job())
 			using (var process = new Process())
 			{
