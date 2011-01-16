@@ -11,11 +11,8 @@
 //=========================================================================
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading;
-using System.Diagnostics;
-using Microsoft.Win32.SafeHandles;
+using ProcessWrapper;
 
 namespace HgSccHelper
 {
@@ -138,14 +135,37 @@ namespace HgSccHelper
 			}
 		}
 
+		//-----------------------------------------------------------------------------
+		public ProcessStartInfo PrepareProcess(string work_dir, string arguments)
+		{
+			var hg = new Hg();
+			var hg_info = hg.PrepareProcess(work_dir, arguments);
+
+			var info = new ProcessStartInfo();
+			info.FileName = hg_info.FileName;
+			info.Arguments = hg_info.Arguments;
+
+			info.CreateNoWindow = true;
+			info.WorkingDirectory = work_dir;
+
+			info.RedirectStandardOutput = true;
+			info.RedirectStandardError = true;
+
+			// Create suspended and then attach to Job !!
+			info.CreateSuspended = true;
+
+			return info;
+		}
+
 		//------------------------------------------------------------------
 		void Worker_DoWork(object sender, DoWorkEventArgs e)
 		{
 			var hg = new Hg();
 
-			using (Process process = new Process())
+			using (var job = new Job())
+			using (var process = new Process())
 			{
-				process.StartInfo = hg.PrepareProcess(work_params.WorkingDir, work_params.Args);
+				process.StartInfo = PrepareProcess(work_params.WorkingDir, work_params.Args);
 
 				// FIXME: Put the hg in unbuffered mode for
 				// redirected output and error streams
@@ -164,6 +184,11 @@ namespace HgSccHelper
 					process.ErrorDataReceived -= proc_ErrorDataReceived;
 					throw ex;
 				}
+
+				if (!job.AssignProcessToJob(process))
+					Logger.WriteLine("Assign process to job failed");
+
+				process.ResumeMainThread();
 
 				process.BeginOutputReadLine();
 				process.BeginErrorReadLine();
@@ -194,18 +219,9 @@ namespace HgSccHelper
 						process.OutputDataReceived -= proc_OutputDataReceived;
 						process.ErrorDataReceived -= proc_ErrorDataReceived;
 
-						// Logger.WriteLine("Kill PID: {0}, args = {1}", process.Id, work_params.Args);
+						Logger.WriteLine("Kill PID: {0}, args = {1}", process.Id, work_params.Args);
 
-						// FIXME: The only reliable way to kill the procs (with all subprocs)
-						// is using a Job object.
-						// But, since .Net wrapper for process does not able to
-						// create process in suspended mode there is no easy workaround.
-						
-						// TODO: Create an own wrapper for process with support of redirected output
-						// and with ability to create it in suspended mode. Then, use Job object
-						// to control process lifetime.
-
-						KillProcess(process);
+						// The process and all subprocesses will be killed on job close
 						break;
 					}
 				}
