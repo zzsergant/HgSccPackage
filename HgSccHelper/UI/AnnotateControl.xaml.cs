@@ -472,26 +472,6 @@ namespace HgSccHelper
 				return;
 			}
 
-			if (UpdateContext.Cache.Branches != null)
-				OnAsyncBranch(UpdateContext.Cache.Branches);
-			else
-				HandleBranchChanges();
-
-			if (UpdateContext.Cache.Tags != null)
-				OnAsyncTags(UpdateContext.Cache.Tags);
-			else
-				HandleTagsChanges();
-
-			if (UpdateContext.Cache.CurrentRevision != null)
-				OnAsyncIdentify(UpdateContext.Cache.CurrentRevision);
-			else
-				HandleParentChange();
-
-			if (UpdateContext.Cache.Bookmarks != null)
-				OnAsyncBookmarks(UpdateContext.Cache.Bookmarks);
-			else
-				HandleBookmarksChanges();
-
 			var renames = Hg.FindRenames(WorkingDir, FileName, changes);
 			var history = new List<FileHistoryInfo>();
 
@@ -541,6 +521,26 @@ namespace HgSccHelper
 				listChanges.SelectedIndex = 0;
 
 			listChanges.Focus();
+
+			if (UpdateContext.Cache.Branches != null)
+				OnAsyncBranch(UpdateContext.Cache.Branches);
+			else
+				HandleBranchChanges();
+
+			if (UpdateContext.Cache.Tags != null)
+				OnAsyncTags(UpdateContext.Cache.Tags);
+			else
+				HandleTagsChanges();
+
+			if (UpdateContext.Cache.CurrentRevision != null)
+				OnAsyncIdentify(UpdateContext.Cache.CurrentRevision);
+			else
+				HandleParentChange();
+
+			if (UpdateContext.Cache.Bookmarks != null)
+				OnAsyncBookmarks(UpdateContext.Cache.Bookmarks);
+			else
+				HandleBookmarksChanges();
 
 			var myView = (CollectionView)CollectionViewSource.GetDefaultView(listChanges.ItemsSource);
 			var groupDescription = new PropertyGroupDescription("GroupText");
