@@ -174,24 +174,21 @@ namespace HgSccHelper
 
 			BundleDirPart = WorkingDir;
 
-			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
+			var bookmarks = UpdateContextCache.Bookmarks;
+			if (bookmarks == null)
+				bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+
+			foreach (var bookmark in bookmarks)
 			{
-				var bookmarks = UpdateContextCache.Bookmarks;
-				if (bookmarks == null)
-					bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+				var item = new BundleComboItem();
+				item.GroupText = "Bookmark";
+				item.Name = bookmark.Name;
+				item.Rev = bookmark.Rev;
+				item.SHA1 = bookmark.SHA1;
+				item.Misc = bookmark.IsCurrent ? "Current" : "";
 
-				foreach (var bookmark in bookmarks)
-				{
-					var item = new BundleComboItem();
-					item.GroupText = "Bookmark";
-					item.Name = bookmark.Name;
-					item.Rev = bookmark.Rev;
-					item.SHA1 = bookmark.SHA1;
-					item.Misc = bookmark.IsCurrent ? "Current" : "";
-
-					comboTargetRevision.Items.Add(item);
-					comboBaseRevision.Items.Add(item);
-				}
+				comboTargetRevision.Items.Add(item);
+				comboBaseRevision.Items.Add(item);
 			}
 
 			var tags = UpdateContextCache.Tags;

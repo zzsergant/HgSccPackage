@@ -87,14 +87,6 @@ namespace HgSccHelper.UI
 		{
 			Title = string.Format("Bookmarks: '{0}'", WorkingDir);
 
-			if (!HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
-			{
-				var msg = "In order to use bookmarks you have to enable bookmarks extension in you Mercurial.ini configuration file";
-				MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-				Close();
-				return;
-			}
-
 			Hg = new Hg();
 
 			bookmark_timer = new DispatcherTimer();

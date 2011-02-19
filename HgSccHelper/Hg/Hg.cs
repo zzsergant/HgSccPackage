@@ -149,9 +149,6 @@ namespace HgSccHelper
 				args.AppendVerbose();
 				args.Append("--follow");
 
-				// FIXME: Tags lists bookmarks by default
-				args.AppendDisableExtension(HgExtension.Bookmarks);
-				
 				if (rev.Length > 0)
 					args.AppendRevision(rev);
 
@@ -236,9 +233,6 @@ namespace HgSccHelper
 			args.AppendVerbose();
 			args.Append("--follow");
 
-			// FIXME: Tags lists bookmarks by default
-			args.AppendDisableExtension(HgExtension.Bookmarks);
-
 			if (max_count != 0)
 			{
 				args.Append("-l");
@@ -272,9 +266,6 @@ namespace HgSccHelper
 
 			if (rev.Length > 0)
 				args.AppendRevision(rev);
-
-			// FIXME: Tags lists bookmarks by default
-			args.AppendDisableExtension(HgExtension.Bookmarks);
 
 			using (var revlog_style = new RevLogStyleFile())
 			{
@@ -1525,17 +1516,6 @@ namespace HgSccHelper
 			args.Append("tags");
 			args.AppendVerbose();
 			args.AppendDebug();
-
-			// Since the bookmarks are also listed in tags
-			// we need to disable bookmarks extension,
-			// to get tags only
-
-			// FIXME: I think we need to disable also MQ extension here,
-			// as it is also lists in tags
-			// FIXME: Probably we need to disable this extension for every tag command
-			// to prevent name collisions
-
-			args.AppendDisableExtension(HgExtension.Bookmarks);
 
 			var tags = new List<TagInfo>();
 

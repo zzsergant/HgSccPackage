@@ -581,9 +581,6 @@ namespace HgSccHelper
 
 			args.AppendStyle(revlog_style.FileName);
 	
-			// FIXME: Tags lists bookmarks by default
-			args.AppendDisableExtension(HgExtension.Bookmarks);
-
 			p.Args = args.ToString();
 
 			rev_log_parser = new RevLogChangeDescParser();
@@ -992,11 +989,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void HandleBookmarksChanged()
 		{
-			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
-			{
-				RunningOperations |= AsyncOperations.Bookmarks;
-				async_bookmarks.RunAsync(WorkingDir);
-			}
+			RunningOperations |= AsyncOperations.Bookmarks;
+			async_bookmarks.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------
@@ -1051,11 +1045,8 @@ namespace HgSccHelper
 		{
 			e.CanExecute = false;
 
-			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
-			{
-				if (SelectedChangeset != null)
+			if (SelectedChangeset != null)
 				e.CanExecute = true;
-			}
 
 			e.Handled = true;
 		}

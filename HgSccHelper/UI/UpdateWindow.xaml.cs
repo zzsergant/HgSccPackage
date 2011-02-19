@@ -164,23 +164,20 @@ namespace HgSccHelper
 				comboRevision.Items.Add(id);
 			}
 
-			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
+			var bookmarks = UpdateContext.Cache.Bookmarks;
+			if (bookmarks == null)
+				bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+
+			foreach (var bookmark in bookmarks)
 			{
-				var bookmarks = UpdateContext.Cache.Bookmarks;
-				if (bookmarks == null)
-					bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+				var item = new UpdateComboItem();
+				item.GroupText = "Bookmark";
+				item.Name = bookmark.Name;
+				item.Rev = bookmark.Rev;
+				item.SHA1 = bookmark.SHA1;
+				item.Misc = bookmark.IsCurrent ? "Current" : "";
 
-				foreach (var bookmark in bookmarks)
-				{
-					var item = new UpdateComboItem();
-					item.GroupText = "Bookmark";
-					item.Name = bookmark.Name;
-					item.Rev = bookmark.Rev;
-					item.SHA1 = bookmark.SHA1;
-					item.Misc = bookmark.IsCurrent ? "Current" : "";
-
-					comboRevision.Items.Add(item);
-				}
+				comboRevision.Items.Add(item);
 			}
 
 			var tags = UpdateContext.Cache.Tags;

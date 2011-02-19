@@ -225,12 +225,6 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public bool IsBookmarksEnabled
-		{
-			get { return HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks); }
-		}
-
-		//-----------------------------------------------------------------------------
 		void ReloadPaths()
 		{
 			var hg = new Hg();
@@ -817,11 +811,8 @@ namespace HgSccHelper
 				// Since all commands are run asynchronous,
 				// they can have different ordering on each run
 
-				if (IsBookmarksEnabled)
-				{
-					RunningOperations |= AsyncOperations.Bookmarks;
-					async_bookmarks.RunAsync(WorkingDir);
-				}
+				RunningOperations |= AsyncOperations.Bookmarks;
+				async_bookmarks.RunAsync(WorkingDir);
 
 				RunningOperations |= AsyncOperations.Tags;
 				async_tags.RunAsync(WorkingDir);

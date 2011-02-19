@@ -956,11 +956,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void HandleBookmarksChanges()
 		{
-			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
-			{
-				RunningOperations |= AsyncOperations.Bookmarks;
-				async_bookmarks.RunAsync(WorkingDir);
-			}
+			RunningOperations |= AsyncOperations.Bookmarks;
+			async_bookmarks.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------

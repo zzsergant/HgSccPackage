@@ -111,21 +111,18 @@ namespace HgSccHelper.UI
 			timer.Interval = TimeSpan.FromMilliseconds(200);
 			timer.Tick += OnTimerTick;
 
-			if (HgExtensionsCache.Instance.IsExtensionEnabled(HgExtension.Bookmarks))
+			var bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+			foreach (var bookmark in bookmarks)
 			{
-				var bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
-				foreach (var bookmark in bookmarks)
-				{
-					var item = new RebaseComboItem();
-					item.GroupText = "Bookmark";
-					item.Name = bookmark.Name;
-					item.Rev = bookmark.Rev;
-					item.SHA1 = bookmark.SHA1;
-					item.Misc = bookmark.IsCurrent ? "Current" : "";
+				var item = new RebaseComboItem();
+				item.GroupText = "Bookmark";
+				item.Name = bookmark.Name;
+				item.Rev = bookmark.Rev;
+				item.SHA1 = bookmark.SHA1;
+				item.Misc = bookmark.IsCurrent ? "Current" : "";
 
-					comboDestRevision.Items.Add(item);
-					comboSourceRevision.Items.Add(item);
-				}
+				comboDestRevision.Items.Add(item);
+				comboSourceRevision.Items.Add(item);
 			}
 
 			var tags = Hg.Tags(WorkingDir);

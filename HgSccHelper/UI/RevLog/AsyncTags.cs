@@ -68,17 +68,6 @@ namespace HgSccHelper.UI.RevLog
 			args.AppendVerbose();
 			args.AppendDebug();
 
-			// Since the bookmarks are also listed in tags
-			// we need to disable bookmarks extension,
-			// to get tags only
-
-			// FIXME: I think we need to disable also MQ extension here,
-			// as it is also lists in tags
-			// FIXME: Probably we need to disable this extension for every tag command
-			// to prevent name collisions
-
-			args.AppendDisableExtension(HgExtension.Bookmarks);
-
 			RunHgThread(work_dir, args.ToString());
 		}
 
