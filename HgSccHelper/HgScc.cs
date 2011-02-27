@@ -200,18 +200,14 @@ namespace HgSccHelper
 			// TODO: Check if project is opened
 			var lst = new List<string>();
 
-			int length = 0;
 			foreach (var f in files)
 			{
 				string file;
 				if (GetRelativePath(f.File, out file))
-				{
 					lst.Add(file);
-					length += file.Length;
-				}
 			}
 
-			var stats = (length > Hg.MaxCmdLength) ? hg.Status(WorkingDir) : hg.Status(WorkingDir, lst);
+			var stats = hg.Status(WorkingDir, lst);
 
 			var dict = new Dictionary<string, HgFileInfo>();
 			foreach (var file_status in stats)

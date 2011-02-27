@@ -118,6 +118,17 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public bool AppendListFile(string list_file)
+		{
+			var str = String.Format("listfile:{0}", list_file.Quote());
+			if ((Length + str.Length) > Hg.MaxCmdLength)
+				return false;
+
+			Append(str);
+			return true;
+		}
+
+		//-----------------------------------------------------------------------------
 		public override string ToString()
 		{
 			return args.ToString();

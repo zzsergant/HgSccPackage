@@ -484,54 +484,25 @@ namespace HgSccHelper
 			args.Append("status");
 			args.Append("-amrdcC");
 
-			var cmd_line = new HgArgsBuilder();
-			cmd_line.Append(args.ToString());
-
-			var files_info = new List<HgFileInfo>();
-
-			foreach (string f in files)
+			using (var list_file = new HgListFile(files))
 			{
-				if (!cmd_line.AppendFilenameWithLengthCheck(f))
-				{
-					using (Process proc = Process.Start(PrepareProcess(work_dir, cmd_line.ToString())))
-					{
-						var reader = proc.StandardOutput;
-						var info = HgFileInfo.ParseFileInfo(reader);
-						files_info.AddRange(info);
+				if (!args.AppendListFile(list_file.FileName))
+					throw new HgCommandLineException();
 
-						proc.WaitForExit();
-						if (proc.ExitCode < 0)
-						{
-							// FIXME: some error
-							return files_info;
-						}
-					}
-
-					cmd_line.Clear();
-					cmd_line.Append(args.ToString());
-
-					cmd_line.AppendFilenameWithLengthCheck(f);
-				}
-			}
-
-			if (cmd_line.Length != args.Length)
-			{
-				using (Process proc = Process.Start(PrepareProcess(work_dir, cmd_line.ToString())))
+				using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 				{
 					var reader = proc.StandardOutput;
-					var info = HgFileInfo.ParseFileInfo(reader);
-					files_info.AddRange(info);
+					var files_info = HgFileInfo.ParseFileInfo(reader);
 
 					proc.WaitForExit();
 					if (proc.ExitCode < 0)
 					{
 						// FIXME: some error
-						return files_info;
 					}
+
+					return files_info;
 				}
 			}
-
-			return files_info;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -570,29 +541,13 @@ namespace HgSccHelper
 			var args = new HgArgsBuilder();
 			args.Append("add");
 
-			var cmd_line = new HgArgsBuilder();
-			cmd_line.Append(args.ToString());
-
-			foreach (string f in files)
+			using (var list_file = new HgListFile(files))
 			{
-				if (!cmd_line.AppendFilenameWithLengthCheck(f))
-				{
-					if (!RunHg(work_dir, cmd_line.ToString()))
-						return false;
+				if (!args.AppendListFile(list_file.FileName))
+					throw new HgCommandLineException();
 
-					cmd_line.Clear();
-					cmd_line.Append(args.ToString());
-
-					cmd_line.AppendFilenameWithLengthCheck(f);
-				}
+				return RunHg(work_dir, args.ToString());
 			}
-
-			if (cmd_line.Length != args.Length)
-			{
-				return RunHg(work_dir, cmd_line.ToString());
-			}
-
-			return true;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -610,29 +565,26 @@ namespace HgSccHelper
 				args.Append("-l");
 				args.AppendPath(commit_msg_file.FileName);
 
-				var cmd_line = new HgArgsBuilder();
-				cmd_line.Append(args.ToString());
-
-				foreach (string f in files)
+				using (var list_file = new HgListFile(files))
 				{
-					if (!cmd_line.AppendFilenameWithLengthCheck(f))
+					if (!args.AppendListFile(list_file.FileName))
 						throw new HgCommandLineException();
-				}
 
-				if (cmd_line.Length == args.Length)
-				{
-					// To commit all changes use CommitAll() function
-					throw new ArgumentException("Passing no files in Commit function is not allowed");
-				}
+					if (list_file.IsEmpty)
+					{
+						// To commit all changes use CommitAll() function
+						throw new ArgumentException("Passing no files in Commit function is not allowed");
+					}
 
-				string commit_output;
-				CommitResult result = new CommitResult();
-				result.IsSuccess = RunHg(work_dir, cmd_line.ToString(), out commit_output);
-				if (result.IsSuccess)
-				{
-					ParseCommitOutput(commit_output, result);
+					string commit_output;
+					CommitResult result = new CommitResult();
+					result.IsSuccess = RunHg(work_dir, args.ToString(), out commit_output);
+					if (result.IsSuccess)
+					{
+						ParseCommitOutput(commit_output, result);
+					}
+					return result;
 				}
-				return result;
 			}
 		}
 
@@ -761,29 +713,13 @@ namespace HgSccHelper
 			args.Append("revert");
 			args.Append("--no-backup");
 
-			var cmd_line = new HgArgsBuilder();
-			cmd_line.Append(args.ToString());
-
-			foreach (string f in files)
+			using (var list_file = new HgListFile(files))
 			{
-				if (!cmd_line.AppendFilenameWithLengthCheck(f))
-				{
-					if (!RunHg(work_dir, cmd_line.ToString()))
-						return false;
+				if (!args.AppendListFile(list_file.FileName))
+					throw new HgCommandLineException();
 
-					cmd_line.Clear();
-					cmd_line.Append(args.ToString());
-
-					cmd_line.AppendFilenameWithLengthCheck(f);
-				}
+				return RunHg(work_dir, args.ToString());
 			}
-
-			if (cmd_line.Length != args.Length)
-			{
-				return RunHg(work_dir, cmd_line.ToString());
-			}
-
-			return true;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -1235,29 +1171,13 @@ namespace HgSccHelper
 			var args = new HgArgsBuilder();
 			args.Append("remove");
 
-			var cmd_line = new HgArgsBuilder();
-			cmd_line.Append(args.ToString());
-
-			foreach (string f in files)
+			using (var list_file = new HgListFile(files))
 			{
-				if (!cmd_line.AppendFilenameWithLengthCheck(f))
-				{
-					if (!RunHg(work_dir, cmd_line.ToString()))
-						return false;
+				if (!args.AppendListFile(list_file.FileName))
+					throw new HgCommandLineException();
 
-					cmd_line.Clear();
-					cmd_line.Append(args.ToString());
-
-					cmd_line.AppendFilenameWithLengthCheck(f);
-				}
+				return RunHg(work_dir, args.ToString());
 			}
-
-			if (cmd_line.Length != args.Length)
-			{
-				return RunHg(work_dir, cmd_line.ToString());
-			}
-
-			return true;
 		}
 
 		//-----------------------------------------------------------------------------
