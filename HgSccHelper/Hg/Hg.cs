@@ -128,6 +128,8 @@ namespace HgSccHelper
 			info.RedirectStandardError = true;
 			info.UseShellExecute = false;
 
+			info.EnvironmentVariables["HGPLAIN"] = "1";
+
 			return info;
 		}
 
