@@ -198,6 +198,7 @@
     <Compile Include="UI\RevLog\AsyncChangeDesc.cs" />
     <Compile Include="UI\RevLog\AsyncChangeDescFull.cs" />
     <Compile Include="UI\RevLog\AsyncIdentify.cs" />
+    <Compile Include="UI\RevLog\AsyncParents.cs" />
     <Compile Include="UI\RevLog\AsyncResolveList.cs" />
     <Compile Include="UI\RevLog\AsyncRevLogChangeDesc.cs" />
     <Compile Include="UI\RevLog\AsyncStatus.cs" />
