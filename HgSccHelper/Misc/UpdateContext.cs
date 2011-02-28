@@ -36,9 +36,8 @@ namespace HgSccHelper
 	//------------------------------------------------------------------
 	public class UpdateContextCache
 	{
-		public IdentifyInfo CurrentRevision { get; set; }
 		public RevLogChangeDesc TargetRevision { get; set; }
-		public List<RevLogChangeDesc> Parents { get; set; }
+		public ParentsInfo ParentsInfo { get; set; }
 		public List<BranchInfo> Branches { get; set; }
 		public List<TagInfo> Tags { get; set; }
 		public List<BookmarkInfo> Bookmarks { get; set; }

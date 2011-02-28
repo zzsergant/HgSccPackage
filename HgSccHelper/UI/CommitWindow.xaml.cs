@@ -81,7 +81,7 @@ namespace HgSccHelper
 
 		CfgWindowPosition wnd_cfg;
 
-		private AsyncIdentify async_identify;
+		private AsyncParents async_parents;
 		private AsyncRevLogChangeDesc async_changedesc;
 		private AsyncResolveList async_resolve_list;
 		private AsyncStatus async_status;
@@ -115,8 +115,8 @@ namespace HgSccHelper
 
 			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
 
-			async_identify = new AsyncIdentify();
-			async_identify.Complete = new Action<IdentifyInfo>(OnAsyncIdentify);
+			async_parents = new AsyncParents();
+			async_parents.Complete = new Action<ParentsInfo>(OnAsyncParents);
 
 			async_changedesc = new AsyncRevLogChangeDesc();
 			async_changedesc.Complete = new Action<AsyncRevLogChangeDescResult>(OnAsyncChangeDesc);
@@ -179,7 +179,7 @@ namespace HgSccHelper
 		private Hg Hg { get; set; }
 
 		//------------------------------------------------------------------
-		private IdentifyInfo CurrentRevision { get; set; }
+		private ParentsInfo ParentsInfo { get; set; }
 
 		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty IsMergeActiveProperty =
@@ -295,18 +295,18 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private void OnAsyncIdentify(IdentifyInfo new_current)
+		private void OnAsyncParents(ParentsInfo new_current)
 		{
-			RunningOperations &= ~AsyncOperations.Identify;
+			RunningOperations &= ~AsyncOperations.Parents;
 
-			CurrentRevision = new_current;
-			if (CurrentRevision == null)
+			ParentsInfo = new_current;
+			if (ParentsInfo == null)
 			{
 				Close();
 				return;
 			}
 
-			if (CurrentRevision.Parents.Count == 2)
+			if (ParentsInfo.Parents.Count == 2)
 			{
 				IsMergeActive = true;
 				var grid_view = (GridView)listFiles.View;
@@ -319,7 +319,7 @@ namespace HgSccHelper
 			}
 
 			RunningOperations |= AsyncOperations.ChangeDesc;
-			async_changedesc.Run(WorkingDir, CurrentRevision.Parents[0].SHA1);
+			async_changedesc.Run(WorkingDir, ParentsInfo.Parents[0].SHA1);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -334,10 +334,10 @@ namespace HgSccHelper
 			}
 
 			parents.Add(result.Changeset);
-			if (parents.Count < CurrentRevision.Parents.Count)
+			if (parents.Count < ParentsInfo.Parents.Count)
 			{
 				RunningOperations |= AsyncOperations.ChangeDesc;
-				async_changedesc.Run(WorkingDir, CurrentRevision.Parents[parents.Count].SHA1);
+				async_changedesc.Run(WorkingDir, ParentsInfo.Parents[parents.Count].SHA1);
 				return;
 			}
 
@@ -458,8 +458,8 @@ namespace HgSccHelper
 				}
 			}
 
-			RunningOperations |= AsyncOperations.Identify;
-			async_identify.RunAsync(WorkingDir);
+			RunningOperations |= AsyncOperations.Parents;
+			async_parents.RunAsync(WorkingDir);
 
 			var files_status_dict = new Dictionary<string, HgFileInfo>();
 			foreach (var file_status in result.Files)
@@ -585,8 +585,8 @@ namespace HgSccHelper
 		{
 			diffColorizer.Dispose();
 
-			async_identify.Cancel();
-			async_identify.Dispose();
+			async_parents.Cancel();
+			async_parents.Dispose();
             
 			async_changedesc.Cancel();
 			async_changedesc.Dispose();
@@ -893,7 +893,7 @@ namespace HgSccHelper
 		{
 			e.CanExecute = false;
 
-			if (listFiles != null && listFiles.SelectedItems.Count == 1 && CurrentRevision != null)
+			if (listFiles != null && listFiles.SelectedItems.Count == 1 && ParentsInfo != null)
 			{
 				if (IsMergeActive)
 				{
@@ -915,7 +915,7 @@ namespace HgSccHelper
 			try
 			{
 				Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
-					CurrentRevision.Parents[0].SHA1, out is_different);
+					ParentsInfo.Parents[0].SHA1, out is_different);
 			}
 			catch (HgDiffException)
 			{
@@ -941,7 +941,7 @@ namespace HgSccHelper
 			try
 			{
 				Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
-					CurrentRevision.Parents[1].SHA1, out is_different);
+					ParentsInfo.Parents[1].SHA1, out is_different);
 			}
 			catch (HgDiffException)
 			{
@@ -1080,7 +1080,7 @@ namespace HgSccHelper
 
 			FileHistoryWindow wnd = new FileHistoryWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.Rev = CurrentRevision.Rev.ToString();
+			wnd.Rev = ParentsInfo.Rev.ToString();
 			wnd.FileName = item.FileInfo.File;
 			wnd.Owner = Window.GetWindow(this);
 
@@ -1106,7 +1106,7 @@ namespace HgSccHelper
 
 			var wnd = new AnnotateWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.Rev = CurrentRevision.Rev.ToString();
+			wnd.Rev = ParentsInfo.Rev.ToString();
 			wnd.FileName = item.FileInfo.File;
 			wnd.Owner = Window.GetWindow(this);
 
@@ -1135,7 +1135,7 @@ namespace HgSccHelper
 				||	item.FileInfo.Status == HgFileStatus.Deleted
 				)
 			{
-				hg.ViewFile(WorkingDir, item.FileInfo.File, CurrentRevision.Rev.ToString());
+				hg.ViewFile(WorkingDir, item.FileInfo.File, ParentsInfo.Rev.ToString());
 			}
 			else
 			{

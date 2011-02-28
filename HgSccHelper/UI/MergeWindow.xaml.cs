@@ -67,7 +67,8 @@ namespace HgSccHelper
 
 			Hg = new Hg();
 
-			CurrentRevision = UpdateContext.Cache.CurrentRevision ?? Hg.Identify(WorkingDir);
+			// FIXME: Parents
+			CurrentRevision = Hg.Identify(WorkingDir);
 			if (CurrentRevision == null)
 			{
 				// error

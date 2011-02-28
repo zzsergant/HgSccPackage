@@ -259,7 +259,13 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public List<RevLogChangeDesc> Parents(string work_dir, string rev)
+		public ParentsInfo Parents(string work_dir)
+		{
+			return Parents(work_dir, "");
+		}
+
+		//-----------------------------------------------------------------------------
+		public ParentsInfo Parents(string work_dir, string rev)
 		{
 			var args = new HgArgsBuilder();
 			args.Append("parents");
@@ -278,7 +284,10 @@ namespace HgSccHelper
 					var lst = RevLogChangeDesc.ParseChanges(proc.StandardOutput);
 					proc.WaitForExit();
 
-					return lst;
+					if (lst.Count > 0)
+						return new ParentsInfo {Parents = lst};
+
+					return null;
 				}
 			}
 		}
@@ -1817,6 +1826,30 @@ namespace HgSccHelper
 	{
 		public int Rev { get; set; }
 		public string SHA1 { get; set; }
+	}
+
+	//-----------------------------------------------------------------------------
+	public class ParentsInfo
+	{
+		public List<RevLogChangeDesc> Parents { get; set; }
+
+		//-----------------------------------------------------------------------------
+		public int Rev
+		{
+			get
+			{
+				return Parents[0].Rev;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		public string SHA1
+		{
+			get
+			{
+				return Parents[0].SHA1;
+			}
+		}
 	}
 
 	//------------------------------------------------------------------

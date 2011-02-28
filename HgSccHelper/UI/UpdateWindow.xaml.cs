@@ -94,10 +94,8 @@ namespace HgSccHelper
 			timer.Interval = TimeSpan.FromMilliseconds(200);
 			timer.Tick += OnTimerTick;
 
-			if (UpdateContext.Cache.CurrentRevision != null)
-				CurrentRevision = UpdateContext.Cache.CurrentRevision;
-			else
-				CurrentRevision = Hg.Identify(WorkingDir);
+			// FIXME: Parents
+			CurrentRevision = Hg.Identify(WorkingDir);
 
 			if (CurrentRevision == null)
 			{
@@ -106,8 +104,13 @@ namespace HgSccHelper
 				return;
 			}
 
-			var rev_parents = UpdateContext.Cache.Parents;
-			if (rev_parents == null)
+			List<RevLogChangeDesc> rev_parents;
+
+			if (UpdateContext.Cache.ParentsInfo != null)
+			{
+				rev_parents = UpdateContext.Cache.ParentsInfo.Parents;
+			}
+			else
 			{
 				rev_parents = new List<RevLogChangeDesc>();
 				foreach (var parent in CurrentRevision.Parents)

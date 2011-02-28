@@ -100,18 +100,18 @@ namespace HgSccHelper
 			string target_rev = TargetRevision;
 			if (string.IsNullOrEmpty(target_rev))
 			{
-				var current_revision = UpdateContext.Cache.CurrentRevision;
-				if (current_revision == null)
-					current_revision = Hg.Identify(WorkingDir);
+				var parents_info = UpdateContext.Cache.ParentsInfo;
+				if (parents_info == null)
+					parents_info = Hg.Parents(WorkingDir);
 
-				if (current_revision == null)
+				if (parents_info == null)
 				{
 					// error
 					Close();
 					return;
 				}
 
-				target_rev = current_revision.Rev.ToString();
+				target_rev = parents_info.Rev.ToString();
 			}
 
 			textRev.Text = target_rev;

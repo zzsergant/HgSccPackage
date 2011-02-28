@@ -59,7 +59,7 @@ namespace HgSccHelper
 		Hg Hg { get; set; }
 
 		//------------------------------------------------------------------
-		IdentifyInfo CurrentRevision { get; set; }
+		ParentsInfo ParentsInfo { get; set; }
 
 		//------------------------------------------------------------------
 		/// <summary>
@@ -102,7 +102,7 @@ namespace HgSccHelper
 		private Cursor prev_cursor;
 
 		private AsyncChangeDescFull async_changedesc;
-		private AsyncIdentify async_identify;
+		private AsyncParents async_parents;
 		private AsyncBranches async_branches;
 		private AsyncTags async_tags;
 		private AsyncAnnotate async_annotate;
@@ -130,8 +130,8 @@ namespace HgSccHelper
 			async_changedesc = new AsyncChangeDescFull();
 			async_changedesc.Complete = new Action<List<ChangeDesc>>(OnAsyncChangeDescFull);
 
-			async_identify = new AsyncIdentify();
-			async_identify.Complete = new Action<IdentifyInfo>(OnAsyncIdentify);
+			async_parents = new AsyncParents();
+			async_parents.Complete = new Action<ParentsInfo>(OnAsyncParents);
 
 			async_branches = new AsyncBranches();
 			async_branches.Complete = new Action<List<BranchInfo>>(OnAsyncBranch);
@@ -408,8 +408,8 @@ namespace HgSccHelper
 				async_changedesc.Cancel();
 				async_changedesc.Dispose();
 
-				async_identify.Cancel();
-				async_identify.Dispose();
+				async_parents.Cancel();
+				async_parents.Dispose();
 
 				async_branches.Cancel();
 				async_branches.Dispose();
@@ -492,9 +492,9 @@ namespace HgSccHelper
 				history_item.RenameInfo = renames[left_idx];
 				history_item.GroupText = String.Format("[{0}]: {1}", renames.Count - left_idx, history_item.RenameInfo.Path);
 
-				if (CurrentRevision != null)
+				if (ParentsInfo != null)
 				{
-					foreach (var parent in CurrentRevision.Parents)
+					foreach (var parent in ParentsInfo.Parents)
 					{
 						if (history_item.ChangeDesc.SHA1 == parent.SHA1)
 						{
@@ -532,8 +532,8 @@ namespace HgSccHelper
 			else
 				HandleTagsChanges();
 
-			if (UpdateContext.Cache.CurrentRevision != null)
-				OnAsyncIdentify(UpdateContext.Cache.CurrentRevision);
+			if (UpdateContext.Cache.ParentsInfo != null)
+				OnAsyncParents(UpdateContext.Cache.ParentsInfo);
 			else
 				HandleParentChange();
 
@@ -669,16 +669,16 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private void OnAsyncIdentify(IdentifyInfo new_current)
+		private void OnAsyncParents(ParentsInfo new_current)
 		{
-			RunningOperations &= ~AsyncOperations.Identify;
+			RunningOperations &= ~AsyncOperations.Parents;
 
 			if (new_current == null)
 				return;
 
-			if (CurrentRevision != null)
+			if (ParentsInfo != null)
 			{
-				foreach (var parent in CurrentRevision.Parents)
+				foreach (var parent in ParentsInfo.Parents)
 				{
 					FileHistoryInfo file_history;
 					if (file_history_map.TryGetValue(parent.SHA1, out file_history))
@@ -686,10 +686,10 @@ namespace HgSccHelper
 				}
 			}
 
-			CurrentRevision = new_current;
-			if (CurrentRevision != null)
+			ParentsInfo = new_current;
+			if (ParentsInfo != null)
 			{
-				foreach (var parent in CurrentRevision.Parents)
+				foreach (var parent in ParentsInfo.Parents)
 				{
 					FileHistoryInfo file_history;
 					if (file_history_map.TryGetValue(parent.SHA1, out file_history))
@@ -853,10 +853,8 @@ namespace HgSccHelper
 		{
 			var cache = new UpdateContextCache();
 
-			if ((RunningOperations & AsyncOperations.Identify) != AsyncOperations.Identify)
-			{
-				cache.CurrentRevision = CurrentRevision;
-			}
+			if ((RunningOperations & AsyncOperations.Parents) != AsyncOperations.Parents)
+				cache.ParentsInfo = ParentsInfo;
 
 			if ((RunningOperations & AsyncOperations.Tags) != AsyncOperations.Tags)
 				cache.Tags = new List<TagInfo>(Tags.Values);
@@ -935,8 +933,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void HandleParentChange()
 		{
-			RunningOperations |= AsyncOperations.Identify;
-			async_identify.RunAsync(WorkingDir);
+			RunningOperations |= AsyncOperations.Parents;
+			async_parents.RunAsync(WorkingDir);
 		}
 
 		//------------------------------------------------------------------

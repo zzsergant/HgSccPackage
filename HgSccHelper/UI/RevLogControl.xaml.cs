@@ -70,7 +70,7 @@ namespace HgSccHelper
 		RevLogStyleFile revlog_style;
 
 		//------------------------------------------------------------------
-		IdentifyInfo CurrentRevision { get; set; }
+		ParentsInfo ParentsInfo { get; set; }
 
 		//-----------------------------------------------------------------------------
 		private bool disposed;
@@ -120,7 +120,7 @@ namespace HgSccHelper
 
 		private AsyncChangeDesc async_changedesc;
 
-		private AsyncIdentify async_identify;
+		private AsyncParents async_parents;
 
 		private AsyncBranches async_branches;
 
@@ -164,8 +164,8 @@ namespace HgSccHelper
 			async_changedesc = new AsyncChangeDesc();
 			async_changedesc.Completed = new Action<AsyncChangeDescResult>(OnAsyncChangeDesc);
 
-			async_identify = new AsyncIdentify();
-			async_identify.Complete = new Action<IdentifyInfo>(OnAsyncIdentify);
+			async_parents = new AsyncParents();
+			async_parents.Complete = new Action<ParentsInfo>(OnAsyncParents);
 
 			async_branches = new AsyncBranches();
 			async_branches.Complete = new Action<List<BranchInfo>>(OnAsyncBranch);
@@ -331,16 +331,16 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private void OnAsyncIdentify(IdentifyInfo new_current)
+		private void OnAsyncParents(ParentsInfo new_parents)
 		{
-			RunningOperations &= ~AsyncOperations.Identify;
+			RunningOperations &= ~AsyncOperations.Parents;
 
-			if (new_current == null)
+			if (new_parents == null)
 				return;
 
-			if (CurrentRevision != null)
+			if (ParentsInfo != null)
 			{
-				foreach (var parent in CurrentRevision.Parents)
+				foreach (var parent in ParentsInfo.Parents)
 				{
 					RevLogLinesPair lines_pair;
 					if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
@@ -348,10 +348,11 @@ namespace HgSccHelper
 				}
 			}
 
-			CurrentRevision = new_current;
-			if (CurrentRevision != null)
+			ParentsInfo = new_parents;
+			
+			if (ParentsInfo != null)
 			{
-				foreach (var parent in CurrentRevision.Parents)
+				foreach (var parent in ParentsInfo.Parents)
 				{
 					RevLogLinesPair lines_pair;
 					if (rev_log_hash_map.TryGetValue(parent.SHA1, out lines_pair))
@@ -445,8 +446,8 @@ namespace HgSccHelper
 				async_changedesc.Cancel();
 				async_changedesc.Dispose();
 
-				async_identify.Cancel();
-				async_identify.Dispose();
+				async_parents.Cancel();
+				async_parents.Dispose();
 
 				async_branches.Cancel();
 				async_branches.Dispose();
@@ -819,9 +820,9 @@ namespace HgSccHelper
 
 			var sha1 = new_lines_pair.Current.ChangeDesc.SHA1;
 
-			if (CurrentRevision != null)
+			if (ParentsInfo != null)
 			{
-				foreach (var parent in CurrentRevision.Parents)
+				foreach (var parent in ParentsInfo.Parents)
 				{
 					if (parent.SHA1 == sha1)
 					{
@@ -863,21 +864,8 @@ namespace HgSccHelper
 		{
 			var cache = new UpdateContextCache();
 
-			if ((RunningOperations & AsyncOperations.Identify) != AsyncOperations.Identify)
-			{
-				cache.CurrentRevision = CurrentRevision;
-				var parents = new List<RevLogChangeDesc>();
-
-				foreach (var parent in CurrentRevision.Parents)
-				{
-					RevLogLinesPair p;
-					if (rev_log_hash_map.TryGetValue(parent.SHA1, out p))
-						parents.Add(p.Current.ChangeDesc);
-				}
-
-				if (parents.Count == CurrentRevision.Parents.Count)
-					cache.Parents = parents;
-			}
+			if ((RunningOperations & AsyncOperations.Parents) != AsyncOperations.Parents)
+				cache.ParentsInfo = ParentsInfo;
 
 			if ((RunningOperations & AsyncOperations.Tags) != AsyncOperations.Tags)
 				cache.Tags = new List<TagInfo>(Tags.Values);
@@ -968,8 +956,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void HandleParentChange()
 		{
-			RunningOperations |= AsyncOperations.Identify;
-			async_identify.RunAsync(WorkingDir);
+			RunningOperations |= AsyncOperations.Parents;
+			async_parents.RunAsync(WorkingDir, "");
 		}
 
 		//------------------------------------------------------------------
@@ -1081,11 +1069,11 @@ namespace HgSccHelper
 		{
 			e.CanExecute = false;
 
-			if (SelectedChangeset != null && CurrentRevision != null)
+			if (SelectedChangeset != null && ParentsInfo != null)
 			{
-				if (CurrentRevision.Parents.Count == 1)
+				if (ParentsInfo.Parents.Count == 1)
 				{
-					if (SelectedChangeset.Current.ChangeDesc.SHA1 != CurrentRevision.SHA1)
+					if (SelectedChangeset.Current.ChangeDesc.SHA1 != ParentsInfo.SHA1)
 						e.CanExecute = true;
 				}
 			}
@@ -1445,6 +1433,7 @@ namespace HgSccHelper
 		ResolveList		= 0x0800,
 		Status			= 0x1000,
 		BranchName		= 0x2000,
-		Bookmarks		= 0x4000
+		Bookmarks		= 0x4000,
+		Parents			= 0x8000
 	}
 }
