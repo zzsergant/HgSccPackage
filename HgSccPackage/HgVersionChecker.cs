@@ -47,14 +47,17 @@ namespace HgSccPackage
 				{
 					Logger.WriteLine("Hg version is: {0}", ver);
 
-					var msg = "You have mercurial v" + ver
-							  + " installed, but HgSccPackage requires mercurial v"
-							  + required_version + " or higher installed.\n"
-							  + "Do you want to use this mercurial client anyway (not recommended) ?";
+					if (ver.CompareTo(required_version) < 0)
+					{
+						var msg = "You have mercurial v" + ver
+								  + " installed, but HgSccPackage requires mercurial v"
+								  + required_version + " or higher installed.\n"
+								  + "Do you want to use this mercurial client anyway (not recommended) ?";
 
-					var result = MessageBox.Show(msg, "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
-					if (result != DialogResult.Yes)
-						return false;
+						var result = MessageBox.Show(msg, "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+						if (result != DialogResult.Yes)
+							return false;
+					}
 
 					KnownHgVersion.Set(required_version);
 					return true;
