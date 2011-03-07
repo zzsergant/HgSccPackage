@@ -173,37 +173,6 @@ namespace HgSccHelper
 
 		//-----------------------------------------------------------------------------
 		/// <summary>
-		/// This function returns a list of revisions suitable to build a revision graph.
-		/// Requires HGK extension enabled in user hgrc
-		/// </summary>
-		/// <param name="work_dir">Repository root</param>
-		/// <param name="max_count">Limit count of revisions. 0 - unlimited</param>
-		/// <returns></returns>
-		public List<RevLogChangeDesc> RevLogHgk(string work_dir, int max_count)
-		{
-			var args = new HgArgsBuilder();
-			args.Append("debug-rev-list");
-			args.Append("--header");
-			args.Append("--topo-order");
-			args.Append("--parents");
-
-			if (max_count > 0)
-			{
-				args.Append("--max-count");
-				args.Append(max_count.ToString());
-			}
-
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
-			{
-				var lst = RevLogChangeDesc.ParseChangesHgk(proc.StandardOutput);
-				proc.WaitForExit();
-
-				return lst;
-			}
-		}
-
-		//-----------------------------------------------------------------------------
-		/// <summary>
 		/// This function returns a list of revisions suitable to build a revision graph 
 		/// </summary>
 		/// <param name="work_dir">Repository root</param>
