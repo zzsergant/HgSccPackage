@@ -27,121 +27,19 @@ namespace HgSccHelper
 		public string OneLineDesc { get; set; }
 		public int Rev { get; set; }
 		public string SHA1 { get; set; }
-		public ObservableCollection<string> Parents { get; private set; }
 		public DateTime Date { get; set; }
 		public string Branch { get; set; }
-		public ObservableCollection<string> Tags { get; set; }
+
+		public ObservableCollection<string> Parents { get; private set; }
+		public ObservableCollection<TagInfo> Tags { get; set; }
 		public ObservableCollection<BookmarkInfo> Bookmarks { get; set; }
 
 		//------------------------------------------------------------------
 		public RevLogChangeDesc()
 		{
 			Parents = new ObservableCollection<string>();
-			Tags = new ObservableCollection<string>();
+			Tags = new ObservableCollection<TagInfo>();
 			Bookmarks = new ObservableCollection<BookmarkInfo>();
-		}
-
-		//------------------------------------------------------------------
-		private static string CutPrefix(string str, string prefix)
-		{
-			return str.Remove(0, prefix.Length);
-		}
-
-		//-----------------------------------------------------------------------------
-		public static List<RevLogChangeDesc> ParseChangesHgk(StreamReader reader)
-		{
-			var list = new List<RevLogChangeDesc>();
-			RevLogChangeDesc cs = null;
-			bool is_start = true;
-			var separator = new[]{' '};
-			var desc = new StringBuilder();
-
-			while (true)
-			{
-				string str = reader.ReadLine();
-				if (str == null)
-					break;
-
-				if (str.Length == 0)
-					continue;
-
-				if (str[0] == '\0')
-				{
-					str = str.Substring(1);
-					cs.Desc = desc.ToString();
-					desc.Remove(0, desc.Length);
-
-					list.Add(cs);
-					cs = null;
-					is_start = true;
-				}
-
-				if (is_start)
-				{
-					var sha1 = str.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-					if (sha1.Length == 0)
-					{
-						return list;
-					}
-
-					cs = new RevLogChangeDesc();
-					cs.SHA1 = sha1[0];
-					is_start = false;
-					continue;
-				}
-
-				if (str.StartsWith("parent "))
-				{
-					cs.Parents.Add(str.Substring("parent ".Length));
-					continue;
-				}
-
-				if (str.StartsWith("author "))
-				{
-					var s = str.Substring("author ".Length);
-					var split = s.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-
-					cs.Author = string.Join(" ", split, 0, split.Length - 2);
-					var date_time = new[] { split[split.Length - 2], split[split.Length - 1] };
-
-					var date = new DateTime(1970, 1, 1).AddSeconds(Int32.Parse(date_time[0]));
-//					var date_time_offset = new DateTimeOffset(date, new TimeSpan(0, 0, ));
-//					cs.Date = date_time_offset.LocalDateTime;
-					cs.Date = DateTime.SpecifyKind(date.AddSeconds(-Int32.Parse(date_time[1])), DateTimeKind.Utc);
-					continue;
-				}
-
-				if (str.StartsWith("revision "))
-				{
-					cs.Rev = Int32.Parse(str.Substring("revision ".Length));
-					continue;
-				}
-
-				if (str.StartsWith("branch "))
-				{
-					cs.Branch = str.Substring("branch ".Length);
-					continue;
-				}
-
-				if (str.StartsWith("    "))
-				{
-					var s = str.Substring(4);
-					if (String.IsNullOrEmpty(cs.OneLineDesc))
-						cs.OneLineDesc = s;
-					desc.AppendLine(s);
-				}
-				//--
-			}
-
-			if (cs != null)
-			{
-				cs.Desc = desc.ToString();
-				desc.Remove(0, desc.Length);
-
-				list.Add(cs);
-			}
-
-			return list;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -187,12 +85,15 @@ namespace HgSccHelper
 				builder.Append(@"node: {node}\n");
 				builder.Append(@"branch: {branches}\n");
 				builder.Append(@"tags: {tags}\n");
+				builder.Append(@"bookmarks: {bookmarks}\n");
 				builder.Append(@"parents: {parents}\n");
 				builder.Append(@"::=\n");
 
 				stream.WriteLine(String.Format("changeset_verbose = '{0}'", builder.ToString()));
 				stream.WriteLine(@"tag = '{tag}:'");
 				stream.WriteLine(@"last_tag = '{tag}'");
+				stream.WriteLine(@"bookmark = '{bookmark}:'");
+				stream.WriteLine(@"last_bookmark = '{bookmark}'");
 			}
 		}
 
@@ -203,18 +104,18 @@ namespace HgSccHelper
 		}
 	}
 
-
 	//------------------------------------------------------------------
 	public class RevLogChangeDescParser
 	{
-		RevLogChangeDesc cs = null;
-		char[] parent_sep;
+		RevLogChangeDesc cs;
 		StringBuilder desc_builder;
+
+		static readonly char[] ParentSeparators = new[] { ':', ' ' };
+		static readonly char[] TagSeparator = new [] { ':' };
 
 		//------------------------------------------------------------------
 		public RevLogChangeDescParser()
 		{
-			parent_sep = new char[] { ':', ' ' };
 			desc_builder = new StringBuilder();
 		}
 
@@ -291,15 +192,24 @@ namespace HgSccHelper
 			if (str.StartsWith("tags: "))
 			{
 				var tags_str = str.Substring("tags: ".Length);
-				string[] tags = tags_str.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+				string[] tags = tags_str.Split(TagSeparator, StringSplitOptions.RemoveEmptyEntries);
 				foreach (var tag in tags)
-					cs.Tags.Add(tag);
+					cs.Tags.Add(new TagInfo { Name = tag, Rev = cs.Rev, SHA1 = cs.SHA1 });
+				return null;
+			}
+
+			if (str.StartsWith("bookmarks: "))
+			{
+				var books_str = str.Substring("bookmarks: ".Length);
+				string[] books = books_str.Split(TagSeparator, StringSplitOptions.RemoveEmptyEntries);
+				foreach (var book in books)
+					cs.Bookmarks.Add(new BookmarkInfo { Name = book, Rev = cs.Rev, SHA1 = cs.SHA1 });
 				return null;
 			}
 
 			if (str.StartsWith("parents: "))
 			{
-				var parents_strs = str.Substring("parents: ".Length).Split(parent_sep, StringSplitOptions.RemoveEmptyEntries);
+				var parents_strs = str.Substring("parents: ".Length).Split(ParentSeparators, StringSplitOptions.RemoveEmptyEntries);
 				if (parents_strs.Length == 4)
 				{
 					if (parents_strs[0] != "-1")

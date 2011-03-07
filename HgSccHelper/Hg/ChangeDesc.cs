@@ -30,7 +30,8 @@ namespace HgSccHelper
 		public List<FileInfo> FilesAdded { get; set; }
 		public List<FileInfo> FilesModified { get; set; }
 		public List<FileInfo> FilesRemoved { get; set; }
-		public ObservableCollection<string> Tags { get; set; }
+
+		public ObservableCollection<TagInfo> Tags { get; set; }
 		public ObservableCollection<BookmarkInfo> Bookmarks { get; set; }
 
 		public ChangeDesc()
@@ -38,7 +39,8 @@ namespace HgSccHelper
 			FilesAdded = new List<FileInfo>();
 			FilesModified = new List<FileInfo>();
 			FilesRemoved = new List<FileInfo>();
-			Tags = new ObservableCollection<string>();
+			
+			Tags = new ObservableCollection<TagInfo>();
 			Bookmarks = new ObservableCollection<BookmarkInfo>();
 		}
 
@@ -95,6 +97,8 @@ namespace HgSccHelper
 		readonly Dictionary<string, FileInfo> modified_files;
 		ChangeDesc cs;
 		private readonly StringBuilder desc_builder;
+
+		static readonly char[] TagSeparator = new[] { ':' };
 
 		//-----------------------------------------------------------------------------
 		public ChangeDescParser()
@@ -159,9 +163,18 @@ namespace HgSccHelper
 			if (str.StartsWith("tags: "))
 			{
 				var tags_str = str.Substring("tags: ".Length);
-				string[] tags = tags_str.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+				string[] tags = tags_str.Split(TagSeparator, StringSplitOptions.RemoveEmptyEntries);
 				foreach (var tag in tags)
-					cs.Tags.Add(tag);
+					cs.Tags.Add(new TagInfo { Name = tag, Rev = cs.Rev, SHA1 = cs.SHA1 });
+				return null;
+			}
+
+			if (str.StartsWith("bookmarks: "))
+			{
+				var books_str = str.Substring("bookmarks: ".Length);
+				string[] books = books_str.Split(TagSeparator, StringSplitOptions.RemoveEmptyEntries);
+				foreach (var book in books)
+					cs.Bookmarks.Add(new BookmarkInfo { Name = book, Rev = cs.Rev, SHA1 = cs.SHA1 });
 				return null;
 			}
 
@@ -239,7 +252,7 @@ namespace HgSccHelper
 
 			using (var stream = new StreamWriter(File.OpenWrite(FileName)))
 			{
-				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\ntags: {tags}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n::=\n'");
+				stream.WriteLine(@"changeset_verbose = '==:\ndate: {date|isodate}\nauthor: {author}\ndesc: {desc|strip|tabindent}\nrev: {rev}\nnode: {node}\ntags: {tags}\nbookmarks: {bookmarks}\nA:{file_adds}\nR:{file_dels}\nM:{files}\n::=\n'");
 				stream.WriteLine(@"file = '{file}:'");
 				stream.WriteLine(@"last_file = '{file}'");
 				stream.WriteLine(@"file_add = '{file_add}:'");
@@ -248,6 +261,8 @@ namespace HgSccHelper
 				stream.WriteLine(@"last_file_del = '{file_del}'");
 				stream.WriteLine(@"tag = '{tag}:'");
 				stream.WriteLine(@"last_tag = '{tag}'");
+				stream.WriteLine(@"bookmark = '{bookmark}:'");
+				stream.WriteLine(@"last_bookmark = '{bookmark}'");
 			}
 		}
 

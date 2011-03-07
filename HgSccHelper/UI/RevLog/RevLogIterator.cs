@@ -10,6 +10,7 @@
 // 
 //=========================================================================
 
+using System;
 using System.Collections.Generic;
 
 //==================================================================
@@ -60,7 +61,7 @@ namespace HgSccHelper
 			typeof(RevLogLinesPair));
 
 		//-----------------------------------------------------------------------------
-		internal BranchInfo BranchInfo
+		public BranchInfo BranchInfo
 		{
 			get { return (BranchInfo)this.GetValue(BranchInfoProperty); }
 			set { this.SetValue(BranchInfoProperty, value); }

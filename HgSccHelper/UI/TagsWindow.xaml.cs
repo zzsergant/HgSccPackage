@@ -126,13 +126,13 @@ namespace HgSccHelper
 			{
 				foreach (var tag in RevDesc.Tags)
 				{
-					if (tag != "tip")
+					if (tag.Name != "tip")
 					{
 						// Selecting target revision tag in combo box
 						for(int i = 0; i < comboTag.Items.Count; ++i)
 						{
 							var item = (TagsComboItem)comboTag.Items[i];
-							if (item.Name == tag)
+							if (item.Name == tag.Name)
 							{
 								comboTag.SelectedIndex = i;
 								break;

@@ -231,7 +231,10 @@ namespace HgSccHelper
 				if (rev_log_hash_map.TryGetValue(tag.SHA1, out lines_pair))
 				{
 					var change_desc = lines_pair.Current.ChangeDesc;
-					change_desc.Tags.Remove(tag.Name);
+					var tag_name = tag.Name;
+					var tag_info = change_desc.Tags.FirstOrDefault(t => t.Name == tag_name);
+					if (tag_info != null)
+						change_desc.Tags.Remove(tag_info);
 				}
 			}
 
@@ -244,8 +247,13 @@ namespace HgSccHelper
 				if (rev_log_hash_map.TryGetValue(tag.SHA1, out lines_pair))
 				{
 					var change_desc = lines_pair.Current.ChangeDesc;
-					if (!change_desc.Tags.Contains(tag.Name))
-						change_desc.Tags.Add(tag.Name);
+					var tag_name = tag.Name;
+
+					int pos = change_desc.Tags.FirstIndexOf(t => t.Name == tag_name);
+					if (pos != -1)
+						change_desc.Tags[pos] = tag;
+					else
+						change_desc.Tags.Add(tag);
 				}
 			}
 		}
@@ -289,7 +297,11 @@ namespace HgSccHelper
 				{
 					var change_desc = lines_pair.Current.ChangeDesc;
 					var book_name = bookmark.Name;
-					if (!change_desc.Bookmarks.Any(b => b.Name == book_name))
+
+					int pos = change_desc.Bookmarks.FirstIndexOf(b => b.Name == book_name);
+					if (pos != -1)
+						change_desc.Bookmarks[pos] = bookmark;
+					else
 						change_desc.Bookmarks.Add(bookmark);
 				}
 			}
@@ -814,7 +826,30 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		void Worker_NewRevLogChangeDesc(RevLogChangeDesc change_desc)
 		{
+			// Updating bookmarks
+			if (Bookmarks != null && change_desc.Bookmarks.Count > 0)
+			{
+				for (int i = 0; i < change_desc.Bookmarks.Count; ++i)
+				{
+					BookmarkInfo book;
+					if (Bookmarks.TryGetValue(change_desc.Bookmarks[i].Name, out book))
+						change_desc.Bookmarks[i] = book;
+				}
+			}
+
+			// Updating tags
+			if (Tags != null && change_desc.Tags.Count > 0)
+			{
+				for (int i = 0; i < change_desc.Tags.Count; ++i)
+				{
+					TagInfo tag;
+					if (Tags.TryGetValue(change_desc.Tags[i].Name, out tag))
+						change_desc.Tags[i] = tag;
+				}
+			}
+
 			revs.Add(change_desc);
+
 			var new_lines_pair = rev_log_lines_parser.ParseLogLines(
 				rev_log_iterator.ParseChangeDesc(change_desc));
 

@@ -320,7 +320,10 @@ namespace HgSccHelper
 				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
 				{
 					var change_desc = file_history.ChangeDesc;
-					change_desc.Tags.Remove(tag.Name);
+					var tag_name = tag.Name;
+					var tag_info = change_desc.Tags.FirstOrDefault(t => t.Name == tag_name);
+					if (tag_info != null)
+						change_desc.Tags.Remove(tag_info);
 				}
 			}
 
@@ -333,8 +336,13 @@ namespace HgSccHelper
 				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
 				{
 					var change_desc = file_history.ChangeDesc;
-					if (!change_desc.Tags.Contains(tag.Name))
-						change_desc.Tags.Add(tag.Name);
+					var tag_name = tag.Name;
+
+					int pos = change_desc.Tags.FirstIndexOf(t => t.Name == tag_name);
+					if (pos != -1)
+						change_desc.Tags[pos] = tag;
+					else
+						change_desc.Tags.Add(tag);
 				}
 			}
 		}
@@ -378,7 +386,11 @@ namespace HgSccHelper
 				{
 					var change_desc = file_history.ChangeDesc;
 					var book_name = bookmark.Name;
-					if (!change_desc.Bookmarks.Any(b => b.Name == book_name))
+
+					int pos = change_desc.Bookmarks.FirstIndexOf(b => b.Name == book_name);
+					if (pos != -1)
+						change_desc.Bookmarks[pos] = bookmark;
+					else
 						change_desc.Bookmarks.Add(bookmark);
 				}
 			}

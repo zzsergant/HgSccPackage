@@ -87,7 +87,7 @@
                                     VerticalAlignment="Center"
                                     SnapsToDevicePixels="True"
                                     BorderBrush="Goldenrod">
-                                <TextBlock Text="{Binding}" VerticalAlignment="Center"
+                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
                                        Background="Yellow"
                                        Foreground="Black"
                                        Padding="5,1"/>

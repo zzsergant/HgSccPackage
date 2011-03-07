@@ -137,6 +137,21 @@ namespace HgSccHelper
 			}
 		}
 
+		//-----------------------------------------------------------------------------
+		public static int FirstIndexOf<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate)
+		{
+			int pos = 0;
+			foreach (var v in enumerable)
+			{
+				if (predicate(v))
+					return pos;
+
+				pos++;
+			}
+
+			return -1;
+		}
+
 		//------------------------------------------------------------------
 		public static string GetDescription(this RevLogChangeDesc change_desc)
 		{
@@ -146,12 +161,19 @@ namespace HgSccHelper
 			var sha1_short = change_desc.SHA1.ShortSHA1();
 			var desc = String.Format("Rev:\t{0} ({1})", change_desc.Rev, sha1_short);
 
-			if (!String.IsNullOrEmpty(change_desc.Branch))
+			if (change_desc.Branch != null)
 				desc += String.Format("\nBranch:\t{0}", change_desc.Branch);
 
-			foreach (var tag in change_desc.Tags)
+			if (change_desc.Tags.Count > 0)
 			{
-				desc += String.Format("\nTag:\t{0}", tag);
+				var tag_names = change_desc.Tags.Select(t => t.Name).ToArray();
+				desc += String.Format("\nTags:\t{0}", string.Join(", ", tag_names));
+			}
+
+			if (change_desc.Bookmarks.Count > 0)
+			{
+				var book_names = change_desc.Bookmarks.Select(b => b.Name).ToArray();
+				desc += String.Format("\nBooks:\t{0}", string.Join(", ", book_names));
 			}
 
 			desc += String.Format("\nDesc:\t{0}", change_desc.OneLineDesc);
