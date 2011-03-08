@@ -11,17 +11,10 @@
 //=========================================================================
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Collections.ObjectModel;
 
@@ -44,7 +37,7 @@ namespace HgSccHelper
 
 		DispatcherTimer timer;
 		RevLogChangeDesc Target { get; set; }
-		IdentifyInfo CurrentRevision { get; set; }
+		ParentsInfo ParentsInfo { get; set; }
 		ObservableCollection<string> parents;
 
 		public const string CfgPath = @"GUI\UpdateWindow";
@@ -94,30 +87,16 @@ namespace HgSccHelper
 			timer.Interval = TimeSpan.FromMilliseconds(200);
 			timer.Tick += OnTimerTick;
 
-			// FIXME: Parents
-			CurrentRevision = Hg.Identify(WorkingDir);
+			ParentsInfo = UpdateContext.Cache.ParentsInfo ?? Hg.Parents(WorkingDir);
 
-			if (CurrentRevision == null)
+			if (ParentsInfo == null)
 			{
 				// error
 				Close();
 				return;
 			}
 
-			List<RevLogChangeDesc> rev_parents;
-
-			if (UpdateContext.Cache.ParentsInfo != null)
-			{
-				rev_parents = UpdateContext.Cache.ParentsInfo.Parents;
-			}
-			else
-			{
-				rev_parents = new List<RevLogChangeDesc>();
-				foreach (var parent in CurrentRevision.Parents)
-					rev_parents.Add(Hg.GetRevisionDesc(WorkingDir, parent.SHA1));
-			}
-			
-			foreach (var parent in rev_parents)
+			foreach (var parent in ParentsInfo.Parents)
 				parents.Add(parent.GetDescription());
 
 			if (!string.IsNullOrEmpty(TargetRevision))
@@ -143,9 +122,9 @@ namespace HgSccHelper
 				comboRevision.Items.Add(item);
 			}
 
-			for (int i = 0; i < CurrentRevision.Parents.Count; ++i)
+			for (int i = 0; i < ParentsInfo.Parents.Count; ++i)
 			{
-				var parent = CurrentRevision.Parents[i];
+				var parent = ParentsInfo.Parents[i];
 
 				var id = new UpdateComboItem();
 				id.GroupText = "Rev";
@@ -156,11 +135,8 @@ namespace HgSccHelper
 				var misc = new StringBuilder();
 				misc.Append("Parent");
 
-				if (CurrentRevision.Parents.Count > 1)
+				if (ParentsInfo.Parents.Count > 1)
 					misc.Append((i + 1).ToString());
-
-				if (CurrentRevision.HaveUncommitedChanges)
-					misc.Append(" (Have uncommited changes)");
 
 				id.Misc = misc.ToString();
 
@@ -265,27 +241,40 @@ namespace HgSccHelper
 			}
 
 			bool discard_changes = checkDiscardChanges.IsChecked == true;
-
-			if (CurrentRevision.HaveUncommitedChanges
-				&& !discard_changes)
-			{
-				var result = MessageBox.Show("There are uncommited changed.\nAre you sure to discard them ?",
-					"Warning", MessageBoxButton.OKCancel, MessageBoxImage.Question);
-				
-				if (result != MessageBoxResult.OK)
-					return;
-
-				discard_changes = true;
-			}
-
-			var options = discard_changes ? HgUpdateOptions.Clean : HgUpdateOptions.None;
 			
 			// If several bookmarks points to one changeset,
 			// then we can not use SHA1 as revision
 
 			var rev = comboRevision.Text;
 
-			if (!Hg.Update(WorkingDir, rev, options))
+			if (!discard_changes)
+			{
+				try
+				{
+					if (!Hg.Update(WorkingDir, rev, HgUpdateOptions.Check))
+					{
+						MessageBox.Show("An error occured while update", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+						return;
+					}
+
+					UpdateContext.IsParentChanged = true;
+					UpdateContext.IsBookmarksChanged = true;
+					Close();
+					return;
+				}
+				catch (HgUncommitedChangesException)
+				{
+					var result = MessageBox.Show("There are uncommited changed.\nAre you sure to discard them ?",
+						"Warning", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+
+					if (result != MessageBoxResult.OK)
+						return;
+
+					// pass through to clean update
+				}
+			}
+
+			if (!Hg.Update(WorkingDir, rev, HgUpdateOptions.Clean))
 			{
 				MessageBox.Show("An error occured while update", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;

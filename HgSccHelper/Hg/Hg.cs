@@ -39,6 +39,23 @@ namespace HgSccHelper
 	}
 
 	//=============================================================================
+	public class HgUncommitedChangesException : Exception
+	{
+		//-----------------------------------------------------------------------------
+		public HgUncommitedChangesException()
+		{
+
+		}
+
+		//-----------------------------------------------------------------------------
+		public HgUncommitedChangesException(string message)
+			: base(message)
+		{
+
+		}
+	}
+
+	//=============================================================================
 	public class HgCommandLineException : Exception
 	{
 		//-----------------------------------------------------------------------------
@@ -1527,6 +1544,14 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		/// <summary>
+		/// Update repository to specified revision
+		/// </summary>
+		/// <param name="work_dir"></param>
+		/// <param name="revision"></param>
+		/// <param name="options"></param>
+		/// <exception cref="HgUncommitedChangesException">Throwed when there are uncommited changes and the check option set</exception>
+		/// <returns>true on success</returns>
 		public bool Update(string work_dir, string revision, HgUpdateOptions options)
 		{
 			var args = new HgArgsBuilder();
@@ -1536,6 +1561,11 @@ namespace HgSccHelper
 			{
 				case HgUpdateOptions.None:
 					break;
+				case HgUpdateOptions.Check:
+					{
+						args.Append("-c");
+						break;
+					}
 				case HgUpdateOptions.Clean:
 					{
 						args.Append("-C");
@@ -1552,9 +1582,17 @@ namespace HgSccHelper
 
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
+				string err = proc.StandardError.ReadLine(); 
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)
+				{
+					if (options == HgUpdateOptions.Check)
+					{
+						if (!string.IsNullOrEmpty(err) && err.Contains("uncommitted local changes"))
+							throw new HgUncommitedChangesException();
+					}
 					return false;
+				}
 			}
 
 			return true;
@@ -1705,7 +1743,8 @@ namespace HgSccHelper
 	public enum HgUpdateOptions
 	{
 		None,
-		Clean
+		Clean,
+		Check
 	}
 
 	//------------------------------------------------------------------
