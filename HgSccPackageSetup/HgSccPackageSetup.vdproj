@@ -232,13 +232,13 @@
         "Entry"
         {
         "MsmKey" = "8:_D9ED27850D99B5219B1F587BF8EFB6C3"
-        "OwnerKey" = "8:_899C757C9F83E577E93C686CEAA19DF3"
+        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_D9ED27850D99B5219B1F587BF8EFB6C3"
-        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "OwnerKey" = "8:_899C757C9F83E577E93C686CEAA19DF3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -280,13 +280,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_899C757C9F83E577E93C686CEAA19DF3"
+        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "OwnerKey" = "8:_899C757C9F83E577E93C686CEAA19DF3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -747,7 +747,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:HgSccHelper, Version=1.6.1.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:HgSccHelper, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_899C757C9F83E577E93C686CEAA19DF3"
@@ -1039,14 +1039,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Mercurial Source Control Package"
-        "ProductCode" = "8:{0D9529B8-0561-40FE-AF03-93F929D47922}"
-        "PackageCode" = "8:{B2A0DFC3-BFB5-409E-92A8-80F3942E08EB}"
+        "ProductCode" = "8:{DFDB4E4A-0910-45B2-A4EB-56F67E7960E2}"
+        "PackageCode" = "8:{8C350462-3BF3-4541-A35D-0BE16156D272}"
         "UpgradeCode" = "8:{92680898-E5B3-43AF-9D81-3E07DA507EBC}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.6.1"
+        "ProductVersion" = "8:1.7"
         "Manufacturer" = "8:Sergey Antonov"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
