@@ -176,7 +176,9 @@ namespace HgSccHelper
 				desc += String.Format("\nBooks:\t{0}", string.Join(", ", book_names));
 			}
 
-			desc += String.Format("\nDesc:\t{0}", change_desc.OneLineDesc);
+			if (!String.IsNullOrEmpty(change_desc.OneLineDesc))
+				desc += String.Format("\nDesc:\t{0}", change_desc.OneLineDesc);
+
 			return desc;
 		}
 
