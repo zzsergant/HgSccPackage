@@ -302,8 +302,22 @@ namespace HgSccHelper
 			ParentsInfo = new_current;
 			if (ParentsInfo == null)
 			{
-				Close();
-				return;
+				// If the repository is empty (have no revisions),
+				// then we should use identify to get null revision
+
+				var hg = new Hg();
+				var identify = hg.Identify(WorkingDir);
+				if (identify == null || identify.Parents.Count == 0 || identify.Rev != -1)
+				{
+					Close();
+					return;
+				}
+
+				var null_parent = new RevLogChangeDesc { Rev = identify.Rev, SHA1 = identify.SHA1 };
+				var parents_list = new List<RevLogChangeDesc>();
+				parents_list.Add(null_parent);
+
+				ParentsInfo = new ParentsInfo {Parents = parents_list};
 			}
 
 			if (ParentsInfo.Parents.Count == 2)
@@ -318,8 +332,19 @@ namespace HgSccHelper
 				grid_view.Columns.RemoveAt(2);
 			}
 
-			RunningOperations |= AsyncOperations.ChangeDesc;
-			async_changedesc.Run(WorkingDir, ParentsInfo.Parents[0].SHA1);
+			if (ParentsInfo.Rev == -1)
+			{
+				// no need to get change desc for 'null' revision
+				var result = new AsyncRevLogChangeDescResult
+				             	{Changeset = ParentsInfo.Parents[0]};
+				
+				OnAsyncChangeDesc(result);
+			}
+			else
+			{
+				RunningOperations |= AsyncOperations.ChangeDesc;
+				async_changedesc.Run(WorkingDir, ParentsInfo.Parents[0].SHA1);
+			}
 		}
 
 		//-----------------------------------------------------------------------------
