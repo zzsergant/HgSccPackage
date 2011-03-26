@@ -1206,7 +1206,7 @@ namespace HgSccHelper
 		{
 			if (NamedBranchOp != null)
 			{
-				e.CanExecute = !NamedBranchOp.IsNewBranch;
+				e.CanExecute = true;
 			}
 			e.Handled = true;
 		}
