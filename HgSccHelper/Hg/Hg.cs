@@ -81,12 +81,15 @@ namespace HgSccHelper
 		public CommitMessageFile(string msg)
 		{
 			FileName = Path.GetTempFileName();
-			//Logger.WriteLine("Creating temp file: " + FileName);
 
-			// Write commit message in default encoding (based on OS ANSI code page)
-			// instead of UTF8.
-			// TODO: Make commit encoding configurable via options
-			using (var stream = new StreamWriter(File.OpenWrite(FileName), System.Text.Encoding.Default))
+			var encoding = Encoding.Default;
+			if (Hg.UseUtf8)
+			{
+				// Do not write byte order mark (BOM)
+				encoding = new UTF8Encoding(false);
+			}
+
+			using (var stream = new StreamWriter(File.OpenWrite(FileName), encoding))
 			{
 				stream.Write(msg);
 			}
@@ -111,6 +114,9 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public static string DefaultClient { get; private set; }
 
+		//-----------------------------------------------------------------------------
+		public static bool UseUtf8 { get; set; }
+
 		//------------------------------------------------------------------
 		static Hg()
 		{
@@ -119,6 +125,13 @@ namespace HgSccHelper
 			
 			if (!String.IsNullOrEmpty(found_client))
 				DefaultClient = found_client;
+
+			// TODO: Make UseUtf8 configurable via options
+/*
+ 			var hg_encoding = System.Environment.GetEnvironmentVariable("HGENCODING");
+			if (hg_encoding != null && hg_encoding.ToLower() == "utf8")
+				UseUtf8 = true;
+*/
 		}
 
 		//-----------------------------------------------------------------------------
@@ -128,6 +141,13 @@ namespace HgSccHelper
 
 		//-----------------------------------------------------------------------------
 		public ProcessStartInfo PrepareProcess(string work_dir, string arguments)
+		{
+			bool force_system_encoding = false;
+			return PrepareProcess(work_dir, arguments, force_system_encoding);
+		}
+
+		//-----------------------------------------------------------------------------
+		public ProcessStartInfo PrepareProcess(string work_dir, string arguments, bool force_system_encoding)
 		{
 			// TODO: Make the hg path configurable via options
 
@@ -146,6 +166,19 @@ namespace HgSccHelper
 			info.UseShellExecute = false;
 
 			info.EnvironmentVariables["HGPLAIN"] = "1";
+
+			// If UseUtf8 is set, then we must use utf8 encoding for stdin/stdout/stderror/arguments,
+			// but some commands (for example: hg diff) dump file content, which should not be encoded.
+			// So, such commands may use force_system_encoding to disable unneeded decoding
+
+			if (!force_system_encoding && Hg.UseUtf8)
+			{
+				info.EnvironmentVariables["HGENCODING"] = "utf8";
+				info.StandardOutputEncoding = Encoding.UTF8;
+				info.StandardErrorEncoding = Encoding.UTF8;
+
+				info.Arguments = Encoding.Default.GetString(Encoding.UTF8.GetBytes(info.Arguments));
+			}
 
 			return info;
 		}

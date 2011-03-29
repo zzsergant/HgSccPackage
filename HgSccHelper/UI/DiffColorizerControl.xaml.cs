@@ -225,6 +225,7 @@ namespace HgSccHelper.UI
 			p.OutputHandler = Output_Handler;
 			p.WorkingDir = work_dir;
 			p.Args = args;
+			p.ForceSystemEncoding = true;
 
 			worker.Run(p);
 		}

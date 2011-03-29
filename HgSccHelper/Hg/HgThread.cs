@@ -12,6 +12,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Text;
 using ProcessWrapper;
 
 namespace HgSccHelper
@@ -116,14 +117,16 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public ProcessStartInfo PrepareProcess(string work_dir, string arguments)
+		public ProcessStartInfo PrepareProcess(string work_dir, string arguments, bool force_system_encoding)
 		{
+			// We need to get path to hg
 			var hg = new Hg();
-			var hg_info = hg.PrepareProcess(work_dir, arguments);
+			var hg_info = hg.PrepareProcess(work_dir, arguments, force_system_encoding);
 
 			var info = new ProcessStartInfo();
 			info.FileName = hg_info.FileName;
-			info.Arguments = hg_info.Arguments;
+			
+			info.Arguments = arguments;
 
 			info.CreateNoWindow = true;
 			info.WorkingDirectory = work_dir;
@@ -136,6 +139,14 @@ namespace HgSccHelper
 
 			info.EnvironmentVariables["HGPLAIN"] = "1";
 
+			if (!force_system_encoding && Hg.UseUtf8)
+			{
+				info.EnvironmentVariables["HGENCODING"] = "utf8";
+				info.StandardOutputEncoding = Encoding.UTF8;
+				info.StandardErrorEncoding = Encoding.UTF8;
+				info.Arguments = Encoding.Default.GetString(Encoding.UTF8.GetBytes(info.Arguments));
+			}
+
 			return info;
 		}
 
@@ -145,7 +156,7 @@ namespace HgSccHelper
 			using (var job = new Job())
 			using (var process = new Process())
 			{
-				process.StartInfo = PrepareProcess(work_params.WorkingDir, work_params.Args);
+				process.StartInfo = PrepareProcess(work_params.WorkingDir, work_params.Args, work_params.ForceSystemEncoding);
 
 				// FIXME: Put the hg in unbuffered mode for
 				// redirected output and error streams
@@ -285,6 +296,11 @@ namespace HgSccHelper
 		/// Arguments for hg
 		/// </summary>
 		public string Args { get; set; }
+
+		/// <summary>
+		/// Force system encoding (for commands like: diff)
+		/// </summary>
+		public bool ForceSystemEncoding { get; set; }
 
 		/// <summary>
 		/// Handler for redirected output stream. Runs in thread pool context.
