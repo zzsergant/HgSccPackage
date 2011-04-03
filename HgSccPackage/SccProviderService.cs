@@ -1955,7 +1955,7 @@ namespace HgSccPackage
 		/// <summary>
 		/// Adds the specified projects and solution to source control
 		/// </summary>
-		public void AddProjectsToSourceControl(HashSet<IVsHierarchy> hashUncontrolledProjects, bool addSolutionToSourceControl)
+		public bool AddProjectsToSourceControl(HashSet<IVsHierarchy> hashUncontrolledProjects, bool addSolutionToSourceControl)
 		{
 			string solutionFile = _sccProvider.GetSolutionFileName();
 			var solution_dir = Path.GetDirectoryName(solutionFile);
@@ -1982,14 +1982,14 @@ namespace HgSccPackage
 
 							var result = wnd.ShowDialog();
 							if (result != true)
-								return;
+								return false;
 
 							err = storage.Init(wnd.ResultLocation, SccOpenProjectFlags.CreateIfNew);
 							if (err != SccErrors.Ok)
 							{
 								var msg = String.Format("Unable to create repository at folowing location:\n{0}", wnd.ResultLocation);
 								System.Windows.Forms.MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-								return;
+								return false;
 							}
 						}
 					}
@@ -2043,14 +2043,14 @@ namespace HgSccPackage
 
 							var result = wnd.ShowDialog();
 							if (result != true)
-								return;
+								return false;
 
 							err = storage.Init(wnd.ResultLocation, SccOpenProjectFlags.CreateIfNew);
 							if (err != SccErrors.Ok)
 							{
 								var msg = String.Format("Unable to create repository at folowing location:\n{0}", wnd.ResultLocation);
 								System.Windows.Forms.MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-								return;
+								return false;
 							}
 						}
 					}
@@ -2093,6 +2093,13 @@ namespace HgSccPackage
 
 			foreach (IVsHierarchy pHier in hashUncontrolledProjects)
 			{
+				if (IsWebSiteProject(pHier))
+				{
+					// Do not add files from web site projects
+					// User will have to add them manualy
+					continue;
+				}
+
 				var sccProject2 = (IVsSccProject2)pHier;
 				var files = _sccProvider.GetProjectFiles(sccProject2);
 
@@ -2123,6 +2130,42 @@ namespace HgSccPackage
 			}
 
 			_sccProvider.RefreshNodesGlyphs(nodes);
+			return true;
+		}
+
+		//-----------------------------------------------------------------------------
+		public void ManuallyAddFiles(IVsHierarchy pHier, IList<VSITEMSELECTION> list)
+		{
+			var storage = GetStorageForProject(pHier);
+			if (storage == null)
+				return;
+
+			var files = new List<string>();
+			var scc_project = pHier as IVsSccProject2;
+			if (scc_project == null)
+				return;
+
+			foreach (var item in list)
+			{
+				if (item.itemid == VSConstants.VSITEMID_ROOT)
+				{
+					// Do not recurse into selected project node,
+					// otherwise we can add unwanted files for web site projects
+					continue;
+				}
+
+				IList<string> sccFiles = _sccProvider.GetProjectFiles(scc_project, item.itemid);
+				foreach (string file in sccFiles)
+				{
+					files.Add(file);
+				}
+			}
+
+			if (files.Count != 0)
+			{
+				storage.AddFilesToStorage(files);
+				RefreshGlyphsForControlledProjects();
+			}
 		}
 
 		// The following methods are not very efficient

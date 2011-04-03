@@ -621,7 +621,7 @@ namespace HgSccPackage
 			IList<VSITEMSELECTION> sel = GetSelectedNodes();
 			bool is_solution_selected;
 			var selected_hiers = GetSelectedHierarchies(sel, out is_solution_selected);
-			foreach (var hier in selected_hiers)
+			foreach (var hier in selected_hiers.Keys)
 				return hier;
 
 			return null;
@@ -759,7 +759,7 @@ namespace HgSccPackage
 
 			IList<VSITEMSELECTION> sel = GetSelectedNodes();
 			bool isSolutionSelected = false;
-			var hash = GetSelectedHierarchies(sel, out isSolutionSelected);
+			var hier_map = GetSelectedHierarchies(sel, out isSolutionSelected);
 
 			// The command is enabled when the solution is selected and is uncontrolled yet
 			// or when an uncontrolled project is selected
@@ -772,10 +772,17 @@ namespace HgSccPackage
 			}
 			else
 			{
-				foreach (IVsHierarchy pHier in hash)
+				foreach (IVsHierarchy pHier in hier_map.Keys)
 				{
 					if (!sccService.IsProjectControlled(pHier) ||  sccService.IsProjectControlledOutside(pHier))
 					{
+						return OLECMDF.OLECMDF_ENABLED;
+					}
+
+					if (sccService.IsWebSiteProject(pHier))
+					{
+						// Always enable for web site projects
+						// TODO: Check selected items status
 						return OLECMDF.OLECMDF_ENABLED;
 					}
 				}
@@ -1027,7 +1034,7 @@ namespace HgSccPackage
 
 			IList<VSITEMSELECTION> sel = GetSelectedNodes();
 			bool isSolutionSelected = false;
-			var hash = GetSelectedHierarchies(sel, out isSolutionSelected);
+			var hier_map = GetSelectedHierarchies(sel, out isSolutionSelected);
 
 			var hashUncontrolledProjects = new HashSet<IVsHierarchy>();
 			if (isSolutionSelected)
@@ -1036,21 +1043,33 @@ namespace HgSccPackage
 				var solution = (IVsSolution)GetService(typeof(SVsSolution));
 				var scc_projects = solution.EnumHierarchies().Where(hier => hier is IVsSccProject2);
 
-				hash.Clear();
+				hier_map.Clear();
 				foreach (var hier in scc_projects)
-					hash.Add(hier);
+					hier_map.Add(hier, new List<VSITEMSELECTION>());
 			}
 
-			foreach (IVsHierarchy pHier in hash)
+			var manualy_added_files = new Dictionary<IVsHierarchy, IList<VSITEMSELECTION>>();
+
+			foreach (IVsHierarchy pHier in hier_map.Keys)
 			{
 				if (!sccService.IsProjectControlled(pHier) ||  sccService.IsProjectControlledOutside(pHier))
 				{
 					hashUncontrolledProjects.Add(pHier);
 				}
+
+				if (sccService.IsWebSiteProject(pHier))
+				{
+					manualy_added_files.Add(pHier, hier_map[pHier]);
+				}
 			}
 
-			sccService.AddProjectsToSourceControl(hashUncontrolledProjects,
-												  isSolutionSelected);
+			if (!sccService.AddProjectsToSourceControl(hashUncontrolledProjects, isSolutionSelected))
+				return;
+
+			foreach (var pair in manualy_added_files)
+			{
+				sccService.ManuallyAddFiles(pair.Key, pair.Value);
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -1141,13 +1160,13 @@ namespace HgSccPackage
 		/// Gets the list of selected controllable project hierarchies
 		/// </summary>
 		/// <returns>True if a solution was created.</returns>
-		private HashSet<IVsHierarchy> GetSelectedHierarchies(
+		private Dictionary<IVsHierarchy, IList<VSITEMSELECTION>> GetSelectedHierarchies(
 			IList<VSITEMSELECTION> sel, out bool solutionSelected)
 		{
 			// Initialize output arguments
 			solutionSelected = false;
 
-			var mapHierarchies = new HashSet<IVsHierarchy>();
+			var mapHierarchies = new Dictionary<IVsHierarchy, IList<VSITEMSELECTION>>();
 			foreach (VSITEMSELECTION vsItemSel in sel)
 			{
 				if (vsItemSel.pHier == null
@@ -1163,7 +1182,14 @@ namespace HgSccPackage
 				if (sccProject2 != null)
 				{
 					// FIXME: null
-					mapHierarchies.Add(vsItemSel.pHier);
+					IList<VSITEMSELECTION> hier_selection;
+					if (!mapHierarchies.TryGetValue(vsItemSel.pHier, out hier_selection))
+					{
+						hier_selection = new List<VSITEMSELECTION>();
+						mapHierarchies.Add(vsItemSel.pHier, hier_selection);
+					}
+
+					hier_selection.Add(vsItemSel);
 				}
 			}
 
