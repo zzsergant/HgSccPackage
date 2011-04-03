@@ -127,11 +127,13 @@ namespace HgSccHelper
 				DefaultClient = found_client;
 
 			// TODO: Make UseUtf8 configurable via options
-/*
  			var hg_encoding = System.Environment.GetEnvironmentVariable("HGENCODING");
-			if (hg_encoding != null && hg_encoding.ToLower() == "utf8")
-				UseUtf8 = true;
-*/
+			if (hg_encoding != null)
+			{
+				hg_encoding = hg_encoding.ToLower();
+				if (hg_encoding == "utf8" || hg_encoding == "utf-8")
+					UseUtf8 = true;
+			}
 		}
 
 		//-----------------------------------------------------------------------------
