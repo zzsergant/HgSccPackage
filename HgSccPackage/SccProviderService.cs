@@ -61,6 +61,7 @@ namespace HgSccPackage
 
 		private readonly List<SccProviderStorage> storage_list = new List<SccProviderStorage>();
 		private readonly Dictionary<IVsHierarchy, SccProviderStorage> project_to_storage_map = new Dictionary<IVsHierarchy,SccProviderStorage>();
+		private readonly HashSet<IVsHierarchy> website_projects = new HashSet<IVsHierarchy>();
 		private readonly HashSet<IVsHierarchy> projects_with_scc_bindings = new HashSet<IVsHierarchy>();
 
 		// The list of controlled and offline projects hierarchies
@@ -580,10 +581,12 @@ namespace HgSccPackage
 
 			Logger.WriteLine("RegisterSccProject: sln = '{0}'", _sccProvider.GetSolutionFileName());
 
-			string solutionFile = _sccProvider.GetSolutionFileName();
-
 			if (pscp2Project == null)
 			{
+				string solutionFile = _sccProvider.GetSolutionFileName();
+				if (string.IsNullOrEmpty(solutionFile) || !File.Exists(solutionFile))
+					return VSConstants.E_FAIL;
+
 //				Logger.WriteLine("RegisterSccProject: adding solution");
 				// Manual registration with source control of the solution, from OnAfterOpenSolution
 				Logger.WriteLine("Solution {0} is registering with source control - {1}, {2}, {3}, {4}", _sccProvider.GetSolutionFileName(), pszSccProjectName, pszSccAuxPath, pszSccLocalPath, pszProvider);
@@ -651,6 +654,9 @@ namespace HgSccPackage
 					if (storage.GetFileStatus(project_path) == SourceControlStatus.scsUncontrolled)
 						outside_projects.Add(project_path);
 
+					if (Directory.Exists(project_path))
+						website_projects.Add(hierProject);
+
 					project_to_storage_map[hierProject] = storage;
 					if (found_storage == null)
 					{
@@ -701,6 +707,7 @@ namespace HgSccPackage
 				}
 
 				projects_with_scc_bindings.Remove(hierProject);
+				website_projects.Remove(hierProject);
 
 				if (pscp2Project == null)
 					outside_projects.Remove(_sccProvider.GetSolutionFileName());
@@ -785,6 +792,7 @@ namespace HgSccPackage
 		{
 			// Reset all source-control-related data now that solution is closed
 			project_to_storage_map.Clear();
+			website_projects.Clear();
 			all_projects.Clear();
 			_offlineProjects.Clear();
 			_sccProvider.SolutionHasDirtyProps = false;
@@ -1473,6 +1481,9 @@ namespace HgSccPackage
 					continue;
 				}
 
+				if (IsWebSiteProject(pHier))
+					continue;
+
 				int iProjectFilesStart = rgFirstIndices[iProject];
 				int iNextProjecFilesStart = cFiles;
 				if (iProject < cProjects - 1)
@@ -1551,11 +1562,11 @@ namespace HgSccPackage
 				storage.AddFilesToStorage(files);
 			}
 
-			_sccProvider.RefreshNodesGlyphs(selected_items);
-
-			// Before checking in files, make sure all in-memory edits have been commited to disk 
-			// by forcing a save of the solution. Ideally, only the files to be checked in should be saved...
-			_sccProvider.SaveAllIfDirty();
+			if (selected_items.Count != 0)
+			{
+				_sccProvider.RefreshNodesGlyphs(selected_items);
+				_sccProvider.SaveAllIfDirty();
+			}
 
 			if (add_origin.Count != 0)
 			{
@@ -1898,6 +1909,12 @@ namespace HgSccPackage
 			return project_to_storage_map.ContainsKey(pHier);
 		}
 
+		//-----------------------------------------------------------------------------
+		public bool IsWebSiteProject(IVsHierarchy pHier)
+		{
+			return pHier != null && website_projects.Contains(pHier);
+		}
+
 		/// <summary>
 		/// Checks whether the specified project or solution (pHier==null) is offline
 		/// </summary>
@@ -2048,6 +2065,10 @@ namespace HgSccPackage
 				outside_projects.Remove(project_path);
 
 				project_to_storage_map[pHier] = storage;
+
+				if (Directory.Exists(project_dir))
+					website_projects.Add(pHier);
+
 				if (found_storage == null)
 				{
 					storage.UpdateEvent += UpdateEvent_Handler;
