@@ -247,7 +247,7 @@
       </Button>
     </Buttons>
     <Bitmaps>
-      <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, iconSynchronize, iconCompare, icon7, icon8, iconGrep, icon10, iconUpdate, icon12, icon13, icon14, iconTags, icon16, icon17, iconChangeSccBindings, iconAnnotate, icon20, iconClone, icon22, icon23, icon24, icon25, iconViewHistory, iconRefreshStatus"/>
+      <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, iconSynchronize, iconCompare, icon7, icon8, icon9, icon10, iconUpdate, icon12, icon13, icon14, iconTags, icon16, icon17, iconChangeSccBindings, iconAnnotate, iconGrep, iconClone, icon22, icon23, icon24, icon25, iconViewHistory, iconRefreshStatus"/>
     </Bitmaps>
   </Commands>
 
@@ -358,7 +358,7 @@
       <IDSymbol name="iconCompare" value="6"/>
       <IDSymbol name="icon7" value="7"/>
       <IDSymbol name="icon8" value="8"/>
-      <IDSymbol name="iconGrep" value="9"/>
+      <IDSymbol name="icon9" value="9"/>
       <IDSymbol name="icon10" value="10"/>
       <IDSymbol name="iconUpdate" value="11"/>
       <IDSymbol name="icon12" value="12"/>
@@ -369,7 +369,7 @@
       <IDSymbol name="icon17" value="17"/>
       <IDSymbol name="iconChangeSccBindings" value="18"/>
       <IDSymbol name="iconAnnotate" value="19"/>
-      <IDSymbol name="icon20" value="20"/>
+      <IDSymbol name="iconGrep" value="20"/>
       <IDSymbol name="iconClone" value="21"/>
       <IDSymbol name="icon22" value="22"/>
       <IDSymbol name="icon23" value="23"/>
