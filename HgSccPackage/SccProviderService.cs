@@ -2237,7 +2237,30 @@ namespace HgSccPackage
 				SourceControlStatus status = storage.GetFileStatus(file);
 				if (status != SourceControlStatus.scsUncontrolled)
 				{
-					storage.Compare(file);
+					// Since we can not call WPF windows directly from the package
+					// we need to reset a diff tool exception handler and
+					// show WPF window through WinForms proxy
+
+					var diff_handler = Util.DiffExceptionHandler;
+					try
+					{
+						Util.DiffExceptionHandler = null;
+						storage.Compare(file);
+					}
+					catch(HgDiffException)
+					{
+						using (var proxy = new WpfToWinFormsProxy<DiffOptionsWindow>())
+						{
+							var wnd = proxy.Wnd;
+							proxy.ShowDialog();
+						}
+					}
+					finally
+					{
+						// Restore diff exception handler
+						Util.DiffExceptionHandler = diff_handler;
+					}
+
 					return;
 				}
 			}
@@ -2675,7 +2698,12 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void Options()
 		{
-			MessageBox.Show("Options window will be here soon");
+			using (var proxy = new WpfToWinFormsProxy<OptionsWindow>())
+			{
+				var wnd = proxy.Wnd;
+				wnd.AddPage(new OptionsPageDiffTools());
+				proxy.ShowDialog();
+			}
 		}
 
 		//------------------------------------------------------------------

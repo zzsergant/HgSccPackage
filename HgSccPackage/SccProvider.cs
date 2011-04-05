@@ -107,6 +107,12 @@ namespace HgSccPackage
 			// Set the configuration name
 			Cfg.Program = "HgSccPackage";
 
+			Util.DiffExceptionHandler = () =>
+			{
+				var wnd = new DiffOptionsWindow();
+				wnd.ShowDialog();
+			};
+
 
 			// Update a cache for enabled mercurial extensions
 			HgExtensionsCache.Instance.GetExtensions();

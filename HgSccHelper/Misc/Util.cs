@@ -126,14 +126,7 @@ namespace HgSccHelper
 			}
 			else
 			{
-				System.Windows.Forms.MessageBox.Show("You should set the diff tool in Tools->Options->Source Control->Mercurial Options Page and retry the operation",
-				"Information", System.Windows.Forms.MessageBoxButtons.OK,
-				System.Windows.Forms.MessageBoxIcon.Information);
-
-				using (var f = new OptionsForm())
-				{
-					f.ShowDialog();
-				}
+				throw new HgDiffException();
 			}
 		}
 
