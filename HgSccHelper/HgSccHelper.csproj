@@ -85,7 +85,14 @@
     <Compile Include="Cfg\HgSettingsControl.Designer.cs">
       <DependentUpon>HgSettingsControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Cfg\IOptionsPage.cs" />
     <Compile Include="Cfg\KnownHgVersion.cs" />
+    <Compile Include="Cfg\OptionsPageDiffTools.xaml.cs">
+      <DependentUpon>OptionsPageDiffTools.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Cfg\OptionsWindow.xaml.cs">
+      <DependentUpon>OptionsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Hg\HgArgsBuilder.cs" />
     <Compile Include="Hg\HgBookmarks.cs" />
     <Compile Include="Hg\HgExtensions.cs" />
@@ -253,6 +260,14 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Cfg\DiffOptionsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Cfg\OptionsPageDiffTools.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Cfg\OptionsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
