@@ -182,6 +182,7 @@ namespace HgSccPackage
 				AddMenuCommand(mcs, CommandId.icmdRefreshStatus, Exec_icmdRefreshStatus);
 				AddMenuCommand(mcs, CommandId.icmdChangeSccBindings, Exec_icmdChangeSccBindings);
 				AddMenuCommand(mcs, CommandId.icmdPendingTask, Exec_icmdPendingTask);
+				AddMenuCommand(mcs, CommandId.icmdOptions, Exec_icmdOptions);
 			}
 
 			// Register the provider with the source control manager
@@ -587,6 +588,10 @@ namespace HgSccPackage
 					cmdf |= QueryStatus_icmdPendingTask();
 					break;
 
+				case CommandId.icmdOptions:
+					cmdf |= QueryStatus_icmdOptions();
+					break;
+
 				default:
 					return
 						(int)
@@ -798,6 +803,12 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		private OLECMDF QueryStatus_icmdOptions()
+		{
+			return OLECMDF.OLECMDF_ENABLED;
+		}
+
+		//------------------------------------------------------------------
 		private OLECMDF QueryStatus_icmdSynchronize()
 		{
 			if (!IsThereASolution())
@@ -1004,6 +1015,12 @@ namespace HgSccPackage
 				return;
 
 			sccService.RefreshStatus();
+		}
+
+		//------------------------------------------------------------------
+		private void Exec_icmdOptions(object sender, EventArgs e)
+		{
+			sccService.Options();
 		}
 
 		//------------------------------------------------------------------

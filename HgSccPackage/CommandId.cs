@@ -27,6 +27,7 @@ namespace HgSccPackage
 		public const int imnuToolWindowToolbarMenu		= 0x201;
 		public const int imnuHgSccSlnMenu				= 0x202;
 
+		public const int icmdOptions					= 0x09F;
 		public const int icmdAddToSourceControl			= 0x100;
 		public const int icmdClone						= 0x101;
 		public const int icmdSynchronize				= 0x102;

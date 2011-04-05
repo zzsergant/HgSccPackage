@@ -236,6 +236,17 @@
           <CommandName>Refresh Status (SccProvider)</CommandName>
         </Strings>
       </Button>
+      <Button guid="guidSccProviderCmdSet" id="icmdOptions" priority="0x0000" type="Button">
+        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+        <Icon guid="guidSccProviderImages" id="iconOptions"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <Strings>
+          <ButtonText>Options</ButtonText>
+          <MenuText>Options</MenuText>
+          <CommandName>Options (SccProvider)</CommandName>
+        </Strings>
+      </Button>
       <Button guid="guidSccProviderCmdSet" id="icmdPendingTask" priority="0x0000" type="Button">
         <Parent guid="guidSccProviderCmdSet" id="igrpFileSourceControl"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
@@ -247,7 +258,7 @@
       </Button>
     </Buttons>
     <Bitmaps>
-      <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, iconSynchronize, iconCompare, icon7, icon8, icon9, icon10, iconUpdate, icon12, icon13, icon14, iconTags, icon16, icon17, iconChangeSccBindings, iconAnnotate, iconGrep, iconClone, icon22, icon23, icon24, icon25, iconViewHistory, iconRefreshStatus"/>
+      <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, iconSynchronize, iconCompare, icon7, icon8, icon9, icon10, iconUpdate, icon12, icon13, icon14, iconTags, iconOptions, icon17, iconChangeSccBindings, iconAnnotate, iconGrep, iconClone, icon22, icon23, icon24, icon25, iconViewHistory, iconRefreshStatus"/>
     </Bitmaps>
   </Commands>
 
@@ -306,6 +317,9 @@
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdRefreshStatus" priority="0x0000">
       <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
+    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdOptions" priority="0x0000">
+      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+    </CommandPlacement>
     <CommandPlacement guid="guidSccProviderCmdSet" id="icmdClone" priority="0x0000">
       <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
     </CommandPlacement>
@@ -319,6 +333,7 @@
     <GuidSymbol name="guidSccProviderPkg" value="{A7F26CA1-2000-4729-896E-0BBE9E380635}" />
     <GuidSymbol name="guidSccProviderCmdSet" value="{A7F26CA1-3000-4729-896E-0BBE9E380635}" >
 
+      <IDSymbol name="icmdOptions" value="0x09F"/>
       <IDSymbol name="icmdAddToSourceControl" value="0x100"/>
       <IDSymbol name="icmdClone" value="0x101"/>
       <IDSymbol name="icmdSynchronize" value="0x102"/>
@@ -365,7 +380,7 @@
       <IDSymbol name="icon13" value="13"/>
       <IDSymbol name="icon14" value="14"/>
       <IDSymbol name="iconTags" value="15"/>
-      <IDSymbol name="icon16" value="16"/>
+      <IDSymbol name="iconOptions" value="16"/>
       <IDSymbol name="icon17" value="17"/>
       <IDSymbol name="iconChangeSccBindings" value="18"/>
       <IDSymbol name="iconAnnotate" value="19"/>

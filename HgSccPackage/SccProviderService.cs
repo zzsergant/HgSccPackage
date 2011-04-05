@@ -2673,6 +2673,12 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		public void Options()
+		{
+			MessageBox.Show("Options window will be here soon");
+		}
+
+		//------------------------------------------------------------------
 		public void Update(IVsHierarchy hier)
 		{
 			var storage = GetStorageForProject(hier);
