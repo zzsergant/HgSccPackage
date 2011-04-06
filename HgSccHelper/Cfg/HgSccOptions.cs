@@ -77,8 +77,8 @@ namespace HgSccHelper
 			if (!String.IsNullOrEmpty(Options.DiffArgs))
 				Cfg.Set("", "DiffArgs", Options.DiffArgs);
 
-			Cfg.Set("", "UseSccBindings", Options.UseSccBindings ? 1 : 0);
-			Cfg.Set("", "CheckProjectsForMercurialRepository", Options.CheckProjectsForMercurialRepository ? 1 : 0);
+			Cfg.Set("", "UseSccBindings", Options.UseSccBindings);
+			Cfg.Set("", "CheckProjectsForMercurialRepository", Options.CheckProjectsForMercurialRepository);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -88,8 +88,8 @@ namespace HgSccHelper
 
 			string diff_tool = options.DiffTool;
 			string diff_args = options.DiffArgs;
-			int use_scc_bindings = options.UseSccBindings ? 1 : 0;
-			int check_projects_for_repo = options.CheckProjectsForMercurialRepository ? 1 : 0;
+			bool use_scc_bindings = options.UseSccBindings;
+			bool check_projects_for_repo = options.CheckProjectsForMercurialRepository;
 
 			if (Cfg.Get("", "DiffTool", out diff_tool, diff_tool))
 				options.DiffTool = diff_tool;
@@ -98,10 +98,10 @@ namespace HgSccHelper
 				options.DiffArgs = diff_args;
 
 			if (Cfg.Get("", "UseSccBindings", out use_scc_bindings, use_scc_bindings))
-				options.UseSccBindings = use_scc_bindings != 0;
+				options.UseSccBindings = use_scc_bindings;
 
 			if (Cfg.Get("", "CheckProjectsForMercurialRepository", out check_projects_for_repo, check_projects_for_repo))
-				options.CheckProjectsForMercurialRepository = check_projects_for_repo != 0;
+				options.CheckProjectsForMercurialRepository = check_projects_for_repo;
 
 			return options;
 		}

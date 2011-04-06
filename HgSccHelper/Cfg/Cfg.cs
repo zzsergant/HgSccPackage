@@ -44,6 +44,21 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		static public bool Get(string path, string name, out bool value, bool default_value)
+		{
+			int v;
+			bool result = Get(path, name, out v, default_value ? 1 : 0);
+			value = (v != 0);
+			return result;
+		}
+
+		//------------------------------------------------------------------
+		static public bool Set(string path, string name, bool value)
+		{
+			return Set(path, name, value ? 1 : 0);
+		}
+
+		//------------------------------------------------------------------
 		static public bool Get(string path, string name, out int value, int default_value)
 		{
 			object v = GetObject(path, name);
