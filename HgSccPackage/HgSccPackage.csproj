@@ -55,6 +55,9 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Drawing" />
+    <Reference Include="UIAutomationProvider">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
     <Reference Include="WindowsBase">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -84,6 +87,9 @@
     <Compile Include="SccProviderStorage.cs" />
     <Compile Include="UI\ChangeSccBindingsWindow.xaml.cs">
       <DependentUpon>ChangeSccBindingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\OptionsPageMain.xaml.cs">
+      <DependentUpon>OptionsPageMain.xaml</DependentUpon>
     </Compile>
     <Compile Include="Vs\RdtFilesReloader.cs" />
     <Compile Include="Vs\FilesChangeMonitor.cs" />
@@ -128,6 +134,10 @@
     <Page Include="UI\ChangeSccBindingsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\OptionsPageMain.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <PropertyGroup>

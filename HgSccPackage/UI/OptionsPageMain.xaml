@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="HgSccPackage.UI.OptionsPageMain"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <StackPanel>
+            <CheckBox Content="Use Scc bindings in projects and solution"
+                      x:Name="checkUseSccBindings"
+                      Margin="5,5,5,0">                
+            </CheckBox>
+            <CheckBox Content="Check projects for mercurial repository if solution is not controlled"
+                      x:Name="checkProjectsForRepository"
+                      Margin="5,5,5,0">
+            </CheckBox>
+        </StackPanel>
+    </Grid>
+</UserControl>

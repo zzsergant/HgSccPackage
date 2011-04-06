@@ -2701,6 +2701,7 @@ namespace HgSccPackage
 			using (var proxy = new WpfToWinFormsProxy<OptionsWindow>())
 			{
 				var wnd = proxy.Wnd;
+				wnd.AddPage(new OptionsPageMain());
 				wnd.AddPage(new OptionsPageDiffTools());
 				proxy.ShowDialog();
 			}
