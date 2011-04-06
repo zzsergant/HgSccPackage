@@ -53,12 +53,6 @@ namespace HgSccPackage
 	// update the menus on startup; if the version doesn't change, you will need to run manually
 	// "devenv /setup /rootsuffix:Exp" to see VSCT changes reflected in IDE
 	[MsVsShell.ProvideMenuResource(1000, 1)]
-	// Register a sample options page visible as Tools/Options/SourceControl/SampleOptionsPage
-	// when the provider is active
-	[MsVsShell.ProvideOptionPageAttribute(typeof (SccProviderOptions),
-		"Source Control", "Mercurial Options Page", 106, 107, false)]
-	[ProvideToolsOptionsPageVisibility("Source Control", "Mercurial Options Page",
-		"A7F26CA1-0000-4729-896E-0BBE9E380635")]
 	// Register the source control provider's service (implementing IVsScciProvider interface)
 	[MsVsShell.ProvideService(typeof (SccProviderService),
 		ServiceName = "Mercurial Source Control Provider Service")]
