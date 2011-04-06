@@ -148,4 +148,18 @@ namespace HgSccHelper
 			get { return this; }
 		}
 	}
+
+	//=============================================================================
+	internal class DiffComboItem
+	{
+		//-----------------------------------------------------------------------------
+		public string DiffTool { get; set; }
+		public string DiffArgs { get; set; }
+
+		//-----------------------------------------------------------------------------
+		public override string ToString()
+		{
+			return DiffTool;
+		}
+	}
 }

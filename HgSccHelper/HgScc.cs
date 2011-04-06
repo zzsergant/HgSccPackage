@@ -444,37 +444,5 @@ namespace HgSccHelper
 
 			return SccErrors.Ok;
 		}
-
-		//-----------------------------------------------------------------------------
-		public SccErrors GetCommandOptions(IntPtr hwnd, SccCommand command, ref IntPtr context)
-		{
-			switch(command)
-			{
-				case SccCommand.Options:
-					{
-						if (context == IntPtr.Zero)
-						{
-							return SccErrors.I_AdvSupport;
-						}
-						else
-						{
-							using (var f = new OptionsForm())
-							{
-								var res = f.ShowDialog();
-								if (res == DialogResult.OK)
-								{
-//									MessageBox.Show(HgSccOptions.Options.DiffTool);
-									return SccErrors.Ok;
-								}
-
-								return SccErrors.I_OperationCanceled;
-							}
-						}
-					}
-			}
-
-			return SccErrors.Ok;
-		}
-
 	}
 }

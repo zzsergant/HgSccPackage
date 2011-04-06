@@ -79,12 +79,6 @@
     <Compile Include="Cfg\DiffOptionsWindow.xaml.cs">
       <DependentUpon>DiffOptionsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Cfg\HgSettingsControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Cfg\HgSettingsControl.Designer.cs">
-      <DependentUpon>HgSettingsControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Cfg\IOptionsPage.cs" />
     <Compile Include="Cfg\KnownHgVersion.cs" />
     <Compile Include="Cfg\OptionsPageDiffTools.xaml.cs">
@@ -149,22 +143,10 @@
     </Compile>
     <Compile Include="Hg\FileInfo.cs" />
     <Compile Include="Hg\Hg.cs" />
-    <Compile Include="Cfg\HgAboutControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Cfg\HgAboutControl.Designer.cs">
-      <DependentUpon>HgAboutControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Hg\HgAnnotate.cs" />
     <Compile Include="Hg\HgArchive.cs" />
     <Compile Include="Hg\HgBranch.cs" />
     <Compile Include="Hg\HgBundle.cs" />
-    <Compile Include="Cfg\HgDiffOptionsControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Cfg\HgDiffOptionsControl.Designer.cs">
-      <DependentUpon>HgDiffOptionsControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Hg\HgFileStatus.cs" />
     <Compile Include="Hg\HgMergeTools.cs" />
     <Compile Include="Hg\HgOptionsHelper.cs" />
@@ -181,12 +163,6 @@
     </Compile>
     <Compile Include="UI\MergeWindow.xaml.cs">
       <DependentUpon>MergeWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Cfg\OptionsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Cfg\OptionsForm.designer.cs">
-      <DependentUpon>OptionsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\PathEditWindow.xaml.cs">
       <DependentUpon>PathEditWindow.xaml</DependentUpon>
@@ -237,20 +213,6 @@
     <Compile Include="Misc\WpfToWinFormsProxy.cs">
       <SubType>Form</SubType>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Cfg\HgAboutControl.resx">
-      <DependentUpon>HgAboutControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Cfg\HgDiffOptionsControl.resx">
-      <DependentUpon>HgDiffOptionsControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Cfg\HgSettingsControl.resx">
-      <DependentUpon>HgSettingsControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Cfg\OptionsForm.resx">
-      <DependentUpon>OptionsForm.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Page Include="UI\RevLogControl.xaml">
