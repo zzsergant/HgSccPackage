@@ -88,6 +88,9 @@
     <Compile Include="UI\ChangeSccBindingsWindow.xaml.cs">
       <DependentUpon>ChangeSccBindingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\OptionsPageAbout.xaml.cs">
+      <DependentUpon>OptionsPageAbout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\OptionsPageMain.xaml.cs">
       <DependentUpon>OptionsPageMain.xaml</DependentUpon>
     </Compile>
@@ -134,6 +137,10 @@
     <Page Include="UI\ChangeSccBindingsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\OptionsPageAbout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\OptionsPageMain.xaml">
       <SubType>Designer</SubType>

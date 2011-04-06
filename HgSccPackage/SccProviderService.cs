@@ -2703,6 +2703,7 @@ namespace HgSccPackage
 				var wnd = proxy.Wnd;
 				wnd.AddPage(new OptionsPageMain());
 				wnd.AddPage(new OptionsPageDiffTools());
+				wnd.AddPage(new OptionsPageAbout());
 				proxy.ShowDialog();
 			}
 		}

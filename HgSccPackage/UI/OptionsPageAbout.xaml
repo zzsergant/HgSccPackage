@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="HgSccPackage.UI.OptionsPageAbout"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="0,5,5,5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Label Content="Author:"
+               HorizontalAlignment="Right"
+               Grid.Column="0" Grid.Row="0"></Label>
+        <TextBox Text="Sergey Antonov (zz|sergant)"
+                 IsReadOnly="True"
+                 Grid.Column="1" Grid.Row="0"></TextBox>
+        <Label Content="E-mail:"
+               HorizontalAlignment="Right"
+               Grid.Column="0" Grid.Row="1"></Label>
+        <TextBlock Grid.Column="1" Grid.Row="1"
+                   Margin="5,0"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center">
+            <Hyperlink NavigateUri="mailto:sergant_@mail.ru"
+                       RequestNavigate="Hyperlink_RequestNavigate">
+                sergant_@mail.ru
+            </Hyperlink>
+        </TextBlock>
+        <Label Content="Homepage:"
+               HorizontalAlignment="Right"
+               Grid.Column="0" Grid.Row="2"></Label>
+        <TextBlock Grid.Column="1" Grid.Row="2"
+                   Margin="5,0"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center">
+            <Hyperlink NavigateUri="http://www.newsupaplex.pp.ru/hgscc_news_eng.html"
+                       RequestNavigate="Hyperlink_RequestNavigate">
+                http://www.newsupaplex.pp.ru/hgscc_news_eng.html
+            </Hyperlink>
+        </TextBlock>
+        <Label Content="Version:"
+               HorizontalAlignment="Right"
+               Grid.Column="0" Grid.Row="3"></Label>
+        <TextBox Text="HgSccPackage v1.7.1"
+                 IsReadOnly="True"
+                 Grid.Column="1" Grid.Row="3"></TextBox>
+    </Grid>
+</UserControl>
