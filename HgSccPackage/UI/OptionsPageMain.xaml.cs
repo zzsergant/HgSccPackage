@@ -25,8 +25,8 @@ namespace HgSccPackage.UI
 		{
 			InitializeComponent();
 
-			checkUseSccBindings.IsChecked = HgSccOptions.Options.UseSccBindings;
-			checkProjectsForRepository.IsChecked = HgSccOptions.Options.CheckProjectsForMercurialRepository;
+			checkUseSccBindings.IsChecked = HgSccOptions.Instance.UseSccBindings;
+			checkProjectsForRepository.IsChecked = HgSccOptions.Instance.CheckProjectsForMercurialRepository;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -38,12 +38,12 @@ namespace HgSccPackage.UI
 		//-----------------------------------------------------------------------------
 		public bool Save()
 		{
-			if (	HgSccOptions.Options.UseSccBindings != checkUseSccBindings.IsChecked
-				||	HgSccOptions.Options.CheckProjectsForMercurialRepository != checkProjectsForRepository.IsChecked
+			if (	HgSccOptions.Instance.UseSccBindings != checkUseSccBindings.IsChecked
+				||	HgSccOptions.Instance.CheckProjectsForMercurialRepository != checkProjectsForRepository.IsChecked
 				)
 			{
-				HgSccOptions.Options.UseSccBindings = (checkUseSccBindings.IsChecked == true);
-				HgSccOptions.Options.CheckProjectsForMercurialRepository = (checkProjectsForRepository.IsChecked == true);
+				HgSccOptions.Instance.UseSccBindings = (checkUseSccBindings.IsChecked == true);
+				HgSccOptions.Instance.CheckProjectsForMercurialRepository = (checkProjectsForRepository.IsChecked == true);
 				HgSccOptions.Save();
 			}
 

@@ -236,7 +236,7 @@ namespace HgSccPackage
 											pqsspSave)
 		{
 /*
-			if (!HgSccOptions.Options.UseSccBindings)
+			if (!HgSccOptions.Instance.UseSccBindings)
 			{
 				pqsspSave[0] = VSQUERYSAVESLNPROPS.QSP_HasNoProps;
 				return VSConstants.S_OK;

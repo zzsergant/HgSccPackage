@@ -10,82 +10,61 @@
 // 
 //=========================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using System.Windows.Forms;
-using Microsoft.Win32;
-
 //=============================================================================
-namespace HgSccHelper
+using HgSccHelper;
+
+namespace HgSccPackage
 {
-	public class HgPkgOptions
+	//=============================================================================
+	public sealed class HgSccOptions
 	{
 		public bool UseSccBindings { get; set; }
 		public bool CheckProjectsForMercurialRepository { get; set; }
 
-		public HgPkgOptions()
-		{
-			UseSccBindings = true;
-			CheckProjectsForMercurialRepository = true;
-		}
-	}
-
-	public sealed class HgSccOptions
-	{
 		static readonly HgSccOptions instance = new HgSccOptions();
-
-		HgPkgOptions options;
 
 		// Explicit static constructor to tell C# compiler
 		// not to mark type as beforefieldinit
 		static HgSccOptions()
 		{
-// 			instance.options = new HgPkgOptions();
 		}
 
 		//-----------------------------------------------------------------------------
 		private HgSccOptions()
 		{
-			var new_options = Load();
-			if (new_options != null)
-				options = new_options;
-			else
-				options = new HgPkgOptions();
+			UseSccBindings = true;
+			CheckProjectsForMercurialRepository = true;
+
+			Load();
 		}
 
 		//-----------------------------------------------------------------------------
-		public static HgPkgOptions Options
+		public static HgSccOptions Instance
 		{
 			get
 			{
-				return instance.options;
+				return instance;
 			}
 		}
 		
 		//-----------------------------------------------------------------------------
 		public static void Save()
 		{
-			Cfg.Set("", "UseSccBindings", Options.UseSccBindings);
-			Cfg.Set("", "CheckProjectsForMercurialRepository", Options.CheckProjectsForMercurialRepository);
+			Cfg.Set("", "UseSccBindings", Instance.UseSccBindings);
+			Cfg.Set("", "CheckProjectsForMercurialRepository", Instance.CheckProjectsForMercurialRepository);
 		}
 
 		//-----------------------------------------------------------------------------
-		private static HgPkgOptions Load()
+		private void Load()
 		{
-			var options = new HgPkgOptions();
+			bool use_scc_bindings;
+			bool check_projects_for_repo;
 
-			bool use_scc_bindings = options.UseSccBindings;
-			bool check_projects_for_repo = options.CheckProjectsForMercurialRepository;
+			if (Cfg.Get("", "UseSccBindings", out use_scc_bindings, UseSccBindings))
+				UseSccBindings = use_scc_bindings;
 
-			if (Cfg.Get("", "UseSccBindings", out use_scc_bindings, use_scc_bindings))
-				options.UseSccBindings = use_scc_bindings;
-
-			if (Cfg.Get("", "CheckProjectsForMercurialRepository", out check_projects_for_repo, check_projects_for_repo))
-				options.CheckProjectsForMercurialRepository = check_projects_for_repo;
-
-			return options;
+			if (Cfg.Get("", "CheckProjectsForMercurialRepository", out check_projects_for_repo, CheckProjectsForMercurialRepository))
+				CheckProjectsForMercurialRepository = check_projects_for_repo;
 		}
 	}
 }

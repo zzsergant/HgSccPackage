@@ -63,6 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cfg\HgSccOptions.cs" />
     <Compile Include="DataStreamFromComStream.cs" />
     <Compile Include="HgVersionChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

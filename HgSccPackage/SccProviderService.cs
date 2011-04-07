@@ -858,7 +858,7 @@ namespace HgSccPackage
 		{
 			Logger.WriteLine("Manualy register projects");
 
-			bool register_scc_projects = HgSccOptions.Options.CheckProjectsForMercurialRepository;
+			bool register_scc_projects = HgSccOptions.Instance.CheckProjectsForMercurialRepository;
 			if (!register_scc_projects)
 			{
 				var solution_dir = Path.GetDirectoryName(_sccProvider.GetSolutionFileName());
@@ -901,7 +901,7 @@ namespace HgSccPackage
 			// the controlled projects should be opened and registered with source control
 			bool register_scc_projects = _loadingControlledSolutionLocation.Length > 0;
 
-			if (HgSccOptions.Options.CheckProjectsForMercurialRepository)
+			if (HgSccOptions.Instance.CheckProjectsForMercurialRepository)
 			{
 				// If this option is set, then we will check
 				// for mercurial repository at the project location
@@ -2004,7 +2004,7 @@ namespace HgSccPackage
 					storage_list.Add(storage);
 				}
 
-				if (HgSccOptions.Options.UseSccBindings)
+				if (HgSccOptions.Instance.UseSccBindings)
 				{
 					_sccProvider.SolutionHaveSccBindings = true;
 					_sccProvider.SolutionHasDirtyProps = true;
@@ -2056,7 +2056,7 @@ namespace HgSccPackage
 					}
 				}
 
-				if (HgSccOptions.Options.UseSccBindings)
+				if (HgSccOptions.Instance.UseSccBindings)
 				{
 					sccProject2.SetSccLocation(SccProjectName, SccAuxPath, SccLocalPath, _sccProvider.ProviderName);
 					projects_with_scc_bindings.Add(pHier);
