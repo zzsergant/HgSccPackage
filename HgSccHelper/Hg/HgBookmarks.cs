@@ -103,7 +103,12 @@ namespace HgSccHelper
 				throw new ArgumentException("Command line length is too long");
 
 			var hg = new Hg();
-			using (Process proc = Process.Start(hg.PrepareProcess(work_dir, args.ToString())))
+
+			var info = hg.PrepareProcess(work_dir, args.ToString());
+			info.RedirectStandardOutput = false;
+			info.RedirectStandardError = false;
+
+			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)
@@ -126,7 +131,12 @@ namespace HgSccHelper
 				throw new ArgumentException("Command line length is too long");
 
 			var hg = new Hg();
-			using (Process proc = Process.Start(hg.PrepareProcess(work_dir, args.ToString())))
+
+			var info = hg.PrepareProcess(work_dir, args.ToString());
+			info.RedirectStandardOutput = false;
+			info.RedirectStandardError = false;
+
+			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)
@@ -150,7 +160,12 @@ namespace HgSccHelper
 				throw new ArgumentException("Command line length is too long");
 
 			var hg = new Hg();
-			using (Process proc = Process.Start(hg.PrepareProcess(work_dir, args.ToString())))
+
+			var info = hg.PrepareProcess(work_dir, args.ToString());
+			info.RedirectStandardOutput = false;
+			info.RedirectStandardError = false;
+
+			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)

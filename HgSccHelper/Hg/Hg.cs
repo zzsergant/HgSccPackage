@@ -376,7 +376,12 @@ namespace HgSccHelper
 		public bool CreateRepository(string work_dir)
 		{
 			string args = "init";
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args)))
+
+			var info = PrepareProcess(work_dir, args);
+			info.RedirectStandardOutput = false;
+			info.RedirectStandardError = false;
+
+			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)
@@ -540,7 +545,11 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool RunHg(string work_dir, string args)
 		{
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args)))
+			var info = PrepareProcess(work_dir, args);
+			info.RedirectStandardOutput = false;
+			info.RedirectStandardError = false;
+
+			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode < 0)
@@ -1023,7 +1032,11 @@ namespace HgSccHelper
 
 			args.AppendPath(file);
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			var info = PrepareProcess(work_dir, args.ToString());
+			info.RedirectStandardOutput = false;
+			info.RedirectStandardError = false;
+
+			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode < 0)
@@ -1221,7 +1234,11 @@ namespace HgSccHelper
 			args.AppendPath(file);
 			args.AppendPath(new_file);
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			var info = PrepareProcess(work_dir, args.ToString());
+			info.RedirectStandardOutput = false;
+			info.RedirectStandardError = false;
+
+			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)
@@ -1659,7 +1676,11 @@ namespace HgSccHelper
 			if (args.Length > MaxCmdLength)
 				throw new ArgumentException("Command line length is too long");
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			var info = PrepareProcess(work_dir, args.ToString());
+			info.RedirectStandardOutput = false;
+			info.RedirectStandardError = false;
+
+			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)
@@ -1687,7 +1708,11 @@ namespace HgSccHelper
 			if (args.Length > MaxCmdLength)
 				throw new ArgumentException("Command line length is too long");
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			var info = PrepareProcess(work_dir, args.ToString());
+			info.RedirectStandardOutput = false;
+			info.RedirectStandardError = false;
+
+			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)
@@ -1712,7 +1737,11 @@ namespace HgSccHelper
 			if (args.Length > MaxCmdLength)
 				throw new ArgumentException("Command line length is too long");
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			var info = PrepareProcess(work_dir, args.ToString());
+			info.RedirectStandardOutput = false;
+			info.RedirectStandardError = false;
+
+			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)
@@ -1734,7 +1763,11 @@ namespace HgSccHelper
 			if (revision.Length > 0)
 				args.AppendRevision(revision);
 
-			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
+			var info = PrepareProcess(work_dir, args.ToString());
+			info.RedirectStandardOutput = false;
+			info.RedirectStandardError = false;
+
+			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
 				if (proc.ExitCode != 0)
