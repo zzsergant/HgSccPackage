@@ -2066,7 +2066,7 @@ namespace HgSccPackage
 
 				project_to_storage_map[pHier] = storage;
 
-				if (Directory.Exists(project_dir))
+				if (Directory.Exists(project_path))
 					website_projects.Add(pHier);
 
 				if (found_storage == null)
