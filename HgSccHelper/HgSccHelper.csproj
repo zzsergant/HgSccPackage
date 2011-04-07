@@ -79,6 +79,7 @@
     <Compile Include="Cfg\DiffOptionsWindow.xaml.cs">
       <DependentUpon>DiffOptionsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Cfg\DiffTools.cs" />
     <Compile Include="Cfg\IOptionsPage.cs" />
     <Compile Include="Cfg\KnownHgVersion.cs" />
     <Compile Include="Cfg\OptionsPageDiffTools.xaml.cs">

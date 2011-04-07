@@ -42,8 +42,8 @@ namespace HgSccHelper
 				});
 			}
 
-			if (HgSccOptions.Options.DiffTool.Length != 0)
-				AddDiffTool(HgSccOptions.Options.DiffTool, HgSccOptions.Options.DiffArgs);
+			if (DiffTools.Instance.DiffTool.Length != 0)
+				AddDiffTool(DiffTools.Instance.DiffTool, DiffTools.Instance.DiffArgs);
 
 			if (comboTool.SelectedIndex == -1 && comboTool.Items.Count > 0)
 				comboTool.SelectedIndex = 0;
@@ -135,9 +135,14 @@ namespace HgSccHelper
 				}
 			}
 
-			HgSccOptions.Options.DiffTool = diff_tool;
-			HgSccOptions.Options.DiffArgs = DiffToolArgs;
-			HgSccOptions.Save();
+			if (	DiffTools.Instance.DiffTool != DiffToolPath
+				||  DiffTools.Instance.DiffArgs != DiffToolArgs
+				)
+			{
+				DiffTools.Instance.DiffTool = DiffToolPath;
+				DiffTools.Instance.DiffArgs = DiffToolArgs;
+				DiffTools.Save();
+			}
 
 			return true;
 		}

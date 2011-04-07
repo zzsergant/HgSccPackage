@@ -1086,7 +1086,7 @@ namespace HgSccHelper
 			if (del2 == DeleteFlag.Delete)
 				async_deleter.Add(file2);
 
-			if (!File.Exists(HgSccOptions.Options.DiffTool))
+			if (!File.Exists(DiffTools.Instance.DiffTool))
 			{
 				async_deleter.Delete();
 				throw new HgDiffException("DiffTool is not exist");
@@ -1094,7 +1094,7 @@ namespace HgSccHelper
 
 			// FIXME: Change $plabel and $clabel to filename+revision
 
-			var args = HgSccOptions.Options.DiffArgs;
+			var args = DiffTools.Instance.DiffArgs;
 			if (String.IsNullOrEmpty(args))
 				args = "$parent $child";
 
@@ -1115,7 +1115,7 @@ namespace HgSccHelper
 
 			try
 			{
-				var info = new ProcessStartInfo(HgSccOptions.Options.DiffTool);
+				var info = new ProcessStartInfo(DiffTools.Instance.DiffTool);
 				info.Arguments = args;
 				info.UseShellExecute = false;
 
