@@ -123,14 +123,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7EA726C05D30E20D9D9C136252B37660"
-        "OwnerKey" = "8:_BFE080FDC69D3FCD78D392A12D09E04E"
+        "MsmKey" = "8:_6C84A3E8C59B78EAAA5571609AB4E9F0"
+        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_7EC5C9543B2F33A7CB8A091ED253B10A"
-        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "MsmKey" = "8:_7EA726C05D30E20D9D9C136252B37660"
+        "OwnerKey" = "8:_BFE080FDC69D3FCD78D392A12D09E04E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -161,6 +161,24 @@
         {
         "MsmKey" = "8:_8C92940588223C166643C46EBCA2AAC5"
         "OwnerKey" = "8:_F8DBD3034993A4882E8B84149BBCBCA1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_990FC5235142FF3BC8CC6834353F733D"
+        "OwnerKey" = "8:_382DB60868204EE7BBA79CBC4F0B30F8"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_990FC5235142FF3BC8CC6834353F733D"
+        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_990FC5235142FF3BC8CC6834353F733D"
+        "OwnerKey" = "8:_6C84A3E8C59B78EAAA5571609AB4E9F0"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -243,24 +261,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E0237D7B00A44B2FF4168081DACF6E26"
-        "OwnerKey" = "8:_382DB60868204EE7BBA79CBC4F0B30F8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E0237D7B00A44B2FF4168081DACF6E26"
-        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E0237D7B00A44B2FF4168081DACF6E26"
-        "OwnerKey" = "8:_7EC5C9543B2F33A7CB8A091ED253B10A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F8DBD3034993A4882E8B84149BBCBCA1"
         "OwnerKey" = "8:_694823B6A8960402B17AA90445B25FD0"
         "MsmSig" = "8:_UNDEFINED"
@@ -286,13 +286,19 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
+        "OwnerKey" = "8:_6C84A3E8C59B78EAAA5571609AB4E9F0"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_7EC5C9543B2F33A7CB8A091ED253B10A"
+        "OwnerKey" = "8:_990FC5235142FF3BC8CC6834353F733D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_6C1A00E62E604AFF8511CADED89F5CFE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -365,12 +371,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_382DB60868204EE7BBA79CBC4F0B30F8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E0237D7B00A44B2FF4168081DACF6E26"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -687,10 +687,21 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7EA726C05D30E20D9D9C136252B37660"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_6C84A3E8C59B78EAAA5571609AB4E9F0"
             {
-            "SourcePath" = "8:dte80a.olb"
-            "TargetName" = "8:dte80a.olb"
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:HgSccHelper, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_6C84A3E8C59B78EAAA5571609AB4E9F0"
+                    {
+                    "Name" = "8:HgSccHelper.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:HgSccHelper.dll"
+            "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_E36607D0CDDE4F54A2B3FFC3AB6D725B"
             "Condition" = "8:"
@@ -707,21 +718,10 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_7EC5C9543B2F33A7CB8A091ED253B10A"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7EA726C05D30E20D9D9C136252B37660"
             {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:HgSccHelper, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_7EC5C9543B2F33A7CB8A091ED253B10A"
-                    {
-                    "Name" = "8:HgSccHelper.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:HgSccHelper.dll"
-            "TargetName" = "8:"
+            "SourcePath" = "8:dte80a.olb"
+            "TargetName" = "8:dte80a.olb"
             "Tag" = "8:"
             "Folder" = "8:_E36607D0CDDE4F54A2B3FFC3AB6D725B"
             "Condition" = "8:"
@@ -766,6 +766,37 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_990FC5235142FF3BC8CC6834353F733D"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:ICSharpCode.AvalonEdit, Version=4.0.0.5950, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_990FC5235142FF3BC8CC6834353F733D"
+                    {
+                    "Name" = "8:ICSharpCode.AvalonEdit.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:ICSharpCode.AvalonEdit.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_E36607D0CDDE4F54A2B3FFC3AB6D725B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -924,37 +955,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E0237D7B00A44B2FF4168081DACF6E26"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ICSharpCode.AvalonEdit, Version=4.0.0.5950, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_E0237D7B00A44B2FF4168081DACF6E26"
-                    {
-                    "Name" = "8:ICSharpCode.AvalonEdit.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:ICSharpCode.AvalonEdit.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_E36607D0CDDE4F54A2B3FFC3AB6D725B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_F8DBD3034993A4882E8B84149BBCBCA1"
             {
             "AssemblyRegister" = "3:1"
@@ -1066,7 +1066,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Mercurial Source Control Package"
         "ProductCode" = "8:{45FAF08C-A145-4EC8-B9B7-8F95890C0067}"
-        "PackageCode" = "8:{9BBBAD14-0423-412F-9342-51AD0DFFA416}"
+        "PackageCode" = "8:{5285A1AD-82B3-4299-809C-5809849DFCCD}"
         "UpgradeCode" = "8:{92680898-E5B3-43AF-9D81-3E07DA507EBC}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
