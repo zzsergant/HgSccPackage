@@ -22,9 +22,14 @@ namespace HgSccHelper
 	{
 		private ObservableCollection<IOptionsPage> pages;
 
+		public const string CfgPath = @"GUI\OptionsWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//-----------------------------------------------------------------------------
 		public OptionsWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
 			pages = new ObservableCollection<IOptionsPage>();
 
