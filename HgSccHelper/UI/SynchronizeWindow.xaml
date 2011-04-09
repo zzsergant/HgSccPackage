@@ -37,6 +37,7 @@
         </CommandBinding>
     </Window.CommandBindings>
     <Window.Resources>
+        <BitmapImage x:Key="BitBucketLogoImage" UriSource="../Resources/BitBucketLogo.png"></BitmapImage>
         <ItemsPanelTemplate x:Key="PathItemsPanelTemplate">
             <StackPanel Orientation="Vertical"
                         Grid.IsSharedSizeScope="True"
@@ -125,14 +126,31 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Content="Repository path:" Margin="5" />
-                <ComboBox Grid.Column="1" Name="comboBoxPaths" MinWidth="500"
-                          ItemTemplate="{StaticResource PathComboItemTemplate}"
-                          HorizontalContentAlignment="Stretch"
-                          TextSearch.TextPath="Path"
-                          Margin="5,5,0,5"
-                          ItemsPanel="{StaticResource PathItemsPanelTemplate}"
-                          ItemsSource="{Binding}" IsEditable="True">
-                </ComboBox>
+                <Grid Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <ComboBox Grid.Column="0"
+                              x:Name="comboBoxPaths"
+                              MinWidth="500"
+                              ItemTemplate="{StaticResource PathComboItemTemplate}"
+                              HorizontalContentAlignment="Stretch"
+                              TextSearch.TextPath="Path"
+                              Margin="5,5,0,5"
+                              ItemsPanel="{StaticResource PathItemsPanelTemplate}"
+                              ItemsSource="{Binding}" IsEditable="True">
+                    </ComboBox>
+                    <Button Grid.Column="1"
+                            Width="23"
+                            Height="23"
+                            ToolTip="BitBucket"
+                            Margin="5"
+                            Click="BitBucket_Click">
+                        <Image Source="{StaticResource BitBucketLogoImage}"></Image>
+                    </Button>
+                </Grid>
+
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Stretch">
                     <Button Content="Browse..." MinWidth="75" MinHeight="23"
                         Margin="5"
