@@ -54,9 +54,8 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
 
-		string HgrcPath { get; set; }
 		ObservableCollection<PathItem> paths;
-		IniFile hgrc;
+		HgPaths hg_paths;
 
 		public const string CfgPath = @"GUI\SynchronizeSettingsWindow";
 		CfgWindowPosition wnd_cfg;
@@ -68,7 +67,6 @@ namespace HgSccHelper
 
 			InitializeComponent();
 
-			hgrc = new IniFile();
 			paths = new ObservableCollection<PathItem>();
 
 			listPaths.ItemsSource = paths;
@@ -96,7 +94,7 @@ namespace HgSccHelper
 		void OnPathAdded(PathItem path)
 		{
 			paths.Add(path);
-			hgrc[paths_section][path.Alias] = path.Path;
+			hg_paths.Set(path.Alias, path.Path);
 
 			SelectAndFocusItem(listPaths.Items.Count - 1);
 		}
@@ -107,7 +105,7 @@ namespace HgSccHelper
 			int idx = GetPathIndex(path.Alias);
 			paths[idx] = path;
 
-			hgrc[paths_section][path.Alias] = path.Path;
+			hg_paths.Set(path.Alias, path.Path);
 
 			SelectAndFocusItem(idx);
 		}
@@ -117,7 +115,7 @@ namespace HgSccHelper
 		{
 			var idx = GetPathIndex(path.Alias);
 			paths.RemoveAt(idx);
-			hgrc[paths_section].DeleteKey(path.Alias);
+			hg_paths.Delete(path.Alias);
 
 			SelectAndFocusItem(idx);
 		}
@@ -146,8 +144,8 @@ namespace HgSccHelper
 				SelectAndFocusItem(idx);
 			}
 
-			hgrc[paths_section].DeleteKey(old_alias);
-			hgrc[paths_section][path.Alias] = path.Path;
+			hg_paths.Delete(old_alias);
+			hg_paths.Set(path.Alias, path.Path);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -245,14 +243,10 @@ namespace HgSccHelper
 		{
 			Title = string.Format("Synchronize Settings: '{0}'", WorkingDir);
 
-			HgrcPath = System.IO.Path.Combine(WorkingDir, @".hg\hgrc");
-			hgrc = IniFile.FromFile(HgrcPath);
+			hg_paths = new HgPaths(WorkingDir);
 
-			var section = hgrc[paths_section];
-			foreach (var key in section.GetKeys())
-			{
-				paths.Add(new PathItem { Alias = key, Path = section[key] });
-			}
+			foreach (var alias in hg_paths.GetAliases())
+				paths.Add(new PathItem { Alias = alias, Path = hg_paths.GetPath(alias) });
 
 			listPaths.Focus();
 			SelectAndFocusItem(0);
@@ -329,7 +323,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void btnSave_Click(object sender, RoutedEventArgs e)
 		{
-			hgrc.Save(HgrcPath);
+			hg_paths.Save();
 			DialogResult = true;
 			Close();
 		}

@@ -111,6 +111,7 @@
     <Compile Include="Hg\HgBookmarks.cs" />
     <Compile Include="Hg\HgExtensions.cs" />
     <Compile Include="Hg\HgListFile.cs" />
+    <Compile Include="Hg\HgPaths.cs" />
     <Compile Include="Hg\HgRebase.cs" />
     <Compile Include="Hg\HgVersion.cs" />
     <Compile Include="Misc\AsyncDeleter.cs" />
