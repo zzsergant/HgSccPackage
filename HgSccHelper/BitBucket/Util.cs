@@ -12,7 +12,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Web;
 using RestSharp;
 
@@ -79,6 +78,49 @@ namespace HgSccHelper.BitBucket
 				return repositories;
 
 			return response.Data.Repositories;
+		}
+
+		//-----------------------------------------------------------------------------
+		public static BitBucketRepo NewRepository(string username, string password, string repo_name, bool is_private)
+		{
+			if (String.IsNullOrEmpty(username))
+				return null;
+
+			var client = new RestClient(Api);
+			client.Authenticator = new HttpBasicAuthenticator(username, password);
+
+			var request = new RestRequest("repositories/", Method.POST);
+			request.AddParameter("name", repo_name);
+			if (is_private)
+				request.AddParameter("is_private", is_private);
+
+			var response = client.Execute<BitBucketRepo>(request);
+
+			if (response.ResponseStatus != ResponseStatus.Completed)
+				return null;
+
+			if (response.Data == null)
+				return null;
+
+			return response.Data;
+		}
+
+		//-----------------------------------------------------------------------------
+		public static bool DeleteRepository(string username, string password, string repo_slug)
+		{
+			if (String.IsNullOrEmpty(username))
+				return false;
+
+			var client = new RestClient(Api);
+			client.Authenticator = new HttpBasicAuthenticator(username, password);
+
+			var request = new RestRequest("repositories/{user}/{repo_slug}", Method.DELETE);
+			request.AddParameter("user", username, ParameterType.UrlSegment);
+			request.AddParameter("repo_slug", repo_slug, ParameterType.UrlSegment);
+
+			var response = client.Execute(request);
+
+			return response.ResponseStatus == ResponseStatus.Completed;
 		}
 	}
 

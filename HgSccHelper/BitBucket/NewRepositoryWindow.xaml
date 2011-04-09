@@ -1,0 +1,42 @@
+﻿<Window x:Class="HgSccHelper.BitBucket.NewRepositoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="NewRepositoryWindow"
+        Height="Auto"
+        Loaded="Window_Loaded"        
+        WindowStartupLocation="CenterScreen"
+        SizeToContent="Height"
+        Width="400">
+    <Grid>
+        <StackPanel>
+            <Label Content="Enter repository name:"
+                   Margin="5,5,5,0">                
+            </Label>
+            <TextBox x:Name="textRepositoryName"
+                     Text="{Binding Path=RepositoryName}"
+                     Margin="5">                
+            </TextBox>
+            <CheckBox x:Name="checkIsPrivate"
+                      Margin="5"
+                      IsChecked="{Binding Path=IsPrivate}"
+                      Content="Private repository">                
+            </CheckBox>
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <Button Content="OK"
+                        IsDefault="True"
+                        Click="Button_Click"
+                        MinWidth="75"
+                        MinHeight="25"
+                        Margin="5,5,0,5">
+                </Button>
+                <Button Content="Cancel"
+                        IsCancel="True"
+                        MinWidth="75"
+                        MinHeight="25"
+                        Margin="5">                    
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
