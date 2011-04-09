@@ -37,5 +37,14 @@ namespace HgSccHelper.BitBucket
 			get { return textPassword.Password; }
 			set { textPassword.Password = value; }
 		}
+
+		//-----------------------------------------------------------------------------
+		public void Init()
+		{
+			textUsername.SelectAll();
+			textPassword.SelectAll();
+
+			textUsername.Focus();
+		}
 	}
 }

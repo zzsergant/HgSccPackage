@@ -20,6 +20,7 @@
                     Orientation="Horizontal"
                     HorizontalAlignment="Right">
             <Button Content="OK"
+                    IsDefault="True"
                     Click="OK_Click"
                     MinWidth="75"
                     MinHeight="25"

@@ -58,6 +58,8 @@ namespace HgSccHelper.BitBucket
 				credentials.Username = Credentials.Instance.Username;
 				credentials.Password = Credentials.Instance.Password;
 			}
+
+			credentials.Init();
 		}
 	}
 }
