@@ -91,6 +91,9 @@
     <Compile Include="BitBucket\NewRepositoryWindow.xaml.cs">
       <DependentUpon>NewRepositoryWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BitBucket\OptionsPageBitBucket.xaml.cs">
+      <DependentUpon>OptionsPageBitBucket.xaml</DependentUpon>
+    </Compile>
     <Compile Include="BitBucket\RepositoriesWindow.xaml.cs">
       <DependentUpon>RepositoriesWindow.xaml</DependentUpon>
     </Compile>
@@ -255,6 +258,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="BitBucket\NewRepositoryWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BitBucket\OptionsPageBitBucket.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
