@@ -13,6 +13,7 @@
     WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <BitmapImage x:Key="BitBucketLogoImage" UriSource="../Resources/BitBucketLogo.png"></BitmapImage>
+        <BitmapImage x:Key="KilnLogoImage" UriSource="../Resources/KilnLogo.png"></BitmapImage>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static ui:Commands.CloneCommand}"
@@ -63,8 +64,8 @@
                         Height="23"
                         ToolTip="Kiln"
                         Margin="0,5,5,5"
-                        Content="K"
-                        Click="Kiln_Click">                    
+                        Click="Kiln_Click">
+                    <Image Source="{StaticResource KilnLogoImage}"></Image>
                 </Button>
                 <Button Grid.Column="2"
                         Width="23"

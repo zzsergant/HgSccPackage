@@ -66,5 +66,12 @@ namespace HgSccHelper.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        internal static System.Drawing.Bitmap KilnLogo {
+            get {
+                object obj = ResourceManager.GetObject("KilnLogo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }
