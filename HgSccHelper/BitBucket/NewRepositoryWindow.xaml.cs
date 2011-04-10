@@ -44,9 +44,14 @@ namespace HgSccHelper.BitBucket
 			set { this.SetValue(IsPrivateProperty, value); }
 		}
 
+		public const string CfgPath = @"BitBucket\GUI\NewRepositoryWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//-----------------------------------------------------------------------------
 		public NewRepositoryWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
+
 			InitializeComponent();
 
 			this.DataContext = this;

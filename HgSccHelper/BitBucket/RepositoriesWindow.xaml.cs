@@ -35,9 +35,14 @@ namespace HgSccHelper.BitBucket
 		public static RoutedUICommand DeleteRepositoryCommand = new RoutedUICommand("Delete remote repository",
 			"DeleteRepository", typeof(RepositoriesWindow));
 
+		public const string CfgPath = @"BitBucket\GUI\RepositoriesWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//-----------------------------------------------------------------------------
 		public RepositoriesWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
 
 			repositories = new ObservableCollection<BitBucketRepo>();

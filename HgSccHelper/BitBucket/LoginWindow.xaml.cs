@@ -22,9 +22,14 @@ namespace HgSccHelper.BitBucket
 	/// </summary>
 	public partial class LoginWindow : Window
 	{
+		public const string CfgPath = @"BitBucket\GUI\LoginWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//-----------------------------------------------------------------------------
 		public LoginWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
+
 			InitializeComponent();
 		}
 

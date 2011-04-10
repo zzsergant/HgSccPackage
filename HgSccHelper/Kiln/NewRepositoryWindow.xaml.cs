@@ -39,9 +39,14 @@ namespace HgSccHelper.Kiln
 		//-----------------------------------------------------------------------------
 		public NewRepoGroupItem RepositoryGroup { get; set; }
 
+		public const string CfgPath = @"Kiln\GUI\NewRepositoryWindow";
+		CfgWindowPosition wnd_cfg;
+
 		//-----------------------------------------------------------------------------
 		public NewRepositoryWindow()
 		{
+			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
+
 			InitializeComponent();
 			this.DataContext = this;
 		}
