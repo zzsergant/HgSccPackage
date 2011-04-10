@@ -117,6 +117,17 @@
     <Compile Include="Hg\HgPaths.cs" />
     <Compile Include="Hg\HgRebase.cs" />
     <Compile Include="Hg\HgVersion.cs" />
+    <Compile Include="Kiln\Credentials.cs" />
+    <Compile Include="Kiln\CredentialsControl.xaml.cs">
+      <DependentUpon>CredentialsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Kiln\LoginWindow.xaml.cs">
+      <DependentUpon>LoginWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Kiln\RepositoriesWindow.xaml.cs">
+      <DependentUpon>RepositoriesWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Kiln\Session.cs" />
     <Compile Include="Misc\AsyncDeleter.cs" />
     <Compile Include="Misc\GridViewColumnSorter.cs" />
     <Compile Include="ProcessWrapper\AsyncStreamReader.cs" />
@@ -280,6 +291,18 @@
     <Page Include="Cfg\OptionsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Kiln\CredentialsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Kiln\LoginWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Kiln\RepositoriesWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\AnnotateControl.xaml">
       <SubType>Designer</SubType>
