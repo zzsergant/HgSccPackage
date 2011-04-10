@@ -670,6 +670,33 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		private void Kiln_Click(object sender, RoutedEventArgs e)
+		{
+			if (	!Kiln.Session.Instance.IsValid
+				&&	!Kiln.Session.Instance.Login(Kiln.Credentials.Instance.Site,
+						Kiln.Credentials.Instance.Username, Kiln.Credentials.Instance.Password)
+				)
+			{
+				var wnd = new Kiln.LoginWindow();
+				var res = wnd.ShowDialog();
+
+				if (res != true)
+					return;
+			}
+
+			var repos_wnd = new Kiln.RepositoriesWindow();
+			if (repos_wnd.ShowDialog() != true)
+				return;
+
+			var builder = new UriBuilder(repos_wnd.RepositoryUri);
+			comboBoxPaths.Text = Util.RemoveUrlPassword(builder.Uri.AbsoluteUri);
+			textUsername.Text = HttpUtility.UrlDecode(builder.UserName);
+			passwordBox.Password = HttpUtility.UrlDecode(builder.Password);
+
+			return;
+		}
+
+		//-----------------------------------------------------------------------------
 		private void BitBucket_Click(object sender, RoutedEventArgs e)
 		{
 			if (!BitBucket.Util.CheckUser(BitBucket.Credentials.Instance.Username,
