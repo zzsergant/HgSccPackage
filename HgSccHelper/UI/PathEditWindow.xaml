@@ -6,6 +6,9 @@
         Loaded="Window_Loaded"
         WindowStartupLocation="CenterScreen"
         Title="PathEditWindow" Height="Auto" Width="700">
+    <Window.Resources>
+        <BitmapImage x:Key="BitBucketLogoImage" UriSource="../Resources/BitBucketLogo.png"></BitmapImage>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -26,15 +29,30 @@
             <Label Grid.Column="0" Grid.Row="0"
                    Content="Alias:" HorizontalAlignment="Right" />
             <TextBox Grid.Column="1" Grid.ColumnSpan="2" Name="textAlias" HorizontalAlignment="Stretch"
-                     Text="{Binding ElementName=root, Path=Alias}"
+                     Text="{Binding ElementName=root, Path=Alias, UpdateSourceTrigger=PropertyChanged}"
                      Margin="5">
             </TextBox>
             <Label Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right"
                    Content="Url:" />
-            <TextBox Grid.Column="1" Grid.Row="1" Name="textUrl" HorizontalAlignment="Stretch"
-                     Text="{Binding ElementName=root, Path=Url}"
-                     Margin="5" TextChanged="textUrl_TextChanged">
-            </TextBox>
+            <Grid Grid.Column="1" Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0"
+                         Name="textUrl" HorizontalAlignment="Stretch"
+                         Text="{Binding ElementName=root, Path=Url}"
+                         Margin="5" TextChanged="textUrl_TextChanged">
+                </TextBox>
+                <Button Grid.Column="1"
+                            Width="23"
+                            Height="23"
+                            ToolTip="BitBucket"
+                            Margin="0,5,5,5"
+                            Click="BitBucket_Click">
+                    <Image Source="{StaticResource BitBucketLogoImage}"></Image>
+                </Button>
+            </Grid>
             <Button Grid.Column="2" Grid.Row="1" Margin="0,5,5,5"
                     Name="btnBrowse"
                     Click="btnBrowse_Click"

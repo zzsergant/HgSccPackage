@@ -231,6 +231,32 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		private void BitBucket_Click(object sender, RoutedEventArgs e)
+		{
+			if (!BitBucket.Util.CheckUser(BitBucket.Credentials.Instance.Username,
+										  BitBucket.Credentials.Instance.Password))
+			{
+				var wnd = new BitBucket.LoginWindow();
+				var res = wnd.ShowDialog();
+
+				if (res != true)
+					return;
+			}
+
+			var repos_wnd = new BitBucket.RepositoriesWindow();
+			if (repos_wnd.ShowDialog() != true)
+				return;
+
+			var builder = new UriBuilder(repos_wnd.RepositoryUri);
+
+			Url = Util.RemoveUrlPassword(builder.Uri.AbsoluteUri);
+			textUsername.Text = HttpUtility.UrlDecode(builder.UserName);
+			passwordBox.Password = HttpUtility.UrlDecode(builder.Password);
+			return;
+		}
+
+
+		//-----------------------------------------------------------------------------
 		private void btnBrowse_Click(object sender, RoutedEventArgs e)
 		{
 			using (var dlg = new System.Windows.Forms.FolderBrowserDialog())
