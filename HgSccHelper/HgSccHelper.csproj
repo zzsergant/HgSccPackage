@@ -124,6 +124,9 @@
     <Compile Include="Kiln\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Kiln\NewRepositoryWindow.xaml.cs">
+      <DependentUpon>NewRepositoryWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Kiln\RepositoriesWindow.xaml.cs">
       <DependentUpon>RepositoriesWindow.xaml</DependentUpon>
     </Compile>
@@ -297,6 +300,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Kiln\LoginWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Kiln\NewRepositoryWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

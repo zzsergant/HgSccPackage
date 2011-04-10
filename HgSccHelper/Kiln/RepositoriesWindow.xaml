@@ -4,6 +4,7 @@
         xmlns:Kiln="clr-namespace:HgSccHelper.Kiln" Title="RepositoriesWindow"
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded"
+        Closing="Window_Closing"
         Height="400"
         Width="700">
     <Window.CommandBindings>
@@ -67,6 +68,11 @@
                      x:Name="textSelectedRepo"
                      IsReadOnly="True">
             </TextBox>
+            <Label Content="Please wait, creating a repository..."
+                   x:Name="labelNewRepository"
+                   Visibility="Collapsed"
+                   Margin="5,5,5,0">                
+            </Label>
         </StackPanel>
         <StackPanel Grid.Row="3"
                     Orientation="Horizontal"

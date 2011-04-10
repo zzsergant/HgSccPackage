@@ -105,6 +105,64 @@ namespace HgSccHelper.Kiln
 		}
 
 		//-----------------------------------------------------------------------------
+		public KilnRepo CreateRepository(int repo_group, string name)
+		{
+			if (!IsValid)
+				return null;
+
+			var client = new RestClient(Api);
+
+			var request = new RestRequest("Repo/Create", Method.POST);
+			request.AddParameter("ixRepoGroup", repo_group);
+			request.AddParameter("sName", name);
+			request.AddParameter("token", Token);
+
+			var response = client.Execute<KilnRepo>(request);
+			if (response.ResponseStatus != ResponseStatus.Completed)
+				return null;
+
+			return response.Data;
+		}
+
+		//-----------------------------------------------------------------------------
+		public KilnRepo GetRepository(int ix_repo)
+		{
+			if (!IsValid)
+				return null;
+
+			var client = new RestClient(Api);
+
+			var request = new RestRequest("Repo/{ixRepo}");
+			request.AddParameter("ixRepo", ix_repo, ParameterType.UrlSegment);
+			request.AddParameter("token", Token);
+
+			var response = client.Execute<KilnRepo>(request);
+			if (response.ResponseStatus != ResponseStatus.Completed)
+				return null;
+
+			return response.Data;
+		}
+
+		//-----------------------------------------------------------------------------
+		public bool DeleteRepository(int ix_repo)
+		{
+			if (!IsValid)
+				return false;
+
+			var client = new RestClient(Api);
+
+			var request = new RestRequest("Repo/{ixRepo}/Delete", Method.POST);
+			request.AddParameter("ixRepo", ix_repo, ParameterType.UrlSegment);
+			request.AddParameter("token", Token);
+
+			var response = client.Execute(request);
+			if (response.ResponseStatus != ResponseStatus.Completed)
+				return false;
+
+			return true;
+		}
+
+		//-----------------------------------------------------------------------------
 		public bool IsValid
 		{
 			get { return !String.IsNullOrEmpty(Token); }
