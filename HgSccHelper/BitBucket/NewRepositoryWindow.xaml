@@ -13,7 +13,7 @@
                    Margin="5,5,5,0">                
             </Label>
             <TextBox x:Name="textRepositoryName"
-                     Text="{Binding Path=RepositoryName}"
+                     Text="{Binding Path=RepositoryName, UpdateSourceTrigger=PropertyChanged}"
                      Margin="5">                
             </TextBox>
             <CheckBox x:Name="checkIsPrivate"
