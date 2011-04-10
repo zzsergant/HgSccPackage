@@ -1980,7 +1980,9 @@ namespace HgSccPackage
 							var wnd = dlg.Wnd;
 							wnd.SolutionLocation = solution_dir;
 
-							var result = wnd.ShowDialog();
+							dlg.ShowDialog();
+
+							var result = wnd.DialogResult;
 							if (result != true)
 								return false;
 
@@ -2041,7 +2043,9 @@ namespace HgSccPackage
 							wnd.ProjectLocation = project_dir;
 							wnd.SelectProjectOnLoad = true;
 
-							var result = wnd.ShowDialog();
+							dlg.ShowDialog();
+
+							var result = wnd.DialogResult;
 							if (result != true)
 								return false;
 
