@@ -26,9 +26,21 @@
         <ListView Grid.Row="0"
                   x:Name="listRepos"
                   ItemsSource="{Binding}"
-                  DisplayMemberPath="sName"
+                  DisplayMemberPath="Repo.sName"
                   SelectionChanged="listRepos_SelectionChanged"
-                  Margin="5">            
+                  Margin="5">
+            <ListView.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <TextBlock Text="{Binding Name}" Margin="5" FontWeight="Bold" />
+                                <Rectangle Stroke="#bbb" VerticalAlignment="Bottom" Height="2" />
+                            </Grid>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListView.GroupStyle>
         </ListView>
         <StackPanel Grid.Row="1"
                     Orientation="Horizontal"

@@ -164,6 +164,18 @@ namespace HgSccHelper.Kiln
 		public string sSlug { get; set; } // a unique repository group URL slug
 		public string sName { get; set; } // the repository group name
 		public List<KilnRepo> repos { get; set; } // a list of repository records belonging to the repository group
+
+		//-----------------------------------------------------------------------------
+		public string DisplayName
+		{
+			get
+			{
+				if (!string.IsNullOrEmpty(sName))
+					return sName;
+
+				return "Group";
+			}
+		}
 	}
 
 	//-----------------------------------------------------------------------------

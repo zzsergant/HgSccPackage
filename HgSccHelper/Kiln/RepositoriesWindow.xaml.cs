@@ -16,6 +16,7 @@ using System.Collections.ObjectModel;
 using System.Web;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace HgSccHelper.Kiln
@@ -25,7 +26,7 @@ namespace HgSccHelper.Kiln
 	/// </summary>
 	public partial class RepositoriesWindow : Window
 	{
-		private ObservableCollection<KilnRepo> repositories;
+		private ObservableCollection<KilnRepoListItem> repositories;
 		
 		private Dictionary<int, KilnProject> projects_map;
 		private Dictionary<int, KilnGroup> groups_map;
@@ -45,7 +46,7 @@ namespace HgSccHelper.Kiln
 		{
 			InitializeComponent();
 
-			repositories = new ObservableCollection<KilnRepo>();
+			repositories = new ObservableCollection<KilnRepoListItem>();
 			this.DataContext = repositories;
 
 			projects_map = new Dictionary<int, KilnProject>();
@@ -64,22 +65,35 @@ namespace HgSccHelper.Kiln
 				projects_map.Add(project.ixProject, project);
 				foreach (var group in project.repoGroups)
 				{
+					var group_text = String.Format("{0}/{1}", project.sName, group.DisplayName);
+
 					groups_map.Add(group.ixRepoGroup, group);
 					foreach (var repo in group.repos)
 					{
-						repositories.Add(repo);
+						var item = new KilnRepoListItem
+						           	{
+						           		Repo = repo,
+						           		GroupText = group_text,
+						           	};
+
+						repositories.Add(item);
 					}
 				}
 			}
+
+			var myView = (CollectionView)CollectionViewSource.GetDefaultView(listRepos.ItemsSource);
+			var groupDescription = new PropertyGroupDescription("GroupText");
+			myView.GroupDescriptions.Add(groupDescription);
 		}
 
 		//-----------------------------------------------------------------------------
 		private void Select_Click(object sender, RoutedEventArgs e)
 		{
-			var repo = (KilnRepo)listRepos.SelectedItem;
-			if (repo == null)
+			var item = (KilnRepoListItem)listRepos.SelectedItem;
+			if (item == null)
 				return;
 
+			var repo = item.Repo;
 			var uri_builder = new UriBuilder(Session.Instance.MakeRepoUrl(repo.sProjectSlug, repo.sGroupSlug, repo.sSlug));
 
 			// FIXME: Use session credentials
@@ -93,11 +107,15 @@ namespace HgSccHelper.Kiln
 		//-----------------------------------------------------------------------------
 		private void listRepos_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			var repo = (KilnRepo)listRepos.SelectedItem;
-			if (repo == null)
+			var item = (KilnRepoListItem)listRepos.SelectedItem;
+			if (item == null)
+			{
 				textSelectedRepo.Text = "";
+			}
 			else
 			{
+				var repo = item.Repo;
+
 				textSelectedRepo.Text = Session.Instance.MakeRepoUrl(repo.sProjectSlug, repo.sGroupSlug, repo.sSlug);
 				btnSelect.IsEnabled = true;
 			}
@@ -126,5 +144,16 @@ namespace HgSccHelper.Kiln
 		private void DeleteRepository_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 		}
+	}
+
+	//-----------------------------------------------------------------------------
+	internal class KilnRepoListItem
+	{
+		public string GroupText { get; set; }
+/*
+		public string ProjectName { get; set; }
+		public string GroupName { get; set; }
+*/
+		public KilnRepo Repo { get; set; }
 	}
 }
