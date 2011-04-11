@@ -107,6 +107,9 @@
     <Compile Include="Cfg\OptionsPageDiffTools.xaml.cs">
       <DependentUpon>OptionsPageDiffTools.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Cfg\OptionsPageHttpProxy.xaml.cs">
+      <DependentUpon>OptionsPageHttpProxy.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Cfg\OptionsWindow.xaml.cs">
       <DependentUpon>OptionsWindow.xaml</DependentUpon>
     </Compile>
@@ -291,6 +294,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Cfg\OptionsPageDiffTools.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Cfg\OptionsPageHttpProxy.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

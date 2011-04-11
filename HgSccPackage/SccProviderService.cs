@@ -2710,6 +2710,7 @@ namespace HgSccPackage
 				wnd.AddPage(new OptionsPageDiffTools());
 				wnd.AddPage(new HgSccHelper.BitBucket.OptionsPageBitBucket());
 				wnd.AddPage(new HgSccHelper.Kiln.OptionsPageKiln());
+				wnd.AddPage(new OptionsPageHttpProxy());
 				wnd.AddPage(new OptionsPageAbout());
 				proxy.ShowDialog();
 			}

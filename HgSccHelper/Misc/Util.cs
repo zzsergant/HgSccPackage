@@ -77,6 +77,20 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
+		/// <summary>
+		/// Returns path to MercurialIni in user profile folder
+		/// </summary>
+		/// <returns>null on error</returns>
+		public static string GetUserMercurialIni()
+		{
+			string user_profile_folder = Environment.GetEnvironmentVariable("USERPROFILE");
+			if (String.IsNullOrEmpty(user_profile_folder))
+				return null;
+
+			return Path.Combine(user_profile_folder, "Mercurial.ini");
+		}
+
+		//------------------------------------------------------------------
 		public static bool FindOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary,
 			TKey key, ref TValue v)
 		{
