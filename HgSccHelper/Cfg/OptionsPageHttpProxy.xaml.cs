@@ -47,7 +47,13 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private void UserControl_Loaded(object sender, RoutedEventArgs e)
+		public string PageName
+		{
+			get { return "HttpProxy"; }
+		}
+
+		//-----------------------------------------------------------------------------
+		public void Init()
 		{
 			var mercurial_ini = Util.GetUserMercurialIni();
 			if (mercurial_ini == null)
@@ -72,12 +78,6 @@ namespace HgSccHelper
 			textBypass.SelectAll();
 			textUsername.SelectAll();
 			textPassword.SelectAll();
-		}
-
-		//-----------------------------------------------------------------------------
-		public string PageName
-		{
-			get { return "HttpProxy"; }
 		}
 
 		//-----------------------------------------------------------------------------

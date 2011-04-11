@@ -23,30 +23,12 @@ namespace HgSccHelper
 	/// </summary>
 	public partial class OptionsPageDiffTools : UserControl, IOptionsPage
 	{
-		private readonly List<MergeToolInfo> merge_tools;
+		private List<MergeToolInfo> merge_tools;
 
 		//-----------------------------------------------------------------------------
 		public OptionsPageDiffTools()
 		{
 			InitializeComponent();
-
-			comboTool.Items.Clear();
-
-			merge_tools = new HgMergeTools().GetMergeTools();
-			foreach (var tool in merge_tools)
-			{
-				comboTool.Items.Add(new DiffComboItem
-				{
-					DiffTool = tool.ExecutableFilename,
-					DiffArgs = tool.DiffArgs
-				});
-			}
-
-			if (DiffTools.Instance.DiffTool.Length != 0)
-				AddDiffTool(DiffTools.Instance.DiffTool, DiffTools.Instance.DiffArgs);
-
-			if (comboTool.SelectedIndex == -1 && comboTool.Items.Count > 0)
-				comboTool.SelectedIndex = 0;
 		}
 
 		//------------------------------------------------------------------
@@ -122,6 +104,27 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public void Init()
+		{
+			comboTool.Items.Clear();
+
+			merge_tools = new HgMergeTools().GetMergeTools();
+			foreach (var tool in merge_tools)
+			{
+				comboTool.Items.Add(new DiffComboItem
+				{
+					DiffTool = tool.ExecutableFilename,
+					DiffArgs = tool.DiffArgs
+				});
+			}
+
+			if (DiffTools.Instance.DiffTool.Length != 0)
+				AddDiffTool(DiffTools.Instance.DiffTool, DiffTools.Instance.DiffArgs);
+
+			if (comboTool.SelectedIndex == -1 && comboTool.Items.Count > 0)
+				comboTool.SelectedIndex = 0;
+		}
+
 		public bool Save()
 		{
 			var diff_tool = DiffToolPath;

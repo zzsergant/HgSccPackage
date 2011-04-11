@@ -17,6 +17,7 @@ namespace HgSccHelper
 	public interface IOptionsPage
 	{
 		string PageName { get; }
+		void Init();
 		bool Save();
 		ContentControl PageContent { get; }
 	}

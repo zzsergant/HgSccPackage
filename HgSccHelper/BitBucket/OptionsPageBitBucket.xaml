@@ -1,8 +1,7 @@
 ﻿<UserControl x:Class="HgSccHelper.BitBucket.OptionsPageBitBucket"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:BitBucket="clr-namespace:HgSccHelper.BitBucket"
-             Loaded="UserControl_Loaded">
+             xmlns:BitBucket="clr-namespace:HgSccHelper.BitBucket">
     <Grid>
         <StackPanel>
             <BitBucket:CredentialsControl x:Name="credentials"></BitBucket:CredentialsControl>

@@ -59,6 +59,12 @@ namespace HgSccHelper.BitBucket
 		}
 
 		//-----------------------------------------------------------------------------
+		public void Init()
+		{
+			credentials.Username = Credentials.Instance.Username;
+			credentials.Password = Credentials.Instance.Password;
+		}
+
 		public bool Save()
 		{
 			if (	Credentials.Instance.Username != credentials.Username
@@ -77,13 +83,6 @@ namespace HgSccHelper.BitBucket
 		public ContentControl PageContent
 		{
 			get { return this; }
-		}
-
-		//-----------------------------------------------------------------------------
-		private void UserControl_Loaded(object sender, RoutedEventArgs e)
-		{
-			credentials.Username = Credentials.Instance.Username;
-			credentials.Password = Credentials.Instance.Password;
 		}
 	}
 }

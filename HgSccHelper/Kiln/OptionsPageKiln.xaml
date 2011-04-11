@@ -1,8 +1,7 @@
 ﻿<UserControl x:Class="HgSccHelper.Kiln.OptionsPageKiln"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:Kiln="clr-namespace:HgSccHelper.Kiln"
-             Loaded="UserControl_Loaded">
+             xmlns:Kiln="clr-namespace:HgSccHelper.Kiln">
     <Grid>
         <StackPanel>
             <Kiln:CredentialsControl x:Name="credentials"></Kiln:CredentialsControl>

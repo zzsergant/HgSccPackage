@@ -1,11 +1,12 @@
 ﻿<Window x:Class="HgSccHelper.OptionsWindow"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    x:Name="root"
-    Title="OptionsWindow"
-    WindowStartupLocation="CenterScreen"
-    Height="400"    
-    Width="700">
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Name="root"
+        Title="OptionsWindow"
+        WindowStartupLocation="CenterScreen"
+        Loaded="root_Loaded"
+        Height="400"    
+        Width="700">
     <Window.Resources>
         <DataTemplate x:Key="DetailTemplate">
             <Border Margin="5" BorderThickness="1" BorderBrush="Black">

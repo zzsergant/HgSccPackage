@@ -56,5 +56,14 @@ namespace HgSccHelper
 
 			DialogResult = true;
 		}
+
+		//-----------------------------------------------------------------------------
+		private void root_Loaded(object sender, RoutedEventArgs e)
+		{
+			foreach (var page in pages)
+			{
+				page.Init();
+			}
+		}
 	}
 }

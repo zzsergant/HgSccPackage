@@ -10,6 +10,7 @@
 // 
 //=========================================================================
 
+using System;
 using System.Windows.Controls;
 using HgSccHelper;
 
@@ -24,15 +25,19 @@ namespace HgSccPackage.UI
 		public OptionsPageMain()
 		{
 			InitializeComponent();
-
-			checkUseSccBindings.IsChecked = HgSccOptions.Instance.UseSccBindings;
-			checkProjectsForRepository.IsChecked = HgSccOptions.Instance.CheckProjectsForMercurialRepository;
 		}
 
 		//-----------------------------------------------------------------------------
 		public string PageName
 		{
 			get { return "Main"; }
+		}
+
+		//-----------------------------------------------------------------------------
+		public void Init()
+		{
+			checkUseSccBindings.IsChecked = HgSccOptions.Instance.UseSccBindings;
+			checkProjectsForRepository.IsChecked = HgSccOptions.Instance.CheckProjectsForMercurialRepository;
 		}
 
 		//-----------------------------------------------------------------------------

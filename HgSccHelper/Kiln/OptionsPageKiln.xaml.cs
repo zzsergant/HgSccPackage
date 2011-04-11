@@ -61,6 +61,14 @@ namespace HgSccHelper.Kiln
 		}
 
 		//-----------------------------------------------------------------------------
+		public void Init()
+		{
+			credentials.Site = Credentials.Instance.Site;
+			credentials.Username = Credentials.Instance.Username;
+			credentials.Password = Credentials.Instance.Password;
+		}
+
+		//-----------------------------------------------------------------------------
 		public bool Save()
 		{
 			if (	Credentials.Instance.Site != credentials.Site
@@ -81,14 +89,6 @@ namespace HgSccHelper.Kiln
 		public ContentControl PageContent
 		{
 			get { return this; }
-		}
-
-		//-----------------------------------------------------------------------------
-		private void UserControl_Loaded(object sender, RoutedEventArgs e)
-		{
-			credentials.Site = Credentials.Instance.Site;
-			credentials.Username = Credentials.Instance.Username;
-			credentials.Password = Credentials.Instance.Password;
 		}
 	}
 }

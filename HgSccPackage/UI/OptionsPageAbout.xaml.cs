@@ -10,6 +10,7 @@
 // 
 //=========================================================================
 
+using System;
 using System.Windows.Controls;
 using HgSccHelper;
 
@@ -36,6 +37,11 @@ namespace HgSccPackage.UI
 		public string PageName
 		{
 			get { return "About"; }
+		}
+
+		//-----------------------------------------------------------------------------
+		public void Init()
+		{
 		}
 
 		//-----------------------------------------------------------------------------
