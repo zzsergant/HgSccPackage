@@ -1,7 +1,7 @@
 ﻿<Window x:Class="HgSccHelper.Kiln.NewRepositoryWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="NewRepositoryWindow"
+        Title="Create repository on Kiln"
         Height="Auto"
         Loaded="Window_Loaded"        
         WindowStartupLocation="CenterScreen"
