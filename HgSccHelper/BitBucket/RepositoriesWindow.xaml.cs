@@ -16,6 +16,8 @@ using System.Web;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using HgSccHelper.Misc;
+using RestSharp.Extensions;
 
 namespace HgSccHelper.BitBucket
 {
@@ -70,8 +72,8 @@ namespace HgSccHelper.BitBucket
 
 			var uri_builder = new UriBuilder(Util.MakeRepoUrl(repo.Owner, repo.Slug));
 
-			uri_builder.UserName = HttpUtility.UrlEncode(Credentials.Instance.Username);
-			uri_builder.Password = HttpUtility.UrlEncode(Credentials.Instance.Password);
+			uri_builder.UserName = Credentials.Instance.Username.UrlEncode();
+			uri_builder.Password = Credentials.Instance.Password.UrlEncode();
 			
 			RepositoryUri = uri_builder.Uri;
 			DialogResult = true;

@@ -19,6 +19,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using RestSharp.Extensions;
 
 namespace HgSccHelper.Kiln
 {
@@ -152,8 +153,8 @@ namespace HgSccHelper.Kiln
 			var uri_builder = new UriBuilder(Session.Instance.MakeRepoUrl(repo.sProjectSlug, repo.sGroupSlug, repo.sSlug));
 
 			// FIXME: Use session credentials
-			uri_builder.UserName = HttpUtility.UrlEncode(Credentials.Instance.Username);
-			uri_builder.Password = HttpUtility.UrlEncode(Credentials.Instance.Password);
+			uri_builder.UserName = Credentials.Instance.Username.UrlEncode();
+			uri_builder.Password = Credentials.Instance.Password.UrlEncode();
 			
 			RepositoryUri = uri_builder.Uri;
 			DialogResult = true;

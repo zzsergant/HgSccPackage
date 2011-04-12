@@ -23,6 +23,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Web;
+using RestSharp.Extensions;
 
 namespace HgSccHelper
 {
@@ -105,13 +106,13 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public void OnUrlPasswordChange(string password)
 		{
-			passwordBox.Password = HttpUtility.UrlDecode(password);
+			passwordBox.Password = password.UrlDecode();
 		}
 
 		//-----------------------------------------------------------------------------
 		public void OnUrlUserChange(string user)
 		{
-			Username = HttpUtility.UrlDecode(user);
+			Username = user.UrlDecode();
 		}
 
 		public const string CfgPath = @"GUI\PathEditWindow";
@@ -171,9 +172,9 @@ namespace HgSccHelper
 						var builder = new UriBuilder(Url);
 
 						if (!String.IsNullOrEmpty(Username))
-							builder.UserName = HttpUtility.UrlEncode(Username);
+							builder.UserName = Username.UrlEncode();
 						if (!String.IsNullOrEmpty(passwordBox.Password))
-							builder.Password = HttpUtility.UrlEncode(passwordBox.Password);
+							builder.Password = passwordBox.Password.UrlEncode();
 
 						Path = builder.Uri.AbsoluteUri;
 					}
@@ -201,11 +202,11 @@ namespace HgSccHelper
 				if (Util.IsValidRemoteUrl(Url))
 				{
 					var builder = new UriBuilder(Url);
-					builder.UserName = HttpUtility.UrlEncode(textUsername.Text);
+					builder.UserName = textUsername.Text.UrlEncode();
 
 					// Make sure, that we entering username with allowed characters
 					var checker = new UriBuilder(builder.Uri.AbsoluteUri);
-					if (HttpUtility.UrlDecode(checker.UserName) == textUsername.Text)
+					if (checker.UserName.UrlDecode() == textUsername.Text)
 						Url = builder.Uri.AbsoluteUri;
 				}
 			}
@@ -251,8 +252,8 @@ namespace HgSccHelper
 
 			var builder = new UriBuilder(repos_wnd.RepositoryUri);
 			Url = Util.RemoveUrlPassword(builder.Uri.AbsoluteUri);
-			textUsername.Text = HttpUtility.UrlDecode(builder.UserName);
-			passwordBox.Password = HttpUtility.UrlDecode(builder.Password);
+			textUsername.Text = builder.UserName.UrlDecode();
+			passwordBox.Password = builder.Password.UrlDecode();
 
 			return;
 		}
@@ -277,8 +278,8 @@ namespace HgSccHelper
 			var builder = new UriBuilder(repos_wnd.RepositoryUri);
 
 			Url = Util.RemoveUrlPassword(builder.Uri.AbsoluteUri);
-			textUsername.Text = HttpUtility.UrlDecode(builder.UserName);
-			passwordBox.Password = HttpUtility.UrlDecode(builder.Password);
+			textUsername.Text = builder.UserName.UrlDecode();
+			passwordBox.Password = builder.Password.UrlDecode();
 			return;
 		}
 

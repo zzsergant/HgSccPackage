@@ -23,6 +23,7 @@ using System.Windows.Controls;
 using HgSccHelper.UI;
 using System.Web;
 using HgSccHelper.UI.RevLog;
+using RestSharp.Extensions;
 
 namespace HgSccHelper
 {
@@ -266,8 +267,8 @@ namespace HgSccHelper
 						)
 					{
 						var uri_builder = new UriBuilder(path);
-						uri_builder.UserName = HttpUtility.UrlEncode(textUsername.Text);
-						uri_builder.Password = HttpUtility.UrlEncode(passwordBox.Password);
+						uri_builder.UserName = textUsername.Text.UrlEncode();
+						uri_builder.Password = passwordBox.Password.UrlEncode();
 						return uri_builder.Uri.AbsoluteUri;
 					}
 				}
@@ -690,8 +691,8 @@ namespace HgSccHelper
 
 			var builder = new UriBuilder(repos_wnd.RepositoryUri);
 			comboBoxPaths.Text = Util.RemoveUrlPassword(builder.Uri.AbsoluteUri);
-			textUsername.Text = HttpUtility.UrlDecode(builder.UserName);
-			passwordBox.Password = HttpUtility.UrlDecode(builder.Password);
+			textUsername.Text = builder.UserName.UrlDecode();
+			passwordBox.Password = builder.Password.UrlDecode();
 
 			return;
 		}
@@ -716,8 +717,8 @@ namespace HgSccHelper
 			var builder = new UriBuilder(repos_wnd.RepositoryUri);
 
 			comboBoxPaths.Text = Util.RemoveUrlPassword(builder.Uri.AbsoluteUri);
-			textUsername.Text = HttpUtility.UrlDecode(builder.UserName);
-			passwordBox.Password = HttpUtility.UrlDecode(builder.Password);
+			textUsername.Text = builder.UserName.UrlDecode();
+			passwordBox.Password = builder.Password.UrlDecode();
 			return;
 		}
 
@@ -763,12 +764,12 @@ namespace HgSccHelper
 			if (Util.IsValidRemoteUrl(url))
 			{
 				var builder = new UriBuilder(url);
-				textUsername.Text = HttpUtility.UrlDecode(builder.UserName);
+				textUsername.Text = builder.UserName.UrlDecode();
 
 				if (	!String.IsNullOrEmpty(builder.Password)
 					&&	builder.Password != "***")
 				{
-					passwordBox.Password = HttpUtility.UrlDecode(builder.Password);
+					passwordBox.Password = builder.Password.UrlDecode();
 					comboBoxPaths.Text = Util.RemoveUrlPassword(url);
 				}
 

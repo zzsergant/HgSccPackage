@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Web;
 using RestSharp;
+using RestSharp.Extensions;
 
 //=============================================================================
 namespace HgSccHelper.BitBucket
@@ -28,7 +29,7 @@ namespace HgSccHelper.BitBucket
 		{
 			try
 			{
-				var url = string.Format("https://bitbucket.org/{0}/{1}", HttpUtility.UrlEncode(username), repo_slug);
+				var url = string.Format("https://bitbucket.org/{0}/{1}", username.UrlEncode(), repo_slug);
 				return url;
 			}
 			catch (UriFormatException)
