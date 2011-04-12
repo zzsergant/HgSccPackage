@@ -49,6 +49,16 @@ namespace HgSccHelper.Kiln
 			get { return Site + "Kiln/Api/1.0/"; }
 		}
 
+		//------------------------------------------------------------------
+		private RestClient CreateRestClient()
+		{
+			var client = new RestClient(Api);
+			client.Proxy = System.Net.WebRequest.DefaultWebProxy;
+			client.Proxy.Credentials = System.Net.CredentialCache.DefaultNetworkCredentials;
+
+			return client;
+		}
+
 		//-----------------------------------------------------------------------------
 		public bool Login(string site, string username, string password)
 		{
@@ -64,7 +74,7 @@ namespace HgSccHelper.Kiln
 			if (String.IsNullOrEmpty(username))
 				return false;
 
-			var client = new RestClient(Api);
+			var client = CreateRestClient();
 			
 			var request = new RestRequest("Auth/Login");
 			request.AddParameter("sUser", username);
@@ -89,7 +99,7 @@ namespace HgSccHelper.Kiln
 			if (!IsValid)
 				return projects;
 
-			var client = new RestClient(Api);
+			var client = CreateRestClient();
 			
 			var request = new RestRequest("Project");
 			request.AddParameter("token", Token);
@@ -110,7 +120,7 @@ namespace HgSccHelper.Kiln
 			if (!IsValid)
 				return null;
 
-			var client = new RestClient(Api);
+			var client = CreateRestClient();
 
 			var request = new RestRequest("Repo/Create", Method.POST);
 			request.AddParameter("ixRepoGroup", repo_group);
@@ -130,7 +140,7 @@ namespace HgSccHelper.Kiln
 			if (!IsValid)
 				return null;
 
-			var client = new RestClient(Api);
+			var client = CreateRestClient();
 
 			var request = new RestRequest("Repo/{ixRepo}");
 			request.AddParameter("ixRepo", ix_repo, ParameterType.UrlSegment);
@@ -149,7 +159,7 @@ namespace HgSccHelper.Kiln
 			if (!IsValid)
 				return false;
 
-			var client = new RestClient(Api);
+			var client = CreateRestClient();
 
 			var request = new RestRequest("Repo/{ixRepo}/Delete", Method.POST);
 			request.AddParameter("ixRepo", ix_repo, ParameterType.UrlSegment);

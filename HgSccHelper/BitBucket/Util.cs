@@ -37,13 +37,23 @@ namespace HgSccHelper.BitBucket
 			}
 		}
 
+		//------------------------------------------------------------------
+		private static RestClient CreateRestClient()
+		{
+			var client = new RestClient(Api);
+			client.Proxy = System.Net.WebRequest.DefaultWebProxy;
+			client.Proxy.Credentials = System.Net.CredentialCache.DefaultNetworkCredentials;
+
+			return client;
+		}
+
 		//-----------------------------------------------------------------------------
 		public static bool CheckUser(string username, string password)
 		{
 			if (String.IsNullOrEmpty(username))
 				return false;
 
-			var client = new RestClient(Api);
+			var client = CreateRestClient();
 			client.Authenticator = new HttpBasicAuthenticator(username, password);
 
 			var request = new RestRequest("emails");
@@ -63,7 +73,7 @@ namespace HgSccHelper.BitBucket
 			if (String.IsNullOrEmpty(username))
 				return repositories;
 
-			var client = new RestClient(Api);
+			var client = CreateRestClient();
 			client.Authenticator = new HttpBasicAuthenticator(username, password);
 
 			var request = new RestRequest("users/{username}");
@@ -86,7 +96,7 @@ namespace HgSccHelper.BitBucket
 			if (String.IsNullOrEmpty(username))
 				return null;
 
-			var client = new RestClient(Api);
+			var client = CreateRestClient();
 			client.Authenticator = new HttpBasicAuthenticator(username, password);
 
 			var request = new RestRequest("repositories/", Method.POST);
@@ -111,7 +121,7 @@ namespace HgSccHelper.BitBucket
 			if (String.IsNullOrEmpty(username))
 				return false;
 
-			var client = new RestClient(Api);
+			var client = CreateRestClient();
 			client.Authenticator = new HttpBasicAuthenticator(username, password);
 
 			var request = new RestRequest("repositories/{user}/{repo_slug}", Method.DELETE);
