@@ -37,16 +37,6 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private string GetDefaultProxy()
-		{
-			var proxy = WebRequest.GetSystemWebProxy() as WebProxy;
-			if (proxy == null || proxy.Address == null)
-				return "";
-
-			return proxy.Address.ToString();
-		}
-
-		//-----------------------------------------------------------------------------
 		public string PageName
 		{
 			get { return "HttpProxy"; }
@@ -66,13 +56,10 @@ namespace HgSccHelper
 			}
 
 			var ini = IniFile.FromFile(mercurial_ini);
-			textHost.Text = ini[http_proxy][host];
-			textBypass.Text = ini[http_proxy][no];
-			textUsername.Text = ini[http_proxy][user];
-			textPassword.Password = ini[http_proxy][passwd];
-
-			if (String.IsNullOrEmpty(textHost.Text))
-				textHost.Text = GetDefaultProxy();
+			textHost.Text = ini[http_proxy][host] ?? "";
+			textBypass.Text = ini[http_proxy][no] ?? "";
+			textUsername.Text = ini[http_proxy][user] ?? "";
+			textPassword.Password = ini[http_proxy][passwd] ?? "";
 
 			textHost.SelectAll();
 			textBypass.SelectAll();
@@ -85,35 +72,26 @@ namespace HgSccHelper
 		{
 			var mercurial_ini = Util.GetUserMercurialIni();
 			if (mercurial_ini == null)
+			{
+				// FIXME: Warn user about this ?
 				return true;
+			}
 
 			var ini = IniFile.FromFile(mercurial_ini);
 
-			bool have_http_proxy = ini.GetSectionNames().Contains(http_proxy);
-			bool all_empty = (string.IsNullOrEmpty(textHost.Text) || (textHost.Text == GetDefaultProxy()))
-			                 && string.IsNullOrEmpty(textBypass.Text)
-			                 && string.IsNullOrEmpty(textUsername.Text)
-			                 && string.IsNullOrEmpty(textPassword.Password);
-
-			if (all_empty && !have_http_proxy)
-				return true;
-
-			if (all_empty)
-			{
-				ini[http_proxy].DeleteKey(host);
-				ini[http_proxy].DeleteKey(no);
-				ini[http_proxy].DeleteKey(user);
-				ini[http_proxy].DeleteKey(passwd);
-			}
-			else
+			if (	ini[http_proxy][host] != textHost.Text
+				||	ini[http_proxy][no] != textBypass.Text
+				||	ini[http_proxy][user] != textUsername.Text
+				||	ini[http_proxy][passwd] != textPassword.Password
+				)
 			{
 				ini[http_proxy][host] = textHost.Text;
 				ini[http_proxy][no] = textBypass.Text;
 				ini[http_proxy][user] = textUsername.Text;
 				ini[http_proxy][passwd] = textPassword.Password;
+				ini.Save(mercurial_ini);
 			}
 
-			ini.Save(mercurial_ini);
 			return true;
 		}
 
