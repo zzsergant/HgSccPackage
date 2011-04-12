@@ -99,7 +99,19 @@ namespace Gajatko.IniFiles
 		/// <returns>All new elements which was added.</returns>
 		public List<IniFileElement> ReadElementsToEnd()
 		{
-			List<IniFileElement> ret = ParseText(base.ReadToEnd());
+			// FIXME: Expensive way of normalizing line endings
+
+			var builder = new StringBuilder();
+			while (true)
+			{
+				string str = base.ReadLine();
+				if (str == null)
+					break;
+
+				builder.AppendLine(str);
+			}
+
+			List<IniFileElement> ret = ParseText(builder.ToString());
 			return ret;
 		}
 		/// <summary>Seeks to the section of specified name. If such section is not found,
