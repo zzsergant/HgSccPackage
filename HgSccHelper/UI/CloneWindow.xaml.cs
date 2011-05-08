@@ -82,8 +82,13 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public string SourcePath { get; set; }
 
+		//-----------------------------------------------------------------------------
+		public CloneResult CloneResult { get; private set; }
+
 		//------------------------------------------------------------------
 		HgThread worker;
+
+		private CloneResult pending_clone;
 
 		public const string CfgPath = @"GUI\CloneWindow";
 		CfgWindowPosition wnd_cfg;
@@ -234,6 +239,9 @@ namespace HgSccHelper
 			builder.AppendPath(source_path);
 			builder.AppendPath(textDestPath.Text);
 
+			pending_clone = new CloneResult
+			                	{Source = source_path, Destination = textDestPath.Text};
+
 			p.Args = builder.ToString();
 
 			RunningOperations |= AsyncOperations.Clone;
@@ -276,6 +284,9 @@ namespace HgSccHelper
 					{
 						var msg = String.Format("[Operation completed. Exit code: {0}]", completed.ExitCode);
 						Worker_NewMsg(msg);
+
+						CloneResult = pending_clone;
+						pending_clone = null;
 						break;
 					}
 				case HgThreadStatus.Canceled:
@@ -289,6 +300,8 @@ namespace HgSccHelper
 						break;
 					}
 			}
+
+			pending_clone = null;
 
 			// Updating commands state (CanExecute)
 			CommandManager.InvalidateRequerySuggested();
@@ -463,5 +476,12 @@ namespace HgSccHelper
 				textSourcePath.Text = dlg.FileName;
 			}
 		}
+	}
+
+	//=============================================================================
+	public class CloneResult
+	{
+		public string Source { get; set; }
+		public string Destination { get; set; }
 	}
 }
