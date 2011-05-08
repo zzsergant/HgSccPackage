@@ -1,0 +1,40 @@
+﻿<Window x:Class="HgSccPackage.UI.SelectSolutionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SelectSolutionWindow"
+        Loaded="Window_Loaded"
+        WindowStartupLocation="CenterScreen"
+        Width="600"
+        Height="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Label Content="Select solution to load from a cloned repository:"
+               Grid.Row="0"
+               Margin="5">            
+        </Label>
+        <ListView Margin="5"
+                  x:Name="listSolutions"
+                  Grid.Row="1">            
+        </ListView>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Select"
+                    IsDefault="True"
+                    Click="Select_Click"
+                    MinWidth="75"
+                    MinHeight="23"
+                    Margin="5,5,0,5"
+                    >                
+            </Button>
+            <Button Content="Cancel"
+                    MinWidth="75"
+                    MinHeight="23"
+                    Margin="5"
+                    IsCancel="True">                
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

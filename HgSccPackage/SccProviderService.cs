@@ -2678,6 +2678,51 @@ namespace HgSccPackage
 			}
 		}
 
+		//-----------------------------------------------------------------------------
+		private static bool TryGetLocalPath(string url, out string local_path)
+		{
+			try
+			{
+				var uri = new Uri(url);
+				if (uri.IsFile)
+				{
+					local_path = uri.LocalPath;
+					if (Directory.Exists(local_path))
+						return true;
+				}
+			}
+			catch (UriFormatException)
+			{
+			}
+
+			local_path = "";
+			return false;
+		}
+
+		//-----------------------------------------------------------------------------
+		private static List<string> FindSolutions(string local_path)
+		{
+			var solutions = new List<string>();
+
+			try
+			{
+				string[] files = Directory.GetFiles(local_path, "*.sln", SearchOption.AllDirectories);
+				var solution_files =
+					files.Where(
+						f => f.EndsWith("sln", StringComparison.InvariantCultureIgnoreCase));
+
+				solutions.AddRange(solution_files);
+				solutions.Sort();
+
+				return solutions;
+			}
+			catch (Exception)
+			{
+			}
+
+			return solutions;
+		}
+
 		//------------------------------------------------------------------
 		public void Clone(IVsHierarchy hier)
 		{
@@ -2689,6 +2734,8 @@ namespace HgSccPackage
 				source_path = storage.WorkingDir;
 			}
 
+			CloneResult clone_result;
+
 			using (var proxy = new WpfToWinFormsProxy<CloneWindow>())
 			{
 				var wnd = proxy.Wnd;
@@ -2696,6 +2743,72 @@ namespace HgSccPackage
 					wnd.SourcePath = Path.GetFullPath(source_path);
 	
 				proxy.ShowDialog();
+
+				if (wnd.CloneResult == null)
+					return;
+
+				clone_result = wnd.CloneResult;
+			}
+
+			// TODO: Add option to skip automatic opening of cloned reposotiry
+
+			string local_path;
+			if (!TryGetLocalPath(clone_result.Destination, out local_path))
+				return;
+
+			var solutions = FindSolutions(local_path);
+			if (solutions.Count == 0)
+				return;
+
+			if (solutions.Count == 1 && _sccProvider.GetSolutionFileName() == null)
+			{
+				// There is only one solution in the cloned repository
+				// and no loaded solution in the IDE
+				
+				// So, it is safe to automaticaly load a solution
+
+				var solution_file = solutions[0];
+
+				var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+				int error = sol.OpenSolutionFile((uint)__VSSLNOPENOPTIONS.SLNOPENOPT_Silent, solution_file);
+				if (error != VSConstants.S_OK)
+				{
+					Logger.WriteLine("Error: {0}", error);
+
+					var msg = String.Format("Unable to load solution:\n{0}", solution_file);
+					MessageBox.Show(msg, "Error", MessageBoxButtons.OK,
+					                MessageBoxIcon.Error);
+				}
+				return;
+			}
+
+			// There are multiple solutions and/or allready loaded solution in the IDE,
+			// so ask user to select a solution to load or to cancel
+
+			using (var proxy = new WpfToWinFormsProxy<SelectSolutionWindow>())
+			{
+				var wnd = proxy.Wnd;
+				wnd.Solutions = solutions;
+
+				proxy.ShowDialog();
+
+				if (wnd.DialogResult == true && !String.IsNullOrEmpty(wnd.SelectedSolution))
+				{
+					var solution_file = wnd.SelectedSolution;
+
+					var sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
+					int error = sol.OpenSolutionFile((uint)__VSSLNOPENOPTIONS.SLNOPENOPT_Silent, solution_file);
+
+					if (error != VSConstants.S_OK)
+					{
+						Logger.WriteLine("Error: {0}", error);
+
+						var msg = String.Format("Unable to load solution:\n{0}", solution_file);
+						MessageBox.Show(msg, "Error", MessageBoxButtons.OK,
+										MessageBoxIcon.Error);
+					}
+					return;
+				}
 			}
 		}
 

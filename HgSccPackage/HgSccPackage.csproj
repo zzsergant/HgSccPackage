@@ -88,6 +88,9 @@
     <Compile Include="UI\OptionsPageMain.xaml.cs">
       <DependentUpon>OptionsPageMain.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\SelectSolutionWindow.xaml.cs">
+      <DependentUpon>SelectSolutionWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Vs\RdtFilesReloader.cs" />
     <Compile Include="Vs\FilesChangeMonitor.cs" />
     <Compile Include="Vs\SlnOrProjectReloader.cs" />
@@ -133,6 +136,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\OptionsPageMain.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\SelectSolutionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
