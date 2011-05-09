@@ -1,397 +1,397 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <Extern href="stdidcmd.h"/>
-  <Extern href="vsshlids.h"/>
-  <Extern href="msobtnid.h"/>
+	<Extern href="stdidcmd.h"/>
+	<Extern href="vsshlids.h"/>
+	<Extern href="msobtnid.h"/>
 
-  <Commands package="guidSccProviderPkg">
-    <Menus>
-      <!-- Menu for source control commands under File/SourceControl -->
-      <Menu guid="guidSccProviderCmdSet" id="imnuFileSourceControlMenu" priority="0x0000" type="Menu">
-        <Parent guid="guidSccProviderCmdSet" id="igrpFileSourceControl"/>
-        <Strings>
-          <ButtonText>HgSccMenu</ButtonText>
-          <CommandName>Mercurial Source Control Package</CommandName>
-        </Strings>
-      </Menu>
-      <Menu guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x100" type="Menu">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSccNowhere"/>
-        <Strings>
-          <MenuText>Mercurial</MenuText>
-          <ButtonText>Mercurial</ButtonText>
-          <CommandName>Mercurial</CommandName>
-        </Strings>
-      </Menu>
-      <!--  Menu for commands in toolwindow's toolbar 
-      <Menu guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu" priority="0x0000" type="ToolWindowToolbar">
-        <Parent guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu"/>
-        <Strings>
-          <ButtonText>WindowBar</ButtonText>
-          <CommandName>Window Bar</CommandName>
-        </Strings>
-      </Menu>-->
-      <!--  Create a top-level toolbar for source control commands -->
-      <Menu guid="guidSccProviderCmdSet" id="itbrSccToolbar" priority="0x0000" type="Toolbar">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSccNowhere"/>
-        <CommandFlag>DefaultDocked</CommandFlag>
-        <Strings>
-          <ButtonText>Mercurial Source Control Toolbar</ButtonText>
-          <CommandName>Mercurial Source Control Toolbar</CommandName>
-        </Strings>
-      </Menu>
-    </Menus>
-    <Groups>
-      <!-- 	Group for scci commands in the File main menu -->
-      <Group guid="guidSccProviderCmdSet" id="igrpFileSourceControl" priority="0x0800">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_FILE"/>
-      </Group>
-      <!-- 	Group for scci buttons in the File/SourceControl menu -->
-      <Group guid="guidSccProviderCmdSet" id="igrpSourceControlCommands" priority="0x0000">
-        <Parent guid="guidSccProviderCmdSet" id="imnuFileSourceControlMenu"/>
-      </Group>
-      <Group guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu" priority="0x0000">
-        <Parent guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu"/>
-      </Group>
-      <!-- 	Group for commands under View main menu 
-      <Group guid="guidSccProviderCmdSet" id="igrpViewToolWindowGroup" priority="0x0100">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_VIEW"/>
-      </Group>-->
-      <!-- 	Group for buttons in toolwindow's toolbar
-      <Group guid="guidSccProviderCmdSet" id="igrpToolWindowToolbarGroup" priority="0x0100">
-        <Parent guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu"/>
-      </Group> -->
-    </Groups>
-    <Buttons>
-      <!-- 	View/ToolWindow command defined 
-      <Button guid="guidSccProviderCmdSet" id="icmdViewToolWindow" priority="0x0100" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpViewToolWindowGroup"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Mercurial Tool Window</ButtonText>
-        </Strings>
-      </Button>
-      -->
-      <!-- 	Buttons in the toolwindow's toolbar
-      <Button guid="guidSccProviderCmdSet" id="icmdToolWindowToolbarCommand" priority="0x0100" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpToolWindowToolbarGroup"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>ToolButton</ButtonText>
-        </Strings>
-      </Button> -->
-      <Button guid="guidSccProviderCmdSet" id="icmdChangeSccBindings" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpFileSourceControl"/>
-        <Icon guid="guidSccProviderImages" id="iconChangeSccBindings"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Change Scc Bindings</ButtonText>
-          <MenuText>Change Scc Bindings</MenuText>
-          <CommandName>Change Scc Bindings (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <!-- 	Scc commands in context menus for SolutionExplorer -->
-      <Button guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconAdd"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Add to Source Code Control</ButtonText>
-          <MenuText>&amp;Add to Source Code Control</MenuText>
-          <CommandName>Add to Source Code Control (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdClone" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconClone"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Clone...</ButtonText>
-          <MenuText>Clone...</MenuText>
-          <CommandName>Clone (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconSynchronize"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Synchronize...</ButtonText>
-          <MenuText>Synchronize...</MenuText>
-          <CommandName>Synchronize (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconCommit"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Commit...</ButtonText>
-          <MenuText>Commit...</MenuText>
-          <CommandName>Commit (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconRevert"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Revert...</ButtonText>
-          <MenuText>Revert...</MenuText>
-          <CommandName>Revert (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconCompare"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Compare</ButtonText>
-          <MenuText>Compare</MenuText>
-          <CommandName>Compare (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconViewHistory"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>View History</ButtonText>
-          <MenuText>View History</MenuText>
-          <CommandName>View History (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdAnnotate" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconAnnotate"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Annotate file</ButtonText>
-          <MenuText>Annotate file</MenuText>
-          <CommandName>Annotate file (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdGrep" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconGrep"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Search with regexp</ButtonText>
-          <MenuText>Search with regexp</MenuText>
-          <CommandName>Grep (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdViewChangeLog" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconViewHistory"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>View ChangeLog</ButtonText>
-          <MenuText>View ChangeLog</MenuText>
-          <CommandName>View ChangeLog (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconUpdate"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Update...</ButtonText>
-          <MenuText>Update...</MenuText>
-          <CommandName>Update (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdTags" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconTags"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Tags...</ButtonText>
-          <MenuText>Tags...</MenuText>
-          <CommandName>Tags (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdRefreshStatus" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconRefreshStatus"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Refresh Status</ButtonText>
-          <MenuText>Refresh Status</MenuText>
-          <CommandName>Refresh Status (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdOptions" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
-        <Icon guid="guidSccProviderImages" id="iconOptions"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Options</ButtonText>
-          <MenuText>Options</MenuText>
-          <CommandName>Options (SccProvider)</CommandName>
-        </Strings>
-      </Button>
-      <Button guid="guidSccProviderCmdSet" id="icmdPendingTask" priority="0x0000" type="Button">
-        <Parent guid="guidSccProviderCmdSet" id="igrpFileSourceControl"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>Pending task</ButtonText>
-          <MenuText>Pending task</MenuText>
-        </Strings>
-      </Button>
-    </Buttons>
-    <Bitmaps>
-      <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, iconSynchronize, iconCompare, icon7, icon8, icon9, icon10, iconUpdate, icon12, icon13, icon14, iconTags, iconOptions, icon17, iconChangeSccBindings, iconAnnotate, iconGrep, iconClone, icon22, icon23, icon24, icon25, iconViewHistory, iconRefreshStatus"/>
-    </Bitmaps>
-  </Commands>
+	<Commands package="guidSccProviderPkg">
+		<Menus>
+			<!-- Menu for source control commands under File/SourceControl -->
+			<Menu guid="guidSccProviderCmdSet" id="imnuFileSourceControlMenu" priority="0x0000" type="Menu">
+				<Parent guid="guidSccProviderCmdSet" id="igrpFileSourceControl"/>
+				<Strings>
+					<ButtonText>HgSccMenu</ButtonText>
+					<CommandName>Mercurial Source Control Package</CommandName>
+				</Strings>
+			</Menu>
+			<Menu guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x100" type="Menu">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSccNowhere"/>
+				<Strings>
+					<MenuText>Mercurial</MenuText>
+					<ButtonText>Mercurial</ButtonText>
+					<CommandName>Mercurial</CommandName>
+				</Strings>
+			</Menu>
+			<!--  Menu for commands in toolwindow's toolbar 
+	  <Menu guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu" priority="0x0000" type="ToolWindowToolbar">
+		<Parent guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu"/>
+		<Strings>
+		  <ButtonText>WindowBar</ButtonText>
+		  <CommandName>Window Bar</CommandName>
+		</Strings>
+	  </Menu>-->
+			<!--  Create a top-level toolbar for source control commands -->
+			<Menu guid="guidSccProviderCmdSet" id="itbrSccToolbar" priority="0x0000" type="Toolbar">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSccNowhere"/>
+				<CommandFlag>DefaultDocked</CommandFlag>
+				<Strings>
+					<ButtonText>Mercurial Source Control Toolbar</ButtonText>
+					<CommandName>Mercurial Source Control Toolbar</CommandName>
+				</Strings>
+			</Menu>
+		</Menus>
+		<Groups>
+			<!-- 	Group for scci commands in the File main menu -->
+			<Group guid="guidSccProviderCmdSet" id="igrpFileSourceControl" priority="0x0800">
+				<Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_FILE"/>
+			</Group>
+			<!-- 	Group for scci buttons in the File/SourceControl menu -->
+			<Group guid="guidSccProviderCmdSet" id="igrpSourceControlCommands" priority="0x0000">
+				<Parent guid="guidSccProviderCmdSet" id="imnuFileSourceControlMenu"/>
+			</Group>
+			<Group guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu" priority="0x0000">
+				<Parent guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu"/>
+			</Group>
+			<!-- 	Group for commands under View main menu 
+	  <Group guid="guidSccProviderCmdSet" id="igrpViewToolWindowGroup" priority="0x0100">
+		<Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_VIEW"/>
+	  </Group>-->
+			<!-- 	Group for buttons in toolwindow's toolbar
+	  <Group guid="guidSccProviderCmdSet" id="igrpToolWindowToolbarGroup" priority="0x0100">
+		<Parent guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu"/>
+	  </Group> -->
+		</Groups>
+		<Buttons>
+			<!-- 	View/ToolWindow command defined 
+	  <Button guid="guidSccProviderCmdSet" id="icmdViewToolWindow" priority="0x0100" type="Button">
+		<Parent guid="guidSccProviderCmdSet" id="igrpViewToolWindowGroup"/>
+		<CommandFlag>DynamicVisibility</CommandFlag>
+		<CommandFlag>DefaultInvisible</CommandFlag>
+		<Strings>
+		  <ButtonText>Mercurial Tool Window</ButtonText>
+		</Strings>
+	  </Button>
+	  -->
+			<!-- 	Buttons in the toolwindow's toolbar
+	  <Button guid="guidSccProviderCmdSet" id="icmdToolWindowToolbarCommand" priority="0x0100" type="Button">
+		<Parent guid="guidSccProviderCmdSet" id="igrpToolWindowToolbarGroup"/>
+		<CommandFlag>DynamicVisibility</CommandFlag>
+		<CommandFlag>DefaultInvisible</CommandFlag>
+		<Strings>
+		  <ButtonText>ToolButton</ButtonText>
+		</Strings>
+	  </Button> -->
+			<Button guid="guidSccProviderCmdSet" id="icmdChangeSccBindings" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpFileSourceControl"/>
+				<Icon guid="guidSccProviderImages" id="iconChangeSccBindings"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Change Scc Bindings</ButtonText>
+					<MenuText>Change Scc Bindings</MenuText>
+					<CommandName>Change Scc Bindings (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<!-- 	Scc commands in context menus for SolutionExplorer -->
+			<Button guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconAdd"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Add to Source Code Control</ButtonText>
+					<MenuText>&amp;Add to Source Code Control</MenuText>
+					<CommandName>Add to Source Code Control (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdClone" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconClone"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Clone...</ButtonText>
+					<MenuText>Clone...</MenuText>
+					<CommandName>Clone (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconSynchronize"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Synchronize...</ButtonText>
+					<MenuText>Synchronize...</MenuText>
+					<CommandName>Synchronize (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconCommit"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Commit...</ButtonText>
+					<MenuText>Commit...</MenuText>
+					<CommandName>Commit (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconRevert"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Revert...</ButtonText>
+					<MenuText>Revert...</MenuText>
+					<CommandName>Revert (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconCompare"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Compare</ButtonText>
+					<MenuText>Compare</MenuText>
+					<CommandName>Compare (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconViewHistory"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>View History</ButtonText>
+					<MenuText>View History</MenuText>
+					<CommandName>View History (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdAnnotate" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconAnnotate"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Annotate file</ButtonText>
+					<MenuText>Annotate file</MenuText>
+					<CommandName>Annotate file (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdGrep" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconGrep"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Search with regexp</ButtonText>
+					<MenuText>Search with regexp</MenuText>
+					<CommandName>Grep (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdViewChangeLog" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconViewHistory"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>View ChangeLog</ButtonText>
+					<MenuText>View ChangeLog</MenuText>
+					<CommandName>View ChangeLog (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconUpdate"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Update...</ButtonText>
+					<MenuText>Update...</MenuText>
+					<CommandName>Update (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdTags" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconTags"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Tags...</ButtonText>
+					<MenuText>Tags...</MenuText>
+					<CommandName>Tags (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdRefreshStatus" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconRefreshStatus"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Refresh Status</ButtonText>
+					<MenuText>Refresh Status</MenuText>
+					<CommandName>Refresh Status (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdOptions" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpSourceControlCommands"/>
+				<Icon guid="guidSccProviderImages" id="iconOptions"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Options</ButtonText>
+					<MenuText>Options</MenuText>
+					<CommandName>Options (SccProvider)</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSccProviderCmdSet" id="icmdPendingTask" priority="0x0000" type="Button">
+				<Parent guid="guidSccProviderCmdSet" id="igrpFileSourceControl"/>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<Strings>
+					<ButtonText>Pending task</ButtonText>
+					<MenuText>Pending task</MenuText>
+				</Strings>
+			</Button>
+		</Buttons>
+		<Bitmaps>
+			<Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp" usedList="iconCheckout, iconCommit, iconRevert, iconAdd, iconSynchronize, iconCompare, icon7, icon8, icon9, icon10, iconUpdate, icon12, icon13, icon14, iconTags, iconOptions, icon17, iconChangeSccBindings, iconAnnotate, iconGrep, iconClone, icon22, icon23, icon24, icon25, iconViewHistory, iconRefreshStatus"/>
+		</Bitmaps>
+	</Commands>
 
-  <CommandPlacements>
-    <!--Context menu group for SolutionExplorer -->
-    <!--To add commands in context menus, a new group can be defined and placed into existing menus, -->
-    <!--in which case you'll have to add it to context menus for nodes of interest (solution, project, -->
-    <!--folder, item, solution folder, web reference node, properties node, etc),  -->
-    <!--A better approach though is to use one of the existing groups created for source control commands, -->
-    <!--like IDG_VS_CTXT_ITEM_SCC, IDG_VS_CTXT_PROJECT_SCC, IDG_VS_CTXT_SOLUTION_SCC. -->
+	<CommandPlacements>
+		<!--Context menu group for SolutionExplorer -->
+		<!--To add commands in context menus, a new group can be defined and placed into existing menus, -->
+		<!--in which case you'll have to add it to context menus for nodes of interest (solution, project, -->
+		<!--folder, item, solution folder, web reference node, properties node, etc),  -->
+		<!--A better approach though is to use one of the existing groups created for source control commands, -->
+		<!--like IDG_VS_CTXT_ITEM_SCC, IDG_VS_CTXT_PROJECT_SCC, IDG_VS_CTXT_SOLUTION_SCC. -->
 
-    <!--Place the source control commands defined in context menu for Solution Explorer also under File/SourceControl menu -->
-    <CommandPlacement guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
-    </CommandPlacement>
-    <!-- split -->
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdAnnotate" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdGrep" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewChangeLog" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdTags" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdRefreshStatus" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdOptions" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidSccProviderCmdSet" id="icmdClone" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
-    </CommandPlacement>
-    <!-- Also place the scc commands in the toolbar -->
-    <CommandPlacement guid="guidSccProviderCmdSet" id="igrpSourceControlCommands" priority="0x0000">
-      <Parent guid="guidSccProviderCmdSet" id="itbrSccToolbar"/>
-    </CommandPlacement>
-  </CommandPlacements>
+		<!--Place the source control commands defined in context menu for Solution Explorer also under File/SourceControl menu -->
+		<CommandPlacement guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x0000">
+			<Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x0000">
+			<Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x0000">
+			<Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
+		</CommandPlacement>
+		<!-- split -->
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdAnnotate" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdGrep" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdViewChangeLog" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdTags" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdRefreshStatus" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdOptions" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<CommandPlacement guid="guidSccProviderCmdSet" id="icmdClone" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="igrpHgSccSlnMenu"/>
+		</CommandPlacement>
+		<!-- Also place the scc commands in the toolbar -->
+		<CommandPlacement guid="guidSccProviderCmdSet" id="igrpSourceControlCommands" priority="0x0000">
+			<Parent guid="guidSccProviderCmdSet" id="itbrSccToolbar"/>
+		</CommandPlacement>
+	</CommandPlacements>
 
-  <Symbols>
-    <GuidSymbol name="guidSccProviderPkg" value="{A7F26CA1-2000-4729-896E-0BBE9E380635}" />
-    <GuidSymbol name="guidSccProviderCmdSet" value="{A7F26CA1-3000-4729-896E-0BBE9E380635}" >
+	<Symbols>
+		<GuidSymbol name="guidSccProviderPkg" value="{A7F26CA1-2000-4729-896E-0BBE9E380635}" />
+		<GuidSymbol name="guidSccProviderCmdSet" value="{A7F26CA1-3000-4729-896E-0BBE9E380635}" >
 
-      <IDSymbol name="icmdOptions" value="0x09F"/>
-      <IDSymbol name="icmdAddToSourceControl" value="0x100"/>
-      <IDSymbol name="icmdClone" value="0x101"/>
-      <IDSymbol name="icmdSynchronize" value="0x102"/>
-      <IDSymbol name="icmdCommit" value="0x103"/>
-      <IDSymbol name="icmdRevert" value="0x104"/>
-      <IDSymbol name="icmdCompare" value="0x105"/>
-      <IDSymbol name="icmdViewHistory" value="0x106"/>
-      <IDSymbol name="icmdAnnotate" value="0x107"/>
-      <IDSymbol name="icmdGrep" value="0x108"/>
-      <IDSymbol name="icmdViewChangeLog" value="0x109"/>
-      <IDSymbol name="icmdUpdate" value="0x110"/>
-      <IDSymbol name="icmdTags" value="0x111"/>
-      <IDSymbol name="icmdRefreshStatus" value="0x112"/>
-      <IDSymbol name="icmdChangeSccBindings" value="0x113"/>
+			<IDSymbol name="icmdOptions" value="0x09F"/>
+			<IDSymbol name="icmdAddToSourceControl" value="0x100"/>
+			<IDSymbol name="icmdClone" value="0x101"/>
+			<IDSymbol name="icmdSynchronize" value="0x102"/>
+			<IDSymbol name="icmdCommit" value="0x103"/>
+			<IDSymbol name="icmdRevert" value="0x104"/>
+			<IDSymbol name="icmdCompare" value="0x105"/>
+			<IDSymbol name="icmdViewHistory" value="0x106"/>
+			<IDSymbol name="icmdAnnotate" value="0x107"/>
+			<IDSymbol name="icmdGrep" value="0x108"/>
+			<IDSymbol name="icmdViewChangeLog" value="0x109"/>
+			<IDSymbol name="icmdUpdate" value="0x110"/>
+			<IDSymbol name="icmdTags" value="0x111"/>
+			<IDSymbol name="icmdRefreshStatus" value="0x112"/>
+			<IDSymbol name="icmdChangeSccBindings" value="0x113"/>
 
-      <IDSymbol name="icmdPendingTask" value="0x150"/>
+			<IDSymbol name="icmdPendingTask" value="0x150"/>
 
-      <IDSymbol name="imnuFileSourceControlMenu" value="0x200"/>
-      <!--<IDSymbol name="imnuToolWindowToolbarMenu" value="0x201"/> -->
-      <IDSymbol name="imnuHgSccSlnMenu" value="0x202"/>
+			<IDSymbol name="imnuFileSourceControlMenu" value="0x200"/>
+			<!--<IDSymbol name="imnuToolWindowToolbarMenu" value="0x201"/> -->
+			<IDSymbol name="imnuHgSccSlnMenu" value="0x202"/>
 
-      <IDSymbol name="igrpFileSourceControl" value="0x300"/>
-      <IDSymbol name="igrpSourceControlCommands" value="0x301"/>
-      <!--<IDSymbol name="igrpViewToolWindowGroup" value="0x302"/>-->
-      <!--<IDSymbol name="igrpToolWindowToolbarGroup" value="0x303"/> -->
-      <IDSymbol name="igrpSccNowhere" value="0x304"/>
-      <IDSymbol name="igrpHgSccSlnMenu" value="0x305"/>
-      <IDSymbol name="itbrSccToolbar" value="0x400"/>
-    </GuidSymbol>
+			<IDSymbol name="igrpFileSourceControl" value="0x300"/>
+			<IDSymbol name="igrpSourceControlCommands" value="0x301"/>
+			<!--<IDSymbol name="igrpViewToolWindowGroup" value="0x302"/>-->
+			<!--<IDSymbol name="igrpToolWindowToolbarGroup" value="0x303"/> -->
+			<IDSymbol name="igrpSccNowhere" value="0x304"/>
+			<IDSymbol name="igrpHgSccSlnMenu" value="0x305"/>
+			<IDSymbol name="itbrSccToolbar" value="0x400"/>
+		</GuidSymbol>
 
-    <GuidSymbol name="guidSccProviderImages" value="{52F5275E-63E8-45e2-B2A1-A6856B662F56}" >
-      <IDSymbol name="iconCheckout" value="1"/>
-      <IDSymbol name="iconCommit" value="2"/>
-      <IDSymbol name="iconRevert" value="3"/>
-      <IDSymbol name="iconAdd" value="4"/>
-      <IDSymbol name="iconSynchronize" value="5"/>
-      <IDSymbol name="iconCompare" value="6"/>
-      <IDSymbol name="icon7" value="7"/>
-      <IDSymbol name="icon8" value="8"/>
-      <IDSymbol name="icon9" value="9"/>
-      <IDSymbol name="icon10" value="10"/>
-      <IDSymbol name="iconUpdate" value="11"/>
-      <IDSymbol name="icon12" value="12"/>
-      <IDSymbol name="icon13" value="13"/>
-      <IDSymbol name="icon14" value="14"/>
-      <IDSymbol name="iconTags" value="15"/>
-      <IDSymbol name="iconOptions" value="16"/>
-      <IDSymbol name="icon17" value="17"/>
-      <IDSymbol name="iconChangeSccBindings" value="18"/>
-      <IDSymbol name="iconAnnotate" value="19"/>
-      <IDSymbol name="iconGrep" value="20"/>
-      <IDSymbol name="iconClone" value="21"/>
-      <IDSymbol name="icon22" value="22"/>
-      <IDSymbol name="icon23" value="23"/>
-      <IDSymbol name="icon24" value="24"/>
-      <IDSymbol name="icon25" value="25"/>
-      <IDSymbol name="iconViewHistory" value="26"/>
-      <IDSymbol name="iconRefreshStatus" value="27"/>
-    </GuidSymbol>
-  </Symbols>
+		<GuidSymbol name="guidSccProviderImages" value="{52F5275E-63E8-45e2-B2A1-A6856B662F56}" >
+			<IDSymbol name="iconCheckout" value="1"/>
+			<IDSymbol name="iconCommit" value="2"/>
+			<IDSymbol name="iconRevert" value="3"/>
+			<IDSymbol name="iconAdd" value="4"/>
+			<IDSymbol name="iconSynchronize" value="5"/>
+			<IDSymbol name="iconCompare" value="6"/>
+			<IDSymbol name="icon7" value="7"/>
+			<IDSymbol name="icon8" value="8"/>
+			<IDSymbol name="icon9" value="9"/>
+			<IDSymbol name="icon10" value="10"/>
+			<IDSymbol name="iconUpdate" value="11"/>
+			<IDSymbol name="icon12" value="12"/>
+			<IDSymbol name="icon13" value="13"/>
+			<IDSymbol name="icon14" value="14"/>
+			<IDSymbol name="iconTags" value="15"/>
+			<IDSymbol name="iconOptions" value="16"/>
+			<IDSymbol name="icon17" value="17"/>
+			<IDSymbol name="iconChangeSccBindings" value="18"/>
+			<IDSymbol name="iconAnnotate" value="19"/>
+			<IDSymbol name="iconGrep" value="20"/>
+			<IDSymbol name="iconClone" value="21"/>
+			<IDSymbol name="icon22" value="22"/>
+			<IDSymbol name="icon23" value="23"/>
+			<IDSymbol name="icon24" value="24"/>
+			<IDSymbol name="icon25" value="25"/>
+			<IDSymbol name="iconViewHistory" value="26"/>
+			<IDSymbol name="iconRefreshStatus" value="27"/>
+		</GuidSymbol>
+	</Symbols>
 </CommandTable>
