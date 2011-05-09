@@ -90,9 +90,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Change Scc Bindings</ButtonText>
+					<ButtonText>HgSccPackage_ChangeSccBindings</ButtonText>
 					<MenuText>Change Scc Bindings</MenuText>
-					<CommandName>Change Scc Bindings (SccProvider)</CommandName>
+					<ToolTipText>Change Scc Bindings</ToolTipText>
 				</Strings>
 			</Button>
 			<!-- 	Scc commands in context menus for SolutionExplorer -->
@@ -102,9 +102,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Options</ButtonText>
+					<ButtonText>HgSccPackage_Options</ButtonText>
 					<MenuText>Options</MenuText>
-					<CommandName>Options (SccProvider)</CommandName>
+					<ToolTipText>Options</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdAddToSourceControl" priority="0x0101" type="Button">
@@ -113,9 +113,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Add to Source Code Control</ButtonText>
-					<MenuText>&amp;Add to Source Code Control</MenuText>
-					<CommandName>Add to Source Code Control (SccProvider)</CommandName>
+					<ButtonText>HgSccPackage_AddToSourceControl</ButtonText>
+					<MenuText>Add To Source Control</MenuText>
+					<ToolTipText>Add To Source Control</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdClone" priority="0x0102" type="Button">
@@ -124,9 +124,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Clone...</ButtonText>
+					<ButtonText>HgSccPackage_Clone</ButtonText>
 					<MenuText>Clone...</MenuText>
-					<CommandName>Clone (SccProvider)</CommandName>
+					<ToolTipText>Clone...</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdSynchronize" priority="0x0103" type="Button">
@@ -135,9 +135,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Synchronize...</ButtonText>
+					<ButtonText>HgSccPackage_Synchronize</ButtonText>
 					<MenuText>Synchronize...</MenuText>
-					<CommandName>Synchronize (SccProvider)</CommandName>
+					<ToolTipText>Synchronize...</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdCommit" priority="0x0104" type="Button">
@@ -146,9 +146,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Commit...</ButtonText>
+					<ButtonText>HgSccPackage_Commit</ButtonText>
 					<MenuText>Commit...</MenuText>
-					<CommandName>Commit (SccProvider)</CommandName>
+					<ToolTipText>Commit...</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdRevert" priority="0x0105" type="Button">
@@ -157,9 +157,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Revert...</ButtonText>
+					<ButtonText>HgSccPackage_Revert</ButtonText>
 					<MenuText>Revert...</MenuText>
-					<CommandName>Revert (SccProvider)</CommandName>
+					<ToolTipText>Revert...</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdCompare" priority="0x0106" type="Button">
@@ -168,9 +168,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Compare</ButtonText>
+					<ButtonText>HgSccPackage_Compare</ButtonText>
 					<MenuText>Compare</MenuText>
-					<CommandName>Compare (SccProvider)</CommandName>
+					<ToolTipText>Compare</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdViewHistory" priority="0x0107" type="Button">
@@ -179,9 +179,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>View History</ButtonText>
-					<MenuText>View History</MenuText>
-					<CommandName>View History (SccProvider)</CommandName>
+					<ButtonText>HgSccPackage_FileHistory</ButtonText>
+					<MenuText>File History</MenuText>
+					<ToolTipText>File History</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdAnnotate" priority="0x0108" type="Button">
@@ -190,9 +190,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Annotate file</ButtonText>
-					<MenuText>Annotate file</MenuText>
-					<CommandName>Annotate file (SccProvider)</CommandName>
+					<ButtonText>HgSccPackage_Annotate</ButtonText>
+					<MenuText>Annotate File</MenuText>
+					<ToolTipText>Annotate File</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdGrep" priority="0x0109" type="Button">
@@ -201,9 +201,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Search with regexp</ButtonText>
-					<MenuText>Search with regexp</MenuText>
-					<CommandName>Grep (SccProvider)</CommandName>
+					<ButtonText>HgSccPackage_Grep</ButtonText>
+					<MenuText>Search With RegExp</MenuText>
+					<ToolTipText>Search With RegExp</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdViewChangeLog" priority="0x010A" type="Button">
@@ -212,9 +212,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>View ChangeLog</ButtonText>
-					<MenuText>View ChangeLog</MenuText>
-					<CommandName>View ChangeLog (SccProvider)</CommandName>
+					<ButtonText>HgSccPackage_ViewChangeLog</ButtonText>
+					<MenuText>View Change Log</MenuText>
+					<ToolTipText>View Change Log</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdUpdate" priority="0x010B" type="Button">
@@ -223,9 +223,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Update...</ButtonText>
+					<ButtonText>HgSccPackage_Update</ButtonText>
 					<MenuText>Update...</MenuText>
-					<CommandName>Update (SccProvider)</CommandName>
+					<ToolTipText>Update...</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdTags" priority="0x010C" type="Button">
@@ -234,9 +234,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Tags...</ButtonText>
+					<ButtonText>HgSccPackage_Tags</ButtonText>
 					<MenuText>Tags...</MenuText>
-					<CommandName>Tags (SccProvider)</CommandName>
+					<ToolTipText>Tags...</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdRefreshStatus" priority="0x010D" type="Button">
@@ -245,9 +245,9 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Refresh Status</ButtonText>
+					<ButtonText>HgSccPackage_RefreshStatus</ButtonText>
 					<MenuText>Refresh Status</MenuText>
-					<CommandName>Refresh Status (SccProvider)</CommandName>
+					<ToolTipText>Refresh Status</ToolTipText>
 				</Strings>
 			</Button>
 			<Button guid="guidSccProviderCmdSet" id="icmdPendingTask" priority="0x010E" type="Button">
@@ -255,8 +255,8 @@
 				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
-					<ButtonText>Pending task</ButtonText>
-					<MenuText>Pending task</MenuText>
+					<ButtonText>Pending Task</ButtonText>
+					<MenuText>Pending Task</MenuText>
 				</Strings>
 			</Button>
 		</Buttons>
