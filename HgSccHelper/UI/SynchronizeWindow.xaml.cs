@@ -136,6 +136,9 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private Cursor prev_cursor;
 
+		//-----------------------------------------------------------------------------
+		private SynchronizeResult pending_operation;
+
 		//------------------------------------------------------------------
 		public SynchronizeWindow()
 		{
@@ -573,6 +576,13 @@ namespace HgSccHelper
 
 			p.Args = builder.ToString();
 
+			//-----------------------------------------------------------------------------
+			pending_operation = new SynchronizeResult
+			                    	{
+			                    		Operation = SynchronizeOperation.Push,
+			                    		Repository = repository
+			                    	};
+
 			RunningOperations |= AsyncOperations.Synchronize;
 			worker.Run(p);
 			e.Handled = true;
@@ -613,6 +623,19 @@ namespace HgSccHelper
 					{
 						var msg = String.Format("[Operation completed. Exit code: {0}]", completed.ExitCode);
 						Worker_NewMsg(msg);
+
+						if (	completed.ExitCode == 0
+							&&	pending_operation != null
+							&&	pending_operation.Operation == SynchronizeOperation.Push
+							)
+						{
+							var hg_paths = new HgPaths(WorkingDir);
+							if (hg_paths.Count == 0)
+							{
+								hg_paths.Set("default", pending_operation.Repository);
+								hg_paths.Save();
+							}
+						}
 						break;
 					}
 				case HgThreadStatus.Canceled:
@@ -626,6 +649,8 @@ namespace HgSccHelper
 						break;
 					}
 			}
+
+			pending_operation = null;
 
 			// Updating commands state (CanExecute)
 			CommandManager.InvalidateRequerySuggested();
@@ -874,5 +899,21 @@ namespace HgSccHelper
 				async_branches.RunAsync(WorkingDir, HgBranchesOptions.Closed);
 			}
 		}
+	}
+
+	//-----------------------------------------------------------------------------
+	internal enum SynchronizeOperation
+	{
+		Pull,
+		Push,
+		Incoming,
+		Outgoing
+	}
+
+	//-----------------------------------------------------------------------------
+	internal class SynchronizeResult
+	{
+		public SynchronizeOperation Operation { get; set; }
+		public string Repository { get; set; }
 	}
 }
