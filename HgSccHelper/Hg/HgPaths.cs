@@ -64,6 +64,12 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public int Count
+		{
+			get { return hgrc[PathsSection].GetKeys().Count; }
+		}
+
+		//-----------------------------------------------------------------------------
 		public void Save()
 		{
 			hgrc.Save(hgrc_path);
