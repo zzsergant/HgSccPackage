@@ -629,6 +629,7 @@ namespace HgSccHelper
 							{
 								hg_paths.Set("default", pending_operation.Repository);
 								hg_paths.Save();
+								ReloadPaths();
 							}
 						}
 						break;
