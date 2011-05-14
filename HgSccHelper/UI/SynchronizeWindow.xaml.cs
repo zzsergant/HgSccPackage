@@ -236,7 +236,6 @@ namespace HgSccHelper
 
 			if (paths.Count > 0)
 			{
-				comboBoxPaths.IsEnabled = true;
 				comboBoxPaths.DataContext = paths;
 				int default_idx = 0;
 				for (int i = 0; i < paths.Count; ++i)
@@ -248,13 +247,9 @@ namespace HgSccHelper
 					}
 				}
 				comboBoxPaths.SelectedIndex = default_idx;
-				comboBoxPaths.Focus();
 			}
-			else
-			{
-				comboBoxPaths.IsEnabled = false;
-				textBox.Focus();
-			}
+
+			comboBoxPaths.Focus();
 		}
 
 		//------------------------------------------------------------------
