@@ -20,6 +20,7 @@
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Grid.Column="0"
                Content="Select a project:"
+               HorizontalAlignment="Right"
                Margin="5,5,5,0">
         </Label>
         <ComboBox Grid.Row="0" Grid.Column="1"
@@ -29,6 +30,7 @@
         </ComboBox>
         <Label Grid.Row="1" Grid.Column="0"
                Content="Enter group name:"
+               HorizontalAlignment="Right"
                Margin="5,5,5,0">
         </Label>
         <TextBox Grid.Row="1" Grid.Column="1"

@@ -19,6 +19,7 @@
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Grid.Column="0"
                Content="Enter project name:"
+               HorizontalAlignment="Right"
                Margin="5,5,5,0">
         </Label>
         <TextBox Grid.Row="0" Grid.Column="1"
@@ -29,6 +30,7 @@
 <!--
         <Label Grid.Row="1" Grid.Column="0"
                Content="Default permission:"
+               HorizontalAlignment="Right"
                Margin="5,5,5,0">
         </Label>
         <ComboBox Grid.Row="1" Grid.Column="1"
@@ -38,6 +40,7 @@
 -->
         <Label Grid.Row="2" Grid.Column="0"
                Content="Description:"
+               HorizontalAlignment="Right"
                Margin="5,5,5,0">
         </Label>
         <TextBox Grid.Row="2" Grid.Column="1"
