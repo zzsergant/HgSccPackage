@@ -55,6 +55,11 @@ namespace HgSccHelper.BitBucket
 			InitializeComponent();
 
 			this.DataContext = this;
+
+			bool is_private;
+			Cfg.Get(CfgPath, "IsPrivate", out is_private, true);
+
+			IsPrivate = is_private;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -73,7 +78,8 @@ namespace HgSccHelper.BitBucket
 				                MessageBoxButton.OK, MessageBoxImage.Exclamation);
 				return;
 			}
-			
+
+			Cfg.Set(CfgPath, "IsPrivate", IsPrivate);
 			DialogResult = true;
 		}
 	}
