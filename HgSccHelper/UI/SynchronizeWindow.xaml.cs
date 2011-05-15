@@ -234,9 +234,10 @@ namespace HgSccHelper
 			var hg = new Hg();
 			paths = hg.GetPaths(WorkingDir);
 
+			comboBoxPaths.DataContext = paths;
+
 			if (paths.Count > 0)
 			{
-				comboBoxPaths.DataContext = paths;
 				int default_idx = 0;
 				for (int i = 0; i < paths.Count; ++i)
 				{
