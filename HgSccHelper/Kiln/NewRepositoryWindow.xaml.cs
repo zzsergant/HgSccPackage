@@ -45,7 +45,7 @@ namespace HgSccHelper.Kiln
 		//-----------------------------------------------------------------------------
 		public NewRepositoryWindow()
 		{
-			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
+			wnd_cfg = new CfgWindowPosition(CfgPath, this);
 
 			InitializeComponent();
 			this.DataContext = this;
