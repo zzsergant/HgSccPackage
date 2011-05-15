@@ -1,0 +1,70 @@
+﻿<Window x:Class="HgSccHelper.Kiln.NewProjectWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Create project on Kiln"        
+        Loaded="Window_Loaded"        
+        WindowStartupLocation="CenterScreen"
+        Width="557"
+        Height="Auto">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Grid.Column="0"
+               Content="Enter project name:"
+               Margin="5,5,5,0">
+        </Label>
+        <TextBox Grid.Row="0" Grid.Column="1"
+                 x:Name="textProjectName"
+                 Text="{Binding Path=ProjectName, UpdateSourceTrigger=PropertyChanged}"
+                 Margin="5">
+        </TextBox>
+<!--
+        <Label Grid.Row="1" Grid.Column="0"
+               Content="Default permission:"
+               Margin="5,5,5,0">
+        </Label>
+        <ComboBox Grid.Row="1" Grid.Column="1"
+                  x:Name="comboPermissions"                  
+                  Margin="5" IsReadOnly="True">
+        </ComboBox>
+-->
+        <Label Grid.Row="2" Grid.Column="0"
+               Content="Description:"
+               Margin="5,5,5,0">
+        </Label>
+        <TextBox Grid.Row="2" Grid.Column="1"
+                 x:Name="textDescription"
+                 Text="{Binding Path=Description, UpdateSourceTrigger=PropertyChanged}"
+                 MinLines="2"
+                 Margin="5"
+                 AcceptsReturn="True"
+                 VerticalAlignment="Stretch"
+                 VerticalScrollBarVisibility="Auto"
+                 TextWrapping="WrapWithOverflow">
+        </TextBox>
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Content="OK"
+                    Click="Button_Click"
+                    MinWidth="75"
+                    MinHeight="25"
+                    Margin="5,5,0,5">
+            </Button>
+            <Button Content="Cancel"
+                    IsCancel="True"
+                    MinWidth="75"
+                    MinHeight="25"
+                    Margin="5">
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

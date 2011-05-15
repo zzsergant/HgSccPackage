@@ -38,6 +38,14 @@ namespace HgSccHelper.Kiln
 		private KilnRepoListItem pending_new_repo;
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand NewProjectCommand = new RoutedUICommand("New project",
+			"NewProject", typeof(RepositoriesWindow));
+
+		//-----------------------------------------------------------------------------
+		public static RoutedUICommand NewGroupCommand = new RoutedUICommand("New group",
+			"NewGroup", typeof(RepositoriesWindow));
+
+		//-----------------------------------------------------------------------------
 		public static RoutedUICommand NewRepositoryCommand = new RoutedUICommand("New remote repository",
 			"NewRepository", typeof(RepositoriesWindow));
 
@@ -101,29 +109,39 @@ namespace HgSccHelper.Kiln
 			btnSelect.IsEnabled = false;
 
 			foreach (var project in projects)
-			{
-				projects_map.Add(project.ixProject, project);
-				foreach (var group in project.repoGroups)
-				{
-					var group_text = String.Format("{0}/{1}", project.sName, group.DisplayName);
-
-					groups_map.Add(group.ixRepoGroup, group);
-					foreach (var repo in group.repos)
-					{
-						var item = new KilnRepoListItem
-						           	{
-						           		Repo = repo,
-						           		GroupText = group_text,
-						           	};
-
-						repositories.Add(item);
-					}
-				}
-			}
+				AddProject(project);
 
 			var myView = (CollectionView)CollectionViewSource.GetDefaultView(listRepos.ItemsSource);
 			var groupDescription = new PropertyGroupDescription("GroupText");
 			myView.GroupDescriptions.Add(groupDescription);
+		}
+
+		//-----------------------------------------------------------------------------
+		private void AddProject(KilnProject project)
+		{
+			projects_map.Add(project.ixProject, project);
+			foreach (var group in project.repoGroups)
+			{
+				AddGroup(project, group);
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void AddGroup(KilnProject project, KilnGroup group)
+		{
+			var group_text = String.Format("{0}/{1}", project.sName, group.DisplayName);
+
+			groups_map.Add(group.ixRepoGroup, group);
+			foreach (var repo in group.repos)
+			{
+				var item = new KilnRepoListItem
+				           	{
+				           		Repo = repo,
+				           		GroupText = group_text,
+				           	};
+
+				repositories.Add(item);
+			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -174,6 +192,68 @@ namespace HgSccHelper.Kiln
 
 				textSelectedRepo.Text = Session.Instance.MakeRepoUrl(repo.sProjectSlug, repo.sGroupSlug, repo.sSlug);
 				btnSelect.IsEnabled = true;
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void NewProject_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void NewProject_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var wnd = new NewProjectWindow();
+			if (wnd.ShowDialog() == true)
+			{
+				// FIXME: For some reason default permission is ignored by Kiln
+
+				var new_project = Session.Instance.CreateProject(
+					wnd.ProjectName,
+					""/*wnd.Permission*/,
+					wnd.Description);
+
+				if (new_project == null)
+				{
+					MessageBox.Show("An error occured while creating new project", "Error",
+									MessageBoxButton.OK, MessageBoxImage.Error);
+					return;
+				}
+
+				AddProject(new_project);
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void NewGroup_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void NewGroup_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var wnd = new NewGroupWindow();
+			var project_list = new List<KilnProject>(projects_map.Values);
+			wnd.Projects = project_list;
+
+			if (wnd.ShowDialog() == true)
+			{
+				var new_group = Session.Instance.CreateGroup(
+					wnd.SelectedProject.ixProject,
+					wnd.GroupName);
+
+				if (new_group == null)
+				{
+					MessageBox.Show("An error occured while creating new group", "Error",
+									MessageBoxButton.OK, MessageBoxImage.Error);
+					return;
+				}
+
+				AddGroup(wnd.SelectedProject, new_group);
 			}
 		}
 

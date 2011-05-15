@@ -115,6 +115,32 @@ namespace HgSccHelper.Kiln
 		}
 
 		//-----------------------------------------------------------------------------
+		public KilnProject CreateProject(string name, string permission, string description)
+		{
+			if (!IsValid)
+				return null;
+
+			var client = CreateRestClient();
+
+			var request = new RestRequest("Project/Create", Method.POST);
+			request.AddParameter("sName", name);
+
+			if (!String.IsNullOrEmpty(permission))
+				request.AddParameter("sDefaultPermission", permission);
+	
+			if (!String.IsNullOrEmpty(description))
+				request.AddParameter("sDescription", description);
+			
+			request.AddParameter("token", Token);
+
+			var response = client.Execute<KilnProject>(request);
+			if (response.ResponseStatus != ResponseStatus.Completed)
+				return null;
+
+			return response.Data;
+		}
+
+		//-----------------------------------------------------------------------------
 		public KilnRepo CreateRepository(int repo_group, string name)
 		{
 			if (!IsValid)
@@ -128,6 +154,26 @@ namespace HgSccHelper.Kiln
 			request.AddParameter("token", Token);
 
 			var response = client.Execute<KilnRepo>(request);
+			if (response.ResponseStatus != ResponseStatus.Completed)
+				return null;
+
+			return response.Data;
+		}
+
+		//-----------------------------------------------------------------------------
+		public KilnGroup CreateGroup(int ixProject, string name)
+		{
+			if (!IsValid)
+				return null;
+
+			var client = CreateRestClient();
+
+			var request = new RestRequest("RepoGroup/Create", Method.POST);
+			request.AddParameter("ixProject", ixProject);
+			request.AddParameter("sName", name);
+			request.AddParameter("token", Token);
+
+			var response = client.Execute<KilnGroup>(request);
 			if (response.ResponseStatus != ResponseStatus.Completed)
 				return null;
 

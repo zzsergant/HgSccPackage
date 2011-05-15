@@ -9,6 +9,14 @@
         Height="400"
         Width="700">
     <Window.CommandBindings>
+        <CommandBinding Command="{x:Static Kiln:RepositoriesWindow.NewProjectCommand}"
+                        CanExecute="NewProject_CanExecute"
+                        Executed="NewProject_Executed">
+        </CommandBinding>
+        <CommandBinding Command="{x:Static Kiln:RepositoriesWindow.NewGroupCommand}"
+                        CanExecute="NewGroup_CanExecute"
+                        Executed="NewGroup_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static Kiln:RepositoriesWindow.NewRepositoryCommand}"
                         CanExecute="NewRepository_CanExecute"
                         Executed="NewRepository_Executed">
@@ -46,16 +54,34 @@
         </ListView>
         <StackPanel Grid.Row="1"
                     Orientation="Horizontal"
+                    HorizontalAlignment="Left">
+            <Button Command="{x:Static Kiln:RepositoriesWindow.NewProjectCommand}"
+                    Content="New Project"
+                    ToolTip="Create new project"
+                    MinHeight="23"
+                    Margin="5"
+                    MinWidth="75">
+            </Button>
+            <Button Command="{x:Static Kiln:RepositoriesWindow.NewGroupCommand}"
+                    Content="New Group"
+                    ToolTip="Create new group"
+                    MinHeight="23"
+                    Margin="0,5,5,5"
+                    MinWidth="75">
+            </Button>
+        </StackPanel>
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
                     HorizontalAlignment="Right">
             <Button Command="{x:Static Kiln:RepositoriesWindow.NewRepositoryCommand}"
-                    Content="New"
+                    Content="New Repository"
                     ToolTip="Create new remote repository"
                     MinHeight="23"
                     Margin="5"
                     MinWidth="75">
             </Button>
             <Button Command="{x:Static Kiln:RepositoriesWindow.DeleteRepositoryCommand}"
-                    Content="Delete"
+                    Content="Delete Repository"
                     ToolTip="Delete selected remote repository"
                     MinHeight="23"
                     Margin="0,5,5,5"

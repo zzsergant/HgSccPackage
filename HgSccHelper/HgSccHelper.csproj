@@ -130,6 +130,12 @@
     <Compile Include="Kiln\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Kiln\NewGroupWindow.xaml.cs">
+      <DependentUpon>NewGroupWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Kiln\NewProjectWindow.xaml.cs">
+      <DependentUpon>NewProjectWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Kiln\NewRepositoryWindow.xaml.cs">
       <DependentUpon>NewRepositoryWindow.xaml</DependentUpon>
     </Compile>
@@ -315,6 +321,14 @@
     <Page Include="Kiln\LoginWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Kiln\NewGroupWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Kiln\NewProjectWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Kiln\NewRepositoryWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
