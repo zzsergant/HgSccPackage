@@ -54,11 +54,33 @@ namespace HgSccHelper.Kiln
 		//-----------------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
+			string last_used_group_name;
+			Cfg.Get(CfgPath, "LastUsedGroupName", out last_used_group_name, "");
+
 			comboRepositoryGroup.ItemsSource = Groups;
+			
 			if (RepositoryGroup != null)
+			{
 				comboRepositoryGroup.SelectedItem = RepositoryGroup;
+			}
 			else
-				comboRepositoryGroup.SelectedIndex = 0;
+			{
+				int group_index = 0;
+
+				if (!String.IsNullOrEmpty(last_used_group_name))
+				{
+					for(int i = 0; i < Groups.Count; ++i)
+					{
+						if (Groups[i].DisplayName == last_used_group_name)
+						{
+							group_index = i;
+							break;
+						}
+					}
+				}
+
+				comboRepositoryGroup.SelectedIndex = group_index;
+			}
 
 			textRepositoryName.SelectAll();
 			textRepositoryName.Focus();
@@ -77,6 +99,8 @@ namespace HgSccHelper.Kiln
 			var selected_group = comboRepositoryGroup.SelectedItem as NewRepoGroupItem;
 			if (selected_group == null)
 				return;
+
+			Cfg.Set(CfgPath, "LastUsedGroupName", selected_group.DisplayName);
 
 			RepositoryGroup = selected_group;
 			DialogResult = true;
