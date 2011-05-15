@@ -622,6 +622,7 @@ namespace HgSccHelper
 						if (	completed.ExitCode == 0
 							&&	pending_operation != null
 							&&	pending_operation.Operation == SynchronizeOperation.Push
+							&&	comboBoxPaths.Items.Count == 0
 							)
 						{
 							var hg_paths = new HgPaths(WorkingDir);
