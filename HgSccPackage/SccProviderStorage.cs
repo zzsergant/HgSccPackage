@@ -704,7 +704,7 @@ namespace HgSccPackage
 			if (!IsValid)
 				return false;
 
-			return path.ToLower().StartsWith(hgscc.WorkingDir.ToLower());
+			return IsPathUnderDirectory(hgscc.WorkingDir, path);
 		}
 
 		//------------------------------------------------------------------
@@ -732,14 +732,14 @@ namespace HgSccPackage
 			//check if controlled by subrepo
 			foreach (string sub in hgscc.SubRepoDirs)
 			{
-				if (path.ToLower().StartsWith(
-					Path.Combine(hgscc.WorkingDir.ToLower(), sub.ToLower())))
+				var sub_dir = Path.Combine(hgscc.WorkingDir.ToLower(), sub.ToLower());
+				if (IsPathUnderDirectory(sub_dir, path))
 				{
 					return false;
 				}
 			}
 
-			return path.ToLower().StartsWith(hgscc.WorkingDir.ToLower());
+			return IsPathUnderDirectory(hgscc.WorkingDir, path);
 		}
 
 		public void AddSubrepoStorage(string work_dir, SccProviderStorage storage)
@@ -750,6 +750,29 @@ namespace HgSccPackage
 				Subs[root] = new List<SccProviderStorage>();
 			}
 			Subs[root].Add(storage);
+		}
+
+		//------------------------------------------------------------------
+		/// <summary>
+		/// Checks that specified path is located under a specified directory
+		/// </summary>
+		/// <param name="dir"></param>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		private static bool IsPathUnderDirectory(string dir, string path)
+		{
+			var dir_low = dir.ToLower();
+			var path_low = path.ToLower();
+			
+			if (path_low.StartsWith(dir_low))
+			{
+				if (path_low == dir_low)
+					return true;
+
+				return path_low[dir_low.Length] == Path.DirectorySeparatorChar;
+			}
+
+			return false;
 		}
 	}
 }
