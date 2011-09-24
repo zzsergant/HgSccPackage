@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="f48409e9-b519-4014-a2c0-66552a80b7cd"
+			 Name="HgSccPackage"
+			 Language="1033"
+			 Version="1.8.1"
+			 Manufacturer="Sergey Antonov"
+			 UpgradeCode="a74c2ce7-362a-4cce-b07e-f57dc8d85bba">
+		<Package InstallerVersion="200" Compressed="yes"
+				 Description="Mercurial Source Control Package for MS Visual Studio"
+				 Manufacturer="Sergey Antonov"/>
+
+		<Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
+
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLLOCATION" Name="HgSccPackageWix">
+					<Component Id="ProductComponent" Guid="afed0d52-29e9-4786-8e3e-ce527b327aca">
+						<File Id='AvalonEdit' Name='ICSharpCode.AvalonEdit.dll' DiskId='1'
+							  Source='../Lib/ICSharpCode.AvalonEdit.dll' />
+						<File Id='RestSharp' Name='RestSharp.dll' DiskId='1'
+							  Source='../Lib/RestSharp.dll' />
+						
+						<!-- TODO: Insert files, registry keys, and other resources here. -->
+					</Component>
+				</Directory>
+			</Directory>
+		</Directory>
+
+		<Feature Id="ProductFeature" Title="HgSccPackageWix" Level="1">
+			<ComponentRef Id="ProductComponent" />
+
+			<!-- Note: The following ComponentGroupRef is required to pull in generated authoring from project references. -->
+			<ComponentGroupRef Id="Product.Generated" />
+		</Feature>
+	</Product>
+</Wix>
