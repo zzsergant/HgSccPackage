@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="f48409e9-b519-4014-a2c0-66552a80b7cd"
+	<Product Id="BA234553-8702-4471-8A91-D8A358D51307"
 			 Name="HgSccPackage"
 			 Language="1033"
 			 Version="1.8.1"
 			 Manufacturer="Sergey Antonov"
-			 UpgradeCode="a74c2ce7-362a-4cce-b07e-f57dc8d85bba">
+			 UpgradeCode="92680898-E5B3-43AF-9D81-3E07DA507EBC">
 		<Package InstallerVersion="200" Compressed="yes"
 				 Description="Mercurial Source Control Package for MS Visual Studio"
 				 Manufacturer="Sergey Antonov"/>
 
 		<Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
 
+		<PropertyRef Id="VS11_DEVENV" />
+
+		<Condition Message="You must have one of MS Visual Studio 2008/2010/11 installed, standard edition or higher">
+			<![CDATA[Installed OR VS11_DEVENV]]>
+		</Condition>
+
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFilesFolder">
-				<Directory Id="INSTALLLOCATION" Name="HgSccPackageWix">
+				<Directory Id="INSTALLLOCATION" Name="HgSccPackage">
 					<Component Id="ProductComponent" Guid="afed0d52-29e9-4786-8e3e-ce527b327aca">
 						<File Id='AvalonEdit' Name='ICSharpCode.AvalonEdit.dll' DiskId='1'
 							  Source='../Lib/ICSharpCode.AvalonEdit.dll' />
@@ -33,5 +39,17 @@
 			<!-- Note: The following ComponentGroupRef is required to pull in generated authoring from project references. -->
 			<ComponentGroupRef Id="Product.Generated" />
 		</Feature>
+
+		<Feature Id="Feature_VS11"
+				 Title="VS11"
+				 Level="1">
+			<ComponentRef Id="VS11_REG" />
+
+			<Condition Level="0">
+				<![CDATA[NOT VS11_DEVENV]]>
+			</Condition>
+		</Feature>
+
+		<CustomActionRef Id="VS11_SETUP" />
 	</Product>
 </Wix>

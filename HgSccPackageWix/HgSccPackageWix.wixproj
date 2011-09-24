@@ -26,6 +26,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Product.wxs" />
+    <Compile Include="VS11.wxs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HgSccHelper\HgSccHelper.csproj">
