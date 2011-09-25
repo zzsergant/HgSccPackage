@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?include Constants.wxi?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Fragment>
 		<Property Id="VS11_DEVENV">
@@ -56,22 +57,22 @@
 					<RegistryValue Type="string" Value="#100"></RegistryValue>
 					<RegistryValue Name="Package" Type="string" Value="{a7f26ca1-2000-4729-896e-0bbe9e380635}"></RegistryValue>
 					<RegistryValue Name="ProductDetails" Type="string" Value="#101"></RegistryValue>
-					<RegistryValue Name="PID" Type="string" Value="1.8.1.0"></RegistryValue>
+					<RegistryValue Name="PID" Type="string" Value="$(var.ZZ_VERSION)"></RegistryValue>
 					<RegistryValue Name="LogoID" Type="string" Value="#400"></RegistryValue>
 				</RegistryKey>
 				<RegistryKey Id="Reg_VS11_Packages"
 							 Root="HKLM"
 							 Action="createAndRemoveOnUninstall"
 							 Key="SOFTWARE\Microsoft\VisualStudio\11.0\Packages\{a7f26ca1-2000-4729-896e-0bbe9e380635}">
-					<RegistryValue Type="string" Value="HgSccPackage.SccProvider, HgSccPackage, Version=1.8.1.0, Culture=neutral, PublicKeyToken=null"></RegistryValue>
+					<RegistryValue Type="string" Value="HgSccPackage.SccProvider, HgSccPackage, Version=$(var.ZZ_VERSION), Culture=neutral, PublicKeyToken=null"></RegistryValue>
 					<RegistryValue Name="Class" Type="string" Value="HgSccPackage.SccProvider"></RegistryValue>
 					<RegistryValue Name='CodeBase' Type='string' Value='[INSTALLLOCATION]HgSccPackage.dll'/>
 					<RegistryValue Name="ID" Type="integer" Value="104"></RegistryValue>
 					<RegistryValue Name="InprocServer32" Type="string" Value="[SystemFolder]mscoree.dll"></RegistryValue>
-					<RegistryValue Name="CompanyName" Type="string" Value="Sergey Antonov"></RegistryValue>
+					<RegistryValue Name="CompanyName" Type="string" Value="$(var.ZZ_AUTHOR)"></RegistryValue>
 					<RegistryValue Name="MinEdition" Type="string" Value="Standard"></RegistryValue>
 					<RegistryValue Name="ProductName" Type="string" Value="HgSccPackage - Mercurial Source Control Package"></RegistryValue>
-					<RegistryValue Name="Version" Type="string" Value="1.8.1"></RegistryValue>
+					<RegistryValue Name="Version" Type="string" Value="$(var.ZZ_VERSION)"></RegistryValue>
 				</RegistryKey>
 			</Component>
 		</DirectoryRef>

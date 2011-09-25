@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?include Constants.wxi?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Product Id="BA234553-8702-4471-8A91-D8A358D51307"
 			 Name="HgSccPackage"
 			 Language="1033"
-			 Version="1.8.1"
-			 Manufacturer="Sergey Antonov"
+			 Version="$(var.ZZ_VERSION)"
+			 Manufacturer="$(var.ZZ_AUTHOR)"
 			 UpgradeCode="92680898-E5B3-43AF-9D81-3E07DA507EBC">
 		<Package InstallerVersion="200" Compressed="yes"
 				 Platform="x86"
 				 Description="Mercurial Source Control Package for MS Visual Studio"
-				 Manufacturer="Sergey Antonov"/>
+				 Manufacturer="$(var.ZZ_AUTHOR)"/>
 
 		<Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
 
