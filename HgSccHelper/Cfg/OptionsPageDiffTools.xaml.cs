@@ -29,6 +29,8 @@ namespace HgSccHelper
 		public OptionsPageDiffTools()
 		{
 			InitializeComponent();
+
+			merge_tools = new List<MergeToolInfo>();
 		}
 
 		//------------------------------------------------------------------

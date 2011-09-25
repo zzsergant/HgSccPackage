@@ -1,11 +1,12 @@
 ﻿<Window x:Class="HgSccHelper.DiffOptionsWindow"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:HgSccHelper="clr-namespace:HgSccHelper"
-    Title="Select Diff Tool"
-    WindowStartupLocation="CenterScreen"
-    SizeToContent="Height"
-    Width="615">
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:HgSccHelper="clr-namespace:HgSccHelper"
+        Title="Select Diff Tool"
+        Loaded="Window_Loaded"
+        WindowStartupLocation="CenterScreen"
+        SizeToContent="Height"
+        Width="615">
     <Grid>
         <StackPanel>
             <Grid>
