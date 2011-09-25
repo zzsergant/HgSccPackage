@@ -451,6 +451,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>"$(ProjectDir)postbuild.bat" $(TargetFileName) $(ConfigurationName)</PostBuildEvent>
+    <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(TargetPath)" $(ConfigurationName)</PostBuildEvent>
   </PropertyGroup>
 </Project>

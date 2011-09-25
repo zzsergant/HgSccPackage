@@ -5,7 +5,7 @@
     <ProductVersion>3.5</ProductVersion>
     <ProjectGuid>{b71cc622-ce69-48a8-94ee-f6097aba29c2}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>HgSccPackageWix</OutputName>
+    <OutputName>HgSccPackage</OutputName>
     <OutputType>Package</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Constants.wxi" />
+    <Content Include="postbuild.bat" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--
@@ -74,4 +75,7 @@
 	<Target Name="AfterBuild">
 	</Target>
 	-->
+  <PropertyGroup>
+    <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(TargetPath)" $(ConfigurationName)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

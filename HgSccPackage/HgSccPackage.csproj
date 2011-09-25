@@ -173,7 +173,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>"$(ProjectDir)postbuild.bat" $(TargetFileName) $(ConfigurationName)
+    <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(TargetPath)" $(ConfigurationName)
 "%25VSSDK90Install%25\VisualStudioIntegration\Tools\bin\regpkg.exe" /regfile:"$(TargetDir)$(TargetName).reg" /codebase $(TargetPath)
 </PostBuildEvent>
   </PropertyGroup>
