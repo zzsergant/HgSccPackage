@@ -5,19 +5,20 @@
 			 Name="HgSccPackage"
 			 Language="1033"
 			 Version="$(var.ZZ_VERSION)"
-			 Manufacturer="$(var.ZZ_AUTHOR)"
+			 Manufacturer="$(var.ZZ_AUTHOR)"			 
 			 UpgradeCode="92680898-E5B3-43AF-9D81-3E07DA507EBC">
 		<Package InstallerVersion="200" Compressed="yes"
 				 Platform="x86"
+				 InstallPrivileges="elevated"
+				 InstallScope="perMachine"
 				 Description="Mercurial Source Control Package for MS Visual Studio"
 				 Manufacturer="$(var.ZZ_AUTHOR)"/>
 
 		<Property Id="ARPHELPLINK">$(var.ZZ_URL)</Property>
 		<Property Id="ARPCONTACT">$(var.ZZ_AUTHOR)</Property>
 
-		<MajorUpgrade DowngradeErrorMessage="A newer version of HgSccPackage is already installed. Setup will now exit."
-					  AllowSameVersionUpgrades="no" />
-			
+		<MajorUpgrade DowngradeErrorMessage="A newer version of HgSccPackage is already installed. Setup will now exit." />
+
 		<Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
 
 		<PropertyRef Id="VS2008_DEVENV" />
