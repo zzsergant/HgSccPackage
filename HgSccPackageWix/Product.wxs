@@ -11,11 +11,12 @@
 				 Platform="x86"
 				 InstallPrivileges="elevated"
 				 InstallScope="perMachine"
-				 Description="Mercurial Source Control Package for MS Visual Studio"
+				 Description="$(var.ZZ_DESC)"
 				 Manufacturer="$(var.ZZ_AUTHOR)"/>
 
-		<Property Id="ARPHELPLINK">$(var.ZZ_URL)</Property>
+		<Property Id="ARPURLINFOABOUT">$(var.ZZ_URL)</Property>
 		<Property Id="ARPCONTACT">$(var.ZZ_AUTHOR)</Property>
+    <Property Id="ARPCOMMENTS">$(var.ZZ_DESC)</Property>
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of HgSccPackage is already installed. Setup will now exit." />
 
