@@ -14,10 +14,12 @@
 
 		<Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
 
+		<PropertyRef Id="VS2008_DEVENV" />
+		<PropertyRef Id="VS2010_DEVENV" />
 		<PropertyRef Id="VS11_DEVENV" />
 
 		<Condition Message="You must have one of MS Visual Studio 2008/2010/11 installed, standard edition or higher">
-			<![CDATA[Installed OR VS11_DEVENV]]>
+			<![CDATA[Installed OR VS2008_DEVENV OR VS2010_DEVENV OR VS11_DEVENV]]>
 		</Condition>
 
 		<Directory Id="TARGETDIR" Name="SourceDir">
@@ -44,9 +46,23 @@
 			<ComponentGroupRef Id="Product.Generated" />
 		</Feature>
 
-		<Feature Id="Feature_VS11"
-				 Title="VS11"
-				 Level="1">
+		<Feature Id="Feature_VS2008" Title="VS2008" Level="1">
+			<ComponentRef Id="VS2008_REG" />
+
+			<Condition Level="0">
+				<![CDATA[NOT VS2008_DEVENV]]>
+			</Condition>
+		</Feature>
+
+		<Feature Id="Feature_VS2010" Title="VS2010" Level="1">
+			<ComponentRef Id="VS2010_REG" />
+
+			<Condition Level="0">
+				<![CDATA[NOT VS2010_DEVENV]]>
+			</Condition>
+		</Feature>
+
+		<Feature Id="Feature_VS11" Title="VS11" Level="1">
 			<ComponentRef Id="VS11_REG" />
 
 			<Condition Level="0">
@@ -54,6 +70,8 @@
 			</Condition>
 		</Feature>
 
+		<CustomActionRef Id="VS2008_SETUP" />
+		<CustomActionRef Id="VS2010_SETUP" />
 		<CustomActionRef Id="VS11_SETUP" />
 	</Product>
 </Wix>

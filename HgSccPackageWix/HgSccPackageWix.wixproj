@@ -27,6 +27,8 @@
   <ItemGroup>
     <Compile Include="Product.wxs" />
     <Compile Include="VS11.wxs" />
+    <Compile Include="VS2008.wxs" />
+    <Compile Include="VS2010.wxs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HgSccHelper\HgSccHelper.csproj">
