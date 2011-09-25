@@ -22,15 +22,17 @@
 
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFilesFolder">
-				<Directory Id="INSTALLLOCATION" Name="HgSccPackage">
-					<Component Id="ProductComponent" Guid="afed0d52-29e9-4786-8e3e-ce527b327aca">
-						<File Id='AvalonEdit' Name='ICSharpCode.AvalonEdit.dll' DiskId='1'
-							  Source='../Lib/ICSharpCode.AvalonEdit.dll' />
-						<File Id='RestSharp' Name='RestSharp.dll' DiskId='1'
-							  Source='../Lib/RestSharp.dll' />
-						
-						<!-- TODO: Insert files, registry keys, and other resources here. -->
-					</Component>
+				<Directory Id="ZzFolder" Name="Zz">
+					<Directory Id="INSTALLLOCATION" Name="HgSccPackage">
+						<Component Id="ProductComponent" Guid="afed0d52-29e9-4786-8e3e-ce527b327aca">
+							<File Id='AvalonEdit' Name='ICSharpCode.AvalonEdit.dll' DiskId='1'
+								  Source='../Lib/ICSharpCode.AvalonEdit.dll' />
+							<File Id='RestSharp' Name='RestSharp.dll' DiskId='1'
+								  Source='../Lib/RestSharp.dll' />
+							
+							<!-- TODO: Insert files, registry keys, and other resources here. -->
+						</Component>
+					</Directory>
 				</Directory>
 			</Directory>
 		</Directory>
