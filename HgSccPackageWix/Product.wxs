@@ -7,6 +7,7 @@
 			 Manufacturer="Sergey Antonov"
 			 UpgradeCode="92680898-E5B3-43AF-9D81-3E07DA507EBC">
 		<Package InstallerVersion="200" Compressed="yes"
+				 Platform="x86"
 				 Description="Mercurial Source Control Package for MS Visual Studio"
 				 Manufacturer="Sergey Antonov"/>
 
