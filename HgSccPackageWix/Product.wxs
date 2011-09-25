@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?include Constants.wxi?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="$(var.ZZ_PRODUCT_ID)"
+	<Product Id="*"
 			 Name="HgSccPackage"
 			 Language="1033"
 			 Version="$(var.ZZ_VERSION)"
@@ -15,32 +15,9 @@
 		<Property Id="ARPHELPLINK">$(var.ZZ_URL)</Property>
 		<Property Id="ARPCONTACT">$(var.ZZ_AUTHOR)</Property>
 
-		<Upgrade Id="92680898-E5B3-43AF-9D81-3E07DA507EBC">
-			<UpgradeVersion Property="OLD_VERSION_FOUND"
-							Minimum="1.0.0.0"
-							Maximum="$(var.ZZ_VERSION)"
-							IncludeMinimum="yes"
-							IncludeMaximum="no"
-							OnlyDetect="no"
-							IgnoreRemoveFailure="no"
-							Language="1033" />
+		<MajorUpgrade DowngradeErrorMessage="A newer version of HgSccPackage is already installed. Setup will now exit."
+					  AllowSameVersionUpgrades="no" />
 			
-			<UpgradeVersion Property="NEWER_VERSION_FOUND"
-							Minimum="$(var.ZZ_VERSION)"
-							IncludeMinimum="no"
-							OnlyDetect="yes"
-							Language="1033" />
-		</Upgrade>
-
-		<InstallExecuteSequence>
-			<RemoveExistingProducts After="InstallInitialize" />
-			<InstallExecute After="RemoveExistingProducts" />
-		</InstallExecuteSequence>
-
-		<Condition Message="A newer version of HgSccPackage is already installed. Exiting installation.">
-			<![CDATA[Installed OR NOT NEWER_VERSION_FOUND]]>
-		</Condition>
-
 		<Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
 
 		<PropertyRef Id="VS2008_DEVENV" />

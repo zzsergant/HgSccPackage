@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Include>
-	<!-- Change product version and id -->
 	<?define ZZ_VERSION = "1.8.1" ?>
-	<?define ZZ_PRODUCT_ID = "BA234553-8702-4471-8A91-D8A358D51307" ?>
 	<?define ZZ_AUTHOR = "Sergey Antonov" ?>
 	<?define ZZ_URL = "http://www.newsupaplex.pp.ru/hgscc_news_eng.html" ?>
 </Include>
