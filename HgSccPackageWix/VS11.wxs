@@ -90,7 +90,9 @@
 		<InstallExecuteSequence>
 			<Custom Action="VS11_SETUP"
 					Before="InstallFinalize"
-					Overridable="yes">VS11_DEVENV</Custom>
+					Overridable="yes">
+				<![CDATA[&Feature_VS11=3]]>
+			</Custom>
 		</InstallExecuteSequence>
 	</Fragment>
 </Wix>
