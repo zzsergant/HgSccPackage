@@ -72,7 +72,7 @@
 					<RegistryValue Name="CompanyName" Type="string" Value="$(var.ZZ_AUTHOR)"></RegistryValue>
 					<RegistryValue Name="MinEdition" Type="string" Value="Standard"></RegistryValue>
 					<RegistryValue Name="ProductName" Type="string" Value="HgSccPackage - Mercurial Source Control Package"></RegistryValue>
-					<RegistryValue Name="Version" Type="string" Value="$(var.ZZ_VERSION)"></RegistryValue>
+					<RegistryValue Name="ProductVersion" Type="string" Value="$(var.ZZ_VERSION)"></RegistryValue>
 				</RegistryKey>
 			</Component>
 		</DirectoryRef>
