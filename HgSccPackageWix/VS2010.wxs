@@ -71,8 +71,8 @@
 					<RegistryValue Name="InprocServer32" Type="string" Value="[SystemFolder]mscoree.dll"></RegistryValue>
 					<RegistryValue Name="CompanyName" Type="string" Value="$(var.ZZ_AUTHOR)"></RegistryValue>
 					<RegistryValue Name="MinEdition" Type="string" Value="Standard"></RegistryValue>
-					<RegistryValue Name="ProductName" Type="string" Value="HgSccPackage - Mercurial Source Control Package"></RegistryValue>
-					<RegistryValue Name="ProductVersion" Type="string" Value="$(var.ZZ_VERSION)"></RegistryValue>
+					<RegistryValue Name="ProductName" Type="string" Value="Mercurial Source Control Package"></RegistryValue>
+					<RegistryValue Name="ProductVersion" Type="string" Value="1.0"></RegistryValue>
 				</RegistryKey>
 			</Component>
 		</DirectoryRef>
