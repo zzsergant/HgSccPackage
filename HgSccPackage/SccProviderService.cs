@@ -85,13 +85,9 @@ namespace HgSccPackage
 		System.Windows.Forms.Timer rdt_timer;
 		Dictionary<SccProviderStorage, HashSet<string>> rdt_files_to_update;
 
-		class DeleteFilesParams
-		{
-			public SccProviderStorage Storage { get; set; }
-			public List<string> Files { get; set; }
-		}
-
-		private List<DeleteFilesParams> pending_delete;
+		private Dictionary<SccProviderStorage, HashSet<string>> pending_remove;
+		private Dictionary<SccProviderStorage, HashSet<string>> pending_delete;
+		private bool pending_save_all_dirty;
 
 		// Indexes of icons in our custom image list
 		// NOTE: Only four custom glyphs allowed
@@ -146,7 +142,9 @@ namespace HgSccPackage
 
 			rdt_files_to_update = new Dictionary<SccProviderStorage, HashSet<string>>();
 
-			pending_delete = new List<DeleteFilesParams>();
+			pending_delete = new Dictionary<SccProviderStorage, HashSet<string>>();
+			pending_remove = new Dictionary<SccProviderStorage, HashSet<string>>();
+			pending_save_all_dirty = false;
 		}
 
 		//------------------------------------------------------------------
@@ -189,7 +187,9 @@ namespace HgSccPackage
 			}
 			storage_list.Clear();
 			pending_delete.Clear();
+			pending_remove.Clear();
 			outside_projects.Clear();
+			pending_save_all_dirty = false;
 		}
 
 		#endregion
@@ -231,12 +231,21 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void HandlePendingCommand()
 		{
+			if (pending_remove.Count != 0)
+			{
+				foreach (var s in pending_remove.Keys)
+					s.RemoveFiles(pending_remove[s]);
+
+				pending_remove.Clear();
+			}
+
 			if (pending_delete.Count != 0)
 			{
-				foreach (var p in pending_delete)
+
+				foreach (var s in pending_delete.Keys)
 				{
 					var deleted_files = new List<string>();
-					foreach (var file in p.Files)
+					foreach (var file in pending_delete[s])
 					{
 						if (!File.Exists(file))
 						{
@@ -247,23 +256,78 @@ namespace HgSccPackage
 
 					if (deleted_files.Count > 0)
 					{
-						p.Storage.RemoveFiles(deleted_files);
+						s.RemoveFiles(deleted_files);
 					}
 				}
 
 				pending_delete.Clear();
 			}
+
+			if (pending_save_all_dirty)
+			{
+				pending_save_all_dirty = false;
+				_sccProvider.SaveAllIfDirty();
+			}
 		}
 
-		//------------------------------------------------------------------
-		private bool QueuePendingDelete(DeleteFilesParams delete_files)
+		//-----------------------------------------------------------------------------
+		void QueueSaveAllIfDirty()
 		{
-			bool need_queue = pending_delete.Count == 0;
-			pending_delete.Add(delete_files);
+			if (pending_save_all_dirty)
+				return;
+
+			pending_save_all_dirty = true;
+			QueuePendingCommand(CommandId.icmdPendingTask);
+		}
+
+		//-----------------------------------------------------------------------------
+		void QueuePendingRemove(SccProviderStorage storage, string file)
+		{
+			QueuePendingRemove(storage, new []{file});
+		}
+
+		//-----------------------------------------------------------------------------
+		void QueuePendingRemove(SccProviderStorage storage, IEnumerable<string> files)
+		{
+			bool need_queue = pending_remove.Count == 0;
+
+			HashSet<string> files_to_remove;
+			if (!pending_remove.TryGetValue(storage, out files_to_remove))
+			{
+				files_to_remove = new HashSet<string>();
+				pending_remove[storage] = files_to_remove;
+			}
+
+			foreach (var file in files)
+				files_to_remove.Add(file);
 
 			if (need_queue)
-				return QueuePendingCommand(CommandId.icmdPendingTask);
-			return true;
+				QueuePendingCommand(CommandId.icmdPendingTask);
+		}
+
+		//-----------------------------------------------------------------------------
+		void QueuePendingDelete(SccProviderStorage storage, string file)
+		{
+			QueuePendingDelete(storage, new[] { file });
+		}
+
+		//-----------------------------------------------------------------------------
+		void QueuePendingDelete(SccProviderStorage storage, IEnumerable<string> files)
+		{
+			bool need_queue = pending_delete.Count == 0;
+
+			HashSet<string> files_to_delete;
+			if (!pending_delete.TryGetValue(storage, out files_to_delete))
+			{
+				files_to_delete = new HashSet<string>();
+				pending_delete[storage] = files_to_delete;
+			}
+
+			foreach (var file in files)
+				files_to_delete.Add(file);
+
+			if (need_queue)
+				QueuePendingCommand(CommandId.icmdPendingTask);
 		}
 
 		//------------------------------------------------------------------
@@ -376,7 +440,7 @@ namespace HgSccPackage
 		/// Provide source control icons for the specified files and returns scc status of files
 		/// </summary>
 		/// <returns>The method returns S_OK if at least one of the files is controlled, S_FALSE if none of them are</returns>
-		public int GetSccGlyph( [InAttribute] int cFiles, [InAttribute] string[] rgpszFullPaths, [OutAttribute] VsStateIcon[] rgsiGlyphs, [OutAttribute] uint[] rgdwSccStatus )
+		public int GetSccGlyph([InAttribute] int cFiles, [InAttribute] string[] rgpszFullPaths, [OutAttribute] VsStateIcon[] rgsiGlyphs, [OutAttribute] uint[] rgdwSccStatus)
 		{
 //			Debug.Assert(cFiles == 1, "Only getting one file icon at a time is supported");
 			SourceControlStatus[] statuses = new SourceControlStatus[rgpszFullPaths.Length];
@@ -388,6 +452,7 @@ namespace HgSccPackage
 				// Return the icons and the status. While the status is a combination a flags, we'll return just values 
 				// with one bit set, to make life easier for GetSccGlyphsFromStatus
 				SourceControlStatus status = statuses[iFile];
+				Logger.WriteLine("File: {0}", rgpszFullPaths[iFile]);
 
 				switch (status)
 				{
@@ -1046,13 +1111,11 @@ namespace HgSccPackage
 
 		public int BeginQuerySaveBatch ()
 		{
-			Logger.WriteLine("BeginQuerySaveBatch");
 			return VSConstants.S_OK;
 		}
 
 		public int EndQuerySaveBatch ()
 		{
-			Logger.WriteLine("EndQuerySaveBatch");
 			return VSConstants.S_OK;
 		}
 
@@ -1075,7 +1138,6 @@ namespace HgSccPackage
 
 		public int OnAfterSaveUnreloadableFile([InAttribute] string pszMkDocument, [InAttribute] uint rgf, [InAttribute] VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
 		{
-			Logger.WriteLine("OnAfterSaveUnreloadableFile: {0}", pszMkDocument);
 			return VSConstants.S_OK;
 		}
 
@@ -1395,7 +1457,6 @@ namespace HgSccPackage
 		//--------------------------------------------------------------------------------
 		// IVsTrackProjectDocumentsEvents2 specific functions
 		//--------------------------------------------------------------------------------
-
 		public int OnQueryAddFiles([InAttribute] IVsProject pProject, [InAttribute] int cFiles, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSQUERYADDFILEFLAGS[] rgFlags, [OutAttribute] VSQUERYADDFILERESULTS[] pSummaryResult, [OutAttribute] VSQUERYADDFILERESULTS[] rgResults)
 		{
 			pSummaryResult[0] = VSQUERYADDFILERESULTS.VSQUERYADDFILERESULTS_AddOK;
@@ -1526,6 +1587,8 @@ namespace HgSccPackage
 					// Refresh the solution explorer glyphs for all projects containing this file
 					System.Collections.Generic.IList<VSITEMSELECTION> nodes = GetControlledProjectsContainingFile(rgpszMkDocuments[iFile]);
 					selected_items.AddRange(nodes);
+
+					QueueFileStatusUpdate(project_storage, rgpszMkDocuments[iFile]);
 				}
 			}
 
@@ -1564,8 +1627,8 @@ namespace HgSccPackage
 
 			if (selected_items.Count != 0)
 			{
-				_sccProvider.RefreshNodesGlyphs(selected_items);
-				_sccProvider.SaveAllIfDirty();
+//				_sccProvider.RefreshNodesGlyphs(selected_items);
+				QueueSaveAllIfDirty();
 			}
 
 			if (add_origin.Count != 0)
@@ -1593,9 +1656,9 @@ namespace HgSccPackage
 			return VSConstants.E_NOTIMPL;
 		}
 
-		public int OnAfterAddDirectoriesEx ([InAttribute] int cProjects, [InAttribute] int cDirectories, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSADDDIRECTORYFLAGS[] rgFlags)
+		public int OnAfterAddDirectoriesEx([InAttribute] int cProjects, [InAttribute] int cDirectories, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSADDDIRECTORYFLAGS[] rgFlags)
 		{
-			_sccProvider.SaveAllIfDirty();
+			QueueSaveAllIfDirty();
 			return VSConstants.S_OK;
 		}
 
@@ -1738,17 +1801,17 @@ namespace HgSccPackage
 			foreach (var storage in files_map.Keys)
 			{
 				var files = files_map[storage];
-				storage.RemoveFiles(files);
+				QueuePendingRemove(storage, files);
 			}
 
 			foreach (var storage in pending_files_map.Keys)
 			{
 				var files = pending_files_map[storage];
 				if (files.Count != 0)
-					QueuePendingDelete(new DeleteFilesParams { Files = files, Storage = storage });
+					QueuePendingDelete(storage, files);
 			}
 
-			_sccProvider.SaveAllIfDirty();
+			QueueSaveAllIfDirty();
 			return VSConstants.S_OK;
 		}
 
@@ -1759,7 +1822,7 @@ namespace HgSccPackage
 
 		public int OnAfterRemoveDirectories([InAttribute] int cProjects, [InAttribute] int cDirectories, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSREMOVEDIRECTORYFLAGS[] rgFlags)
 		{
-			_sccProvider.SaveAllIfDirty();
+			QueueSaveAllIfDirty();
 			return VSConstants.S_OK;
 		}
 
@@ -1828,7 +1891,7 @@ namespace HgSccPackage
 				}
 			}
 
-			_sccProvider.SaveAllIfDirty();
+			QueueSaveAllIfDirty();
 			return VSConstants.S_OK;
 		}
 
@@ -2167,8 +2230,13 @@ namespace HgSccPackage
 
 			if (files.Count != 0)
 			{
+				var nodes = new List<VSITEMSELECTION>();
 				storage.AddFilesToStorage(files);
-				RefreshGlyphsForControlledProjects();
+
+				foreach (var file in files)
+					nodes.AddRange(GetControlledProjectsContainingFile(file));
+
+				_sccProvider.RefreshNodesGlyphs(nodes);
 			}
 		}
 
@@ -2415,7 +2483,6 @@ namespace HgSccPackage
 		/// </returns>
 		public int OnBeginQueryBatch()
 		{
-			Logger.WriteLine("OnBeginQueryBatch");
 			return VSConstants.S_OK;
 		}
 
@@ -2428,7 +2495,6 @@ namespace HgSccPackage
 		/// <param name="pfActionOK">[out] Returns nonzero if it is okay to continue with the proposed batch process. Returns zero if the proposed batch process should not proceed.</param>
 		public int OnEndQueryBatch(out int pfActionOK)
 		{
-			Logger.WriteLine("OnEndQueryBatch");
 			pfActionOK = 1;
 			return VSConstants.S_OK;
 		}
@@ -2574,10 +2640,24 @@ namespace HgSccPackage
 
 		#endregion
 
+		//-----------------------------------------------------------------------------
+		void QueueFileStatusUpdate(SccProviderStorage storage, string file)
+		{
+			HashSet<string> files_to_update;
+			if (!rdt_files_to_update.TryGetValue(storage, out files_to_update))
+			{
+				files_to_update = new HashSet<string>();
+				rdt_files_to_update[storage] = files_to_update;
+			}
+
+			files_to_update.Add(file);
+			rdt_timer.Start();
+		}
+
 		//------------------------------------------------------------------
 		void Rdt_AfterSaveEvent(object sender, RdtAfterSaveEventArgs e)
 		{
-			Logger.WriteLine("OnAfterSave: {0}", e.DocInfo.MkDocument);
+			Logger.WriteLine("OnAfterSave: {0}, flags {1}", e.DocInfo.MkDocument, e.DocInfo.Flags);
 
 			var storage = GetStorageForFile(e.DocInfo.MkDocument);
 
@@ -2585,17 +2665,7 @@ namespace HgSccPackage
 			{
 				var status = storage.GetFileStatus(e.DocInfo.MkDocument);
 				if (status != SourceControlStatus.scsUncontrolled)
-				{
-					HashSet<string> files_to_update;
-					if (!rdt_files_to_update.TryGetValue(storage, out files_to_update))
-					{
-						files_to_update = new HashSet<string>();
-						rdt_files_to_update[storage] = files_to_update;
-					}
-
-					files_to_update.Add(e.DocInfo.MkDocument);
-					rdt_timer.Start();
-				}
+					QueueFileStatusUpdate(storage, e.DocInfo.MkDocument);
 			}
 		}
 
@@ -2605,6 +2675,8 @@ namespace HgSccPackage
 			rdt_timer.Stop();
 			if (rdt_files_to_update.Count != 0)
 			{
+				var nodes = new List<VSITEMSELECTION>();
+
 				foreach (var storage in rdt_files_to_update.Keys)
 				{
 					var files = rdt_files_to_update[storage].ToArray();
@@ -2613,9 +2685,15 @@ namespace HgSccPackage
 					if (storage.IsValid && Active)
 					{
 						storage.UpdateCache(files);
-						RefreshGlyphsForControlledProjects();
+						foreach (var file in files)
+						{
+							nodes.AddRange(GetControlledProjectsContainingFile(file));
+						}
 					}
 				}
+
+				if (nodes.Count > 0)
+					_sccProvider.RefreshNodesGlyphs(nodes);
 			}
 		}
 
@@ -2645,6 +2723,7 @@ namespace HgSccPackage
 			}
 		}
 
+		//-----------------------------------------------------------------------------
 		public void RefreshGlyphsForControlledProjects()
 		{
 			// For all the projects added to source control, refresh their source control glyphs

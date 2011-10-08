@@ -1645,12 +1645,30 @@ namespace HgSccPackage
 				}
 		*/
 
+		class GlyphsToUpdate
+		{
+			public GlyphsToUpdate()
+			{
+				SccFiles = new List<string>();
+				Glyphs = new List<VsStateIcon>();
+				SccStatus = new List<uint>();
+				AffectedNodes = new List<uint>();
+			}
+
+			public List<string> SccFiles { get; private set; }
+			public List<VsStateIcon> Glyphs { get; private set; }
+			public List<uint> SccStatus { get; private set; }
+			public List<uint> AffectedNodes { get; private set; }
+		}
+
 		//------------------------------------------------------------------
 		/// <summary>
 		/// Refreshes the glyphs of the specified hierarchy nodes
 		/// </summary>
 		public void RefreshNodesGlyphs(IList<VSITEMSELECTION> selectedNodes)
 		{
+			var map = new Dictionary<IVsSccProject2, GlyphsToUpdate>();
+
 			foreach (VSITEMSELECTION vsItemSel in selectedNodes)
 			{
 				var sccProject2 = vsItemSel.pHier as IVsSccProject2;
@@ -1686,6 +1704,14 @@ namespace HgSccPackage
 				}
 				else
 				{
+					GlyphsToUpdate glyphs = null;
+
+					if (!map.TryGetValue(sccProject2, out glyphs))
+					{
+						glyphs = new GlyphsToUpdate();
+						map.Add(sccProject2, glyphs);
+					}
+
 					// It may be easier/faster to simply refresh all the nodes in the project, 
 					// and let the project call back on GetSccGlyphs, but just for the sake of the demo, 
 					// let's refresh ourselves only one node at a time
@@ -1748,8 +1774,10 @@ namespace HgSccPackage
 							}
 						}
 
-						sccProject2.SccGlyphChanged(sccFiles.Count, rguiAffectedNodes, rgsiGlyphs,
-													rgdwSccStatus);
+						glyphs.SccFiles.AddRange(sccFiles);
+						glyphs.Glyphs.AddRange(rgsiGlyphs);
+						glyphs.SccStatus.AddRange(rgdwSccStatus);
+						glyphs.AffectedNodes.AddRange(rguiAffectedNodes);
 					}
 					// We'll use for the node glyph just the Master file's status (ignoring special files of the node)
 /*
@@ -1767,6 +1795,19 @@ namespace HgSccPackage
 													rgdwSccStatus);
 					}
 */
+				}
+			}
+
+			foreach (var project in map.Keys)
+			{
+				var glyphs = map[project];
+				if (glyphs.SccFiles.Count > 0)
+				{
+					project.SccGlyphChanged(
+						glyphs.SccFiles.Count,
+						glyphs.AffectedNodes.ToArray(),
+						glyphs.Glyphs.ToArray(),
+						glyphs.SccStatus.ToArray());
 				}
 			}
 		}
