@@ -70,8 +70,6 @@ namespace HgSccPackage
 		private string _loadingControlledSolutionLocation = "";
 		// The location of the currently controlled solution
 		private string _solutionLocation;
-		// The list of files approved for in-memory edit
-		private readonly HashSet<string> _approvedForInMemoryEdit = new HashSet<string>();
 		private VsRunningDocumentTable Rdt { get; set; }
 
 		private readonly Dictionary<string, string> add_origin = new Dictionary<string, string>();
@@ -863,7 +861,6 @@ namespace HgSccPackage
 			_sccProvider.SolutionHasDirtyProps = false;
 			_loadingControlledSolutionLocation = "";
 			_solutionLocation = "";
-			_approvedForInMemoryEdit.Clear();
 			projects_with_scc_bindings.Clear();
 
 			foreach (var storage in storage_list)
@@ -1161,141 +1158,6 @@ namespace HgSccPackage
 			// Initialize output variables
 			pfEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
 			prgfMoreInfo = 0;
-
-			// In non-UI mode just allow the edit, because the user cannot be asked what to do with the file
-			if (_sccProvider.InCommandLineMode())
-			{
-				return VSConstants.S_OK;
-			}
-
-			try 
-			{
-				SourceControlStatus[] statuses = new SourceControlStatus[rgpszMkDocuments.Length];
-				GetStatusForFiles(rgpszMkDocuments, statuses);
-
-				//Iterate through all the files
-				for (int iFile = 0; iFile < cFiles; iFile++)
-				{
-//					Logger.WriteLine("QueryEditFiles: [{0}]: {1}", iFile, rgpszMkDocuments[iFile]);
-					 
-					uint fEditVerdict = (uint)tagVSQueryEditResult.QER_EditNotOK;
-					uint fMoreInfo = 0;
-
-					// Because of the way we calculate the status, it is not possible to have a 
-					// checked in file that is writtable on disk, or a checked out file that is read-only on disk
-					// A source control provider would need to deal with those situations, too
-//					SourceControlStatus status = GetFileStatus(rgpszMkDocuments[iFile]);
-					SourceControlStatus status = statuses[iFile];
-					bool fileExists = File.Exists(rgpszMkDocuments[iFile]);
-					bool isFileReadOnly = false;
-					if (fileExists)
-					{
-						isFileReadOnly = (( File.GetAttributes(rgpszMkDocuments[iFile]) & FileAttributes.ReadOnly) == FileAttributes.ReadOnly);
-					}
-
-					// Allow the edits if the file does not exist or is writable
-					if (!fileExists || !isFileReadOnly)
-					{
-						fEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
-					}
-					else
-					{
-						// If the IDE asks about a file that was already approved for in-memory edit, allow the edit without asking the user again
-						if (_approvedForInMemoryEdit.Contains(rgpszMkDocuments[iFile].ToLower()))
-						{
-							fEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
-							fMoreInfo = (uint)(tagVSQueryEditResultFlags.QER_InMemoryEdit);
-						}
-						else
-						{
-							switch (status)
-							{
-								case SourceControlStatus.scsClean:
-									if ((rgfQueryEdit & (uint)tagVSQueryEditFlags.QEF_ReportOnly) != 0)
-									{
-										fMoreInfo = (uint)(tagVSQueryEditResultFlags.QER_EditNotPossible | tagVSQueryEditResultFlags.QER_ReadOnlyUnderScc);
-									}
-									else
-									{
-										fEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
-										fMoreInfo = (uint)tagVSQueryEditResultFlags.QER_MaybeCheckedout;
-									}
-									break;
-								case SourceControlStatus.scsModified: // fall through
-								case SourceControlStatus.scsAdded:
-								case SourceControlStatus.scsCopied:
-								case SourceControlStatus.scsDeleted:
-								case SourceControlStatus.scsRemoved:
-								case SourceControlStatus.scsIgnored:
-								case SourceControlStatus.scsUncontrolled:
-									if (fileExists && isFileReadOnly)
-									{
-										if ((rgfQueryEdit & (uint)tagVSQueryEditFlags.QEF_ReportOnly) != 0)
-										{
-											fMoreInfo = (uint)(tagVSQueryEditResultFlags.QER_EditNotPossible | tagVSQueryEditResultFlags.QER_ReadOnlyNotUnderScc);
-										}
-										else
-										{
-											bool fChangeAttribute = false;
-											if ((rgfQueryEdit & (uint)tagVSQueryEditFlags.QEF_SilentMode) != 0)
-											{
-												// When called in silent mode, deny the edit and return QER_NoisyPromptRequired and expect for a non-silent call)
-												// (The alternative is to silently make the file writable and accept the edit)
-												fMoreInfo = (uint)(tagVSQueryEditResultFlags.QER_EditNotPossible | tagVSQueryEditResultFlags.QER_ReadOnlyNotUnderScc | tagVSQueryEditResultFlags.QER_NoisyPromptRequired );
-											}
-											else
-											{
-												// This is a controlled file, warn the user
-												IVsUIShell uiShell = (IVsUIShell)_sccProvider.GetService(typeof(SVsUIShell));
-												Guid clsid = Guid.Empty;
-												int result = VSConstants.S_OK;
-												string messageText = Resources.ResourceManager.GetString("QEQS_EditUncontrolledReadOnly");
-												string messageCaption = Resources.ResourceManager.GetString("ProviderName");
-												if (uiShell.ShowMessageBox(0, ref clsid,
-																	messageCaption,
-																	String.Format(CultureInfo.CurrentUICulture, messageText, rgpszMkDocuments[iFile]),
-																	string.Empty,
-																	0,
-																	OLEMSGBUTTON.OLEMSGBUTTON_YESNO,
-																	OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
-																	OLEMSGICON.OLEMSGICON_QUERY,
-																	0,        // false = application modal; true would make it system modal
-																	out result) == VSConstants.S_OK
-													&& result == (int)DialogResult.Yes)
-												{
-													fChangeAttribute = true;
-												}
-											}
-
-											if (fChangeAttribute)
-											{
-												// Make the file writable and allow the edit
-												File.SetAttributes(rgpszMkDocuments[iFile], FileAttributes.Normal);
-												fEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
-											}
-										}
-									}
-									else
-									{
-										fEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
-									}
-									break;
-							}
-						}
-					}
-
-					// It's a bit unfortunate that we have to return only one set of flags for all the files involved in the operation
-					// The edit can continue if all the files were approved for edit
-					prgfMoreInfo |= fMoreInfo;
-					pfEditVerdict |= fEditVerdict;
-				}
-			}
-			catch(Exception)
-			{
-				// If an exception was caught, do not allow the edit
-				pfEditVerdict = (uint)tagVSQueryEditResult.QER_EditNotOK;
-				prgfMoreInfo = (uint)tagVSQueryEditResultFlags.QER_EditNotPossible;
-			}
 
 			return VSConstants.S_OK;
 		}
