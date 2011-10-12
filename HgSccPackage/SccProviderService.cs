@@ -2671,11 +2671,10 @@ namespace HgSccPackage
 				var status = storage.GetFileStatus(e.DocInfo.MkDocument);
 				if (status != SourceControlStatus.scsUncontrolled)
 				{
-					if (	(e.Attributes == __VSRDTATTRIB.RDTA_DocDataIsDirty)
-						||	(e.Attributes == __VSRDTATTRIB.RDTA_DocDataIsNotDirty)
-						)
+					if ((e.Attributes & __VSRDTATTRIB.RDTA_DocDataIsDirty) != 0)
 					{
-						// Changed only a dirty file status. There is no need to ask mercurial for file status.
+						// If the file status is dirty, then there is no need to ask mercurial for file status,
+						// because we will draw a pencil glyph anyway
 						IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new[] { e.DocInfo.MkDocument });
 						if (lst.Count != 0)
 							_sccProvider.RefreshNodesGlyphs(lst);
