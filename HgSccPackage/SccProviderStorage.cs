@@ -583,7 +583,7 @@ namespace HgSccPackage
 				var info = new HgFileInfo {File = f, Status = HgFileStatus.NotTracked};
 				lst.Add(info);
 				
-				Logger.WriteLine("UpdateCache: {0}", f);
+				Logger.WriteLine("GetStatus: {0}", f);
 			}
 
 			var info_lst = lst.ToArray();
@@ -600,6 +600,7 @@ namespace HgSccPackage
 		{
 			foreach (var info in files)
 			{
+				Logger.WriteLine("SetCacheStatus: {0}, {1}", info.File, info.Status);
 				cache[info.File.ToLower()] = info;
 			}
 		}

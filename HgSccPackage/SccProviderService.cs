@@ -160,18 +160,16 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		void RunStatusUpdater()
 		{
-			Logger.WriteLine("RunStatusUpdater: {0}", Thread.CurrentThread.ManagedThreadId);
-
-			if (pending_status_updater.IsBusy)
+			lock (rdt_files_lock)
 			{
-				Logger.WriteLine("Busy");
-				return;
-			}
+				UpdateStatusParams p = null;
 
-			UpdateStatusParams p = null;
+				if (pending_status_updater.IsBusy)
+				{
+					Logger.WriteLine("Busy");
+					return;
+				}
 
-			lock(rdt_files_lock)
-			{
 				if (rdt_files_to_update.Count != 0)
 				{
 					var storage = rdt_files_to_update.Keys.First();
@@ -179,17 +177,17 @@ namespace HgSccPackage
 					rdt_files_to_update.Remove(storage);
 
 					p = new UpdateStatusParams
-					        	{
-					        		Storage = storage,
-					        		Files = files
-					        	};
+					{
+						Storage = storage,
+						Files = files
+					};
 				}
-			}
 
-			if (p != null)
-			{
-				Logger.WriteLine("Running");
-				pending_status_updater.RunWorkerAsync(p);
+				if (p != null)
+				{
+					Logger.WriteLine("RunStatusUpdater: {0}", Thread.CurrentThread.ManagedThreadId);
+					pending_status_updater.RunWorkerAsync(p);
+				}
 			}
 		}
 
@@ -370,6 +368,7 @@ namespace HgSccPackage
 
 						if (storage.IsValid && Active)
 						{
+							storage.SetCacheStatus(files);
 							foreach (var file in files)
 							{
 								nodes.AddRange(GetControlledProjectsContainingFile(file.File));
@@ -2622,15 +2621,19 @@ namespace HgSccPackage
 		//-----------------------------------------------------------------------------
 		void QueueFileStatusUpdate(SccProviderStorage storage, string file)
 		{
-			HashSet<string> files_to_update;
-			if (!rdt_files_to_update.TryGetValue(storage, out files_to_update))
+			lock (rdt_files_to_update)
 			{
-				files_to_update = new HashSet<string>();
-				rdt_files_to_update[storage] = files_to_update;
-			}
+				HashSet<string> files_to_update;
+				if (!rdt_files_to_update.TryGetValue(storage, out files_to_update))
+				{
+					files_to_update = new HashSet<string>();
+					rdt_files_to_update[storage] = files_to_update;
+				}
 
-			files_to_update.Add(file);
-			rdt_timer.Start();
+				files_to_update.Add(file);
+
+				rdt_timer.Start();
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -2653,30 +2656,6 @@ namespace HgSccPackage
 		{
 			rdt_timer.Stop();
 			RunStatusUpdater();
-/*
-			if (rdt_files_to_update.Count != 0)
-			{
-				var nodes = new List<VSITEMSELECTION>();
-
-				foreach (var storage in rdt_files_to_update.Keys)
-				{
-					var files = rdt_files_to_update[storage].ToArray();
-					rdt_files_to_update[storage].Clear();
-
-					if (storage.IsValid && Active)
-					{
-						storage.UpdateCache(files);
-						foreach (var file in files)
-						{
-							nodes.AddRange(GetControlledProjectsContainingFile(file));
-						}
-					}
-				}
-
-				if (nodes.Count > 0)
-					_sccProvider.RefreshNodesGlyphs(nodes);
-			}
-*/
 		}
 
 		//------------------------------------------------------------------
@@ -2697,7 +2676,7 @@ namespace HgSccPackage
 						)
 					{
 						// Changed only a dirty file status. There is no need to ask mercurial for file status.
-						IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new []{e.DocInfo.MkDocument});
+						IList<VSITEMSELECTION> lst = GetControlledProjectsContainingFiles(new[] { e.DocInfo.MkDocument });
 						if (lst.Count != 0)
 							_sccProvider.RefreshNodesGlyphs(lst);
 					}
