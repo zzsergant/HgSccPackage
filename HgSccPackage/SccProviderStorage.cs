@@ -547,7 +547,6 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void UpdateCache(IEnumerable<string> files)
 		{
-			
 			if (!IsValid)
 				return;
 
@@ -569,6 +568,39 @@ namespace HgSccPackage
 				{
 					cache[info.File.ToLower()] = info;
 				}
+			}
+		}
+
+		//------------------------------------------------------------------
+		public List<HgFileInfo> GetStatus(IEnumerable<string> files)
+		{
+			if (!IsValid)
+				return new List<HgFileInfo>();
+
+			var lst = new List<HgFileInfo>();
+			foreach (var f in files)
+			{
+				var info = new HgFileInfo {File = f, Status = HgFileStatus.NotTracked};
+				lst.Add(info);
+				
+				Logger.WriteLine("UpdateCache: {0}", f);
+			}
+
+			var info_lst = lst.ToArray();
+
+			SccErrors error = hgscc.QueryInfo2(info_lst);
+			if (error == SccErrors.Ok)
+				return new List<HgFileInfo>(info_lst);
+
+			return new List<HgFileInfo>();
+		}
+
+		//------------------------------------------------------------------
+		public void SetCacheStatus(IEnumerable<HgFileInfo> files)
+		{
+			foreach (var info in files)
+			{
+				cache[info.File.ToLower()] = info;
 			}
 		}
 

@@ -11,12 +11,14 @@
 //=========================================================================
 
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Threading;
 using HgSccHelper;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
@@ -27,6 +29,7 @@ using HgSccPackage.Vs;
 using System.Drawing;
 using HgSccPackage.UI;
 using System.Linq;
+using Timer = System.Windows.Forms.Timer;
 
 namespace HgSccPackage
 {
@@ -85,7 +88,11 @@ namespace HgSccPackage
 
 		private Dictionary<SccProviderStorage, HashSet<string>> pending_remove;
 		private Dictionary<SccProviderStorage, HashSet<string>> pending_delete;
+		private Dictionary<SccProviderStorage, List<HgFileInfo>> pending_status;
 		private bool pending_save_all_dirty;
+
+		private BackgroundWorker pending_status_updater;
+		private object rdt_files_lock = new object();
 
 		// Indexes of icons in our custom image list
 		// NOTE: Only four custom glyphs allowed
@@ -142,7 +149,90 @@ namespace HgSccPackage
 
 			pending_delete = new Dictionary<SccProviderStorage, HashSet<string>>();
 			pending_remove = new Dictionary<SccProviderStorage, HashSet<string>>();
+			pending_status = new Dictionary<SccProviderStorage, List<HgFileInfo>>();
 			pending_save_all_dirty = false;
+
+			pending_status_updater = new BackgroundWorker();
+			pending_status_updater.DoWork += pending_status_updater_DoWork;
+			pending_status_updater.RunWorkerCompleted += pending_status_updater_RunWorkerCompleted;
+		}
+
+		//------------------------------------------------------------------
+		void RunStatusUpdater()
+		{
+			Logger.WriteLine("RunStatusUpdater: {0}", Thread.CurrentThread.ManagedThreadId);
+
+			if (pending_status_updater.IsBusy)
+			{
+				Logger.WriteLine("Busy");
+				return;
+			}
+
+			UpdateStatusParams p = null;
+
+			lock(rdt_files_lock)
+			{
+				if (rdt_files_to_update.Count != 0)
+				{
+					var storage = rdt_files_to_update.Keys.First();
+					var files = rdt_files_to_update[storage].ToArray();
+					rdt_files_to_update.Remove(storage);
+
+					p = new UpdateStatusParams
+					        	{
+					        		Storage = storage,
+					        		Files = files
+					        	};
+				}
+			}
+
+			if (p != null)
+			{
+				Logger.WriteLine("Running");
+				pending_status_updater.RunWorkerAsync(p);
+			}
+		}
+
+		//------------------------------------------------------------------
+		void pending_status_updater_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		{
+			Logger.WriteLine("PendingStatus completed");
+
+			if (e.Cancelled)
+				return;
+
+			var result = e.Result as UpdateStatusResults;
+			
+			if (result != null)
+			{
+				lock (rdt_files_lock)
+				{
+					List<HgFileInfo> files_to_update;
+					if (!pending_status.TryGetValue(result.Storage, out files_to_update))
+					{
+						files_to_update = new List<HgFileInfo>();
+						pending_status[result.Storage] = files_to_update;
+					}
+
+					files_to_update.AddRange(result.FilesInfo);
+				}
+
+				QueuePendingCommand(CommandId.icmdPendingTask);
+				RunStatusUpdater();
+			}
+		}
+
+		//------------------------------------------------------------------
+		void pending_status_updater_DoWork(object sender, DoWorkEventArgs e)
+		{
+			var p = (UpdateStatusParams)e.Argument;
+			var result = p.Storage.GetStatus(p.Files);
+
+			e.Result = new UpdateStatusResults
+			           	{
+			           		Storage = p.Storage,
+			           		FilesInfo = result
+			           	};
 		}
 
 		//------------------------------------------------------------------
@@ -187,6 +277,7 @@ namespace HgSccPackage
 			pending_delete.Clear();
 			pending_remove.Clear();
 			outside_projects.Clear();
+			pending_status.Clear();
 			pending_save_all_dirty = false;
 		}
 
@@ -265,6 +356,32 @@ namespace HgSccPackage
 			{
 				pending_save_all_dirty = false;
 				_sccProvider.SaveAllIfDirty();
+			}
+
+			if (pending_status.Count != 0)
+			{
+				var nodes = new List<VSITEMSELECTION>();
+
+				lock(rdt_files_lock)
+				{
+					foreach (var storage in pending_status.Keys)
+					{
+						var files = pending_status[storage];
+
+						if (storage.IsValid && Active)
+						{
+							foreach (var file in files)
+							{
+								nodes.AddRange(GetControlledProjectsContainingFile(file.File));
+							}
+						}
+					}
+
+					pending_status.Clear();
+				}
+
+				if (nodes.Count > 0)
+					_sccProvider.RefreshNodesGlyphs(nodes);
 			}
 		}
 
@@ -450,7 +567,7 @@ namespace HgSccPackage
 				// Return the icons and the status. While the status is a combination a flags, we'll return just values 
 				// with one bit set, to make life easier for GetSccGlyphsFromStatus
 				SourceControlStatus status = statuses[iFile];
-				Logger.WriteLine("File: {0}", rgpszFullPaths[iFile]);
+				Logger.WriteLine(".File: {0}", rgpszFullPaths[iFile]);
 
 				switch (status)
 				{
@@ -2535,6 +2652,8 @@ namespace HgSccPackage
 		void rdt_timer_Tick(object sender, EventArgs e)
 		{
 			rdt_timer.Stop();
+			RunStatusUpdater();
+/*
 			if (rdt_files_to_update.Count != 0)
 			{
 				var nodes = new List<VSITEMSELECTION>();
@@ -2557,6 +2676,7 @@ namespace HgSccPackage
 				if (nodes.Count > 0)
 					_sccProvider.RefreshNodesGlyphs(nodes);
 			}
+*/
 		}
 
 		//------------------------------------------------------------------
@@ -3032,5 +3152,19 @@ namespace HgSccPackage
 				proxy.ShowDialog();
 			}
 		}
+	}
+
+	//------------------------------------------------------------------
+	class UpdateStatusParams
+	{
+		public SccProviderStorage Storage { get; set; }
+		public IEnumerable<string> Files { get; set; }
+	}
+
+	//------------------------------------------------------------------
+	class UpdateStatusResults
+	{
+		public SccProviderStorage Storage { get; set; }
+		public List<HgFileInfo> FilesInfo { get; set; }
 	}
 }

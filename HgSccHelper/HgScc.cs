@@ -194,8 +194,8 @@ namespace HgSccHelper
 			return dict;
 		}
 
-		//-----------------------------------------------------------------------------
-		public SccErrors QueryInfo2(HgFileInfo[] files)
+		//------------------------------------------------------------------
+		public static SccErrors QueryInfo3(string working_dir, HgFileInfo[] files)
 		{
 			// TODO: Check if project is opened
 			var lst = new List<string>();
@@ -203,11 +203,12 @@ namespace HgSccHelper
 			foreach (var f in files)
 			{
 				string file;
-				if (GetRelativePath(f.File, out file))
+				if (Util.GetRelativePath(working_dir, f.File, out file))
 					lst.Add(file);
 			}
 
-			var stats = hg.Status(WorkingDir, lst);
+			var hg = new Hg();
+			var stats = hg.Status(working_dir, lst);
 
 			var dict = new Dictionary<string, HgFileInfo>();
 			foreach (var file_status in stats)
@@ -220,7 +221,7 @@ namespace HgSccHelper
 			{
 				HgFileInfo file_info;
 				string file;
-				if (	GetRelativePath(info.File, out file)
+				if (	Util.GetRelativePath(working_dir, info.File, out file)
 					&& dict.TryGetValue(file.ToLower(), out file_info)
 					)
 				{
@@ -234,6 +235,12 @@ namespace HgSccHelper
 			}
 
 			return SccErrors.Ok;
+		}
+
+		//-----------------------------------------------------------------------------
+		public SccErrors QueryInfo2(HgFileInfo[] files)
+		{
+			return QueryInfo3(WorkingDir, files);
 		}
 
 		//-----------------------------------------------------------------------------

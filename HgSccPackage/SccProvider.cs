@@ -19,6 +19,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
+using System.Threading;
 using Microsoft.Win32;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -1667,6 +1668,8 @@ namespace HgSccPackage
 		/// </summary>
 		public void RefreshNodesGlyphs(IList<VSITEMSELECTION> selectedNodes)
 		{
+			Logger.WriteLine("Refresh: {0}", Thread.CurrentThread.ManagedThreadId);
+
 			var map = new Dictionary<IVsSccProject2, GlyphsToUpdate>();
 
 			foreach (VSITEMSELECTION vsItemSel in selectedNodes)
