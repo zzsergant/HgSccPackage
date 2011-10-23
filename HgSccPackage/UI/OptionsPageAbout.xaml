@@ -45,7 +45,7 @@
         <Label Content="Version:"
                HorizontalAlignment="Right"
                Grid.Column="0" Grid.Row="3"></Label>
-        <TextBox Text="HgSccPackage v1.8.3"
+        <TextBox Text="HgSccPackage v1.8.4"
                  IsReadOnly="True"
                  Grid.Column="1" Grid.Row="3"></TextBox>
     </Grid>
