@@ -216,7 +216,6 @@ namespace HgSccPackage
 				}
 
 				QueuePendingCommand(CommandId.icmdPendingTask);
-				RunStatusUpdater();
 			}
 		}
 
@@ -318,8 +317,12 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void HandlePendingCommand()
 		{
+			Logger.WriteLine("+_+ HandlePendingCommand started");
+
 			if (pending_remove.Count != 0)
 			{
+				Logger.WriteLine("[pending remove]");
+
 				foreach (var s in pending_remove.Keys)
 					s.RemoveFiles(pending_remove[s]);
 
@@ -328,6 +331,7 @@ namespace HgSccPackage
 
 			if (pending_delete.Count != 0)
 			{
+				Logger.WriteLine("[pending delete]");
 
 				foreach (var s in pending_delete.Keys)
 				{
@@ -352,12 +356,16 @@ namespace HgSccPackage
 
 			if (pending_save_all_dirty)
 			{
+				Logger.WriteLine("[pending save all dirty]");
+
 				pending_save_all_dirty = false;
 				_sccProvider.SaveAllIfDirty();
 			}
 
 			if (pending_status.Count != 0)
 			{
+				Logger.WriteLine("[pending status]");
+
 				var nodes = new List<VSITEMSELECTION>();
 
 				lock(rdt_files_lock)
@@ -382,6 +390,9 @@ namespace HgSccPackage
 				if (nodes.Count > 0)
 					_sccProvider.RefreshNodesGlyphs(nodes);
 			}
+
+			RunStatusUpdater();
+			Logger.WriteLine("+_+ HandlePendingCommand ended");
 		}
 
 		//-----------------------------------------------------------------------------
@@ -2655,7 +2666,7 @@ namespace HgSccPackage
 		void rdt_timer_Tick(object sender, EventArgs e)
 		{
 			rdt_timer.Stop();
-			RunStatusUpdater();
+			QueuePendingCommand(CommandId.icmdPendingTask);
 		}
 
 		//------------------------------------------------------------------
