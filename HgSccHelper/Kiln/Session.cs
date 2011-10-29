@@ -88,7 +88,42 @@ namespace HgSccHelper.Kiln
 				return false;
 
 			Token = response.Content.UnQuote();
+
+			// The token still may be invalid if the url is wrong.
+			// Trying to get persons using that token.
+			// There should be at least current user.
+
+			var persons = GetPersons();
+			if (persons.Count == 0)
+			{
+				Token = "";
+				return false;
+			}
+
 			return IsValid;
+		}
+
+		//-----------------------------------------------------------------------------
+		public List<KilnPerson> GetPersons()
+		{
+			var persons = new List<KilnPerson>();
+
+			if (!IsValid)
+				return persons;
+
+			var client = CreateRestClient();
+
+			var request = new RestRequest("Person");
+			request.AddParameter("token", Token);
+
+			var response = client.Execute<List<KilnPerson>>(request);
+			if (response.ResponseStatus != ResponseStatus.Completed)
+				return persons;
+
+			if (response.Data == null)
+				return persons;
+
+			return response.Data;
 		}
 
 		//-----------------------------------------------------------------------------
