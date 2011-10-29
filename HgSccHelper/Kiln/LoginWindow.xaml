@@ -4,14 +4,14 @@
     xmlns:Kiln="clr-namespace:HgSccHelper.Kiln"
     Title="Login to Kiln"
     Height="Auto"
-    Width="500"
+    Width="650"
     Loaded="Window_Loaded"
     WindowStartupLocation="CenterScreen"
     SizeToContent="Height">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Kiln:CredentialsControl Grid.Row="0"
                                       x:Name="credentials">            

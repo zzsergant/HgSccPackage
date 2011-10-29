@@ -10,8 +10,8 @@
     SizeToContent="Height">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <BitBucket:CredentialsControl Grid.Row="0"
                                       x:Name="credentials">            
