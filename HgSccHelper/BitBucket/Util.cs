@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Web;
 using RestSharp;
 using RestSharp.Extensions;
+using System.Linq;
 
 //=============================================================================
 namespace HgSccHelper.BitBucket
@@ -88,7 +89,13 @@ namespace HgSccHelper.BitBucket
 			if (response.Data == null)
 				return repositories;
 
-			return response.Data.Repositories;
+			// Bitbucket supports Hg and Git repositories, but we need only Hg
+
+			var hg_repos =
+				response.Data.Repositories.Where(
+					repo => StringComparer.InvariantCultureIgnoreCase.Compare(repo.Scm, "hg") == 0);
+
+			return hg_repos.ToList();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -165,6 +172,7 @@ namespace HgSccHelper.BitBucket
 		public string Owner { get; set; }
 		public int FollowersCount { get; set; }
 		public string Description { get; set; }
+		public string Scm { get; set; }
 	}
 
 	//=============================================================================
