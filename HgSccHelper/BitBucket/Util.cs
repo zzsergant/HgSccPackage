@@ -104,6 +104,7 @@ namespace HgSccHelper.BitBucket
 			request.AddParameter("name", repo_name);
 			if (is_private)
 				request.AddParameter("is_private", is_private);
+			request.AddParameter("scm", "hg");
 
 			var response = client.Execute<BitBucketRepo>(request);
 
