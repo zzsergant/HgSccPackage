@@ -20,6 +20,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 using RestSharp.Extensions;
+using System.Linq;
 
 namespace HgSccHelper.Kiln
 {
@@ -108,7 +109,7 @@ namespace HgSccHelper.Kiln
 
 			btnSelect.IsEnabled = false;
 
-			foreach (var project in projects)
+			foreach (var project in projects.OrderBy(p => p.sName))
 				AddProject(project);
 
 			var myView = (CollectionView)CollectionViewSource.GetDefaultView(listRepos.ItemsSource);
@@ -120,7 +121,7 @@ namespace HgSccHelper.Kiln
 		private void AddProject(KilnProject project)
 		{
 			projects_map.Add(project.ixProject, project);
-			foreach (var group in project.repoGroups)
+			foreach (var group in project.repoGroups.OrderBy(g => g.sName))
 			{
 				AddGroup(project, group);
 			}
@@ -132,7 +133,7 @@ namespace HgSccHelper.Kiln
 			var group_text = String.Format("{0}/{1}", project.sName, group.DisplayName);
 
 			groups_map.Add(group.ixRepoGroup, group);
-			foreach (var repo in group.repos)
+			foreach (var repo in group.repos.OrderBy(r => r.sName))
 			{
 				var item = new KilnRepoListItem
 				           	{
@@ -237,7 +238,7 @@ namespace HgSccHelper.Kiln
 		private void NewGroup_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var wnd = new NewGroupWindow();
-			var project_list = new List<KilnProject>(projects_map.Values);
+			var project_list = new List<KilnProject>(projects_map.Values.OrderBy(p => p.sName));
 			wnd.Projects = project_list;
 
 			if (wnd.ShowDialog() == true)
@@ -282,7 +283,7 @@ namespace HgSccHelper.Kiln
 			}
 
 			var wnd = new NewRepositoryWindow();
-			wnd.Groups = group_list;
+			wnd.Groups = new List<NewRepoGroupItem>(group_list.OrderBy(g => g.DisplayName));
 			
 			if (wnd.ShowDialog() == true)
 			{
