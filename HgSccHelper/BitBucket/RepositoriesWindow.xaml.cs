@@ -18,6 +18,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using HgSccHelper.Misc;
 using RestSharp.Extensions;
+using System.Linq;
 
 namespace HgSccHelper.BitBucket
 {
@@ -59,7 +60,7 @@ namespace HgSccHelper.BitBucket
 
 			btnSelect.IsEnabled = false;
 
-			foreach (var repo in repo_list)
+			foreach (var repo in repo_list.OrderBy(r => r.Name))
 				repositories.Add(repo);
 		}
 
