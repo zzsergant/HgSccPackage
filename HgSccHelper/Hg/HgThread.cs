@@ -117,11 +117,11 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public ProcessStartInfo PrepareProcess(string work_dir, string arguments, bool force_system_encoding)
+		public ProcessStartInfo PrepareProcess(string work_dir, string arguments, HgProcessFlags flags)
 		{
 			// We need to get path to hg
 			var hg = new Hg();
-			var hg_info = hg.PrepareProcess(work_dir, arguments, force_system_encoding);
+			var hg_info = hg.PrepareProcess(work_dir, arguments, flags);
 
 			var info = new ProcessStartInfo();
 			info.FileName = hg_info.FileName;
@@ -131,19 +131,27 @@ namespace HgSccHelper
 			info.CreateNoWindow = true;
 			info.WorkingDirectory = work_dir;
 
-			info.RedirectStandardOutput = true;
-			info.RedirectStandardError = true;
+			if ((flags & HgProcessFlags.RedirectOutput) != 0)
+			{
+				info.RedirectStandardOutput = true;
+				info.RedirectStandardError = true;
+			}
 
 			// Create suspended and then attach to Job !!
 			info.CreateSuspended = true;
 
 			info.EnvironmentVariables["HGPLAIN"] = "1";
 
-			if (!force_system_encoding && Hg.UseUtf8)
+			if (((flags & HgProcessFlags.ForceSystemEncoding) == 0) && Hg.UseUtf8)
 			{
 				info.EnvironmentVariables["HGENCODING"] = "utf8";
-				info.StandardOutputEncoding = Encoding.UTF8;
-				info.StandardErrorEncoding = Encoding.UTF8;
+
+				if ((flags & HgProcessFlags.RedirectOutput) != 0)
+				{
+					info.StandardOutputEncoding = Encoding.UTF8;
+					info.StandardErrorEncoding = Encoding.UTF8;
+				}
+
 				info.Arguments = Encoding.Default.GetString(Encoding.UTF8.GetBytes(info.Arguments));
 			}
 
@@ -156,7 +164,11 @@ namespace HgSccHelper
 			using (var job = new Job())
 			using (var process = new Process())
 			{
-				process.StartInfo = PrepareProcess(work_params.WorkingDir, work_params.Args, work_params.ForceSystemEncoding);
+				var flags = HgProcessFlags.RedirectOutput;
+				if (work_params.ForceSystemEncoding)
+					flags |= HgProcessFlags.ForceSystemEncoding;
+
+				process.StartInfo = PrepareProcess(work_params.WorkingDir, work_params.Args, flags);
 
 				// FIXME: Put the hg in unbuffered mode for
 				// redirected output and error streams

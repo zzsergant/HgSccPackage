@@ -102,6 +102,15 @@ namespace HgSccHelper
 		}
 	}
 
+	//==================================================================
+	[Flags]
+	public enum HgProcessFlags
+	{
+		None				= 0x0000,
+		ForceSystemEncoding	= 0x0001,
+		RedirectOutput		= 0x0002,
+	}
+
 	//=============================================================================
 	public class Hg
 	{
@@ -144,12 +153,11 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public ProcessStartInfo PrepareProcess(string work_dir, string arguments)
 		{
-			bool force_system_encoding = false;
-			return PrepareProcess(work_dir, arguments, force_system_encoding);
+			return PrepareProcess(work_dir, arguments, HgProcessFlags.RedirectOutput);
 		}
 
 		//-----------------------------------------------------------------------------
-		public ProcessStartInfo PrepareProcess(string work_dir, string arguments, bool force_system_encoding)
+		public ProcessStartInfo PrepareProcess(string work_dir, string arguments, HgProcessFlags flags)
 		{
 			// TODO: Make the hg path configurable via options
 
@@ -162,10 +170,13 @@ namespace HgSccHelper
 
 			info.CreateNoWindow = true;
 			info.WorkingDirectory = work_dir;
-
-			info.RedirectStandardOutput = true;
-			info.RedirectStandardError = true;
 			info.UseShellExecute = false;
+
+			if ((flags & HgProcessFlags.RedirectOutput) != 0)
+			{
+				info.RedirectStandardOutput = true;
+				info.RedirectStandardError = true;
+			}
 
 			info.EnvironmentVariables["HGPLAIN"] = "1";
 
@@ -173,11 +184,15 @@ namespace HgSccHelper
 			// but some commands (for example: hg diff) dump file content, which should not be encoded.
 			// So, such commands may use force_system_encoding to disable unneeded decoding
 
-			if (!force_system_encoding && Hg.UseUtf8)
+			if (((flags & HgProcessFlags.ForceSystemEncoding) == 0) && Hg.UseUtf8)
 			{
 				info.EnvironmentVariables["HGENCODING"] = "utf8";
-				info.StandardOutputEncoding = Encoding.UTF8;
-				info.StandardErrorEncoding = Encoding.UTF8;
+
+				if ((flags & HgProcessFlags.RedirectOutput) != 0)
+				{
+					info.StandardOutputEncoding = Encoding.UTF8;
+					info.StandardErrorEncoding = Encoding.UTF8;
+				}
 
 				info.Arguments = Encoding.Default.GetString(Encoding.UTF8.GetBytes(info.Arguments));
 			}
@@ -377,10 +392,7 @@ namespace HgSccHelper
 		{
 			string args = "init";
 
-			var info = PrepareProcess(work_dir, args);
-			info.RedirectStandardOutput = false;
-			info.RedirectStandardError = false;
-
+			var info = PrepareProcess(work_dir, args, HgProcessFlags.None);
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
@@ -545,10 +557,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool RunHg(string work_dir, string args)
 		{
-			var info = PrepareProcess(work_dir, args);
-			info.RedirectStandardOutput = false;
-			info.RedirectStandardError = false;
-
+			var info = PrepareProcess(work_dir, args, HgProcessFlags.None);
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
@@ -1032,10 +1041,7 @@ namespace HgSccHelper
 
 			args.AppendPath(file);
 
-			var info = PrepareProcess(work_dir, args.ToString());
-			info.RedirectStandardOutput = false;
-			info.RedirectStandardError = false;
-
+			var info = PrepareProcess(work_dir, args.ToString(), HgProcessFlags.None);
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
@@ -1234,10 +1240,7 @@ namespace HgSccHelper
 			args.AppendPath(file);
 			args.AppendPath(new_file);
 
-			var info = PrepareProcess(work_dir, args.ToString());
-			info.RedirectStandardOutput = false;
-			info.RedirectStandardError = false;
-
+			var info = PrepareProcess(work_dir, args.ToString(), HgProcessFlags.None);
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
@@ -1676,10 +1679,7 @@ namespace HgSccHelper
 			if (args.Length > MaxCmdLength)
 				throw new ArgumentException("Command line length is too long");
 
-			var info = PrepareProcess(work_dir, args.ToString());
-			info.RedirectStandardOutput = false;
-			info.RedirectStandardError = false;
-
+			var info = PrepareProcess(work_dir, args.ToString(), HgProcessFlags.None);
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
@@ -1708,10 +1708,7 @@ namespace HgSccHelper
 			if (args.Length > MaxCmdLength)
 				throw new ArgumentException("Command line length is too long");
 
-			var info = PrepareProcess(work_dir, args.ToString());
-			info.RedirectStandardOutput = false;
-			info.RedirectStandardError = false;
-
+			var info = PrepareProcess(work_dir, args.ToString(), HgProcessFlags.None);
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
@@ -1737,10 +1734,7 @@ namespace HgSccHelper
 			if (args.Length > MaxCmdLength)
 				throw new ArgumentException("Command line length is too long");
 
-			var info = PrepareProcess(work_dir, args.ToString());
-			info.RedirectStandardOutput = false;
-			info.RedirectStandardError = false;
-
+			var info = PrepareProcess(work_dir, args.ToString(), HgProcessFlags.None);
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
@@ -1763,10 +1757,7 @@ namespace HgSccHelper
 			if (revision.Length > 0)
 				args.AppendRevision(revision);
 
-			var info = PrepareProcess(work_dir, args.ToString());
-			info.RedirectStandardOutput = false;
-			info.RedirectStandardError = false;
-
+			var info = PrepareProcess(work_dir, args.ToString(), HgProcessFlags.None);
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();

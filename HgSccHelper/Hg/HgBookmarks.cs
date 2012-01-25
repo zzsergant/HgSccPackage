@@ -104,10 +104,7 @@ namespace HgSccHelper
 
 			var hg = new Hg();
 
-			var info = hg.PrepareProcess(work_dir, args.ToString());
-			info.RedirectStandardOutput = false;
-			info.RedirectStandardError = false;
-
+			var info = hg.PrepareProcess(work_dir, args.ToString(), HgProcessFlags.None);
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
@@ -132,10 +129,7 @@ namespace HgSccHelper
 
 			var hg = new Hg();
 
-			var info = hg.PrepareProcess(work_dir, args.ToString());
-			info.RedirectStandardOutput = false;
-			info.RedirectStandardError = false;
-
+			var info = hg.PrepareProcess(work_dir, args.ToString(), HgProcessFlags.None);
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
@@ -161,10 +155,7 @@ namespace HgSccHelper
 
 			var hg = new Hg();
 
-			var info = hg.PrepareProcess(work_dir, args.ToString());
-			info.RedirectStandardOutput = false;
-			info.RedirectStandardError = false;
-
+			var info = hg.PrepareProcess(work_dir, args.ToString(), HgProcessFlags.None);
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
