@@ -638,7 +638,7 @@ namespace HgSccHelper
 			}
 		}
 
-		private void ParseCommitOutput(string commit_output, CommitResult output)
+		internal static void ParseCommitOutput(string commit_output, CommitResult output)
 		{
 			const string SUBREPO_MARKER = "committing subrepository";
 			const string END_MARKER = "committed changeset";
@@ -1053,7 +1053,7 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		private void RunHgEditorAsync(string file, DeleteFlag del)
+		internal static void RunHgEditorAsync(string file, DeleteFlag del)
 		{
 			var editor = GetEditor();
 			var async_deleter = new AsyncDeleter();
@@ -1095,7 +1095,7 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		public void RunDiffToolAsync(string file1, DeleteFlag del1, string file2, DeleteFlag del2)
+		public static void RunDiffToolAsync(string file1, DeleteFlag del1, string file2, DeleteFlag del2)
 		{
 			var async_deleter = new AsyncDeleter();
 

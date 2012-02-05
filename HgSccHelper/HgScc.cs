@@ -31,13 +31,11 @@ namespace HgSccHelper
 	{
 		public string WorkingDir { get; private set; }
 		public List<string> SubRepoDirs { get; private set; } 
-		private readonly Hg hg;
 		private HgClient hg_client;
 
 		//-----------------------------------------------------------------------------
 		public HgScc()
 		{
-			hg = new Hg();
 			hg_client = new HgClient();
 			SubRepoDirs = new List<string>();
 		}
@@ -51,12 +49,13 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public string GetRootPath(string local_proj_path)
 		{
-			return hg.Root(local_proj_path);
+			return new Hg().Root(local_proj_path);
 		}
 
 		//-----------------------------------------------------------------------------
 		public SccErrors OpenProject(string local_proj_path, SccOpenProjectFlags flags)
 		{
+			var hg = new Hg();
 			string root = hg.Root(local_proj_path);
 			bool is_root_exist = root.Length > 0;
 
@@ -183,25 +182,10 @@ namespace HgSccHelper
 		public Dictionary<string, HgFileInfo> QueryInfoFullDict()
 		{
 			var dict = new Dictionary<string, HgFileInfo>();
-//			var hg_files = hg.Manifest(WorkingDir);
-
-			foreach (var file_status in hg.Status(WorkingDir))
+			foreach (var file_status in hg_client.Status())
 			{
 				dict.Add(file_status.File, file_status);
 			}
-
-/*
-			foreach (var file in hg_files)
-			{
-				string f = file.Replace('/', '\\');
-				if (!dict.ContainsKey(f))
-				{
-//					Logger.WriteLine(String.Format("Manifest File: {0}", f));
-					HgFileStatus status = HgFileStatus.Tracked;
-					dict.Add(f, new HgFileInfo { File = f, Status = status } );
-				}
-			}
-*/
 
 			return dict;
 		}
@@ -282,7 +266,7 @@ namespace HgSccHelper
 
 			if (add_files.Count > 0)
 			{
-				if (!hg.Add(WorkingDir, add_files))
+				if (!hg_client.Add(add_files))
 					return SccErrors.OpNotPerformed;
 			}
 			return SccErrors.Ok;
@@ -301,7 +285,7 @@ namespace HgSccHelper
 				return SccErrors.InvalidFilePath;
 
 			var options = is_after_copy_occured ? HgCopyOptions.After : HgCopyOptions.None;
-			if (!hg.Copy(WorkingDir, local_dest, local_src, options))
+			if (!hg_client.Copy(local_dest, local_src, options))
 				return SccErrors.OpNotPerformed;
 
 			return SccErrors.Ok;
@@ -310,7 +294,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public SccErrors CommitAll(IntPtr hwnd, string comment)
 		{
-			if (!hg.CommitAll(WorkingDir, HgCommitOptions.None, comment).IsSuccess)
+			if (!hg_client.CommitAll(HgCommitOptions.None, comment).IsSuccess)
 				return SccErrors.OpNotPerformed;
 
 			return SccErrors.Ok;
@@ -319,7 +303,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public SccErrors CommitAll(IntPtr hwnd, string comment, string date_str)
 		{
-			if (!hg.CommitAll(WorkingDir, HgCommitOptions.None, comment, date_str).IsSuccess)
+			if (!hg_client.CommitAll(HgCommitOptions.None, comment, date_str).IsSuccess)
 				return SccErrors.OpNotPerformed;
 
 			return SccErrors.Ok;
@@ -333,7 +317,7 @@ namespace HgSccHelper
 			reverted_files = to_revert;
 
 			// FIXME: Add dialog with checkboxes
-			foreach (var f in files)
+			foreach (var f in to_revert)
 			{
 				string local_f;
 				if (!GetRelativePath(f, out local_f))
@@ -344,7 +328,7 @@ namespace HgSccHelper
 
 			if (local_files.Count > 0)
 			{
-				if (!hg.Revert(WorkingDir, local_files))
+				if (!hg_client.Revert(local_files))
 					return SccErrors.NonSpecificError;
 			}
 
@@ -366,7 +350,7 @@ namespace HgSccHelper
 				case SccDiffFlags.QuickDiff:
 					{
 						bool is_different;
-						if (!hg.DiffSilent(WorkingDir, local_f, out is_different))
+						if (!hg_client.DiffSilent(local_f, out is_different))
 							return SccErrors.NonSpecificError;
 
 						if (is_different)
@@ -380,7 +364,7 @@ namespace HgSccHelper
 
 						try
 						{
-							if (!hg.Diff(WorkingDir, local_f, out is_different))
+							if (!hg_client.Diff(local_f, out is_different))
 								return SccErrors.NonSpecificError;
 						}
 						catch (HgDiffException)
@@ -417,7 +401,7 @@ namespace HgSccHelper
 
 			if (remove_files.Count > 0)
 			{
-				if (!hg.Remove(WorkingDir, remove_files))
+				if (!hg_client.Remove(remove_files))
 					return SccErrors.OpNotPerformed;
 			}
 
@@ -437,7 +421,7 @@ namespace HgSccHelper
 				return SccErrors.InvalidFilePath;
 			}
 
-			if (!hg.Rename(WorkingDir, f, new_f))
+			if (!hg_client.Rename(f, new_f))
 				return SccErrors.NonSpecificError;
 
 			return SccErrors.Ok;
