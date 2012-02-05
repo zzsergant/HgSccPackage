@@ -207,7 +207,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool AppendListFile(string list_file)
 		{
-			var str = String.Format("listfile:{0}", list_file.Quote());
+			var str = String.Format("listfile:{0}", list_file);
 			if ((Length + str.Length) > Hg.MaxCmdLength)
 				return false;
 
