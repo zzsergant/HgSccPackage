@@ -223,6 +223,8 @@ namespace HgSccPackage
 		void pending_status_updater_DoWork(object sender, DoWorkEventArgs e)
 		{
 			var p = (UpdateStatusParams)e.Argument;
+
+			// TODO: Add synchronization.
 			var result = p.Storage.GetStatus(p.Files);
 
 			e.Result = new UpdateStatusResults

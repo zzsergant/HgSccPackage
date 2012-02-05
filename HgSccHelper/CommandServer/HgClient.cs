@@ -22,6 +22,7 @@ namespace HgSccHelper.CommandServer
 	{
 		private HgCmdServer server;
 		private volatile bool is_running_command;
+		private object critical;
 
 		//-----------------------------------------------------------------------------
 		public Encoding Encoding { get; private set; }
@@ -41,6 +42,7 @@ namespace HgSccHelper.CommandServer
 		//-----------------------------------------------------------------------------
 		public HgClient()
 		{
+			critical = new object();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -127,57 +129,61 @@ namespace HgSccHelper.CommandServer
 			Dictionary<char, Func<int, byte[]>> in_channels,
 			Dictionary<char, Action<byte[], int, int>> out_channels)
 		{
-			if (!IsStarted)
-				return -1;
-
-			try
+			lock (critical)
 			{
-				is_running_command = true;
+				if (!IsStarted)
+					return -1;
 
-				var data = Encoding.ASCII.GetBytes("runcommand\n");
-				server.Stdin.Write(data, 0, data.Length);
-
-				var str = args.ToString();
-				server.WriteBlock(Encoding.GetBytes(str));
-
-				var msg = new Message();
-				while (true)
+				try
 				{
-					if (!server.ReadChannel(ref msg))
-						return -2;
+					is_running_command = true;
 
-					if (in_channels.ContainsKey(msg.Channel))
-					{
-						server.WriteBlock(in_channels[msg.Channel]((int)msg.Length));
-					}
-					else if (out_channels.ContainsKey(msg.Channel))
-					{
-						out_channels[msg.Channel](msg.Data, 0, (int)msg.Length);
-					}
-					else if (msg.Channel == 'r')
-					{
-						int b0 = msg.Data[0];
-						int b1 = msg.Data[1];
-						int b2 = msg.Data[2];
-						int b3 = msg.Data[3];
+					var data = Encoding.ASCII.GetBytes("runcommand\n");
+					server.Stdin.Write(data, 0, data.Length);
 
-						int exit_code = (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
-						return exit_code;
-					}
-					else if (msg.Channel == Char.ToUpperInvariant(msg.Channel))
+					var str = args.ToString();
+					Logger.WriteLine("[RC]: {0}", str.Replace('\0', '|'));
+					server.WriteBlock(Encoding.GetBytes(str));
+
+					var msg = new Message();
+					while (true)
 					{
-						return -3;
+						if (!server.ReadChannel(ref msg))
+							return -2;
+
+						if (in_channels.ContainsKey(msg.Channel))
+						{
+							server.WriteBlock(in_channels[msg.Channel]((int)msg.Length));
+						}
+						else if (out_channels.ContainsKey(msg.Channel))
+						{
+							out_channels[msg.Channel](msg.Data, 0, (int)msg.Length);
+						}
+						else if (msg.Channel == 'r')
+						{
+							int b0 = msg.Data[0];
+							int b1 = msg.Data[1];
+							int b2 = msg.Data[2];
+							int b3 = msg.Data[3];
+
+							int exit_code = (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
+							return exit_code;
+						}
+						else if (msg.Channel == Char.ToUpperInvariant(msg.Channel))
+						{
+							return -3;
+						}
 					}
 				}
-			}
-			catch(Exception ex)
-			{
-				Logger.WriteLine(ex.Message);
-				return -5;
-			}
-			finally
-			{
-				is_running_command = false;
+				catch(Exception ex)
+				{
+					Logger.WriteLine(ex.Message);
+					return -5;
+				}
+				finally
+				{
+					is_running_command = false;
+				}
 			}
 		}
 
