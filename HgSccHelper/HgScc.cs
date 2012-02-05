@@ -26,7 +26,7 @@ namespace HgSccHelper
 	}
 
 	//-----------------------------------------------------------------------------
-	public class HgScc
+	public class HgScc : IDisposable
 	{
 		public string WorkingDir { get; private set; }
 		public List<string> SubRepoDirs { get; private set; } 
@@ -450,6 +450,12 @@ namespace HgSccHelper
 			}
 
 			return SccErrors.Ok;
+		}
+
+		//-----------------------------------------------------------------------------
+		public void Dispose()
+		{
+			
 		}
 	}
 }

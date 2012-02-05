@@ -42,12 +42,13 @@ namespace HgSccPackage
 	};
 
 	//==================================================================
-	public class SccProviderStorage
+	public class SccProviderStorage : IDisposable
 	{
 		private HgScc hgscc;
 		private Dictionary<string, HgFileInfo> cache;
 		public Dictionary<string, List<SccProviderStorage>> Subs { get; set; }
 		public event EventHandler UpdateEvent;
+		private bool disposed;
 
 		//------------------------------------------------------------------
 		private void RaiseUpdateEvent()
@@ -139,8 +140,25 @@ namespace HgSccPackage
 		//------------------------------------------------------------------
 		public void Close()
 		{
-			hgscc = null;
+			Logger.WriteLine("Close storage: {0}", WorkingDir);
+
+			if (hgscc != null)
+			{
+				hgscc.Dispose();
+				hgscc = null;
+			}
+			
 			cache.Clear();
+			
+			foreach (var kvp in Subs)
+			{
+				foreach (var subrepo in kvp.Value)
+				{
+					subrepo.Close();
+				}
+			}
+
+			Subs.Clear();
 		}
 
 		//------------------------------------------------------------------
@@ -755,6 +773,7 @@ namespace HgSccPackage
 			return err == SccErrors.Ok;
 		}
 
+		//------------------------------------------------------------------
 		public bool IsStorageControlled(string path)
 		{
 			if (!IsValid)
@@ -775,6 +794,7 @@ namespace HgSccPackage
 			return IsPathUnderDirectory(hgscc.WorkingDir, path);
 		}
 
+		//------------------------------------------------------------------
 		public void AddSubrepoStorage(string work_dir, SccProviderStorage storage)
 		{
 			string root = hgscc.GetRootPath(work_dir);
@@ -806,6 +826,16 @@ namespace HgSccPackage
 			}
 
 			return false;
+		}
+
+		//-----------------------------------------------------------------------------
+		public void Dispose()
+		{
+			if (disposed)
+				return;
+
+			disposed = true;
+			Close();
 		}
 	}
 }

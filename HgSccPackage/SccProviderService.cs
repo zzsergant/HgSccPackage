@@ -894,6 +894,7 @@ namespace HgSccPackage
 				{
 					storage.UpdateEvent -= UpdateEvent_Handler;
 					storage_list.Remove(storage);
+					storage.Close();
 				}
 
 				projects_with_scc_bindings.Remove(hierProject);
