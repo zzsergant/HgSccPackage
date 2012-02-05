@@ -16,6 +16,7 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using System.Windows.Forms;
+using HgSccHelper.CommandServer;
 
 namespace HgSccHelper
 {
@@ -31,11 +32,13 @@ namespace HgSccHelper
 		public string WorkingDir { get; private set; }
 		public List<string> SubRepoDirs { get; private set; } 
 		private readonly Hg hg;
+		private HgClient hg_client;
 
 		//-----------------------------------------------------------------------------
 		public HgScc()
 		{
 			hg = new Hg();
+			hg_client = new HgClient();
 			SubRepoDirs = new List<string>();
 		}
 
@@ -94,6 +97,15 @@ namespace HgSccHelper
 					}
 				}
 			}
+
+			if (!hg_client.Open(WorkingDir))
+			{
+				Logger.WriteLine("Unable to connect to command server: {0}", WorkingDir);
+				hg_client.Dispose();
+
+				return SccErrors.NonSpecificError;
+			}
+
 			return SccErrors.Ok;
 		}
 
@@ -455,7 +467,11 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public void Dispose()
 		{
-			
+			if (hg_client != null)
+			{
+				hg_client.Dispose();
+				hg_client = null;
+			}
 		}
 	}
 }

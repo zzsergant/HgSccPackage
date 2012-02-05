@@ -116,6 +116,10 @@
     <Compile Include="Cfg\OptionsWindow.xaml.cs">
       <DependentUpon>OptionsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CommandServer\HgClient.cs" />
+    <Compile Include="CommandServer\HgCmdServer.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Hg\HgArgsBuilder.cs" />
     <Compile Include="Hg\HgBookmarks.cs" />
     <Compile Include="Hg\HgExtensions.cs" />
