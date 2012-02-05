@@ -102,19 +102,106 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		/// <summary>
-		/// Append filename to arguments with check for max command line length
-		/// </summary>
-		/// <param name="filename"></param>
-		/// <returns>false - if exceeded max command line length</returns>
-		public bool AppendFilenameWithLengthCheck(string filename)
+		public bool AppendListFile(string list_file)
 		{
-			var str = filename.Quote();
+			var str = String.Format("listfile:{0}", list_file.Quote());
 			if ((Length + str.Length) > Hg.MaxCmdLength)
 				return false;
 
 			Append(str);
 			return true;
+		}
+
+		//-----------------------------------------------------------------------------
+		public override string ToString()
+		{
+			return args.ToString();
+		}
+	}
+
+	//=============================================================================
+	public class HgArgsBuilderZero
+	{
+		private readonly StringBuilder args;
+
+		//-----------------------------------------------------------------------------
+		public HgArgsBuilderZero()
+		{
+			args = new StringBuilder(Hg.MaxCmdLength);
+		}
+
+		//-----------------------------------------------------------------------------
+		public int Length
+		{
+			get { return args.Length; }
+		}
+
+		//-----------------------------------------------------------------------------
+		public void Clear()
+		{
+			if (args.Length > 0)
+				args.Remove(0, args.Length);
+		}
+
+		//-----------------------------------------------------------------------------
+		public void Append(string arg)
+		{
+			// FIXME: trim arg ?
+			if (args.Length == 0)
+				args.Append(arg);
+			else
+				args.Append("\0" + arg);
+		}
+
+		//-----------------------------------------------------------------------------
+		public void AppendVerbose()
+		{
+			Append("--verbose");
+		}
+
+		//-----------------------------------------------------------------------------
+		public void AppendDebug()
+		{
+			Append("--debug");
+		}
+
+		//-----------------------------------------------------------------------------
+		public void AppendStyle(string style_filename)
+		{
+			Append("--style");
+			Append(style_filename);
+		}
+
+		//-----------------------------------------------------------------------------
+		public void AppendRevision(string revision)
+		{
+			Append("--rev");
+			Append(revision);
+		}
+
+		//-----------------------------------------------------------------------------
+		public void AppendRevision(int revision)
+		{
+			AppendRevision(revision.ToString());
+		}
+
+		//-----------------------------------------------------------------------------
+		public void AppendPath(string path)
+		{
+			Append(path);
+		}
+
+		//-----------------------------------------------------------------------------
+		public void AppendDisableExtension(HgExtension extension)
+		{
+			AppendDisableExtension(HgExtensionNames.GetExtensionName(extension));
+		}
+
+		//-----------------------------------------------------------------------------
+		public void AppendDisableExtension(string extension)
+		{
+			Append("--config");
+			Append(String.Format("extensions.{0}=!", extension));
 		}
 
 		//-----------------------------------------------------------------------------
