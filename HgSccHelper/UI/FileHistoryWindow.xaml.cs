@@ -78,10 +78,6 @@ namespace HgSccHelper
 		CfgWindowPosition wnd_cfg;
 
 		private AsyncChangeDescFull async_changedesc;
-		private AsyncParents async_parents;
-		private AsyncBranches async_branches;
-		private AsyncTags async_tags;
-		private AsyncBookmarks async_bookmarks;
 
 		//------------------------------------------------------------------
 		public FileHistoryWindow()
@@ -98,18 +94,6 @@ namespace HgSccHelper
 
 			async_changedesc = new AsyncChangeDescFull();
 			async_changedesc.Complete = new Action<List<ChangeDesc>>(OnAsyncChangeDescFull);
-
-			async_parents = new AsyncParents();
-			async_parents.Complete = new Action<ParentsInfo>(OnAsyncParents);
-
-			async_branches = new AsyncBranches();
-			async_branches.Complete = new Action<List<BranchInfo>>(OnAsyncBranch);
-
-			async_tags = new AsyncTags();
-			async_tags.Complete = new Action<List<TagInfo>>(OnAsyncTags);
-
-			async_bookmarks = new AsyncBookmarks();
-			async_bookmarks.Complete = new Action<List<BookmarkInfo>>(OnAsyncBookmarks);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -187,18 +171,6 @@ namespace HgSccHelper
 
 			async_changedesc.Cancel();
 			async_changedesc.Dispose();
-
-			async_parents.Cancel();
-			async_parents.Dispose();
-
-			async_branches.Cancel();
-			async_branches.Dispose();
-
-			async_tags.Cancel();
-			async_tags.Dispose();
-
-			async_bookmarks.Cancel();
-			async_bookmarks.Dispose();
 
 			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
 			if (!Double.IsNaN(diffColorizer.Width))
@@ -609,6 +581,7 @@ namespace HgSccHelper
 		private UpdateContextCache BuildUpdateContextCache()
 		{
 			var cache = new UpdateContextCache();
+			cache.HgClient = UpdateContext.Cache.HgClient;
 
 			if ((RunningOperations & AsyncOperations.Parents) != AsyncOperations.Parents)
 				cache.ParentsInfo = ParentsInfo;
@@ -898,28 +871,32 @@ namespace HgSccHelper
 		private void HandleParentChange()
 		{
 			RunningOperations |= AsyncOperations.Parents;
-			async_parents.RunAsync(WorkingDir);
+			var parents = UpdateContext.Cache.HgClient.Parents();
+			OnAsyncParents(parents);
 		}
 
 		//------------------------------------------------------------------
 		private void HandleBranchChanges()
 		{
 			RunningOperations |= AsyncOperations.Branches;
-			async_branches.RunAsync(WorkingDir, HgBranchesOptions.Closed);
+			var branches = UpdateContext.Cache.HgClient.Branches(HgBranchesOptions.Closed);
+			OnAsyncBranch(branches);
 		}
 
 		//------------------------------------------------------------------
 		private void HandleTagsChanges()
 		{
 			RunningOperations |= AsyncOperations.Tags;
-			async_tags.RunAsync(WorkingDir);
+			var tags = UpdateContext.Cache.HgClient.Tags();
+			OnAsyncTags(tags);
 		}
 
 		//------------------------------------------------------------------
 		private void HandleBookmarksChanges()
 		{
 			RunningOperations |= AsyncOperations.Bookmarks;
-			async_bookmarks.RunAsync(WorkingDir);
+			var books = UpdateContext.Cache.HgClient.Bookmarks();
+			OnAsyncBookmarks(books);
 		}
 
 		//------------------------------------------------------------------

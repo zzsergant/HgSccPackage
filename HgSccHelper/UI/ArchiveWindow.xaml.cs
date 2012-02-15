@@ -24,6 +24,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Collections.ObjectModel;
+using HgSccHelper.CommandServer;
 using Microsoft.Win32;
 
 namespace HgSccHelper
@@ -41,7 +42,7 @@ namespace HgSccHelper
 		public UpdateContextCache UpdateContextCache { get; set; }
 
 		//------------------------------------------------------------------
-		Hg Hg { get; set; }
+		HgClient HgClient { get { return UpdateContextCache.HgClient; } }
 
 		DispatcherTimer timer;
 		RevLogChangeDesc Target { get; set; }
@@ -138,8 +139,6 @@ namespace HgSccHelper
 				}
 			}
 
-			Hg = new Hg();
-
 			ArchiveDirPart = WorkingDir;
 			ArchiveRevisionPart = ArchiveRevision;
 
@@ -151,7 +150,7 @@ namespace HgSccHelper
 			{
 				var target_desc = UpdateContextCache.TargetRevision;
 				if (target_desc == null)
-					target_desc = Hg.GetRevisionDesc(WorkingDir, ArchiveRevision);
+					target_desc = HgClient.GetRevisionDesc(ArchiveRevision);
 
 				if (target_desc == null)
 				{
@@ -172,7 +171,7 @@ namespace HgSccHelper
 
 			var bookmarks = UpdateContextCache.Bookmarks;
 			if (bookmarks == null)
-				bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+				bookmarks = HgClient.Bookmarks();
 
 			foreach (var bookmark in bookmarks)
 			{
@@ -188,7 +187,7 @@ namespace HgSccHelper
 
 			var tags = UpdateContextCache.Tags;
 			if (tags == null)
-				tags = Hg.Tags(WorkingDir);
+				tags = HgClient.Tags();
 
 			foreach (var tag in tags)
 			{
@@ -204,7 +203,7 @@ namespace HgSccHelper
 
 			var branches = UpdateContextCache.Branches;
 			if (branches == null)
-				branches = Hg.Branches(WorkingDir, HgBranchesOptions.Closed);
+				branches = HgClient.Branches(HgBranchesOptions.Closed);
 
 			foreach (var branch in branches)
 			{
@@ -244,7 +243,7 @@ namespace HgSccHelper
 
 			Target = null;
 			if (!String.IsNullOrEmpty(revision))
-				Target = Hg.GetRevisionDesc(WorkingDir, revision);
+				Target = HgClient.GetRevisionDesc(revision);
 
 			if (Target == null)
 			{

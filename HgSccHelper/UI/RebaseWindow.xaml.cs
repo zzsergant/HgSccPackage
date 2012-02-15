@@ -14,6 +14,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using HgSccHelper.CommandServer;
 
 namespace HgSccHelper.UI
 {
@@ -33,7 +34,7 @@ namespace HgSccHelper.UI
 		public UpdateContextCache UpdateContextCache { get; set; }
 
 		//------------------------------------------------------------------
-		Hg Hg { get; set; }
+		HgClient HgClient { get { return UpdateContextCache.HgClient; }}
 
 		DispatcherTimer timer;
 		RevLogChangeDesc Destination { get; set; }
@@ -105,13 +106,11 @@ namespace HgSccHelper.UI
 				return;
 			}
 
-			Hg = new Hg();
-
 			timer = new DispatcherTimer();
 			timer.Interval = TimeSpan.FromMilliseconds(200);
 			timer.Tick += OnTimerTick;
 
-			var bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+			var bookmarks = HgClient.Bookmarks();
 			foreach (var bookmark in bookmarks)
 			{
 				var item = new RebaseComboItem();
@@ -125,7 +124,7 @@ namespace HgSccHelper.UI
 				comboSourceRevision.Items.Add(item);
 			}
 
-			var tags = Hg.Tags(WorkingDir);
+			var tags = HgClient.Tags();
 			foreach (var tag in tags)
 			{
 				var item = new RebaseComboItem();
@@ -139,7 +138,7 @@ namespace HgSccHelper.UI
 				comboSourceRevision.Items.Add(item);
 			}
 
-			var branches = Hg.Branches(WorkingDir, HgBranchesOptions.Closed);
+			var branches = HgClient.Branches(HgBranchesOptions.Closed);
 			foreach (var branch in branches)
 			{
 				var item = new RebaseComboItem();
@@ -180,7 +179,7 @@ namespace HgSccHelper.UI
 				revision = item.SHA1;
 			}
 
-			Destination = Hg.GetRevisionDesc(WorkingDir, revision);
+			Destination = HgClient.GetRevisionDesc(revision);
 			if (Destination == null)
 				targetDesc.Text = "Invalid Revision";
 			else
@@ -205,7 +204,7 @@ namespace HgSccHelper.UI
 				revision = item.SHA1;
 			}
 
-			Source = Hg.GetRevisionDesc(WorkingDir, revision);
+			Source = HgClient.GetRevisionDesc(revision);
 			if (Source == null)
 				sourceDesc.Text = "Invalid Revision";
 			else

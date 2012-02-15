@@ -23,6 +23,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using HgSccHelper.CommandServer;
 
 namespace HgSccHelper
 {
@@ -38,7 +39,10 @@ namespace HgSccHelper
 		public UpdateContext UpdateContext { get; private set; }
 
 		//------------------------------------------------------------------
-		Hg Hg { get; set; }
+		HgClient HgClient
+		{
+			get { return UpdateContext.Cache.HgClient; }
+		}
 
 		DispatcherTimer tag_timer;
 		DispatcherTimer rev_timer;
@@ -87,8 +91,6 @@ namespace HgSccHelper
 		{
 			Title = string.Format("Tags: '{0}'", WorkingDir);
 
-			Hg = new Hg();
-
 			tag_timer = new DispatcherTimer();
 			tag_timer.Interval = TimeSpan.FromMilliseconds(200);
 			tag_timer.Tick += OnTagTimerTick;
@@ -102,7 +104,7 @@ namespace HgSccHelper
 			{
 				var parents_info = UpdateContext.Cache.ParentsInfo;
 				if (parents_info == null)
-					parents_info = Hg.Parents(WorkingDir);
+					parents_info = HgClient.Parents();
 
 				if (parents_info == null)
 				{
@@ -182,7 +184,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void UpdateTags()
 		{
-			var tags = Hg.Tags(WorkingDir);
+			var tags = HgClient.Tags();
 			UpdateTags(tags);
 		}
 
@@ -197,7 +199,7 @@ namespace HgSccHelper
 			{
 				var item = (TagsComboItem)comboTag.SelectedItem;
 				if (item.Name == tag_name)
-					TagDesc = Hg.GetRevisionDesc(WorkingDir, item.SHA1);
+					TagDesc = HgClient.GetRevisionDesc(item.SHA1);
 			}
 
 			textTagDesc.Text = TagDesc.GetDescription();
@@ -210,7 +212,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void RefreshRev()
 		{
-			RevDesc = Hg.GetRevisionDesc(WorkingDir, textRev.Text);
+			RevDesc = HgClient.GetRevisionDesc(textRev.Text);
 			textRevDesc.Text = RevDesc.GetDescription();
 
 			var tag_name = comboTag.Text;
@@ -291,7 +293,7 @@ namespace HgSccHelper
 					commit_message = textCommitMessage.Text;
 			}
 
-			if (!Hg.AddTag(WorkingDir, tag_name, RevDesc.SHA1, options, commit_message))
+			if (!HgClient.AddTag(tag_name, RevDesc.SHA1, options, commit_message))
 			{
 				var msg = String.Format("An error occured while adding tag '{0}'", tag_name);
 				MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -345,7 +347,7 @@ namespace HgSccHelper
 			if (tag_info.IsLocal)
 				options |= HgTagOptions.Local;
 
-			if (!Hg.RemoveTag(WorkingDir, tag_name, options))
+			if (!HgClient.RemoveTag(tag_name, options))
 			{
 				var msg = String.Format("An error occured while removing tag '{0}'", tag_name);
 				MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);

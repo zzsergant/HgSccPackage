@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Windows.Threading;
 using System;
 using System.Text;
+using HgSccHelper.CommandServer;
 using HgSccHelper.UI;
 
 namespace HgSccHelper
@@ -33,7 +34,7 @@ namespace HgSccHelper
 		public UpdateContext UpdateContext { get; private set; }
 
 		//------------------------------------------------------------------
-		Hg Hg { get; set; }
+		HgClient HgClient { get { return UpdateContext.Cache.HgClient; } }
 
 		RevLogChangeDesc Target { get; set; }
 		IdentifyInfo CurrentRevision { get; set; }
@@ -65,10 +66,8 @@ namespace HgSccHelper
 		{
 			Title = string.Format("Merge: '{0}'", WorkingDir);
 
-			Hg = new Hg();
-
 			// FIXME: Parents
-			CurrentRevision = Hg.Identify(WorkingDir);
+			CurrentRevision = HgClient.Identify();
 			if (CurrentRevision == null)
 			{
 				// error
@@ -84,9 +83,9 @@ namespace HgSccHelper
 				return;
 			}
 
-			currentDesc.Text = Hg.GetRevisionDesc(WorkingDir, CurrentRevision.SHA1).GetDescription();
+			currentDesc.Text = HgClient.GetRevisionDesc(CurrentRevision.SHA1).GetDescription();
 
-			Target = UpdateContext.Cache.TargetRevision ?? Hg.GetRevisionDesc(WorkingDir, TargetRevision);
+			Target = UpdateContext.Cache.TargetRevision ?? HgClient.GetRevisionDesc(TargetRevision);
 			if (Target == null)
 			{
 				// error
@@ -126,7 +125,7 @@ namespace HgSccHelper
 
 			comboMergeTools.ItemsSource = tools_list;
 			comboMergeTools.SelectedIndex = 0;
-			targetDesc.Text = Hg.GetRevisionDesc(WorkingDir, Target.SHA1).GetDescription();
+			targetDesc.Text = HgClient.GetRevisionDesc(Target.SHA1).GetDescription();
 		}
 
 		//-----------------------------------------------------------------------------

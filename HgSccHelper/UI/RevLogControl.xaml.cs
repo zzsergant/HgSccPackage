@@ -543,14 +543,14 @@ namespace HgSccHelper
 
 			try
 			{
-				var hg = new Hg();
-
 				var child_file = file_info.File;
 				var parent_file = file_info.File;
 				if (!String.IsNullOrEmpty(file_info.CopiedFrom))
 					parent_file = file_info.CopiedFrom;
 
-				hg.Diff(WorkingDir, parent_file, parent_diff.Desc.SHA1,
+				var hg_client = UpdateContext.Cache.HgClient;
+
+				hg_client.Diff(parent_file, parent_diff.Desc.SHA1,
 					child_file, SelectedChangeset.Current.ChangeDesc.SHA1);
 			}
 			catch (HgDiffException)
@@ -763,11 +763,11 @@ namespace HgSccHelper
 			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
 			var file_info = SelectedParentFile.FileInfo;
 
-			var hg = new Hg();
+			var hg_client = UpdateContext.Cache.HgClient;
 			if (file_info.Status == HgFileStatus.Removed)
-				hg.ViewFile(WorkingDir, file_info.File, parent_diff.Desc.Rev.ToString());
+				hg_client.ViewFile(file_info.File, parent_diff.Desc.Rev.ToString());
 			else
-				hg.ViewFile(WorkingDir, file_info.File, SelectedChangeset.Current.ChangeDesc.SHA1);
+				hg_client.ViewFile(file_info.File, SelectedChangeset.Current.ChangeDesc.SHA1);
 		}
 
 		//------------------------------------------------------------------
@@ -923,6 +923,7 @@ namespace HgSccHelper
 		private UpdateContextCache BuildUpdateContextCache()
 		{
 			var cache = new UpdateContextCache();
+			cache.HgClient = UpdateContext.Cache.HgClient;
 
 			if ((RunningOperations & AsyncOperations.Parents) != AsyncOperations.Parents)
 				cache.ParentsInfo = ParentsInfo;

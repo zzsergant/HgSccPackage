@@ -24,6 +24,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using HgSccHelper.CommandServer;
 using HgSccHelper.UI;
 using HgSccHelper.UI.RevLog;
 
@@ -81,7 +82,6 @@ namespace HgSccHelper
 
 		CfgWindowPosition wnd_cfg;
 
-		private AsyncParents async_parents;
 		private AsyncRevLogChangeDesc async_changedesc;
 		private AsyncResolveList async_resolve_list;
 		private AsyncStatus async_status;
@@ -115,9 +115,6 @@ namespace HgSccHelper
 
 			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
 
-			async_parents = new AsyncParents();
-			async_parents.Complete = new Action<ParentsInfo>(OnAsyncParents);
-
 			async_changedesc = new AsyncRevLogChangeDesc();
 			async_changedesc.Complete = new Action<AsyncRevLogChangeDescResult>(OnAsyncChangeDesc);
 
@@ -141,6 +138,9 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		public UpdateContext UpdateContext { get; private set; }
+
+		//-----------------------------------------------------------------------------
+		private HgClient HgClient { get { return UpdateContext.Cache.HgClient; } }
 
 		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty CommitMessageProperty =
@@ -484,7 +484,7 @@ namespace HgSccHelper
 			}
 
 			RunningOperations |= AsyncOperations.Parents;
-			async_parents.RunAsync(WorkingDir);
+			OnAsyncParents(HgClient.Parents());
 
 			var files_status_dict = new Dictionary<string, HgFileInfo>();
 			foreach (var file_status in result.Files)
@@ -610,9 +610,6 @@ namespace HgSccHelper
 		{
 			diffColorizer.Dispose();
 
-			async_parents.Cancel();
-			async_parents.Dispose();
-            
 			async_changedesc.Cancel();
 			async_changedesc.Dispose();
 
@@ -1108,6 +1105,7 @@ namespace HgSccHelper
 			wnd.Rev = ParentsInfo.Rev.ToString();
 			wnd.FileName = item.FileInfo.File;
 			wnd.Owner = Window.GetWindow(this);
+			wnd.UpdateContext.Cache.HgClient = HgClient;
 
 			// TODO: Handle updates from file history dialog
 			wnd.ShowDialog();
@@ -1134,6 +1132,7 @@ namespace HgSccHelper
 			wnd.Rev = ParentsInfo.Rev.ToString();
 			wnd.FileName = item.FileInfo.File;
 			wnd.Owner = Window.GetWindow(this);
+			wnd.UpdateContext.Cache.HgClient = HgClient;
 
 			wnd.ShowDialog();
 

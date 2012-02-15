@@ -544,6 +544,7 @@ namespace HgSccHelper.UI
 			wnd.WorkingDir = WorkingDir;
 			wnd.Rev = revision;
 			wnd.FileName = file;
+			wnd.UpdateContext.Cache.HgClient = UpdateContext.Cache.HgClient;
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
@@ -568,6 +569,7 @@ namespace HgSccHelper.UI
 			wnd.WorkingDir = WorkingDir;
 			wnd.Rev = SelectedChangeset.Rev.ToString();
 			wnd.FileName = file_info.Path;
+			wnd.UpdateContext.Cache.HgClient = UpdateContext.Cache.HgClient;
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
@@ -616,6 +618,7 @@ namespace HgSccHelper.UI
 			var wnd = new ArchiveWindow();
 			wnd.WorkingDir = WorkingDir;
 			wnd.ArchiveRevision = SelectedChangeset.Rev.ToString();
+			wnd.UpdateContextCache.HgClient = UpdateContext.Cache.HgClient;
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();

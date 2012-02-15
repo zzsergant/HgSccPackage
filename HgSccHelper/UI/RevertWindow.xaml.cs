@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using HgSccHelper.CommandServer;
 using HgSccHelper.UI;
 
 namespace HgSccHelper
@@ -70,7 +71,10 @@ namespace HgSccHelper
 		public List<string> RevertedFiles { private set; get; }
 
 		//-----------------------------------------------------------------------------
-		private Hg Hg { get; set; }
+		private HgClient HgClient
+		{
+			get { return UpdateContext.Cache.HgClient; }
+		}
 
 		//------------------------------------------------------------------
 		private IdentifyInfo CurrentRevision { get; set; }
@@ -132,9 +136,7 @@ namespace HgSccHelper
 			Cfg.Get(CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1);
 			expanderDiff.IsExpanded = (diff_visible != 0);
 
-			Hg = new Hg();
-
-			CurrentRevision = Hg.Identify(WorkingDir);
+			CurrentRevision = HgClient.Identify();
 			if (CurrentRevision == null)
 			{
 				// error
@@ -253,7 +255,7 @@ namespace HgSccHelper
 		{
 			var files_status_dict = new Dictionary<string, HgFileInfo>();
 
-			foreach (var file_status in Hg.Status(WorkingDir))
+			foreach (var file_status in HgClient.Status())
 			{
 				files_status_dict.Add(file_status.File, file_status);
 			}
@@ -349,11 +351,11 @@ namespace HgSccHelper
 
 			if (checked_list.Count == revert_items.Count)
 			{
-				result = Hg.Revert(WorkingDir, "", HgRevertOptions.All | HgRevertOptions.NoBackup);
+				result = HgClient.Revert("", HgRevertOptions.All | HgRevertOptions.NoBackup);
 			}
 			else if (to_revert_files.Count > 0)
 			{
-				result = Hg.Revert(WorkingDir, to_revert_files);
+				result = HgClient.Revert(to_revert_files);
 			}
 			else
 			{
@@ -405,7 +407,7 @@ namespace HgSccHelper
 
 			try
 			{
-				Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
+				HgClient.Diff(item.FileInfo.File, out is_different);
 			}
 			catch (HgDiffException)
 			{
@@ -450,6 +452,7 @@ namespace HgSccHelper
 			wnd.Rev = CurrentRevision.Rev.ToString();
 			wnd.FileName = item.FileInfo.File;
 			wnd.Owner = Window.GetWindow(this);
+			wnd.UpdateContext.Cache.HgClient = HgClient;
 
 			// TODO: Handle updates from file history dialog
 			wnd.ShowDialog();
@@ -476,6 +479,7 @@ namespace HgSccHelper
 			wnd.Rev = CurrentRevision.Rev.ToString();
 			wnd.FileName = item.FileInfo.File;
 			wnd.Owner = Window.GetWindow(this);
+			wnd.UpdateContext.Cache.HgClient = HgClient;
 
 			wnd.ShowDialog();
 
@@ -494,6 +498,7 @@ namespace HgSccHelper
 		{
 			var wnd = new GrepWindow();
 			wnd.WorkingDir = WorkingDir;
+			wnd.UpdateContext.Cache.HgClient = HgClient;
 
 			wnd.Owner = Window.GetWindow(this);
 			wnd.ShowDialog();
@@ -516,16 +521,15 @@ namespace HgSccHelper
 		{
 			var item = (RevertItem)listFiles.SelectedItem;
 
-			var hg = new Hg();
 			if (	item.FileInfo.Status == HgFileStatus.Removed
 				||	item.FileInfo.Status == HgFileStatus.Deleted
 				)
 			{
-				hg.ViewFile(WorkingDir, item.FileInfo.File, CurrentRevision.Rev.ToString());
+				HgClient.ViewFile(item.FileInfo.File, CurrentRevision.Rev.ToString());
 			}
 			else
 			{
-				hg.ViewFile(WorkingDir, item.FileInfo.File, "");
+				HgClient.ViewFile(item.FileInfo.File, "");
 			}
 		}
 
@@ -542,13 +546,7 @@ namespace HgSccHelper
 							checked_count++;
 
 					// if none or some items checked, then we will check all
-					bool new_checked_state = true;
-
-					if (checked_count == listFiles.SelectedItems.Count)
-					{
-						// if all selected items are checked, then uncheck them
-						new_checked_state = false;
-					}
+					bool new_checked_state = !(checked_count == listFiles.SelectedItems.Count);
 
 					foreach (RevertItem item in listFiles.SelectedItems)
 						item.IsChecked = new_checked_state;

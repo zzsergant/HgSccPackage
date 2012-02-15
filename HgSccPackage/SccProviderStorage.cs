@@ -391,6 +391,7 @@ namespace HgSccPackage
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
 				wnd.SubRepoDirs = hgscc.SubRepoDirs;
+				wnd.UpdateContext.Cache.HgClient = hgscc.Client;
 				wnd.FilesToCommit = files;
 
 				proxy.ShowDialog();
@@ -450,6 +451,7 @@ namespace HgSccPackage
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.UpdateContext.Cache.HgClient = hgscc.Client;
 				wnd.FilesToRevert = files;
 
 				proxy.ShowDialog();
@@ -520,6 +522,7 @@ namespace HgSccPackage
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.UpdateContext.Cache.HgClient = hgscc.Client;
 				wnd.FileName = relative_path;
 
 				proxy.ShowDialog();
@@ -546,6 +549,7 @@ namespace HgSccPackage
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.UpdateContext.Cache.HgClient = hgscc.Client;
 				wnd.FileName = relative_path;
 
 				proxy.ShowDialog();
@@ -689,6 +693,7 @@ namespace HgSccPackage
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.UpdateContext.Cache.HgClient = hgscc.Client;
 
 				proxy.ShowDialog();
 
@@ -707,6 +712,7 @@ namespace HgSccPackage
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.UpdateContext.Cache.HgClient = hgscc.Client;
 
 				proxy.ShowDialog();
 
@@ -725,6 +731,7 @@ namespace HgSccPackage
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.UpdateContext.Cache.HgClient = hgscc.Client;
 				
 				proxy.ShowDialog();
 
@@ -745,6 +752,7 @@ namespace HgSccPackage
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.UpdateContext.Cache.HgClient = hgscc.Client;
 
 				proxy.ShowDialog();
 			}

@@ -24,6 +24,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Collections.ObjectModel;
+using HgSccHelper.CommandServer;
 using Microsoft.Win32;
 
 namespace HgSccHelper
@@ -41,7 +42,7 @@ namespace HgSccHelper
 		public string BaseRevision { get; set; }
 
 		//------------------------------------------------------------------
-		Hg Hg { get; set; }
+		HgClient HgClient { get { return UpdateContextCache.HgClient; } }
 
 		DispatcherTimer timer;
 		RevLogChangeDesc Target { get; set; }
@@ -123,8 +124,6 @@ namespace HgSccHelper
 		{
 			Title = string.Format("Bundle: '{0}'", WorkingDir);
 
-			Hg = new Hg();
-
 			timer = new DispatcherTimer();
 			timer.Interval = TimeSpan.FromMilliseconds(200);
 			timer.Tick += OnTimerTick;
@@ -133,7 +132,7 @@ namespace HgSccHelper
 			{
 				var target_desc = UpdateContextCache.TargetRevision;
 				if (target_desc == null)
-					target_desc = Hg.GetRevisionDesc(WorkingDir, TargetRevision);
+					target_desc = HgClient.GetRevisionDesc(TargetRevision);
 
 				if (target_desc == null)
 				{
@@ -154,7 +153,7 @@ namespace HgSccHelper
 
 			if (!string.IsNullOrEmpty(BaseRevision))
 			{
-				var base_desc = Hg.GetRevisionDesc(WorkingDir, BaseRevision);
+				var base_desc = HgClient.GetRevisionDesc(BaseRevision);
 				if (base_desc == null)
 				{
 					// error
@@ -176,7 +175,7 @@ namespace HgSccHelper
 
 			var bookmarks = UpdateContextCache.Bookmarks;
 			if (bookmarks == null)
-				bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+				bookmarks = HgClient.Bookmarks();
 
 			foreach (var bookmark in bookmarks)
 			{
@@ -193,7 +192,7 @@ namespace HgSccHelper
 
 			var tags = UpdateContextCache.Tags;
 			if (tags == null)
-				tags = Hg.Tags(WorkingDir);
+				tags = HgClient.Tags();
 
 			foreach (var tag in tags)
 			{
@@ -210,7 +209,7 @@ namespace HgSccHelper
 
 			var branches = UpdateContextCache.Branches;
 			if (branches == null)
-				branches = Hg.Branches(WorkingDir, HgBranchesOptions.Closed);
+				branches = HgClient.Branches(HgBranchesOptions.Closed);
 
 			foreach (var branch in branches)
 			{
@@ -249,7 +248,7 @@ namespace HgSccHelper
 				revision = item.SHA1;
 			}
 
-			Target = Hg.GetRevisionDesc(WorkingDir, revision);
+			Target = HgClient.GetRevisionDesc(revision);
 			if (Target == null)
 				targetDesc.Text = "Invalid Revision";
 			else
@@ -303,7 +302,7 @@ namespace HgSccHelper
 				revision = item.SHA1;
 			}
 
-			Base = Hg.GetRevisionDesc(WorkingDir, revision);
+			Base = HgClient.GetRevisionDesc(revision);
 			if (Base == null)
 				baseDesc.Text = "Invalid Revision";
 			else

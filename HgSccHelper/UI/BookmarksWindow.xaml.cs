@@ -23,6 +23,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using HgSccHelper.CommandServer;
 
 namespace HgSccHelper.UI
 {
@@ -38,7 +39,7 @@ namespace HgSccHelper.UI
 		public UpdateContext UpdateContext { get; private set; }
 
 		//------------------------------------------------------------------
-		Hg Hg { get; set; }
+		HgClient HgClient { get { return UpdateContext.Cache.HgClient; } }
 
 		DispatcherTimer bookmark_timer;
 		DispatcherTimer rev_timer;
@@ -87,8 +88,6 @@ namespace HgSccHelper.UI
 		{
 			Title = string.Format("Bookmarks: '{0}'", WorkingDir);
 
-			Hg = new Hg();
-
 			bookmark_timer = new DispatcherTimer();
 			bookmark_timer.Interval = TimeSpan.FromMilliseconds(200);
 			bookmark_timer.Tick += OnBookmarkTimerTick;
@@ -102,7 +101,7 @@ namespace HgSccHelper.UI
 			{
 				var parents_info = UpdateContext.Cache.ParentsInfo;
 				if (parents_info == null)
-					parents_info = Hg.Parents(WorkingDir);
+					parents_info = HgClient.Parents(WorkingDir);
 
 				if (parents_info == null)
 				{
@@ -174,8 +173,7 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		private void UpdateBookmarks()
 		{
-			var hg_bookmarks = new HgBookmarks();
-			var bookmarks = hg_bookmarks.Bookmarks(WorkingDir);
+			var bookmarks = HgClient.Bookmarks();
 			UpdateBookmarks(bookmarks);
 		}
 
@@ -198,7 +196,7 @@ namespace HgSccHelper.UI
 			{
 				var item = (BookmarkComboItem)comboBookmarks.SelectedItem;
 				if (item.Name == bookmark_name)
-					BookmarkDesc = Hg.GetRevisionDesc(WorkingDir, item.SHA1);
+					BookmarkDesc = HgClient.GetRevisionDesc(item.SHA1);
 			}
 
 			textBookmarkDesc.Text = BookmarkDesc.GetDescription();
@@ -208,7 +206,7 @@ namespace HgSccHelper.UI
 		//------------------------------------------------------------------
 		private void RefreshRev()
 		{
-			RevDesc = Hg.GetRevisionDesc(WorkingDir, textRev.Text);
+			RevDesc = HgClient.GetRevisionDesc(textRev.Text);
 			textRevDesc.Text = RevDesc.GetDescription();
 
 			UpdateButtonsState();

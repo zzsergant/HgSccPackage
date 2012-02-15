@@ -17,6 +17,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using System.Collections.ObjectModel;
+using HgSccHelper.CommandServer;
 
 namespace HgSccHelper
 {
@@ -33,7 +34,7 @@ namespace HgSccHelper
 		public UpdateContext UpdateContext { get; private set; }
 
 		//------------------------------------------------------------------
-		Hg Hg { get; set; }
+		HgClient HgClient { get { return UpdateContext.Cache.HgClient; } }
 
 		DispatcherTimer timer;
 		RevLogChangeDesc Target { get; set; }
@@ -81,13 +82,11 @@ namespace HgSccHelper
 		{
 			Title = string.Format("Update: '{0}'", WorkingDir);
 
-			Hg = new Hg();
-
 			timer = new DispatcherTimer();
 			timer.Interval = TimeSpan.FromMilliseconds(200);
 			timer.Tick += OnTimerTick;
 
-			ParentsInfo = UpdateContext.Cache.ParentsInfo ?? Hg.Parents(WorkingDir);
+			ParentsInfo = UpdateContext.Cache.ParentsInfo ?? HgClient.Parents();
 
 			if (ParentsInfo == null)
 			{
@@ -103,7 +102,7 @@ namespace HgSccHelper
 			{
 				var target_desc = UpdateContext.Cache.TargetRevision;
 				if (target_desc == null)
-					target_desc = Hg.GetRevisionDesc(WorkingDir, TargetRevision);
+					target_desc = HgClient.GetRevisionDesc(TargetRevision);
 
 				if (target_desc == null)
 				{
@@ -145,7 +144,7 @@ namespace HgSccHelper
 
 			var bookmarks = UpdateContext.Cache.Bookmarks;
 			if (bookmarks == null)
-				bookmarks = new HgBookmarks().Bookmarks(WorkingDir);
+				bookmarks = HgClient.Bookmarks();
 
 			foreach (var bookmark in bookmarks)
 			{
@@ -161,7 +160,7 @@ namespace HgSccHelper
 
 			var tags = UpdateContext.Cache.Tags;
 			if (tags == null)
-				tags = Hg.Tags(WorkingDir);
+				tags = HgClient.Tags();
 
 			foreach (var tag in tags)
 			{
@@ -177,7 +176,7 @@ namespace HgSccHelper
 
 			var branches = UpdateContext.Cache.Branches;
 			if (branches == null)
-				branches = Hg.Branches(WorkingDir, HgBranchesOptions.Closed);
+				branches = HgClient.Branches(HgBranchesOptions.Closed);
 
 			foreach (var branch in branches)
 			{
@@ -212,7 +211,7 @@ namespace HgSccHelper
 				revision = item.SHA1;
 			}
 
-			Target = Hg.GetRevisionDesc(WorkingDir, revision);
+			Target = HgClient.GetRevisionDesc(revision);
 			targetDesc.Text = Target.GetDescription();
 			btnUpdate.IsEnabled = (Target != null);
 		}
@@ -251,7 +250,7 @@ namespace HgSccHelper
 			{
 				try
 				{
-					if (!Hg.Update(WorkingDir, rev, HgUpdateOptions.Check))
+					if (!HgClient.Update(rev, HgUpdateOptions.Check))
 					{
 						MessageBox.Show("An error occured while update", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 						return;
@@ -274,7 +273,7 @@ namespace HgSccHelper
 				}
 			}
 
-			if (!Hg.Update(WorkingDir, rev, HgUpdateOptions.Clean))
+			if (!HgClient.Update(rev, HgUpdateOptions.Clean))
 			{
 				MessageBox.Show("An error occured while update", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;
