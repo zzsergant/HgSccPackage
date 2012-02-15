@@ -18,7 +18,7 @@ using HgSccHelper.Misc;
 
 namespace HgSccHelper.CommandServer
 {
-	class HgClient : IDisposable
+	public class HgClient : IDisposable
 	{
 		private HgCmdServer server;
 		private volatile bool is_running_command;
@@ -1198,6 +1198,42 @@ namespace HgSccHelper.CommandServer
 				}
 			}
 		}
+
+		//------------------------------------------------------------------
+		public List<BookmarkInfo> Bookmarks()
+		{
+			var args = new HgArgsBuilderZero();
+			args.Append("bookmarks");
+			args.AppendDebug();
+
+			var bookmarks = new List<BookmarkInfo>();
+			using (var mem_stream = new MemoryStream())
+			{
+				int res = RawCommandStream(args, mem_stream);
+				if (res != 0)
+					return new List<BookmarkInfo>();
+
+				mem_stream.Seek(0, SeekOrigin.Begin);
+
+				using (var output_stream = new StreamReader(mem_stream, Encoding))
+				{
+					while (true)
+					{
+						var str = output_stream.ReadLine();
+						if (str == null)
+							break;
+
+						var bookmark = HgBookmarks.ParseBookmarkLine(str);
+						if (bookmark != null)
+							bookmarks.Add(bookmark);
+					}
+				}
+			}
+
+			return bookmarks;
+		}
+
+
 
 		//------------------------------------------------------------------
 		public List<TagInfo> Tags()
