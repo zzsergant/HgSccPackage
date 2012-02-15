@@ -670,6 +670,7 @@ namespace HgSccPackage
 			{
 				var wnd = proxy.Wnd;
 				wnd.WorkingDir = hgscc.WorkingDir;
+				wnd.UpdateContext.Cache.HgClient = hgscc.Client;
 
 				proxy.ShowDialog();
 

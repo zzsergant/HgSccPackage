@@ -41,6 +41,12 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public HgClient Client
+		{
+			get { return hg_client; }
+		}
+
+		//-----------------------------------------------------------------------------
 		public bool GetRelativePath(string path, out string relative)
 		{
 			return Util.GetRelativePath(WorkingDir, path, out relative);

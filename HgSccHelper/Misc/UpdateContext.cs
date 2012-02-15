@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using HgSccHelper.CommandServer;
 
 namespace HgSccHelper
 {
@@ -36,6 +37,7 @@ namespace HgSccHelper
 	//------------------------------------------------------------------
 	public class UpdateContextCache
 	{
+		public HgClient HgClient { get; set; }
 		public RevLogChangeDesc TargetRevision { get; set; }
 		public ParentsInfo ParentsInfo { get; set; }
 		public List<BranchInfo> Branches { get; set; }
