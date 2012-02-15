@@ -118,7 +118,7 @@ namespace HgSccHelper
 
 		private List<RevLogChangeDesc> pending_changes;
 
-		private AsyncChangeDesc async_changedesc;
+		private DispatcherTimer timer;
 
 		private bool first_batch;
 
@@ -153,10 +153,68 @@ namespace HgSccHelper
 
 			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
 
-			async_changedesc = new AsyncChangeDesc();
-			async_changedesc.Completed = new Action<AsyncChangeDescResult>(OnAsyncChangeDesc);
+			timer = new DispatcherTimer();
+			timer.Interval = TimeSpan.FromMilliseconds(50);
+			timer.Tick += TimerOnTick;
 
 			first_batch = true;
+		}
+
+		//-----------------------------------------------------------------------------
+		private void TimerOnTick(object sender, EventArgs event_args)
+		{
+			timer.Stop();
+			RunningOperations &= ~AsyncOperations.ChangeDesc;
+
+			if (graphView.SelectedItems.Count == 1)
+			{
+				var rev_pair = (RevLogLinesPair)graphView.SelectedItem;
+				SelectedChangeset = rev_pair;
+
+				var parents_diff = new List<ParentFilesDiff>();
+
+				var parents = SelectedChangeset.Current.ChangeDesc.Parents;
+				if (parents.Count == 0)
+					parents = new ObservableCollection<string>(new[] { "null" });
+
+				var hg_client = UpdateContext.Cache.HgClient;
+
+				foreach (var parent in parents)
+				{
+					var options = HgStatusOptions.Added | HgStatusOptions.Deleted
+						| HgStatusOptions.Modified
+						| HgStatusOptions.Copies | HgStatusOptions.Removed;
+
+					var files = hg_client.Status(options, "", parent,
+						SelectedChangeset.Current.ChangeDesc.SHA1);
+
+					var desc = hg_client.GetRevisionDesc(parent);
+					if (desc != null)
+					{
+						var parent_diff = new ParentFilesDiff();
+						parent_diff.Desc = desc;
+						parent_diff.Files = new List<ParentDiffHgFileInfo>();
+
+						foreach (var file in files)
+							parent_diff.Files.Add(new ParentDiffHgFileInfo { FileInfo = file });
+
+						parents_diff.Add(parent_diff);
+					}
+				}
+				
+				tabParentsDiff.ItemsSource = parents_diff;
+				if (parents_diff.Count > 0)
+				{
+					var first_parent = parents_diff[0];
+					first_parent.IsSelected = true;
+
+					foreach (var parent in parents_diff)
+					{
+						if (parent.Files.Count > 0)
+							parent.Files[0].IsSelected = true;
+					}
+				}
+			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -418,13 +476,12 @@ namespace HgSccHelper
 			diffColorizer.Clear(); 
 			SelectedChangeset = null;
 			tabParentsDiff.ItemsSource = null;
+			timer.Stop();
 
 			if (graphView.SelectedItems.Count == 1)
 			{
 				RunningOperations |= AsyncOperations.ChangeDesc;
-
-				var rev_pair = (RevLogLinesPair)graphView.SelectedItem;
-				async_changedesc.Run(WorkingDir, rev_pair);
+				timer.Start();
 			}
 		}
 
@@ -435,8 +492,8 @@ namespace HgSccHelper
 			{
 				disposed = true;
 
-				async_changedesc.Cancel();
-				async_changedesc.Dispose();
+				timer.Stop();
+				timer.Tick -= TimerOnTick;
 
 				worker.Cancel();
 				worker.Dispose();
