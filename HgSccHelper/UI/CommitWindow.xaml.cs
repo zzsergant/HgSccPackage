@@ -82,7 +82,6 @@ namespace HgSccHelper
 
 		CfgWindowPosition wnd_cfg;
 
-		private AsyncRevLogChangeDesc async_changedesc;
 		private AsyncResolveList async_resolve_list;
 		private AsyncStatus async_status;
 
@@ -113,9 +112,6 @@ namespace HgSccHelper
 			files_sorter.ExcludeColumn(checkColumn);
 
 			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
-
-			async_changedesc = new AsyncRevLogChangeDesc();
-			async_changedesc.Complete = new Action<AsyncRevLogChangeDescResult>(OnAsyncChangeDesc);
 
 			async_resolve_list = new AsyncResolveList();
 			async_resolve_list.Complete = new Action<List<ResolveInfo>>(OnAsyncResolveList);
@@ -170,9 +166,6 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		private StatusTask async_status_task;
-
-		//-----------------------------------------------------------------------------
-		private Hg Hg { get; set; }
 
 		//------------------------------------------------------------------
 		private ParentsInfo ParentsInfo { get; set; }
@@ -236,7 +229,6 @@ namespace HgSccHelper
 			Cfg.Get(CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1);
 			expanderDiff.IsExpanded = (diff_visible != 0);
 
-			Hg = new Hg();
 			dirty_sub_repos = new List<string>();
 
 			pending_status_tasks = new Queue<StatusTask>();
@@ -301,8 +293,7 @@ namespace HgSccHelper
 				// If the repository is empty (have no revisions),
 				// then we should use identify to get null revision
 
-				var hg = new Hg();
-				var identify = hg.Identify(WorkingDir);
+				var identify = HgClient.Identify();
 				if (identify == null || identify.Parents.Count == 0 || identify.Rev != -1)
 				{
 					Close();
@@ -331,35 +322,23 @@ namespace HgSccHelper
 			if (ParentsInfo.Rev == -1)
 			{
 				// no need to get change desc for 'null' revision
-				var result = new AsyncRevLogChangeDescResult
-				             	{Changeset = ParentsInfo.Parents[0]};
-				
-				OnAsyncChangeDesc(result);
+				OnAsyncChangeDesc(ParentsInfo.Parents[0]);
 			}
 			else
 			{
-				RunningOperations |= AsyncOperations.ChangeDesc;
-				async_changedesc.Run(WorkingDir, ParentsInfo.Parents[0].SHA1);
+				var desc = HgClient.GetRevisionDesc(ParentsInfo.Parents[0].SHA1);
+				OnAsyncChangeDesc(desc);
 			}
 		}
 
 		//-----------------------------------------------------------------------------
-		private void OnAsyncChangeDesc(AsyncRevLogChangeDescResult result)
+		private void OnAsyncChangeDesc(RevLogChangeDesc desc)
 		{
-			RunningOperations &= ~AsyncOperations.ChangeDesc;
-
-			if (result == null)
-			{
-				Close();
-				return;
-			}
-
-			parents.Add(result.Changeset);
+			parents.Add(desc);
 			if (parents.Count < ParentsInfo.Parents.Count)
 			{
-				RunningOperations |= AsyncOperations.ChangeDesc;
-				async_changedesc.Run(WorkingDir, ParentsInfo.Parents[parents.Count].SHA1);
-				return;
+				var desc2 = HgClient.GetRevisionDesc(ParentsInfo.Parents[parents.Count].SHA1);
+				parents.Add(desc2);
 			}
 
 			UpdateBranchName();
@@ -604,9 +583,6 @@ namespace HgSccHelper
 		{
 			diffColorizer.Dispose();
 
-			async_changedesc.Cancel();
-			async_changedesc.Dispose();
-
 			async_resolve_list.Cancel();
 			async_resolve_list.Dispose();
 
@@ -729,7 +705,7 @@ namespace HgSccHelper
 				}
 
 
-				CommitResult commit_result = Hg.CommitAll(WorkingDir, options, CommitMessage);
+				CommitResult commit_result = HgClient.CommitAll(options, CommitMessage);
 				if (commit_result.IsSuccess)
 				{
 					CommitedFiles = new List<string>();
@@ -800,13 +776,13 @@ namespace HgSccHelper
 
 				if (checked_list.Count == commit_items.Count)
 				{
-					commit_result = Hg.CommitAll(WorkingDir, options, CommitMessage);
+					commit_result = HgClient.CommitAll(options, CommitMessage);
 				}
 				else if (to_commit_files.Count > 0)
 				{
 					try
 					{
-						commit_result = Hg.Commit(WorkingDir, options, to_commit_files, CommitMessage);
+						commit_result = HgClient.Commit(options, to_commit_files, CommitMessage);
 					}
 					catch (HgCommandLineException)
 					{
@@ -885,7 +861,7 @@ namespace HgSccHelper
 
 			try
 			{
-				Hg.Diff(WorkingDir, item.FileInfo.File, out is_different);
+				HgClient.Diff(item.FileInfo.File, out is_different);
 			}
 			catch (HgDiffException)
 			{
@@ -927,7 +903,7 @@ namespace HgSccHelper
 
 			try
 			{
-				Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
+				HgClient.DiffWithRevision(item.FileInfo.File,
 					ParentsInfo.Parents[0].SHA1, out is_different);
 			}
 			catch (HgDiffException)
@@ -953,7 +929,7 @@ namespace HgSccHelper
 
 			try
 			{
-				Hg.DiffWithRevision(WorkingDir, item.FileInfo.File,
+				HgClient.DiffWithRevision(item.FileInfo.File,
 					ParentsInfo.Parents[1].SHA1, out is_different);
 			}
 			catch (HgDiffException)
@@ -1145,16 +1121,15 @@ namespace HgSccHelper
 		{
 			var item = (CommitItem)listFiles.SelectedItem;
 
-			var hg = new Hg();
 			if (	item.FileInfo.Status == HgFileStatus.Removed
 				||	item.FileInfo.Status == HgFileStatus.Deleted
 				)
 			{
-				hg.ViewFile(WorkingDir, item.FileInfo.File, ParentsInfo.Rev.ToString());
+				HgClient.ViewFile(item.FileInfo.File, ParentsInfo.Rev.ToString());
 			}
 			else
 			{
-				hg.ViewFile(WorkingDir, item.FileInfo.File, "");
+				HgClient.ViewFile(item.FileInfo.File, "");
 			}
 		}
 
