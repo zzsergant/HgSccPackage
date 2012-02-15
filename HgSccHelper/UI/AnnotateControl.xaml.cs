@@ -21,6 +21,7 @@ using System;
 using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Media;
+using HgSccHelper.CommandServer;
 using HgSccHelper.UI;
 using HgSccHelper.UI.RevLog;
 using ICSharpCode.AvalonEdit.Document;
@@ -56,7 +57,7 @@ namespace HgSccHelper
 		public UpdateContext UpdateContext { get; private set; }
 
 		//------------------------------------------------------------------
-		Hg Hg { get; set; }
+		HgClient HgClient { get { return UpdateContext.Cache.HgClient; } }
 
 		//------------------------------------------------------------------
 		ParentsInfo ParentsInfo { get; set; }
@@ -101,7 +102,6 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private Cursor prev_cursor;
 
-		private AsyncChangeDescFull async_changedesc;
 		private AsyncAnnotate async_annotate;
 
 		private ColorizeChanges colorizer;
@@ -122,9 +122,6 @@ namespace HgSccHelper
 			files_sorter = new GridViewColumnSorter(listViewFiles);
 
 			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
-
-			async_changedesc = new AsyncChangeDescFull();
-			async_changedesc.Complete = new Action<List<ChangeDesc>>(OnAsyncChangeDescFull);
 
 			async_annotate = new AsyncAnnotate();
 			async_annotate.Complete = new Action<AsyncAnnotateResults>(OnAsyncAnnotate);
@@ -226,8 +223,6 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Control_Loaded(object sender, RoutedEventArgs e)
 		{
-			Hg = new Hg();
-
 			string encoding_name;
 			Cfg.Get(AnnotateWindow.CfgPath, "encoding", out encoding_name, encodings[0].Name);
 
@@ -257,7 +252,7 @@ namespace HgSccHelper
 			Branches = new Dictionary<string, BranchInfo>();
 			Bookmarks = new Dictionary<string, BookmarkInfo>();
 
-			var files = Hg.Status(WorkingDir, FileName, Rev ?? "");
+			var files = HgClient.Status(FileName, Rev ?? "");
 			if (files.Count == 1
 				&& files[0].Status == HgFileStatus.Added
 				&& files[0].CopiedFrom != null)
@@ -315,8 +310,7 @@ namespace HgSccHelper
 			if (!string.IsNullOrEmpty(Rev))
 				rev_range = string.Format("{0}:0", Rev);
 
-			RunningOperations |= AsyncOperations.ChangeDesc;
-			async_changedesc.RunAsync(WorkingDir, FileName, rev_range);
+			OnAsyncChangeDescFull(HgClient.ChangesFull(FileName, rev_range));
 		}
 
 		//------------------------------------------------------------------
@@ -389,9 +383,6 @@ namespace HgSccHelper
 			{
 				disposed = true;
 
-				async_changedesc.Cancel();
-				async_changedesc.Dispose();
-
 				async_annotate.Cancel();
 				async_annotate.Dispose();
 
@@ -444,7 +435,7 @@ namespace HgSccHelper
 				return;
 			}
 
-			var renames = Hg.FindRenames(WorkingDir, FileName, changes);
+			var renames = HgClient.FindRenames(FileName, changes);
 			var history = new List<FileHistoryInfo>();
 
 			int left_idx = 0;
@@ -772,7 +763,7 @@ namespace HgSccHelper
 
 			try
 			{
-				Hg.Diff(WorkingDir, f1.RenameInfo.Path, f1.ChangeDesc.Rev, f2.RenameInfo.Path, f2.ChangeDesc.Rev);
+				HgClient.Diff(f1.RenameInfo.Path, f1.ChangeDesc.Rev, f2.RenameInfo.Path, f2.ChangeDesc.Rev);
 			}
 			catch (HgDiffException)
 			{
@@ -812,7 +803,7 @@ namespace HgSccHelper
 
 			try
 			{
-				Hg.Diff(WorkingDir, file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
+				HgClient.Diff(file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
 			}
 			catch (HgDiffException)
 			{
@@ -908,11 +899,10 @@ namespace HgSccHelper
 			var file_info = (FileInfo)listViewFiles.SelectedItem;
 			var cs = file_history.ChangeDesc;
 
-			var hg = new Hg();
 			if (file_info.Status == FileStatus.Removed)
-				hg.ViewFile(WorkingDir, file_info.Path, (cs.Rev - 1).ToString());
+				HgClient.ViewFile(file_info.Path, (cs.Rev - 1).ToString());
 			else
-				hg.ViewFile(WorkingDir, file_info.Path, cs.Rev.ToString());
+				HgClient.ViewFile(file_info.Path, cs.Rev.ToString());
 		}
 
 		//------------------------------------------------------------------
