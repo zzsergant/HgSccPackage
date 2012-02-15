@@ -85,7 +85,6 @@ namespace HgSccHelper
 		private AsyncRevLogChangeDesc async_changedesc;
 		private AsyncResolveList async_resolve_list;
 		private AsyncStatus async_status;
-		private AsyncBranchName async_branch_name;
 
 		private Dictionary<string, ResolveStatus> resolve_dict;
 
@@ -123,9 +122,6 @@ namespace HgSccHelper
 
 			async_status = new AsyncStatus();
 			async_status.Complete = new Action<AsyncStatusResult>(OnAsyncStatus);
-
-			async_branch_name = new AsyncBranchName();
-			async_branch_name.Complete = new Action<string>(OnAsyncBranchName);
 
 			resolve_dict = new Dictionary<string, ResolveStatus>();
 		}
@@ -366,8 +362,7 @@ namespace HgSccHelper
 				return;
 			}
 
-			RunningOperations |= AsyncOperations.BranchName;
-			async_branch_name.RunAsync(WorkingDir);
+			UpdateBranchName();
 
 			if (IsMergeActive)
 			{
@@ -582,10 +577,9 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		void OnAsyncBranchName(string branch_name)
+		void UpdateBranchName()
 		{
-			RunningOperations &= ~AsyncOperations.BranchName;
-
+			string branch_name = HgClient.GetBranchName();
 			if (branch_name != null)
 			{
 				NamedBranchOp.BranchName = branch_name;
@@ -615,9 +609,6 @@ namespace HgSccHelper
 
 			async_resolve_list.Cancel();
 			async_resolve_list.Dispose();
-
-			async_branch_name.Cancel();
-			async_branch_name.Dispose();
 
 			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
 			if (!Double.IsNaN(diffColorizer.Width))
@@ -1219,8 +1210,7 @@ namespace HgSccHelper
 
 			if (wnd.ShowDialog() == true)
 			{
-				var hg = new Hg();
-				var branches = hg.Branches(WorkingDir, HgBranchesOptions.Closed);
+				var branches = HgClient.Branches(HgBranchesOptions.Closed);
 
 				bool is_forced = false;
 				if (branches.Any(branch => branch.Name == wnd.BranchName))
@@ -1237,15 +1227,13 @@ namespace HgSccHelper
 				if (is_forced)
 					options = HgBranchOptions.Force;
 
-				var hg_branch = new HgBranch();
-				if (!hg_branch.SetBranchName(WorkingDir, wnd.BranchName, options))
+				if (!HgClient.SetBranchName(wnd.BranchName, options))
 				{
 					MessageBox.Show("Unable to set branch name", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 					return;
 				}
 
-				RunningOperations |= AsyncOperations.BranchName;
-				async_branch_name.RunAsync(WorkingDir);
+				UpdateBranchName();
 			}
 		}
 
@@ -1261,11 +1249,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ResetBranchName_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var hg_branch = new HgBranch();
-			hg_branch.ResetBranchName(WorkingDir);
-
-			RunningOperations |= AsyncOperations.BranchName;
-			async_branch_name.RunAsync(WorkingDir);
+			HgClient.ResetBranchName();
+			UpdateBranchName();
 		}
 
 		//------------------------------------------------------------------

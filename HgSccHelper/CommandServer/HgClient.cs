@@ -1478,5 +1478,58 @@ namespace HgSccHelper.CommandServer
 
 			return lines;
 		}
+
+		//-----------------------------------------------------------------------------
+		/// <summary>
+		/// Returns a branch name to commit or null
+		/// </summary>
+		/// <returns></returns>
+		public string GetBranchName()
+		{
+			var args = new HgArgsBuilderZero();
+			args.Append("branch");
+
+			using (var mem_stream = new MemoryStream())
+			{
+				int res = RawCommandStream(args, mem_stream);
+				if (res != 0)
+					return null;
+
+				mem_stream.Seek(0, SeekOrigin.Begin);
+
+				using (var output_stream = new StreamReader(mem_stream, Encoding))
+				{
+					var str = output_stream.ReadLine();
+					return str;
+				}
+			}
+		}
+
+		//------------------------------------------------------------------
+		/// <summary>
+		/// Reset branch name to parent branch name
+		/// </summary>
+		/// <returns></returns>
+		public bool ResetBranchName()
+		{
+			var args = new HgArgsBuilderZero();
+			args.Append("branch");
+			args.Append("--clean");
+
+			return RunHg(args);
+		}
+
+		//------------------------------------------------------------------
+		public bool SetBranchName(string branch_name, HgBranchOptions options)
+		{
+			var args = new HgArgsBuilderZero();
+			args.Append("branch");
+
+			if (options == HgBranchOptions.Force)
+				args.Append("-f");
+
+			args.Append(branch_name);
+			return RunHg(args);
+		}
 	}
 }
