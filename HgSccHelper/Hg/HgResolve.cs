@@ -41,6 +41,9 @@ namespace HgSccHelper
 			{
 				args.Append("--config");
 				args.Append("ui.merge=" + merge_tool.Quote());
+
+				args.Append("--config");
+				args.Append("ui.interactive=False");
 			}
 
 			args.AppendPath(file);
