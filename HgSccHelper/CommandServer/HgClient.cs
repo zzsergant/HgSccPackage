@@ -1531,5 +1531,40 @@ namespace HgSccHelper.CommandServer
 			args.Append(branch_name);
 			return RunHg(args);
 		}
+
+		//-----------------------------------------------------------------------------
+		public List<ResolveInfo> GetResolveList()
+		{
+			var args = new HgArgsBuilderZero();
+			args.Append("resolve");
+			args.Append("-l");
+
+			var resolve_list = new List<ResolveInfo>();
+
+			using (var mem_stream = new MemoryStream())
+			{
+				int res = RawCommandStream(args, mem_stream);
+				if (res != 0)
+					return new List<ResolveInfo>();
+
+				mem_stream.Seek(0, SeekOrigin.Begin);
+
+				using (var output_stream = new StreamReader(mem_stream, Encoding))
+				{
+					while (true)
+					{
+						var str = output_stream.ReadLine();
+						if (str == null)
+							break;
+
+						ResolveInfo info = HgResolve.ParseResolveListLine(str);
+						if (info != null)
+							resolve_list.Add(info);
+					}
+				}
+			}
+
+			return resolve_list;
+		}
 	}
 }

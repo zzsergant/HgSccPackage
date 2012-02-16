@@ -82,7 +82,6 @@ namespace HgSccHelper
 
 		CfgWindowPosition wnd_cfg;
 
-		private AsyncResolveList async_resolve_list;
 		private AsyncStatus async_status;
 
 		private Dictionary<string, ResolveStatus> resolve_dict;
@@ -112,9 +111,6 @@ namespace HgSccHelper
 			files_sorter.ExcludeColumn(checkColumn);
 
 			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
-
-			async_resolve_list = new AsyncResolveList();
-			async_resolve_list.Complete = new Action<List<ResolveInfo>>(OnAsyncResolveList);
 
 			async_status = new AsyncStatus();
 			async_status.Complete = new Action<AsyncStatusResult>(OnAsyncStatus);
@@ -377,8 +373,7 @@ namespace HgSccHelper
 
 			if (IsMergeActive)
 			{
-				RunningOperations |= AsyncOperations.ResolveList;
-				async_resolve_list.RunAsync(WorkingDir);
+				OnAsyncResolveList(HgClient.GetResolveList());
 			}
 		}
 
@@ -582,9 +577,6 @@ namespace HgSccHelper
 		private void Window_Closed(object sender, EventArgs e)
 		{
 			diffColorizer.Dispose();
-
-			async_resolve_list.Cancel();
-			async_resolve_list.Dispose();
 
 			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
 			if (!Double.IsNaN(diffColorizer.Width))
