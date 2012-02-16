@@ -18,6 +18,7 @@ using System.Text;
 using System.Windows.Threading;
 using System;
 using System.Collections.Generic;
+using HgSccHelper.CommandServer;
 using Microsoft.Win32;
 using System.Windows.Controls;
 using HgSccHelper.UI;
@@ -57,6 +58,9 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		public UpdateContext UpdateContext { get; private set; }
+
+		//-----------------------------------------------------------------------------
+		HgClient HgClient { get { return UpdateContext.Cache.HgClient; } }
 
 		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty ShowNewestFirstProperty =
@@ -125,15 +129,6 @@ namespace HgSccHelper
 		private AsyncOperations async_ops;
 
 		//-----------------------------------------------------------------------------
-		private AsyncTags async_tags;
-
-		//-----------------------------------------------------------------------------
-		private AsyncBranches async_branches;
-
-		//-----------------------------------------------------------------------------
-		private AsyncBookmarks async_bookmarks;
-
-		//-----------------------------------------------------------------------------
 		private Cursor prev_cursor;
 
 		//-----------------------------------------------------------------------------
@@ -175,15 +170,6 @@ namespace HgSccHelper
 
 			comboAfterPull.ItemsSource = after_pull_actions;
 			comboAfterPull.SelectedItem = "Update";
-
-			async_branches = new AsyncBranches();
-			async_branches.Complete = new Action<List<BranchInfo>>(OnAsyncBranch);
-
-			async_tags = new AsyncTags();
-			async_tags.Complete = new Action<List<TagInfo>>(OnAsyncTags);
-
-			async_bookmarks = new AsyncBookmarks();
-			async_bookmarks.Complete = new Action<List<BookmarkInfo>>(OnAsyncBookmarks);
 		}
 
 		//------------------------------------------------------------------
@@ -317,15 +303,6 @@ namespace HgSccHelper
 		private void Window_Closed(object sender, EventArgs e)
 		{
 			Cfg.Set(CfgPath, "AfterPull", comboAfterPull.Text);
-
-			async_tags.Cancel();
-			async_tags.Dispose();
-
-			async_bookmarks.Cancel();
-			async_bookmarks.Dispose();
-
-			async_branches.Cancel();
-			async_branches.Dispose();
 
 			worker.Cancel();
 			worker.Dispose();
@@ -883,18 +860,9 @@ namespace HgSccHelper
 			{
 				is_revisions_initialized = true;
 
-				// TODO: Preserve an order of Bookmarks/Tags/Branches.
-				// Since all commands are run asynchronous,
-				// they can have different ordering on each run
-
-				RunningOperations |= AsyncOperations.Bookmarks;
-				async_bookmarks.RunAsync(WorkingDir);
-
-				RunningOperations |= AsyncOperations.Tags;
-				async_tags.RunAsync(WorkingDir);
-
-				RunningOperations |= AsyncOperations.Branches;
-				async_branches.RunAsync(WorkingDir, HgBranchesOptions.Closed);
+				OnAsyncBookmarks(HgClient.Bookmarks());
+				OnAsyncTags(HgClient.Tags());
+				OnAsyncBranch(HgClient.Branches(HgBranchesOptions.Closed));
 			}
 		}
 	}
