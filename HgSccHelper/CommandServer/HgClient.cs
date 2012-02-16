@@ -327,6 +327,28 @@ namespace HgSccHelper.CommandServer
 			}
 		}
 
+		//-----------------------------------------------------------------------------
+		public string Root()
+		{
+			var args = new HgArgsBuilderZero();
+			args.Append("root");
+
+			using (var mem_stream = new MemoryStream())
+			{
+				int res = RawCommandStream(args, mem_stream);
+				if (res != 0)
+					return string.Empty;
+
+				mem_stream.Seek(0, SeekOrigin.Begin);
+
+				using (var output_stream = new StreamReader(mem_stream, Encoding))
+				{
+					var str = output_stream.ReadLine();
+					return str;
+				}
+			}
+		}
+
 		//=============================================================================
 		public List<ChangeDesc> ChangesFull(string path)
 		{
