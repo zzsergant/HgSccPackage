@@ -63,7 +63,7 @@ namespace HgSccHelper
 		{
 			var hg = new Hg();
 			string root = hg.Root(local_proj_path);
-			bool is_root_exist = root.Length > 0;
+			bool is_root_exist = !String.IsNullOrEmpty(root);
 
 			if (!is_root_exist)
 			{
