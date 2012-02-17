@@ -501,6 +501,55 @@ namespace HgSccHelper.CommandServer
 		}
 
 		//-----------------------------------------------------------------------------
+		public List<string> RevLogPathSHA1(string path, string rev, int max_count, bool follow)
+		{
+			var args = new HgArgsBuilderZero();
+			args.Append("log");
+
+			if (follow)
+				args.Append("--follow");
+
+			if (max_count != 0)
+			{
+				args.Append("-l");
+				args.Append(max_count.ToString());
+			}
+
+			if (!String.IsNullOrEmpty(rev))
+				args.AppendRevision(rev);
+
+			if (!String.IsNullOrEmpty(path))
+				args.AppendPath(path);
+
+			args.Append("--template");
+			args.Append("{node}\n");
+
+			var revs = new List<string>();
+			using (var mem_stream = new MemoryStream())
+			{
+				int res = RawCommandStream(args, mem_stream);
+				if (res != 0)
+					return new List<string>();
+
+				mem_stream.Seek(0, SeekOrigin.Begin);
+
+				using (var output_stream = new StreamReader(mem_stream, Encoding))
+				{
+					while (true)
+					{
+						var str = output_stream.ReadLine();
+						if (str == null)
+							break;
+
+						revs.Add(str);
+					}
+				}
+			}
+
+			return revs;
+		}
+
+		//-----------------------------------------------------------------------------
 		public ParentsInfo Parents()
 		{
 			return Parents("");

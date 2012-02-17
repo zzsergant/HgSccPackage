@@ -152,51 +152,70 @@ namespace HgSccHelper
 				FileName = file_info.CopiedFrom;
 			}
 
-			var all_revs = new List<RenameParts>();
-			var tt = Stopwatch.StartNew();
-			{
-				// FIXME: Some mercurial functions returns separator as '\\', some as '/'
-				// Some functions require '/', while others allow both
+			string full_rev_range = "";
+			if (!String.IsNullOrEmpty(Rev))
+				full_rev_range = String.Format("{0}:0", Rev);
 
+			var tt = Stopwatch.StartNew();
+
+			// Revs with follow
+			var follow_revs = HgClient.RevLogPath(FileName, full_rev_range, 0, true);
+
+			// Map for filenames -> sha1 revlist without follow
+			var file_to_revs = new Dictionary<string, List<string>>();
+
+			var all_revs = new List<RenameParts>();
+			{
 				string filename = FileName;
 
-				// FIXME: File patterns in rev sets requires use '/' separator
-				string rev_range;
-				if (!String.IsNullOrEmpty(Rev))
+				while(follow_revs.Count > 0)
 				{
-					rev_range = String.Format("{0}:max(adds('{1}') and {2}:0)", Rev, FileName.Replace('\\', '/'), Rev);
-				}
-				else
-				{
-					rev_range = String.Format("tip:max(adds('{1}'))", Rev, FileName.Replace('\\', '/'));
-				}
+					var current = follow_revs[0];
 
-				// example: hg log -r "655:max(adds('HgSccHelper/HgScc.cs') and 655:0)" HgSccHelper/HgScc.cs
-				var revs = HgClient.RevLogPath(filename, rev_range, 0, false);
+					List<string> no_follow;
+					if (!file_to_revs.TryGetValue(filename, out no_follow))
+					{
+						no_follow = HgClient.RevLogPathSHA1(filename.Replace('/', '\\'),
+						                                    String.Format("{0}:0", current.SHA1),
+						                                    0, false);
+						file_to_revs.Add(filename, no_follow);
+					}
 
-				while (true)
-				{
-					if (revs.Count == 0)
+					int max_idx = Math.Min(follow_revs.Count, no_follow.Count);
+					int mismatch_idx = -1;
+					
+					for(int i = 0; i < max_idx; ++i)
+					{
+						if (follow_revs[i].SHA1 != no_follow[i])
+						{
+							mismatch_idx = i;
+							break;
+						}
+					}
+
+					if (mismatch_idx == -1)
+					{
+						// No more renames
+						mismatch_idx = max_idx;
+					}
+
+					if (mismatch_idx == 0)
+					{
+						// This should not happen
 						break;
+					}
 
-					// FIXME: For UI and Windows we need '\\' separator
-					all_revs.Add(new RenameParts { FileName = filename.Replace('/', '\\'), Revs = revs });
+					var last_rev = follow_revs[mismatch_idx - 1];
 
-					var last_rev = revs[revs.Count - 1];
+					no_follow.RemoveRange(0, mismatch_idx);
+					all_revs.Add(new RenameParts { FileName = filename.Replace('/', '\\'), Revs = follow_revs.GetRange(0, mismatch_idx) });
+					follow_revs.RemoveRange(0, mismatch_idx);
+
 					if (!HgClient.TrackRename(filename, last_rev.SHA1, out filename))
 						break;
 
 					// FIXME: TrackRename returns filename with '/' separator
-//					filename = filename.Replace('/', '\\');
-
-					foreach (var parent in last_rev.Parents)
-					{
-						// FIXME: RevSet requires '/' separator
-						rev_range = String.Format("{0}:max(adds('{1}') and {2}:0)", parent, filename, parent);
-						revs = HgClient.RevLogPath(filename, rev_range, 0, false);
-						if (revs.Count != 0)
-							break;
-					}
+					filename = filename.Replace('/', '\\');
 				}
 			}
 			sb.AppendFormat("Custom, time = {0} ms\n", tt.ElapsedMilliseconds);
@@ -299,6 +318,7 @@ namespace HgSccHelper
 			var myView = (CollectionView)CollectionViewSource.GetDefaultView(listChanges.ItemsSource);
 			var groupDescription = new PropertyGroupDescription("GroupText");
 			myView.GroupDescriptions.Add(groupDescription);
+
 			sb.AppendFormat("Other {0} ms\n", t4.ElapsedMilliseconds);
 
 			Logger.WriteLine("FileHistory Times:\n{0}\n", sb.ToString());
