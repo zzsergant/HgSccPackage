@@ -166,7 +166,7 @@ namespace HgSccHelper
 
 			var all_revs = new List<RenameParts>();
 			{
-				string filename = FileName;
+				string filename = FileName.Replace('/', '\\');
 
 				while(follow_revs.Count > 0)
 				{
@@ -175,7 +175,7 @@ namespace HgSccHelper
 					HashSet<string> no_follow;
 					if (!file_to_revs.TryGetValue(filename, out no_follow))
 					{
-						var no_follow_list = HgClient.RevLogPathSHA1(filename.Replace('/', '\\'),
+						var no_follow_list = HgClient.RevLogPathSHA1(filename,
 						                                    String.Format("{0}:0", current.SHA1),
 						                                    0, false);
 
@@ -210,7 +210,7 @@ namespace HgSccHelper
 
 					var last_rev = follow_revs[mismatch_idx - 1];
 
-					all_revs.Add(new RenameParts { FileName = filename.Replace('/', '\\'), Revs = follow_revs.GetRange(0, mismatch_idx) });
+					all_revs.Add(new RenameParts { FileName = filename, Revs = follow_revs.GetRange(0, mismatch_idx) });
 					follow_revs.RemoveRange(0, mismatch_idx);
 
 					if (!HgClient.TrackRename(filename, last_rev.SHA1, out filename))
