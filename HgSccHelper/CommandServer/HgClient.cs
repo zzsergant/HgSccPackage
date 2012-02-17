@@ -454,6 +454,53 @@ namespace HgSccHelper.CommandServer
 		}
 
 		//-----------------------------------------------------------------------------
+		public List<RevLogChangeDesc> RevLogPath(string path, string rev, int max_count, bool follow)
+		{
+			var args = new HgArgsBuilderZero();
+			args.Append("log");
+
+			args.AppendDebug();
+			args.AppendVerbose();
+
+			if (follow)
+			{
+				args.Append("--follow");
+			}
+
+			if (max_count != 0)
+			{
+				args.Append("-l");
+				args.Append(max_count.ToString());
+			}
+
+			if (!String.IsNullOrEmpty(rev))
+				args.AppendRevision(rev);
+
+			if (!String.IsNullOrEmpty(path))
+				args.AppendPath(path);
+
+			using (var revlog_style = new RevLogStyleFile())
+			{
+				args.AppendStyle(revlog_style.FileName);
+
+				using (var mem_stream = new MemoryStream())
+				{
+					int res = RawCommandStream(args, mem_stream);
+					if (res != 0)
+						return new List<RevLogChangeDesc>();
+
+					mem_stream.Seek(0, SeekOrigin.Begin);
+
+					using (var output_stream = new StreamReader(mem_stream, Encoding))
+					{
+						var lst = RevLogChangeDesc.ParseChanges(output_stream);
+						return lst;
+					}
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
 		public ParentsInfo Parents()
 		{
 			return Parents("");

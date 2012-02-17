@@ -15,7 +15,7 @@
         <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
         <DataTemplate x:Key="statusCellTemplate">
             <TextBlock Text="{Binding Status}"
-                       Foreground="{Binding Path=Status, Converter={StaticResource HgStatusToColor}, ConverterParameter=FileStatus}">
+                       Foreground="{Binding Path=Status, Converter={StaticResource HgStatusToColor}}">
             </TextBlock>
         </DataTemplate>
         <converters:RemoveLastNewLineConverter x:Key="RemoveLastNewLineConverter" />
@@ -175,10 +175,14 @@
                 <RowDefinition Height="Auto" Name="changeDescRow"/>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
+<!--
+                      VirtualizingStackPanel.IsVirtualizing="True"
+                      VirtualizingStackPanel.VirtualizationMode="Recycling"
+-->
             <ListView x:Name="listChanges"
-                  Grid.Row="0"
-                  SelectionChanged="listChanges_SelectionChanged"
-                  Margin="0, 0, 0, 5">
+                      Grid.Row="0"
+                      SelectionChanged="listChanges_SelectionChanged"
+                      Margin="0, 0, 0, 5">
                 <ListView.CommandBindings>
                     <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         CanExecute="HistoryDiffPrevious_CanExecute"
@@ -271,9 +275,13 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                     <ColumnDefinition x:Name="diffColumn"  Width="Auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
+<!--
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling"
+-->
                 <ListView Grid.Column="0" Name="listViewFiles"
                           SelectionChanged="listViewFiles_SelectionChanged"
-                      GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
+                          GridViewColumnHeader.Click="GridViewColumnHeaderClickedHandler">
                     <ListView.CommandBindings>
                         <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         CanExecute="FilesDiffPrevious_CanExecute"
@@ -314,7 +322,7 @@
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Status" Width="90" CellTemplate="{StaticResource statusCellTemplate}" />
-                            <GridViewColumn Header="File" Width="850"  DisplayMemberBinding="{Binding Path}" />
+                            <GridViewColumn Header="File" Width="850"  DisplayMemberBinding="{Binding File}" />
                         </GridView>
                     </ListView.View>
                     <ListView.Resources>
