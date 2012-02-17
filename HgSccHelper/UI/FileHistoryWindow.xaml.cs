@@ -162,7 +162,7 @@ namespace HgSccHelper
 			var follow_revs = HgClient.RevLogPath(FileName, full_rev_range, 0, true);
 
 			// Map for filenames -> sha1 revlist without follow
-			var file_to_revs = new Dictionary<string, List<string>>();
+			var file_to_revs = new Dictionary<string, HashSet<string>>();
 
 			var all_revs = new List<RenameParts>();
 			{
@@ -172,31 +172,34 @@ namespace HgSccHelper
 				{
 					var current = follow_revs[0];
 
-					List<string> no_follow;
+					HashSet<string> no_follow;
 					if (!file_to_revs.TryGetValue(filename, out no_follow))
 					{
-						no_follow = HgClient.RevLogPathSHA1(filename.Replace('/', '\\'),
+						var no_follow_list = HgClient.RevLogPathSHA1(filename.Replace('/', '\\'),
 						                                    String.Format("{0}:0", current.SHA1),
 						                                    0, false);
+
+						no_follow = new HashSet<string>(no_follow_list);
 						file_to_revs.Add(filename, no_follow);
 					}
 
-					int max_idx = Math.Min(follow_revs.Count, no_follow.Count);
 					int mismatch_idx = -1;
 					
-					for(int i = 0; i < max_idx; ++i)
+					for(int i = 0; i < follow_revs.Count; ++i)
 					{
-						if (follow_revs[i].SHA1 != no_follow[i])
+						if (!no_follow.Contains(follow_revs[i].SHA1))
 						{
 							mismatch_idx = i;
 							break;
 						}
+
+						no_follow.Remove(follow_revs[i].SHA1);
 					}
 
 					if (mismatch_idx == -1)
 					{
 						// No more renames
-						mismatch_idx = max_idx;
+						mismatch_idx = follow_revs.Count;
 					}
 
 					if (mismatch_idx == 0)
@@ -207,7 +210,6 @@ namespace HgSccHelper
 
 					var last_rev = follow_revs[mismatch_idx - 1];
 
-					no_follow.RemoveRange(0, mismatch_idx);
 					all_revs.Add(new RenameParts { FileName = filename.Replace('/', '\\'), Revs = follow_revs.GetRange(0, mismatch_idx) });
 					follow_revs.RemoveRange(0, mismatch_idx);
 
