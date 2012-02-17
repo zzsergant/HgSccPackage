@@ -155,26 +155,45 @@ namespace HgSccHelper
 			var all_revs = new List<RenameParts>();
 			var tt = Stopwatch.StartNew();
 			{
+				// FIXME: Some mercurial functions returns separator as '\\', some as '/'
+				// Some functions require '/', while others allow both
+
 				string filename = FileName;
-				var revs = HgClient.RevLogPath(filename, "", 0, false);
+
+				// FIXME: File patterns in rev sets requires use '/' separator
+				string rev_range;
+				if (!String.IsNullOrEmpty(Rev))
+				{
+					rev_range = String.Format("{0}:max(adds('{1}') and {2}:0)", Rev, FileName.Replace('\\', '/'), Rev);
+				}
+				else
+				{
+					rev_range = String.Format("tip:max(adds('{1}'))", Rev, FileName.Replace('\\', '/'));
+				}
+
+				// example: hg log -r "655:max(adds('HgSccHelper/HgScc.cs') and 655:0)" HgSccHelper/HgScc.cs
+				var revs = HgClient.RevLogPath(filename, rev_range, 0, false);
 
 				while (true)
 				{
 					if (revs.Count == 0)
 						break;
 
-					all_revs.Add(new RenameParts {FileName = filename, Revs = revs});
+					// FIXME: For UI and Windows we need '\\' separator
+					all_revs.Add(new RenameParts { FileName = filename.Replace('/', '\\'), Revs = revs });
 
 					var last_rev = revs[revs.Count - 1];
 					if (!HgClient.TrackRename(filename, last_rev.SHA1, out filename))
 						break;
 
-					// FIXME: Some mercurial functions returns separator as '\\', some as '/'
-					filename = filename.Replace('/', '\\');
+					// FIXME: TrackRename returns filename with '/' separator
+//					filename = filename.Replace('/', '\\');
 
 					foreach (var parent in last_rev.Parents)
 					{
-						revs = HgClient.RevLogPath(filename, parent, 0, false);
+						// FIXME: RevSet requires '/' separator
+						rev_range = String.Format("{0}:max(adds('{1}') and {2}:0)", parent, filename, parent);
+						revs = HgClient.RevLogPath(filename, rev_range, 0, false);
 						if (revs.Count != 0)
 							break;
 					}
