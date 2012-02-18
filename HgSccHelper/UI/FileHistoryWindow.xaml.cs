@@ -164,71 +164,77 @@ namespace HgSccHelper
 				full_rev_range = String.Format("{0}:0", Rev);
 
 			var tt = Stopwatch.StartNew();
+			var rename_parts = TrackRenames(HgClient, FileName, full_rev_range);
 
+			sb.AppendFormat("Custom, time = {0} ms\n", tt.ElapsedMilliseconds);
+			OnAsyncChangeDescFull(rename_parts);
+		}
+
+		//-----------------------------------------------------------------------------
+		internal static List<RenameParts> TrackRenames(HgClient hg_client, string filename, string rev_range)
+		{
 			// Revs with follow
-			var follow_revs = HgClient.RevLogPath(FileName, full_rev_range, 0, true);
+			var follow_revs = hg_client.RevLogPath(filename, rev_range, 0, true);
 
 			// Map for filenames -> sha1 revlist without follow
 			var file_to_revs = new Dictionary<string, HashSet<string>>();
 
-			var all_revs = new List<RenameParts>();
+			var parts = new List<RenameParts>();
+			filename = filename.Replace('/', '\\');
+
+			while (follow_revs.Count > 0)
 			{
-				string filename = FileName.Replace('/', '\\');
+				var current = follow_revs[0];
 
-				while(follow_revs.Count > 0)
+				HashSet<string> no_follow;
+				if (!file_to_revs.TryGetValue(filename, out no_follow))
 				{
-					var current = follow_revs[0];
+					var no_follow_list = hg_client.RevLogPathSHA1(filename,
+						String.Format("{0}:0", current.SHA1),
+						0, false);
 
-					HashSet<string> no_follow;
-					if (!file_to_revs.TryGetValue(filename, out no_follow))
-					{
-						var no_follow_list = HgClient.RevLogPathSHA1(filename,
-						                                    String.Format("{0}:0", current.SHA1),
-						                                    0, false);
-
-						no_follow = new HashSet<string>(no_follow_list);
-						file_to_revs.Add(filename, no_follow);
-					}
-
-					int mismatch_idx = -1;
-					
-					for(int i = 0; i < follow_revs.Count; ++i)
-					{
-						if (!no_follow.Contains(follow_revs[i].SHA1))
-						{
-							mismatch_idx = i;
-							break;
-						}
-
-						no_follow.Remove(follow_revs[i].SHA1);
-					}
-
-					if (mismatch_idx == -1)
-					{
-						// No more renames
-						mismatch_idx = follow_revs.Count;
-					}
-
-					if (mismatch_idx == 0)
-					{
-						// This should not happen
-						break;
-					}
-
-					var last_rev = follow_revs[mismatch_idx - 1];
-
-					all_revs.Add(new RenameParts { FileName = filename, Revs = follow_revs.GetRange(0, mismatch_idx) });
-					follow_revs.RemoveRange(0, mismatch_idx);
-
-					if (!HgClient.TrackRename(filename, last_rev.SHA1, out filename))
-						break;
-
-					// FIXME: TrackRename returns filename with '/' separator
-					filename = filename.Replace('/', '\\');
+					no_follow = new HashSet<string>(no_follow_list);
+					file_to_revs.Add(filename, no_follow);
 				}
+
+				int mismatch_idx = -1;
+
+				for (int i = 0; i < follow_revs.Count; ++i)
+				{
+					if (!no_follow.Contains(follow_revs[i].SHA1))
+					{
+						mismatch_idx = i;
+						break;
+					}
+
+					no_follow.Remove(follow_revs[i].SHA1);
+				}
+
+				if (mismatch_idx == -1)
+				{
+					// No more renames
+					mismatch_idx = follow_revs.Count;
+				}
+
+				if (mismatch_idx == 0)
+				{
+					// This should not happen
+					break;
+				}
+
+				var last_rev = follow_revs[mismatch_idx - 1];
+
+				parts.Add(new RenameParts { FileName = filename, Revs = follow_revs.GetRange(0, mismatch_idx) });
+				follow_revs.RemoveRange(0, mismatch_idx);
+
+				if (!hg_client.TrackRename(filename, last_rev.SHA1, out filename))
+					break;
+
+				// FIXME: TrackRename returns filename with '/' separator
+				filename = filename.Replace('/', '\\');
 			}
-			sb.AppendFormat("Custom, time = {0} ms\n", tt.ElapsedMilliseconds);
-			OnAsyncChangeDescFull(all_revs);
+
+			return parts;
 		}
 
 		//------------------------------------------------------------------
