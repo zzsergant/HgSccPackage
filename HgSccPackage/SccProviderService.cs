@@ -93,6 +93,7 @@ namespace HgSccPackage
 
 		private BackgroundWorker pending_status_updater;
 		private object rdt_files_lock = new object();
+		private object storage_removal_lock = new object();
 
 		// Indexes of icons in our custom image list
 		// NOTE: Only four custom glyphs allowed
@@ -224,14 +225,24 @@ namespace HgSccPackage
 		{
 			var p = (UpdateStatusParams)e.Argument;
 
-			// TODO: Add synchronization.
-			var result = p.Storage.GetStatus(p.Files);
+			lock (storage_removal_lock)
+			{
+				// FIXME: Need a better way to synchronize lifetime and execution
 
-			e.Result = new UpdateStatusResults
-			           	{
-			           		Storage = p.Storage,
-			           		FilesInfo = result
-			           	};
+				if (!p.Storage.IsValid)
+				{
+					e.Result = null;
+					return;
+				}
+
+				var result = p.Storage.GetStatus(p.Files);
+
+				e.Result = new UpdateStatusResults
+				{
+					Storage = p.Storage,
+					FilesInfo = result
+				};
+			}
 		}
 
 		//------------------------------------------------------------------
@@ -267,11 +278,15 @@ namespace HgSccPackage
 			rdt_timer.Tick -= rdt_timer_Tick;
 			rdt_timer.Dispose();
 
-			foreach (var storage in storage_list)
+			lock (storage_removal_lock)
 			{
-				storage.UpdateEvent -= UpdateEvent_Handler;
-				storage.Close();
+				foreach (var storage in storage_list)
+				{
+					storage.UpdateEvent -= UpdateEvent_Handler;
+					storage.Close();
+				}
 			}
+
 			storage_list.Clear();
 			pending_delete.Clear();
 			pending_remove.Clear();
@@ -887,27 +902,30 @@ namespace HgSccPackage
 			}
 
 			// Remove the project from the list of controlled projects
-			if (project_to_storage_map.ContainsKey(hierProject))
+			lock (storage_removal_lock)
 			{
-				var storage = project_to_storage_map[hierProject];
-				project_to_storage_map.Remove(hierProject);
-
-				if (!project_to_storage_map.ContainsValue(storage))
+				if (project_to_storage_map.ContainsKey(hierProject))
 				{
-					storage.UpdateEvent -= UpdateEvent_Handler;
-					storage_list.Remove(storage);
-					storage.Close();
+					var storage = project_to_storage_map[hierProject];
+					project_to_storage_map.Remove(hierProject);
+
+					if (!project_to_storage_map.ContainsValue(storage))
+					{
+						storage.UpdateEvent -= UpdateEvent_Handler;
+						storage_list.Remove(storage);
+						storage.Close();
+					}
+
+					projects_with_scc_bindings.Remove(hierProject);
+					website_projects.Remove(hierProject);
+
+					if (pscp2Project == null)
+						outside_projects.Remove(_sccProvider.GetSolutionFileName());
+					else
+						outside_projects.Remove(_sccProvider.GetProjectFileName(pscp2Project));
+
+					return VSConstants.S_OK;
 				}
-
-				projects_with_scc_bindings.Remove(hierProject);
-				website_projects.Remove(hierProject);
-
-				if (pscp2Project == null)
-					outside_projects.Remove(_sccProvider.GetSolutionFileName());
-				else
-					outside_projects.Remove(_sccProvider.GetProjectFileName(pscp2Project));
-
-				return VSConstants.S_OK;
 			}
 			
 			return VSConstants.S_FALSE;
@@ -993,11 +1011,15 @@ namespace HgSccPackage
 			_solutionLocation = "";
 			projects_with_scc_bindings.Clear();
 
-			foreach (var storage in storage_list)
+			lock (storage_removal_lock)
 			{
-				storage.UpdateEvent -= UpdateEvent_Handler;
-				storage.Close();
+				foreach (var storage in storage_list)
+				{
+					storage.UpdateEvent -= UpdateEvent_Handler;
+					storage.Close();
+				}
 			}
+
 			storage_list.Clear();
 			_sccProvider.SolutionHaveSccBindings = false;
 			outside_projects.Clear();
