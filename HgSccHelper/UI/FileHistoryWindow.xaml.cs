@@ -19,6 +19,7 @@ using System.Windows.Input;
 using System.Collections.Generic;
 using System;
 using System.Windows.Data;
+using System.Windows.Threading;
 using HgSccHelper.CommandServer;
 using HgSccHelper.UI;
 using HgSccHelper.UI.RevLog;
@@ -76,6 +77,7 @@ namespace HgSccHelper
 		private Cursor prev_cursor;
 
 		GridViewColumnSorter files_sorter;
+		private DispatcherTimer timer;
 
 		public const string CfgPath = @"GUI\FileHistoryWindow";
 		CfgWindowPosition wnd_cfg;
@@ -93,6 +95,10 @@ namespace HgSccHelper
 
 			files_sorter = new GridViewColumnSorter(listViewFiles);
 			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
+
+			timer = new DispatcherTimer();
+			timer.Interval = TimeSpan.FromMilliseconds(50);
+			timer.Tick += TimerOnTick;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -228,6 +234,9 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Window_Closed(object sender, EventArgs e)
 		{
+			timer.Stop();
+			timer.Tick -= TimerOnTick;
+
 			diffColorizer.Dispose();
 
 			Cfg.Set(CfgPath, DiffColorizerControl.DiffVisible, expanderDiff.IsExpanded ? 1 : 0);
@@ -972,10 +981,11 @@ namespace HgSccHelper
 				Close();
 		}
 
-		//------------------------------------------------------------------
-		private void listChanges_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+		//-----------------------------------------------------------------------------
+		private void TimerOnTick(object sender, EventArgs event_args)
 		{
-			listViewFiles.DataContext = null;
+			RunningOperations &= ~AsyncOperations.ChangeDesc;
+			timer.Stop();
 
 			if (listChanges.SelectedItems.Count == 1)
 			{
@@ -1001,6 +1011,19 @@ namespace HgSccHelper
 
 					listViewFiles.ScrollIntoView(listViewFiles.SelectedItem);
 				}
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void listChanges_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+		{
+			listViewFiles.DataContext = null;
+			timer.Stop();
+
+			if (listChanges.SelectedItems.Count == 1)
+			{
+				RunningOperations |= AsyncOperations.ChangeDesc;
+				timer.Start();
 			}
 		}
 
