@@ -1023,7 +1023,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void listChanges_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
 		{
-			listViewFiles.DataContext = null;
+			listViewFiles.ItemsSource = null;
 			timer.Stop();
 
 			if (listChanges.SelectedItems.Count == 1)
