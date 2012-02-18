@@ -12,7 +12,6 @@
         <DataTemplate x:Key="statusCellTemplate">
             <TextBlock Text="{Binding Status}"
                        Foreground="{Binding Path=Status, Converter={StaticResource HgStatusToColor}}">
-                       Foreground="{Binding Path=Status, Converter={StaticResource HgStatusToColor}, ConverterParameter=FileStatus}">
             </TextBlock>
         </DataTemplate>
         <GroupStyle x:Key="GroupStyleForRenames">
