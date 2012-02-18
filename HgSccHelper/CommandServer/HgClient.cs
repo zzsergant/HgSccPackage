@@ -56,14 +56,14 @@ namespace HgSccHelper.CommandServer
 
 			var p = new HgCmdServerParams();
 			p.Args = "serve --cmdserver pipe";
-			p.ForceSystemEncoding = true;
 			p.WorkingDir = work_dir;
 
 			if (!server.Run(p))
 				return false;
 
-			// TODO: utf8 ?
 			Encoding = Encoding.Default;
+			if (Hg.UseUtf8)
+				Encoding = Encoding.UTF8;
 
 			return ReadHello();
 		}

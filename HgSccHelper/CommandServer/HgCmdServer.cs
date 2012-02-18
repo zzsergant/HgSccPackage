@@ -55,7 +55,7 @@ namespace HgSccHelper.CommandServer
 			process = new Process();
 
 			// TODO: utf8
-			process.StartInfo = PrepareProcess(param.WorkingDir, param.Args, param.ForceSystemEncoding);
+			process.StartInfo = PrepareProcess(param.WorkingDir, param.Args);
 
 			try
 			{
@@ -143,10 +143,14 @@ namespace HgSccHelper.CommandServer
 		}
 
 		//-----------------------------------------------------------------------------
-		public ProcessStartInfo PrepareProcess(string work_dir, string arguments, bool force_system_encoding)
+		public ProcessStartInfo PrepareProcess(string work_dir, string arguments)
 		{
+			var hg_client = Hg.DefaultClient;
+			if (!String.IsNullOrEmpty(Hg.CustomHgClient))
+				hg_client = Hg.CustomHgClient;
+
 			var info = new ProcessStartInfo();
-			info.FileName = "hg";
+			info.FileName = hg_client;
 			info.Arguments = arguments;
 
 			info.CreateNoWindow = true;
@@ -159,6 +163,9 @@ namespace HgSccHelper.CommandServer
 			// Create suspended and then attach to Job !!
 			info.CreateSuspended = true;
 			info.EnvironmentVariables["HGPLAIN"] = "1";
+
+			if (Hg.UseUtf8)
+				info.EnvironmentVariables["HGENCODING"] = "utf8";
 
 			return info;
 		}
@@ -195,11 +202,6 @@ namespace HgSccHelper.CommandServer
 		/// Arguments for hg
 		/// </summary>
 		public string Args { get; set; }
-
-		/// <summary>
-		/// Force system encoding (for commands like: diff)
-		/// </summary>
-		public bool ForceSystemEncoding { get; set; }
 	}
 
 	//=============================================================================
