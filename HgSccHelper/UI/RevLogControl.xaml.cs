@@ -434,10 +434,10 @@ namespace HgSccHelper
 
 			if (WorkingDir != null)
 			{
-				var changes = UpdateContext.Cache.HgClient.RevLog("", BatchSize);
+				// First batch is done via cmdserver
+				var changes = UpdateContext.Cache.HgClient.RevLogPath("", "", BatchSize, false);
 				if (changes.Count > 0)
 				{
-					// First batch is done via cmdserver
 					Worker_NewRevLogChangeDescBatch(changes);
 				}
 			}
