@@ -434,7 +434,12 @@ namespace HgSccHelper
 
 			if (WorkingDir != null)
 			{
-				RunRevLogThread(WorkingDir, "", BatchSize);
+				var changes = UpdateContext.Cache.HgClient.RevLog("", BatchSize);
+				if (changes.Count > 0)
+				{
+					// First batch is done via cmdserver
+					Worker_NewRevLogChangeDescBatch(changes);
+				}
 			}
 
 			graphView.Focus();
