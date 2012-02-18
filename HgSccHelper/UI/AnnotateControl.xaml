@@ -188,7 +188,7 @@
         <Grid KeyboardNavigation.TabNavigation="Cycle" Grid.Row="1"
               Margin="5">
             <Grid.RowDefinitions>
-                <RowDefinition Height="150" />
+                <RowDefinition Height="150" x:Name="changesRow"/>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" x:Name="filesRow" />
             </Grid.RowDefinitions>

@@ -246,6 +246,10 @@ namespace HgSccHelper
 			Cfg.Get(AnnotateWindow.CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1);
 			expanderDiff.IsExpanded = (diff_visible != 0);
 
+			int changes_height;
+			Cfg.Get(AnnotateWindow.CfgPath, "ChangesHeight", out changes_height, 150);
+			changesRow.Height = new GridLength(changes_height, GridUnitType.Pixel);
+
 			int files_height;
 			Cfg.Get(AnnotateWindow.CfgPath, "FilesHeight", out files_height, 200);
 			gridFiles.Height = files_height;
@@ -410,6 +414,13 @@ namespace HgSccHelper
 					int files_height = (int)gridFiles.Height;
 					if (files_height > 0)
 						Cfg.Set(AnnotateWindow.CfgPath, "FilesHeight", files_height);
+				}
+
+				if (!Double.IsNaN(changesRow.Height.Value))
+				{
+					int changes_height = (int)changesRow.Height.Value;
+					if (changes_height > 0)
+						Cfg.Set(AnnotateWindow.CfgPath, "ChangesHeight", changes_height);
 				}
 
 				var encoding = comboEncodings.SelectedItem as EncodingItem;
