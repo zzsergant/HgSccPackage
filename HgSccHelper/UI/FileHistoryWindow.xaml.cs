@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Diagnostics;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Collections.Generic;
 using System;
@@ -317,9 +318,19 @@ namespace HgSccHelper
 			else
 				HandleBookmarksChanges();
 
-			var myView = (CollectionView)CollectionViewSource.GetDefaultView(listChanges.ItemsSource);
-			var groupDescription = new PropertyGroupDescription("GroupText");
-			myView.GroupDescriptions.Add(groupDescription);
+			if (parts.Count > 1)
+			{
+				// Since grouping is effectively disable virtualization,
+				// enable it only if there were file renames
+
+				listChanges.GroupStyle.Clear();
+				listChanges.GroupStyle.Add((GroupStyle)Resources["GroupStyleForRenames"]);
+
+				var myView = (CollectionView)CollectionViewSource.GetDefaultView(listChanges.ItemsSource);
+				var groupDescription = new PropertyGroupDescription("GroupText");
+				myView.GroupDescriptions.Clear();
+				myView.GroupDescriptions.Add(groupDescription);
+			}
 
 			sb.AppendFormat("Other {0} ms\n", t4.ElapsedMilliseconds);
 

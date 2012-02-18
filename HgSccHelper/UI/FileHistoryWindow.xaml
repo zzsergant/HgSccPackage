@@ -18,6 +18,16 @@
                        Foreground="{Binding Path=Status, Converter={StaticResource HgStatusToColor}}">
             </TextBlock>
         </DataTemplate>
+        <GroupStyle x:Key="GroupStyleForRenames">
+            <GroupStyle.HeaderTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <TextBlock Text="{Binding Name}" Margin="5" FontWeight="Bold" />
+                        <Rectangle Stroke="#bbb" VerticalAlignment="Bottom" Height="2" />
+                    </Grid>
+                </DataTemplate>
+            </GroupStyle.HeaderTemplate>
+        </GroupStyle>
         <converters:RemoveLastNewLineConverter x:Key="RemoveLastNewLineConverter" />
         <DataTemplate x:Key="myCellTemplateDesc">
             <StackPanel Orientation="Horizontal">
@@ -175,12 +185,10 @@
                 <RowDefinition Height="Auto" Name="changeDescRow"/>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-<!--
-                      VirtualizingStackPanel.IsVirtualizing="True"
-                      VirtualizingStackPanel.VirtualizationMode="Recycling"
--->
             <ListView x:Name="listChanges"
                       Grid.Row="0"
+                      VirtualizingStackPanel.IsVirtualizing="True"
+                      VirtualizingStackPanel.VirtualizationMode="Recycling"
                       SelectionChanged="listChanges_SelectionChanged"
                       Margin="0, 0, 0, 5">
                 <ListView.CommandBindings>
@@ -218,18 +226,6 @@
                               InputGestureText="Ctrl + T"></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
-                <ListView.GroupStyle>
-                    <GroupStyle>
-                        <GroupStyle.HeaderTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <TextBlock Text="{Binding Name}" Margin="5" FontWeight="Bold" />
-                                    <Rectangle Stroke="#bbb" VerticalAlignment="Bottom" Height="2" />
-                                </Grid>
-                            </DataTemplate>
-                        </GroupStyle.HeaderTemplate>
-                    </GroupStyle>
-                </ListView.GroupStyle>
                 <ListView.View>
                     <GridView x:Name="listChangesGrid">
                         <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding ChangeDesc.Rev}" />
