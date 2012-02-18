@@ -439,7 +439,6 @@ namespace HgSccHelper
 				return;
 			}
 
-			var t2 = Stopwatch.StartNew();
 			var history = new List<FileHistoryInfo2>();
 
 			int part_idx = 0;
@@ -475,14 +474,11 @@ namespace HgSccHelper
 				}
 			}
 
-			var t3 = Stopwatch.StartNew();
 			listChanges.ItemsSource = history;
 			if (listChanges.Items.Count > 0)
 				listChanges.SelectedIndex = 0;
 
 			listChanges.Focus();
-
-			var t4 = Stopwatch.StartNew();
 
 			if (UpdateContext.Cache.Branches != null)
 				OnAsyncBranch(UpdateContext.Cache.Branches);
