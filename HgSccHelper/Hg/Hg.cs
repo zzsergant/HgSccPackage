@@ -544,7 +544,7 @@ namespace HgSccHelper
 					var files_info = HgFileInfo.ParseFileInfo(reader);
 
 					proc.WaitForExit();
-					if (proc.ExitCode < 0)
+					if (proc.ExitCode != 0)
 					{
 						// FIXME: some error
 					}
@@ -561,7 +561,7 @@ namespace HgSccHelper
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
-				if (proc.ExitCode < 0)
+				if (proc.ExitCode != 0)
 					return false;
 
 				return true;
@@ -575,7 +575,7 @@ namespace HgSccHelper
 			{
 				output = proc.StandardOutput.ReadToEnd(); 
 				proc.WaitForExit();
-				if (proc.ExitCode < 0)
+				if (proc.ExitCode != 0)
 				{
 					output = string.Empty;
 					return false;
@@ -992,7 +992,7 @@ namespace HgSccHelper
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
 				proc.WaitForExit();
-				if (proc.ExitCode < 0)
+				if (proc.ExitCode != 0)
 					return false;
 
 				return true;
@@ -1015,7 +1015,7 @@ namespace HgSccHelper
 			using (Process proc = Process.Start(PrepareProcess(work_dir, args.ToString())))
 			{
 				proc.WaitForExit();
-				if (proc.ExitCode < 0)
+				if (proc.ExitCode != 0)
 					return false;
 
 				return true;
@@ -1045,7 +1045,7 @@ namespace HgSccHelper
 			using (Process proc = Process.Start(info))
 			{
 				proc.WaitForExit();
-				if (proc.ExitCode < 0)
+				if (proc.ExitCode != 0)
 					return false;
 
 				return true;
@@ -1198,7 +1198,7 @@ namespace HgSccHelper
 				string line = proc.StandardOutput.ReadLine();
 
 				proc.WaitForExit();
-				if (proc.ExitCode < 0)
+				if (proc.ExitCode != 0)
 					return false;
 
 				if (line == null)
