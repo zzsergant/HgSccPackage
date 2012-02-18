@@ -433,6 +433,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="postbuild.bat" />
+    <EmbeddedResource Include="Resources\Python.xshd" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

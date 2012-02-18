@@ -11,6 +11,7 @@
 //=========================================================================
 
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -22,11 +23,13 @@ using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Xml;
 using HgSccHelper.CommandServer;
 using HgSccHelper.UI;
 using HgSccHelper.UI.RevLog;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using ICSharpCode.AvalonEdit.Rendering;
 
 namespace HgSccHelper
@@ -109,6 +112,23 @@ namespace HgSccHelper
 		private ColorizeChanges colorizer;
 		private ObservableCollection<EncodingItem> encodings;
 		private ObservableCollection<IHighlightingDefinition> highlightings;
+
+		static AnnotateControl()
+		{
+			try
+			{
+				using (var stream = new MemoryStream(HgSccHelper.Properties.Resources.Python))
+				{
+					var highlight = HighlightingLoader.Load(XmlReader.Create(stream), HighlightingManager.Instance);
+					if (highlight != null)
+						HighlightingManager.Instance.RegisterHighlighting("Python", new []{".py"}, highlight);
+				}
+			}
+			catch(Exception e)
+			{
+				Logger.WriteLine("AnnotateControl Error: {0}", e.Message);
+			}
+		}
 
 		//------------------------------------------------------------------
 		public AnnotateControl()
