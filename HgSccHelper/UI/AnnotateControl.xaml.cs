@@ -480,6 +480,9 @@ namespace HgSccHelper
 					if (Branches.TryGetValue(history_item.ChangeDesc.SHA1, out branch_info))
 						history_item.BranchInfo = branch_info;
 
+					// the revision -> list index
+					rev_to_change_idx_map[history_item.ChangeDesc.Rev] = history.Count;
+
 					file_history_map[history_item.ChangeDesc.SHA1] = history_item;
 					history.Add(history_item);
 				}
