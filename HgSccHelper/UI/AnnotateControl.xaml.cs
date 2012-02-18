@@ -21,6 +21,7 @@ using System;
 using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 using HgSccHelper.CommandServer;
 using HgSccHelper.UI;
 using HgSccHelper.UI.RevLog;
@@ -82,9 +83,9 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		/// <summary>
-		/// SHA1 -> FileHistoryInfo map
+		/// SHA1 -> FileHistoryInfo2 map
 		/// </summary>
-		Dictionary<string, FileHistoryInfo> file_history_map;
+		Dictionary<string, FileHistoryInfo2> file_history_map;
 
 		List<AnnotateLineView> annotated_lines;
 
@@ -103,6 +104,7 @@ namespace HgSccHelper
 		private Cursor prev_cursor;
 
 		private AsyncAnnotate async_annotate;
+		private DispatcherTimer timer;
 
 		private ColorizeChanges colorizer;
 		private ObservableCollection<EncodingItem> encodings;
@@ -114,7 +116,7 @@ namespace HgSccHelper
 			InitializeComponent();
 
 			UpdateContext = new UpdateContext();
-			file_history_map = new Dictionary<string, FileHistoryInfo>();
+			file_history_map = new Dictionary<string, FileHistoryInfo2>();
 
 			rev_to_change_idx_map = new Dictionary<int, int>();
 			rev_to_line_view = new Dictionary<int, List<AnnotateLineView>>();
@@ -139,6 +141,10 @@ namespace HgSccHelper
 				defs.OrderBy(h => h.Name));
 
 			comboHighlighting.ItemsSource = highlightings;
+
+			timer = new DispatcherTimer();
+			timer.Interval = TimeSpan.FromMilliseconds(50);
+			timer.Tick += TimerOnTick;
 		}
 
 		//------------------------------------------------------------------
@@ -310,7 +316,8 @@ namespace HgSccHelper
 			if (!string.IsNullOrEmpty(Rev))
 				rev_range = string.Format("{0}:0", Rev);
 
-			OnAsyncChangeDescFull(HgClient.ChangesFull(FileName, rev_range));
+			var rename_parts = FileHistoryWindow.TrackRenames(HgClient, FileName, rev_range);
+			OnAsyncChangeDescFull(rename_parts);
 		}
 
 		//------------------------------------------------------------------
@@ -383,6 +390,9 @@ namespace HgSccHelper
 			{
 				disposed = true;
 
+				timer.Stop();
+				timer.Tick -= TimerOnTick;
+
 				async_annotate.Cancel();
 				async_annotate.Dispose();
 
@@ -422,68 +432,57 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
-		private void OnAsyncChangeDescFull(List<ChangeDesc> changes)
+		private void OnAsyncChangeDescFull(List<RenameParts> parts)
 		{
-			RunningOperations &= ~AsyncOperations.ChangeDesc;
-
-			if (changes == null)
-				return;
-
-			if (changes.Count == 0)
+			if (parts.Count == 0)
 			{
-				Logger.WriteLine("Changes == 0");
 				return;
 			}
 
-			var renames = HgClient.FindRenames(FileName, changes);
-			var history = new List<FileHistoryInfo>();
+			var t2 = Stopwatch.StartNew();
+			var history = new List<FileHistoryInfo2>();
 
-			int left_idx = 0;
-			int right_idx = 1;
-
-			foreach (var change in changes)
+			int part_idx = 0;
+			foreach (var part in parts)
 			{
-				if (right_idx < renames.Count)
-				{
-					var right = renames[right_idx];
-					if (change.Rev <= right.Rev)
-						left_idx = right_idx++;
-				}
+				part_idx++;
 
-				var history_item = new FileHistoryInfo();
-				history_item.ChangeDesc = change;
-				history_item.RenameInfo = renames[left_idx];
-				history_item.GroupText = String.Format("[{0}]: {1}", renames.Count - left_idx, history_item.RenameInfo.Path);
-
-				if (ParentsInfo != null)
+				foreach (var change_desc in part.Revs)
 				{
-					foreach (var parent in ParentsInfo.Parents)
+					var history_item = new FileHistoryInfo2();
+					history_item.ChangeDesc = change_desc;
+					history_item.FileName = part.FileName;
+					history_item.GroupText = String.Format("[{0}]: {1}", part_idx, part.FileName);
+
+					if (ParentsInfo != null)
 					{
-						if (history_item.ChangeDesc.SHA1 == parent.SHA1)
+						foreach (var parent in ParentsInfo.Parents)
 						{
-							history_item.IsCurrent = true;
-							break;
+							if (history_item.ChangeDesc.SHA1 == parent.SHA1)
+							{
+								history_item.IsCurrent = true;
+								break;
+							}
 						}
 					}
+
+					BranchInfo branch_info;
+					if (Branches.TryGetValue(history_item.ChangeDesc.SHA1, out branch_info))
+						history_item.BranchInfo = branch_info;
+
+					file_history_map[history_item.ChangeDesc.SHA1] = history_item;
+					history.Add(history_item);
 				}
-
-				BranchInfo branch_info;
-				if (Branches.TryGetValue(history_item.ChangeDesc.SHA1, out branch_info))
-					history_item.BranchInfo = branch_info;
-
-				file_history_map[history_item.ChangeDesc.SHA1] = history_item;
-
-				// the revision -> list index
-				rev_to_change_idx_map[history_item.ChangeDesc.Rev] = history.Count;
-
-				history.Add(history_item);
 			}
 
+			var t3 = Stopwatch.StartNew();
 			listChanges.ItemsSource = history;
 			if (listChanges.Items.Count > 0)
 				listChanges.SelectedIndex = 0;
 
 			listChanges.Focus();
+
+			var t4 = Stopwatch.StartNew();
 
 			if (UpdateContext.Cache.Branches != null)
 				OnAsyncBranch(UpdateContext.Cache.Branches);
@@ -505,9 +504,19 @@ namespace HgSccHelper
 			else
 				HandleBookmarksChanges();
 
-			var myView = (CollectionView)CollectionViewSource.GetDefaultView(listChanges.ItemsSource);
-			var groupDescription = new PropertyGroupDescription("GroupText");
-			myView.GroupDescriptions.Add(groupDescription);
+			if (parts.Count > 1)
+			{
+				// Since grouping is effectively disable virtualization,
+				// enable it only if there were file renames
+
+				listChanges.GroupStyle.Clear();
+				listChanges.GroupStyle.Add((GroupStyle)Resources["GroupStyleForRenames"]);
+
+				var myView = (CollectionView)CollectionViewSource.GetDefaultView(listChanges.ItemsSource);
+				var groupDescription = new PropertyGroupDescription("GroupText");
+				myView.GroupDescriptions.Clear();
+				myView.GroupDescriptions.Add(groupDescription);
+			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -528,7 +537,7 @@ namespace HgSccHelper
 			foreach (var tag in Tags.Values)
 			{
 				// removing old tags
-				FileHistoryInfo file_history;
+				FileHistoryInfo2 file_history;
 				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
 				{
 					var change_desc = file_history.ChangeDesc;
@@ -544,7 +553,7 @@ namespace HgSccHelper
 			foreach (var tag in Tags.Values)
 			{
 				// adding or updating tags
-				FileHistoryInfo file_history;
+				FileHistoryInfo2 file_history;
 				if (file_history_map.TryGetValue(tag.SHA1, out file_history))
 				{
 					var change_desc = file_history.ChangeDesc;
@@ -577,7 +586,7 @@ namespace HgSccHelper
 			foreach (var bookmark in Bookmarks.Values)
 			{
 				// removing old bookmark
-				FileHistoryInfo file_history;
+				FileHistoryInfo2 file_history;
 				if (file_history_map.TryGetValue(bookmark.SHA1, out file_history))
 				{
 					var change_desc = file_history.ChangeDesc;
@@ -593,7 +602,7 @@ namespace HgSccHelper
 			foreach (var bookmark in Bookmarks.Values)
 			{
 				// adding or updating bookmarks
-				FileHistoryInfo file_history;
+				FileHistoryInfo2 file_history;
 				if (file_history_map.TryGetValue(bookmark.SHA1, out file_history))
 				{
 					var change_desc = file_history.ChangeDesc;
@@ -627,7 +636,7 @@ namespace HgSccHelper
 			foreach (var branch_info in Branches.Values)
 			{
 				// removing old branch info
-				FileHistoryInfo file_history;
+				FileHistoryInfo2 file_history;
 				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
 					file_history.BranchInfo = null;
 			}
@@ -637,7 +646,7 @@ namespace HgSccHelper
 			foreach (var branch_info in Branches.Values)
 			{
 				// adding or updating branch info
-				FileHistoryInfo file_history;
+				FileHistoryInfo2 file_history;
 				if (file_history_map.TryGetValue(branch_info.SHA1, out file_history))
 					file_history.BranchInfo = branch_info;
 			}
@@ -655,7 +664,7 @@ namespace HgSccHelper
 			{
 				foreach (var parent in ParentsInfo.Parents)
 				{
-					FileHistoryInfo file_history;
+					FileHistoryInfo2 file_history;
 					if (file_history_map.TryGetValue(parent.SHA1, out file_history))
 						file_history.IsCurrent = false;
 				}
@@ -666,7 +675,7 @@ namespace HgSccHelper
 			{
 				foreach (var parent in ParentsInfo.Parents)
 				{
-					FileHistoryInfo file_history;
+					FileHistoryInfo2 file_history;
 					if (file_history_map.TryGetValue(parent.SHA1, out file_history))
 						file_history.IsCurrent = true;
 				}
@@ -686,8 +695,8 @@ namespace HgSccHelper
 
 			if (listViewFiles != null && listViewFiles.SelectedItems.Count == 1)
 			{
-				var file_history = (FileHistoryInfo)listChanges.SelectedItem;
-				var file_info = (FileInfo)listViewFiles.SelectedItem;
+				var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
+				var file_info = (HgFileInfo)listViewFiles.SelectedItem;
 				var cs = file_history.ChangeDesc;
 
 				RunningOperations |= AsyncOperations.Diff;
@@ -696,7 +705,7 @@ namespace HgSccHelper
 				if (cs.Rev == 0)
 					rev1 = "null";
 
-				diffColorizer.RunHgDiffAsync(WorkingDir, file_info.Path, rev1, rev2);
+				diffColorizer.RunHgDiffAsync(WorkingDir, file_info.File, rev1, rev2);
 			}
 		}
 
@@ -743,8 +752,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void HistoryDiffPrevious_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var f1 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex];
-			var f2 = (FileHistoryInfo)listChanges.Items[listChanges.SelectedIndex + 1];
+			var f1 = (FileHistoryInfo2)listChanges.Items[listChanges.SelectedIndex];
+			var f2 = (FileHistoryInfo2)listChanges.Items[listChanges.SelectedIndex + 1];
 
 			DiffTwoRevisions(f1, f2);
 
@@ -752,7 +761,7 @@ namespace HgSccHelper
 		}
 
 		//------------------------------------------------------------------
-		private void DiffTwoRevisions(FileHistoryInfo f1, FileHistoryInfo f2)
+		private void DiffTwoRevisions(FileHistoryInfo2 f1, FileHistoryInfo2 f2)
 		{
 			if (f1.ChangeDesc.Rev > f2.ChangeDesc.Rev)
 			{
@@ -763,7 +772,7 @@ namespace HgSccHelper
 
 			try
 			{
-				HgClient.Diff(f1.RenameInfo.Path, f1.ChangeDesc.Rev, f2.RenameInfo.Path, f2.ChangeDesc.Rev);
+				HgClient.Diff(f1.FileName, f1.ChangeDesc.Rev, f2.FileName, f2.ChangeDesc.Rev);
 			}
 			catch (HgDiffException)
 			{
@@ -787,8 +796,8 @@ namespace HgSccHelper
 			e.CanExecute = false;
 			if (listViewFiles.SelectedItems.Count == 1)
 			{
-				var file_info = (FileInfo)listViewFiles.SelectedItem;
-				if (file_info.Status == FileStatus.Modified)
+				var file_info = (HgFileInfo)listViewFiles.SelectedItem;
+				if (file_info.Status == HgFileStatus.Modified)
 					e.CanExecute = true;
 			}
 			e.Handled = true;
@@ -797,13 +806,13 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void FilesDiffPrevious_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var file_history = (FileHistoryInfo)listChanges.SelectedItem;
-			var file_info = (FileInfo)listViewFiles.SelectedItem;
+			var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
+			var file_info = (HgFileInfo)listViewFiles.SelectedItem;
 			var cs = file_history.ChangeDesc;
 
 			try
 			{
-				HgClient.Diff(file_info.Path, cs.Rev - 1, file_info.Path, cs.Rev);
+				HgClient.Diff(file_info.File, cs.Rev - 1, file_info.File, cs.Rev);
 			}
 			catch (HgDiffException)
 			{
@@ -854,14 +863,14 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void FileHistory_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var file_history = (FileHistoryInfo)listChanges.SelectedItem;
-			var file_info = (FileInfo)listViewFiles.SelectedItem;
+			var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
+			var file_info = (HgFileInfo)listViewFiles.SelectedItem;
 			var cs = file_history.ChangeDesc;
 
 			var wnd = new FileHistoryWindow();
 			wnd.WorkingDir = WorkingDir;
 			wnd.Rev = cs.Rev.ToString();
-			wnd.FileName = file_info.Path;
+			wnd.FileName = file_info.File;
 
 			wnd.UpdateContext.Cache = BuildUpdateContextCache();
 
@@ -895,14 +904,14 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ViewFile_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var file_history = (FileHistoryInfo)listChanges.SelectedItem;
-			var file_info = (FileInfo)listViewFiles.SelectedItem;
+			var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
+			var file_info = (HgFileInfo)listViewFiles.SelectedItem;
 			var cs = file_history.ChangeDesc;
 
-			if (file_info.Status == FileStatus.Removed)
-				HgClient.ViewFile(file_info.Path, (cs.Rev - 1).ToString());
+			if (file_info.Status == HgFileStatus.Removed)
+				HgClient.ViewFile(file_info.File, (cs.Rev - 1).ToString());
 			else
-				HgClient.ViewFile(file_info.Path, cs.Rev.ToString());
+				HgClient.ViewFile(file_info.File, cs.Rev.ToString());
 		}
 
 		//------------------------------------------------------------------
@@ -937,19 +946,28 @@ namespace HgSccHelper
 			OnAsyncBookmarks(books);
 		}
 
-		//------------------------------------------------------------------
-		private void listChanges_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+		//-----------------------------------------------------------------------------
+		private void TimerOnTick(object sender, EventArgs event_args)
 		{
-			listViewFiles.DataContext = null;
+			RunningOperations &= ~AsyncOperations.ChangeDesc;
+			timer.Stop();
 
 			if (listChanges.SelectedItems.Count == 1)
 			{
-				var file_history = (FileHistoryInfo)listChanges.SelectedItem;
-				listViewFiles.ItemsSource = file_history.ChangeDesc.Files;
+				var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
+				var options = HgStatusOptions.Added | HgStatusOptions.Deleted
+					| HgStatusOptions.Modified
+					| HgStatusOptions.Copies | HgStatusOptions.Removed;
+
+				// TODO: Show both parents for merge
+				var parent = file_history.ChangeDesc.Parents.FirstOrDefault() ?? "null";
+				var files = HgClient.Status(options, "", parent, file_history.ChangeDesc.SHA1);
+
+				listViewFiles.ItemsSource = files;
+
 				if (listViewFiles.Items.Count > 0)
 				{
-					var file = file_history.ChangeDesc.Files.FirstOrDefault(
-						f => f.Path == file_history.RenameInfo.Path);
+					var file = files.FirstOrDefault(f => f.File == file_history.FileName);
 
 					if (file != null)
 						listViewFiles.SelectedItem = file;
@@ -990,6 +1008,20 @@ namespace HgSccHelper
 				}
 
 				textEditor.TextArea.TextView.Redraw();
+			}
+		}
+
+
+		//------------------------------------------------------------------
+		private void listChanges_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+		{
+			listViewFiles.DataContext = null;
+			timer.Stop();
+
+			if (listChanges.SelectedItems.Count == 1)
+			{
+				RunningOperations |= AsyncOperations.ChangeDesc; 
+				timer.Start();
 			}
 		}
 

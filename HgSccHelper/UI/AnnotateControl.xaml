@@ -11,9 +11,20 @@
         <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
         <DataTemplate x:Key="statusCellTemplate">
             <TextBlock Text="{Binding Status}"
+                       Foreground="{Binding Path=Status, Converter={StaticResource HgStatusToColor}}">
                        Foreground="{Binding Path=Status, Converter={StaticResource HgStatusToColor}, ConverterParameter=FileStatus}">
             </TextBlock>
         </DataTemplate>
+        <GroupStyle x:Key="GroupStyleForRenames">
+            <GroupStyle.HeaderTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <TextBlock Text="{Binding Name}" Margin="5" FontWeight="Bold" />
+                        <Rectangle Stroke="#bbb" VerticalAlignment="Bottom" Height="2" />
+                    </Grid>
+                </DataTemplate>
+            </GroupStyle.HeaderTemplate>
+        </GroupStyle>
         <converters:RemoveLastNewLineConverter x:Key="RemoveLastNewLineConverter" />
         <DataTemplate x:Key="myCellTemplateDesc">
             <StackPanel Orientation="Horizontal">
@@ -182,10 +193,12 @@
                 <RowDefinition Height="Auto" x:Name="filesRow" />
             </Grid.RowDefinitions>
             <ListView x:Name="listChanges"
-                  Grid.Row="0"
-                  SelectionMode="Single"
-                  SelectionChanged="listChanges_SelectionChanged"
-                  Margin="0, 0, 0, 5">
+                      Grid.Row="0"
+                      VirtualizingStackPanel.IsVirtualizing="True"
+                      VirtualizingStackPanel.VirtualizationMode="Recycling"
+                      SelectionMode="Single"
+                      SelectionChanged="listChanges_SelectionChanged"
+                      Margin="0, 0, 0, 5">
                 <ListView.CommandBindings>
                     <CommandBinding Command="{x:Static ui:Commands.DiffPreviousCommand}"
                         CanExecute="HistoryDiffPrevious_CanExecute"
@@ -202,18 +215,6 @@
                                   InputGestureText="Ctrl + D"></MenuItem>
                     </ContextMenu>
                 </ListView.ContextMenu>
-                <ListView.GroupStyle>
-                    <GroupStyle>
-                        <GroupStyle.HeaderTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <TextBlock Text="{Binding Name}" Margin="5" FontWeight="Bold" />
-                                    <Rectangle Stroke="#bbb" VerticalAlignment="Bottom" Height="2" />
-                                </Grid>
-                            </DataTemplate>
-                        </GroupStyle.HeaderTemplate>
-                    </GroupStyle>
-                </ListView.GroupStyle>
                 <ListView.View>
                     <GridView x:Name="listChangesGrid">
                         <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding ChangeDesc.Rev}" />
@@ -397,7 +398,7 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Status" Width="90" CellTemplate="{StaticResource statusCellTemplate}" />
-                                <GridViewColumn Header="File" Width="850"  DisplayMemberBinding="{Binding Path}" />
+                                <GridViewColumn Header="File" Width="850"  DisplayMemberBinding="{Binding File}" />
                             </GridView>
                         </ListView.View>
                         <ListView.Resources>
