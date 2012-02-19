@@ -263,6 +263,7 @@
     <Compile Include="UI\SynchronizeWindow.xaml.cs">
       <DependentUpon>SynchronizeWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\TabControlEx.cs" />
     <Compile Include="UI\TagsWindow.xaml.cs">
       <DependentUpon>TagsWindow.xaml</DependentUpon>
     </Compile>
