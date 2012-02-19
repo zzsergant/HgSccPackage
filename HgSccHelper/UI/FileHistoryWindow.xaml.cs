@@ -10,6 +10,7 @@
 //
 //=========================================================================
 
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -22,7 +23,6 @@ using System.Windows.Data;
 using System.Windows.Threading;
 using HgSccHelper.CommandServer;
 using HgSccHelper.UI;
-using HgSccHelper.UI.RevLog;
 
 namespace HgSccHelper
 {
@@ -45,6 +45,9 @@ namespace HgSccHelper
 
 		//------------------------------------------------------------------
 		ParentsInfo ParentsInfo { get; set; }
+
+		//------------------------------------------------------------------
+		SelectedParentFile SelectedParentFile { get; set; }
 
 		//------------------------------------------------------------------
 		/// <summary>
@@ -76,7 +79,8 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private Cursor prev_cursor;
 
-		GridViewColumnSorter files_sorter;
+		Dictionary<ListView, GridViewColumnSorter> files_sorter;
+
 		private DispatcherTimer timer;
 
 		public const string CfgPath = @"GUI\FileHistoryWindow";
@@ -93,7 +97,7 @@ namespace HgSccHelper
 			UpdateContext = new UpdateContext();
 			file_history_map = new Dictionary<string, FileHistoryInfo2>();
 
-			files_sorter = new GridViewColumnSorter(listViewFiles);
+			files_sorter = new Dictionary<ListView, GridViewColumnSorter>();
 			diffColorizer.Complete = new Action<List<string>>(OnDiffColorizer);
 
 			timer = new DispatcherTimer();
@@ -161,7 +165,9 @@ namespace HgSccHelper
 
 			string full_rev_range = "";
 			if (!String.IsNullOrEmpty(Rev))
-				full_rev_range = String.Format("{0}:0", Rev);
+			{
+				full_rev_range = String.Format("reverse(::{0})", Rev);
+			}
 
 			var tt = Stopwatch.StartNew();
 			var rename_parts = TrackRenames(HgClient, FileName, full_rev_range);
@@ -525,21 +531,27 @@ namespace HgSccHelper
 				return;
 
 			diffColorizer.Clear();
+			var parent_diff = GetSelectedParentDiff();
+			var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
 
-			if (listViewFiles.SelectedItems.Count == 1)
+			RunningOperations |= AsyncOperations.Diff;
+
+			if (SelectedParentFile != null)
 			{
-				var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
-				var file_info = (HgFileInfo)listViewFiles.SelectedItem;
-				var cs = file_history.ChangeDesc;
-
-				RunningOperations |= AsyncOperations.Diff;
-				string rev2 = cs.SHA1;
-				string rev1 = (cs.Rev - 1).ToString();
-				if (cs.Rev == 0)
-					rev1 = "null";
-
-				diffColorizer.RunHgDiffAsync(WorkingDir, file_info.File, rev1, rev2);
+				diffColorizer.RunHgDiffAsync(WorkingDir, SelectedParentFile.FileInfo.File,
+					parent_diff.Desc.SHA1,
+					file_history.ChangeDesc.SHA1);
 			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private ParentFilesDiff GetSelectedParentDiff()
+		{
+			var tab = tabParentsDiff.SelectedItem as TabItem;
+			if (tab == null)
+				return null;
+
+			return tab.DataContext as ParentFilesDiff;
 		}
 
 		//------------------------------------------------------------------
@@ -621,10 +633,15 @@ namespace HgSccHelper
 		private void FilesDiffPrevious_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;
-			if (listViewFiles.SelectedItems.Count == 1)
+			if (SelectedParentFile != null)
 			{
-				var file_info = (HgFileInfo)listViewFiles.SelectedItem;
-				if (file_info.Status == HgFileStatus.Modified)
+				if (SelectedParentFile.FileInfo.Status == HgFileStatus.Added
+					&& !String.IsNullOrEmpty(SelectedParentFile.FileInfo.CopiedFrom))
+				{
+					e.CanExecute = true;
+				}
+
+				if (SelectedParentFile.FileInfo.Status == HgFileStatus.Modified)
 					e.CanExecute = true;
 			}
 			e.Handled = true;
@@ -634,12 +651,19 @@ namespace HgSccHelper
 		private void FilesDiffPrevious_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
-			var file_info = (HgFileInfo)listViewFiles.SelectedItem;
-			var cs = file_history.ChangeDesc;
+			var parent_diff = GetSelectedParentDiff();
+			var file_info = SelectedParentFile.FileInfo;
 
 			try
 			{
-				HgClient.Diff(file_info.File, cs.Rev - 1, file_info.File, cs.Rev);
+				var child_file = file_info.File;
+				var parent_file = file_info.File;
+
+				if (!String.IsNullOrEmpty(file_info.CopiedFrom))
+					parent_file = file_info.CopiedFrom;
+
+				HgClient.Diff(parent_file, parent_diff.Desc.SHA1,
+					child_file, file_history.ChangeDesc.SHA1);
 			}
 			catch (HgDiffException)
 			{
@@ -683,7 +707,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void FileHistory_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = listViewFiles.SelectedItems.Count == 1;
+			e.CanExecute = SelectedParentFile != null;
 			e.Handled = true;
 		}
 
@@ -691,12 +715,11 @@ namespace HgSccHelper
 		private void FileHistory_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
-			var file_info = (HgFileInfo)listViewFiles.SelectedItem;
-			var cs = file_history.ChangeDesc;
+			var file_info = SelectedParentFile.FileInfo;
 
 			var wnd = new FileHistoryWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.Rev = cs.Rev.ToString();
+			wnd.Rev = SelectedParentFile.ParentFilesDiff.Desc.SHA1;
 			wnd.FileName = file_info.File;
 
 			wnd.UpdateContext.Cache = BuildUpdateContextCache();
@@ -724,7 +747,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Annotate_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = listViewFiles.SelectedItems.Count == 1;
+			e.CanExecute = SelectedParentFile != null;
 			e.Handled = true;
 		}
 
@@ -732,7 +755,7 @@ namespace HgSccHelper
 		private void Annotate_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
-			var file_info = (HgFileInfo)listViewFiles.SelectedItem;
+			var file_info = SelectedParentFile.FileInfo;
 			var cs = file_history.ChangeDesc;
 
 			var wnd = new AnnotateWindow();
@@ -764,7 +787,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void ViewFile_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
-			e.CanExecute = listViewFiles.SelectedItems.Count == 1;
+			e.CanExecute = SelectedParentFile != null;
 			e.Handled = true;
 		}
 
@@ -772,13 +795,29 @@ namespace HgSccHelper
 		private void ViewFile_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
-			var file_info = (HgFileInfo)listViewFiles.SelectedItem;
+			var file_info = SelectedParentFile.FileInfo;
 			var cs = file_history.ChangeDesc;
 
 			if (file_info.Status == HgFileStatus.Removed)
-				HgClient.ViewFile(file_info.File, (cs.Rev - 1).ToString());
+				HgClient.ViewFile(file_info.File, SelectedParentFile.ParentFilesDiff.Desc.Rev.ToString());
 			else
 				HgClient.ViewFile(file_info.File, cs.Rev.ToString());
+		}
+
+		//------------------------------------------------------------------
+		private void HistoryViewFile_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = SelectedParentFile != null;
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void HistoryViewFile_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var file_history = (FileHistoryInfo2)listChanges.SelectedItem;
+			var cs = file_history.ChangeDesc;
+
+			HgClient.ViewFile(file_history.FileName, cs.Rev.ToString());
 		}
 
 		//------------------------------------------------------------------
@@ -1000,22 +1039,69 @@ namespace HgSccHelper
 					| HgStatusOptions.Modified
 					| HgStatusOptions.Copies | HgStatusOptions.Removed;
 
-				// TODO: Show both parents for merge
-				var parent = file_history.ChangeDesc.Parents.FirstOrDefault() ?? "null";
-				var files = HgClient.Status(options, "", parent, file_history.ChangeDesc.SHA1);
+				var parents = file_history.ChangeDesc.Parents;
+				if (parents.Count == 0)
+					parents = new ObservableCollection<string>(new[] { "null" });
 
-				listViewFiles.ItemsSource = files;
-				if (listViewFiles.Items.Count > 0)
+				var parents_diff = new List<ParentFilesDiff>();
+
+				foreach (var parent in parents)
 				{
-					var file = files.FirstOrDefault(f => f.File == file_history.FileName);
+					var files = HgClient.Status(options, "", parent, file_history.ChangeDesc.SHA1);
+
+					var desc = HgClient.GetRevisionDesc(parent);
+					if (desc != null)
+					{
+						var parent_diff = new ParentFilesDiff();
+						parent_diff.Desc = desc;
+						parent_diff.Files = new List<ParentDiffHgFileInfo>();
+
+						foreach (var file in files)
+							parent_diff.Files.Add(new ParentDiffHgFileInfo { FileInfo = file });
+
+						parents_diff.Add(parent_diff);
+					}
+				}
+
+				var tabs = new[] {tab1, tab2};
+				var lists = new[] { tabList1, tabList2 };
+				for (int i = parents.Count; i < tabs.Length; ++i)
+				{
+					tabs[i].Visibility = Visibility.Collapsed;
+					tabs[i].DataContext = null;
+				}
+
+				for (int i = 0; i < parents_diff.Count; ++i)
+				{
+					var tab = tabs[i];
+					var list = lists[i];
+					var parent = parents_diff[i];
+					if (i == 0)
+						parent.IsSelected = true;
+
+					tab.DataContext = parent;
+					tab.Visibility = Visibility.Visible;
+
+					var file = parent.Files.FirstOrDefault(f => f.FileInfo.File == file_history.FileName);
 
 					if (file != null)
-						listViewFiles.SelectedItem = file;
+					{
+						file.IsSelected = true;
+					}
+					else
+					{
+						if (parent.Files.Count > 0)
+						{
+							parent.Files[0].IsSelected = true;
+							file = parent.Files[0];
+						}
+					}
 
-					if (listViewFiles.SelectedIndex == -1)
-						listViewFiles.SelectedIndex = 0;
-
-					listViewFiles.ScrollIntoView(listViewFiles.SelectedItem);
+					if (file != null)
+					{
+						Logger.WriteLine("Scrolling list {0} to item: {1}", parent.Desc.Rev, file.FileInfo.File);
+						list.ScrollIntoView(file);
+					}
 				}
 			}
 		}
@@ -1023,7 +1109,12 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void listChanges_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
 		{
-			listViewFiles.ItemsSource = null;
+			tab1.DataContext = null;
+			tab2.DataContext = null;
+			tab2.Visibility = Visibility.Collapsed;
+			tab1.Visibility = Visibility.Collapsed;
+			diffColorizer.Clear();
+
 			timer.Stop();
 
 			if (listChanges.SelectedItems.Count == 1)
@@ -1043,13 +1134,100 @@ namespace HgSccHelper
 		void GridViewColumnHeaderClickedHandler(object sender,
 												RoutedEventArgs e)
 		{
-			files_sorter.GridViewColumnHeaderClickedHandler(sender, e);
+			GridViewColumnSorter column_sorter;
+			ListView list_view = sender as ListView;
+			if (list_view != null)
+			{
+				if (!files_sorter.TryGetValue(list_view, out column_sorter))
+				{
+					column_sorter = new GridViewColumnSorter(list_view);
+					files_sorter[list_view] = column_sorter;
+				}
+
+				column_sorter.GridViewColumnHeaderClickedHandler(sender, e);
+			}
 		}
 
 		//-----------------------------------------------------------------------------
 		private void listViewFiles_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
 		{
-			ShowFileDiff();
+			SelectedParentFile = null;
+
+			var parent_diff = GetSelectedParentDiff();
+			var list_view = e.OriginalSource as ListView;
+
+			if (parent_diff != null && list_view != null)
+			{
+				if (list_view.SelectedItems.Count == 1)
+				{
+					SelectedParentFile = new SelectedParentFile
+					{
+						FileInfo = ((ParentDiffHgFileInfo)list_view.SelectedItem).FileInfo,
+						ParentFilesDiff = parent_diff
+					};
+
+					ShowFileDiff();
+				}
+				e.Handled = true;
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void tabParentsDiff_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (e.AddedItems.Count == 1)
+			{
+				SelectedParentFile = null;
+
+				var parent_diff = GetSelectedParentDiff();
+				if (parent_diff == null)
+					return;
+
+				var lists = new[] {tabList1, tabList2};
+				var list_view = lists.FirstOrDefault(l => l.DataContext == parent_diff);
+
+				if (list_view != null)
+				{
+					if (list_view.SelectedItems.Count == 1)
+					{
+						SelectedParentFile = new SelectedParentFile
+						{
+							FileInfo = ((ParentDiffHgFileInfo)list_view.SelectedItem).FileInfo,
+							ParentFilesDiff = parent_diff
+						};
+
+						Logger.WriteLine("Show file diff after tab select");
+						ShowFileDiff();
+					}
+					e.Handled = true;
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void listViewFiles_VisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+		{
+			Logger.WriteLine("Visible changed {0}, e {1}", sender, e.NewValue);
+			if ((bool)e.NewValue)
+			{
+				var list_view = sender as ListView;
+				if (list_view == null)
+					return;
+
+				if (list_view.SelectedItem != null)
+					return;
+
+				var parent_diff = list_view.DataContext as ParentFilesDiff;
+				if (parent_diff == null)
+					return;
+
+				var file = parent_diff.Files.FirstOrDefault(f => f.IsSelected);
+				if (file != null)
+				{
+					Logger.WriteLine("OnVisibleChanged, Scrolling list {0}, {1}", list_view.Items.Count, file.FileInfo.File);
+					list_view.ScrollIntoView(file);
+				}
+			}
 		}
 	}
 
