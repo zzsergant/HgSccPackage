@@ -300,6 +300,7 @@
                         <ColumnDefinition x:Name="diffColumn"  Width="Auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <TabControlTest:TabControlEx Grid.Column="0"
+                                                 Margin="0,5,0,0"
                                              SelectionChanged="tabParentsDiff_SelectionChanged"
                                              x:Name="tabParentsDiff">
                         <TabControl.Template>
