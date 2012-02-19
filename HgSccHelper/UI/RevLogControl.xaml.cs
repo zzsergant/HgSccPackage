@@ -663,12 +663,11 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void FileHistory_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
 			var file_info = SelectedParentFile.FileInfo;
 
 			var wnd = new FileHistoryWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.Rev = SelectedChangeset.Current.ChangeDesc.SHA1;
+			wnd.Rev = SelectedParentFile.ParentFilesDiff.Desc.SHA1;
 			wnd.FileName = file_info.File;
 			wnd.Owner = Window.GetWindow(this);
 
@@ -714,12 +713,11 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Annotate_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var parent_diff = (ParentFilesDiff)tabParentsDiff.SelectedItem;
 			var file_info = SelectedParentFile.FileInfo;
 
 			var wnd = new AnnotateWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.Rev = SelectedChangeset.Current.ChangeDesc.SHA1;
+			wnd.Rev = SelectedParentFile.ParentFilesDiff.Desc.SHA1;
 			wnd.FileName = file_info.File;
 			wnd.Owner = Window.GetWindow(this);
 
