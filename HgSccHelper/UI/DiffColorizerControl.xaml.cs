@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -23,6 +24,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Diagnostics;
+using System.Windows.Threading;
+using HgSccHelper.CommandServer;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Rendering;
 
@@ -33,14 +36,10 @@ namespace HgSccHelper.UI
 	/// </summary>
 	public partial class DiffColorizerControl : IDisposable
 	{
-		//------------------------------------------------------------------
-		readonly HgThread worker;
-
 		//-----------------------------------------------------------------------------
 		private readonly List<string> lines;
 
-		//-----------------------------------------------------------------------------
-		private PendingDiffArgs pending_diff;
+		private Encoding lines_encoding;
 
 		//-----------------------------------------------------------------------------
 		public Action<List<string>> Complete { get; set; }
@@ -50,6 +49,12 @@ namespace HgSccHelper.UI
 
 		//-----------------------------------------------------------------------------
 		private bool disposed;
+
+		//-----------------------------------------------------------------------------
+		private PendingDiffArgs pending_diff;
+
+		//-----------------------------------------------------------------------------
+		private DispatcherTimer timer;
 
 		//-----------------------------------------------------------------------------
 		public const string CfgPath = @"GUI\Diff";
@@ -64,10 +69,8 @@ namespace HgSccHelper.UI
 		public const int DefaultWidth = 550;
 
 		//-----------------------------------------------------------------------------
-		public DiffColorizerControl()
+		static DiffColorizerControl()
 		{
-			InitializeComponent();
-
 			var rule_set = HighlightingManager.Instance.GetDefinition("Patch");
 
 			// Redefining colors
@@ -78,9 +81,14 @@ namespace HgSccHelper.UI
 			rule_set.GetNamedColor("Position").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.Patch));
 			rule_set.GetNamedColor("Header").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.Header));
 			rule_set.GetNamedColor("FileName").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.DiffHeader));
+		}
 
-			richTextBox.SyntaxHighlighting = rule_set;
-			
+		//-----------------------------------------------------------------------------
+		public DiffColorizerControl()
+		{
+			InitializeComponent();
+
+			richTextBox.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("Patch");
 			richTextBox.IsReadOnly = true;
 
 			encodings = new ObservableCollection<EncodingItem>();
@@ -88,8 +96,12 @@ namespace HgSccHelper.UI
 			encodings.Add(new EncodingItem { Name = "Utf8", Encoding = Encoding.UTF8 });
 			comboEncodings.ItemsSource = encodings;
 
-			worker = new HgThread();
 			lines = new List<string>();
+			lines_encoding = Encoding.Default;
+
+			timer = new DispatcherTimer(DispatcherPriority.Background);
+			timer.Interval = TimeSpan.FromMilliseconds(30);
+			timer.Tick += TimerOnTick;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -104,25 +116,7 @@ namespace HgSccHelper.UI
 		//-----------------------------------------------------------------------------
 		public void Cancel()
 		{
-			if (worker.IsBusy)
-				worker.Cancel();
-		}
-
-		//-----------------------------------------------------------------------------
-		public void SetDiffLines(IEnumerable<string> lines)
-		{
-			Clear();
-
-			var encoding = comboEncodings.SelectedItem as EncodingItem;
-
-			foreach (var line in lines)
-			{
-				var text_line = line;
-				if (encoding != null && encoding.Encoding != Encoding.Default)
-					 text_line = Util.Convert(line, encoding.Encoding, Encoding.Default);
-
-				richTextBox.AppendText(text_line + "\n");
-			}
+			timer.Stop();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -171,13 +165,59 @@ namespace HgSccHelper.UI
 			{
 				disposed = true;
 
-				worker.Cancel();
-				worker.Dispose();
+				timer.Stop();
+				timer.Tick -= TimerOnTick;
 
 				var encoding = comboEncodings.SelectedItem as EncodingItem;
 				if (encoding != null)
 					Cfg.Set(DiffColorizerControl.CfgPath, "encoding", encoding.Name);
 			}
+		}
+
+		//-----------------------------------------------------------------------------
+		private void TimerOnTick(object sender, EventArgs event_args)
+		{
+			timer.Stop();
+
+			var args = new HgArgsBuilderZero();
+			args.Append("diff");
+
+			if (!string.IsNullOrEmpty(pending_diff.Rev1))
+				args.AppendRevision(pending_diff.Rev1);
+
+			if (!string.IsNullOrEmpty(pending_diff.Rev2))
+				args.AppendRevision(pending_diff.Rev2);
+
+			args.AppendPath(pending_diff.Path);
+
+			lines.Clear();
+			lines_encoding = pending_diff.HgClient.Encoding;
+
+			using (var mem_stream = new MemoryStream())
+			{
+				int res = pending_diff.HgClient.RawCommandStream(args, mem_stream);
+				if (res == 0)
+				{
+					mem_stream.Seek(0, SeekOrigin.Begin);
+
+					using (var output_stream = new StreamReader(mem_stream, pending_diff.HgClient.Encoding))
+					{
+						while (true)
+						{
+							var str = output_stream.ReadLine();
+							if (str == null)
+								break;
+
+							lines.Add(str);
+						}
+					}
+				}
+			}
+
+			WriteLinesToColorizer();
+
+			if (Complete != null)
+				Complete(null);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -187,83 +227,24 @@ namespace HgSccHelper.UI
 		}
 
 		//-----------------------------------------------------------------------------
-		public void RunHgDiffAsync(string work_dir, string path, string rev)
+		public void RunHgDiffAsync(HgClient client, string path, string rev)
 		{
-			RunHgDiffAsync(work_dir, path, rev, "");
+			RunHgDiffAsync(client, path, rev, "");
 		}
 
 		//-----------------------------------------------------------------------------
-		public void RunHgDiffAsync(string work_dir, string path, string rev1, string rev2)
+		public void RunHgDiffAsync(HgClient client, string path, string rev1, string rev2)
 		{
+			timer.Stop();
 			Clear();
-
-			var args = new HgArgsBuilder();
-			args.Append("diff");
-			
-			if (!string.IsNullOrEmpty(rev1))
-				args.AppendRevision(rev1);
-			
-			if (!string.IsNullOrEmpty(rev2))
-				args.AppendRevision(rev2);
-
-			args.AppendPath(path);
-
-			RunHgDiffThread(work_dir, args.ToString());
-		}
-
-		//------------------------------------------------------------------
-		private void RunHgDiffThread(string work_dir, string args)
-		{
-			if (worker.IsBusy)
+			pending_diff = new PendingDiffArgs
 			{
-				pending_diff = new PendingDiffArgs {WorkingDir = work_dir, Args = args};
-				return;
-			}
-
-			var p = new HgThreadParams();
-			p.CompleteHandler = Worker_Completed;
-			p.OutputHandler = Output_Handler;
-			p.WorkingDir = work_dir;
-			p.Args = args;
-			p.ForceSystemEncoding = true;
-
-			worker.Run(p);
-		}
-		//------------------------------------------------------------------
-		void Output_Handler(string msg)
-		{
-			if (!worker.CancellationPending)
-			{
-				lines.Add(msg);
-			}
-		}
-
-		//------------------------------------------------------------------
-		void Worker_Completed(HgThreadResult completed)
-		{
-			if (pending_diff != null)
-			{
-				var p = pending_diff;
-				pending_diff = null;
-
-				Clear();
-				RunHgDiffThread(p.WorkingDir, p.Args);
-				return;
-			}
-
-			if (!worker.CancellationPending)
-			{
-				WriteLinesToColorizer();
-
-				if (Complete != null)
-				{
-					Complete(lines);
-					return;
-				}
-			}
-
-			if (Complete != null)
-				Complete(null);
+				HgClient = client,
+				Path = path,
+				Rev1 = rev1,
+				Rev2 = rev2
+			};
+			timer.Start();
 		}
 
 		//-----------------------------------------------------------------------------
@@ -274,9 +255,10 @@ namespace HgSccHelper.UI
 			richTextBox.Clear();
 			foreach (var line in lines)
 			{
+				// FIXME: Respect hg client encoding
 				var text_line = line;
-				if (encoding != null && encoding.Encoding != Encoding.Default)
-					text_line = Util.Convert(line, encoding.Encoding, Encoding.Default);
+				if (encoding != null && encoding.Encoding != lines_encoding)
+					text_line = Util.Convert(line, encoding.Encoding, lines_encoding);
 
 				richTextBox.AppendText(text_line + "\n");
 			}
@@ -289,7 +271,7 @@ namespace HgSccHelper.UI
 
 			if (encoding != null)
 			{
-				if (!IsWorking && !worker.CancellationPending)
+				if (!IsWorking)
 				{
 					WriteLinesToColorizer();
 				}
@@ -298,7 +280,7 @@ namespace HgSccHelper.UI
 
 
 		//-----------------------------------------------------------------------------
-		public bool IsWorking { get { return worker.IsBusy; } }
+		public bool IsWorking { get { return timer.IsEnabled; } }
 
 		//-----------------------------------------------------------------------------
 		private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -331,8 +313,10 @@ namespace HgSccHelper.UI
 	//-----------------------------------------------------------------------------
 	internal class PendingDiffArgs
 	{
-		public string WorkingDir { get; set; }
-		public string Args { get; set; }
+		public HgClient HgClient { get; set; }
+		public string Path { get; set; }
+		public string Rev1 { get; set; }
+		public string Rev2 { get; set; }
 	}
 
 	//-----------------------------------------------------------------------------

@@ -1334,7 +1334,7 @@ namespace HgSccHelper
 
 			RunningOperations |= AsyncOperations.Diff;
 
-			diffColorizer.RunHgDiffAsync(WorkingDir, SelectedParentFile.FileInfo.File,
+			diffColorizer.RunHgDiffAsync(UpdateContext.Cache.HgClient, SelectedParentFile.FileInfo.File,
 				parent_diff.Desc.SHA1,
 				SelectedChangeset.Current.ChangeDesc.SHA1);
 		}

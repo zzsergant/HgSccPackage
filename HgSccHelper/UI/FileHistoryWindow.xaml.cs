@@ -538,7 +538,7 @@ namespace HgSccHelper
 
 			if (SelectedParentFile != null)
 			{
-				diffColorizer.RunHgDiffAsync(WorkingDir, SelectedParentFile.FileInfo.File,
+				diffColorizer.RunHgDiffAsync(HgClient, SelectedParentFile.FileInfo.File,
 					parent_diff.Desc.SHA1,
 					file_history.ChangeDesc.SHA1);
 			}

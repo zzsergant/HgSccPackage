@@ -613,7 +613,7 @@ namespace HgSccHelper
 				}
 
 				RunningOperations |= AsyncOperations.Diff;
-				diffColorizer.RunHgDiffAsync(WorkingDir, item.FileInfo.File,
+				diffColorizer.RunHgDiffAsync(HgClient, item.FileInfo.File,
 					parent, "");
 			}
 		}

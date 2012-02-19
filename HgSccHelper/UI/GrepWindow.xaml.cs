@@ -286,7 +286,7 @@ namespace HgSccHelper.UI
 				if (cs.Rev == 0)
 					rev1 = "null";
 
-				diffColorizer.RunHgDiffAsync(WorkingDir, file_info.Path, rev1, rev2);
+				diffColorizer.RunHgDiffAsync(UpdateContext.Cache.HgClient, file_info.Path, rev1, rev2);
 			}
 		}
 

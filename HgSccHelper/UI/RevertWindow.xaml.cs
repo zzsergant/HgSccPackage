@@ -206,7 +206,7 @@ namespace HgSccHelper
 				string rev2 = "";
 				string rev1 = "";
 
-				diffColorizer.RunHgDiffAsync(WorkingDir, item.FileInfo.File, rev1, rev2);
+				diffColorizer.RunHgDiffAsync(HgClient, item.FileInfo.File, rev1, rev2);
 			}
 		}
 
