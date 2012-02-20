@@ -306,17 +306,20 @@
                         <TabControl.Template>
                             <ControlTemplate TargetType="TabControl">
                                 <DockPanel>
-                                    <TabPanel DockPanel.Dock="Top" IsItemsHost="True" />
+                                    <TabPanel Margin="5,0,0,0"  DockPanel.Dock="Top" IsItemsHost="True" />
                                     <Grid DockPanel.Dock="Bottom" x:Name="PART_ItemsHolder" />
                                 </DockPanel>
                                 <!-- no content presenter -->
                             </ControlTemplate>
                         </TabControl.Template>
-                        <TabItem x:Name="tab1"
-                             Visibility="Collapsed"
-                             Margin="0"
-                             IsSelected="{Binding Path=IsSelected, Mode=TwoWay}"
-                             Header="{Binding Path=HeaderString, Mode=OneWay}">
+                        <TabControl.ItemContainerStyle>
+                            <Style TargetType="{x:Type TabItem}">
+                                <Setter Property="Header" Value="{Binding Path=HeaderString, Mode=OneWay}" />
+                                <Setter Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
+                                <Setter Property="Margin" Value="0" />
+                            </Style>
+                        </TabControl.ItemContainerStyle>
+                        <TabItem x:Name="tab1" Visibility="Collapsed">
                             <!-- FIXME: Remove code duplication for listview definition on both tab pages-->
                             <ListView ItemsSource="{Binding Path=Files}"
                                   x:Name="tabList1"
@@ -368,11 +371,7 @@
                                 </ListView.Resources>
                             </ListView>
                         </TabItem>
-                        <TabItem x:Name="tab2"
-                             Visibility="Collapsed"
-                             Margin="0"
-                             IsSelected="{Binding Path=IsSelected, Mode=TwoWay}"
-                             Header="{Binding Path=HeaderString, Mode=OneWay}">
+                        <TabItem x:Name="tab2" Visibility="Collapsed">
                             <ListView ItemsSource="{Binding Path=Files}"
                                   x:Name="tabList2"
                                   VirtualizingStackPanel.IsVirtualizing="True"
