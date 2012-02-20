@@ -16,9 +16,20 @@
 
 		<Property Id="ARPURLINFOABOUT">$(var.ZZ_URL)</Property>
 		<Property Id="ARPCONTACT">$(var.ZZ_AUTHOR)</Property>
-    <Property Id="ARPCOMMENTS">$(var.ZZ_DESC)</Property>
+		<Property Id="ARPCOMMENTS">$(var.ZZ_DESC)</Property>
 
-		<MajorUpgrade DowngradeErrorMessage="A newer version of HgSccPackage is already installed. Setup will now exit." />
+		<Property Id="PREVIOUSVERSIONSINSTALLED" Secure="yes" />
+		<Upgrade Id="92680898-E5B3-43AF-9D81-3E07DA507EBC">
+			<UpgradeVersion
+			   Minimum="1.0.0.0" Maximum="99.0.0.0"
+			   Property="PREVIOUSVERSIONSINSTALLED"
+			   IncludeMinimum="yes" IncludeMaximum="no" />
+		</Upgrade>
+
+		<InstallExecuteSequence>
+			<RemoveExistingProducts After="InstallInitialize" />
+			<InstallExecute After="RemoveExistingProducts" />
+		</InstallExecuteSequence>
 
 		<Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
 
