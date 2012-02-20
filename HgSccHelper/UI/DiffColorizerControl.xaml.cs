@@ -99,8 +99,8 @@ namespace HgSccHelper.UI
 			lines = new List<string>();
 			lines_encoding = Encoding.Default;
 
-			timer = new DispatcherTimer(DispatcherPriority.Background);
-			timer.Interval = TimeSpan.FromMilliseconds(30);
+			timer = new DispatcherTimer();
+			timer.Interval = TimeSpan.FromMilliseconds(50);
 			timer.Tick += TimerOnTick;
 		}
 
