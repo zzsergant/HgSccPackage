@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:HgSccHelper"
              xmlns:ui="clr-namespace:HgSccHelper.UI"
              xmlns:converters="clr-namespace:HgSccHelper.UI.Converters"
-             mc:Ignorable="d"
+             xmlns:TabControlTest="clr-namespace:TabControlTest" mc:Ignorable="d"
              d:DesignHeight="317" d:DesignWidth="476"
              Loaded="UserControl_Loaded"
              Unloaded="UserControl_Unloaded">
@@ -369,8 +369,18 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                     <ColumnDefinition x:Name="diffColumn"  Width="Auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <TabControl Grid.Column="0"
-                            Name="tabParentsDiff">
+                <TabControlTest:TabControlEx Grid.Column="0"
+                                             SelectionChanged="tabParentsDiff_SelectionChanged"
+                                             x:Name="tabParentsDiff">
+                    <TabControl.Template>
+                        <ControlTemplate TargetType="TabControl">
+                            <DockPanel>
+                                <TabPanel Margin="5,0,0,0"  DockPanel.Dock="Top" IsItemsHost="True" />
+                                <Grid DockPanel.Dock="Bottom" x:Name="PART_ItemsHolder" />
+                            </DockPanel>
+                            <!-- no content presenter -->
+                        </ControlTemplate>
+                    </TabControl.Template>
                     <TabControl.ItemContainerStyle>
                         <Style TargetType="{x:Type TabItem}">
                             <Setter Property="Header" Value="{Binding Path=HeaderString, Mode=OneWay}" />
@@ -420,7 +430,7 @@
                             </ListView>
                         </DataTemplate>
                     </TabControl.ContentTemplate>
-                </TabControl>
+                </TabControlTest:TabControlEx>
                 <GridSplitter Margin="0"
                           Grid.Column="0"
                           DragDelta="DiffGridSplitter_DragDelta"

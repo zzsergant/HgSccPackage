@@ -445,36 +445,6 @@ namespace HgSccHelper
 			graphView.Focus();
 		}
 
-		//-----------------------------------------------------------------------------
-		void OnAsyncChangeDesc(AsyncChangeDescResult result)
-		{
-			RunningOperations &= ~AsyncOperations.ChangeDesc;
-
-			if (result == null)
-				return;
-
-			if (	graphView.SelectedItems.Count == 1
-				&& result.Changeset == graphView.SelectedItem)
-			{
-				SelectedChangeset = result.Changeset;
-
-				var parents_diff = result.ParentFiles;
-
-				tabParentsDiff.ItemsSource = parents_diff;
-				if (parents_diff.Count > 0)
-				{
-					var first_parent = parents_diff[0];
-					first_parent.IsSelected = true;
-
-					foreach (var parent in parents_diff)
-					{
-						if (parent.Files.Count > 0)
-							parent.Files[0].IsSelected = true;
-					}
-				}
-			}
-		}
-
 		//------------------------------------------------------------------
 		private void graphView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
@@ -1297,9 +1267,16 @@ namespace HgSccHelper
 		private void listFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			SelectedParentFile = null;
+			diffColorizer.Clear();
 
 			var parent_diff = tabParentsDiff.SelectedItem as ParentFilesDiff;
 			var list_view = e.OriginalSource as ListView;
+
+			// FIXME: Virtualized list view does not work properly with IsSelected property binding
+			foreach (ParentDiffHgFileInfo info in e.RemovedItems)
+				info.IsSelected = false;
+			foreach (ParentDiffHgFileInfo info in e.AddedItems)
+				info.IsSelected = true;
 
 			if (parent_diff != null && list_view != null)
 			{
@@ -1311,10 +1288,46 @@ namespace HgSccHelper
 						ParentFilesDiff = parent_diff
 					};
 
+					Logger.WriteLine("Show file diff after list selection changed: {0}", SelectedParentFile.FileInfo.File);
 					ShowFileDiff();
 				}
 			}
+			e.Handled = true;
 		}
+
+		//-----------------------------------------------------------------------------
+		private void tabParentsDiff_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (e.AddedItems.Count == 1)
+			{
+				SelectedParentFile = null;
+				diffColorizer.Clear();
+
+				var parent_diff = tabParentsDiff.SelectedItem as ParentFilesDiff;
+				if (parent_diff == null)
+					return;
+
+				int first_idx = parent_diff.Files.FirstIndexOf(f => f.IsSelected);
+				if (first_idx == -1)
+					return;
+
+				var last_idx = parent_diff.Files.FindLastIndex(f => f.IsSelected);
+				if (first_idx != last_idx)
+					return;
+
+				SelectedParentFile = new SelectedParentFile
+				{
+					FileInfo = parent_diff.Files[first_idx].FileInfo,
+					ParentFilesDiff = parent_diff
+				};
+
+				Logger.WriteLine("Show file diff after tab selected: {0}", SelectedParentFile.FileInfo.File);
+				ShowFileDiff();
+			}
+
+			e.Handled = true;
+		}
+
 
 		//-----------------------------------------------------------------------------
 		private void ShowFileDiff()
