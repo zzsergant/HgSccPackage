@@ -1312,9 +1312,16 @@ namespace HgSccHelper
 		private void listViewFiles_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
 		{
 			SelectedParentFile = null;
+			diffColorizer.Clear();
 
 			var parent_diff = GetSelectedParentDiff();
 			var list_view = e.OriginalSource as ListView;
+
+			// FIXME: Virtualized list view does not work properly with IsSelected property binding
+			foreach (ParentDiffHgFileInfo info in e.RemovedItems)
+				info.IsSelected = false;
+			foreach (ParentDiffHgFileInfo info in e.AddedItems)
+				info.IsSelected = true;
 
 			if (parent_diff != null && list_view != null)
 			{
@@ -1338,6 +1345,7 @@ namespace HgSccHelper
 			if (e.AddedItems.Count == 1)
 			{
 				SelectedParentFile = null;
+				diffColorizer.Clear();
 
 				var parent_diff = GetSelectedParentDiff();
 				if (parent_diff == null)
