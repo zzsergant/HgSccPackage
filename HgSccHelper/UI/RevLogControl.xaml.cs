@@ -625,7 +625,7 @@ namespace HgSccHelper
 			e.CanExecute = false;
 
 			if (SelectedParentFile != null)
-					e.CanExecute = true;
+				e.CanExecute = true;
 
 			e.Handled = true;
 		}
@@ -633,12 +633,30 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void FileHistory_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var file_info = SelectedParentFile.FileInfo;
+			var cs = SelectedChangeset.Current.ChangeDesc;
+			var rev = cs.SHA1;
+
+			if (cs.Parents.Count == 2)
+			{
+				ParentFilesDiff other_parent = tabParentsDiff.Items.Cast<ParentFilesDiff>().FirstOrDefault(p => p != SelectedParentFile.ParentFilesDiff);
+
+				if (other_parent != null)
+				{
+					var other_file = other_parent.Files.FirstOrDefault(f => f.FileInfo.File == SelectedParentFile.FileInfo.File);
+
+					if (other_file != null)
+					{
+						rev = SelectedParentFile.ParentFilesDiff.Desc.SHA1;
+						Logger.WriteLine("Found a file in both parents: {0}", SelectedParentFile.FileInfo.File);
+					}
+				}
+			}
 
 			var wnd = new FileHistoryWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.Rev = SelectedParentFile.ParentFilesDiff.Desc.SHA1;
-			wnd.FileName = file_info.File;
+			wnd.Rev = rev;
+			wnd.FileName = SelectedParentFile.FileInfo.File;
+
 			wnd.Owner = Window.GetWindow(this);
 
 			wnd.UpdateContext.Cache = BuildUpdateContextCache();
@@ -683,12 +701,30 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Annotate_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var file_info = SelectedParentFile.FileInfo;
+			var cs = SelectedChangeset.Current.ChangeDesc;
+			var rev = cs.SHA1;
+
+			if (cs.Parents.Count == 2)
+			{
+				ParentFilesDiff other_parent = tabParentsDiff.Items.Cast<ParentFilesDiff>().FirstOrDefault(p => p != SelectedParentFile.ParentFilesDiff);
+
+				if (other_parent != null)
+				{
+					var other_file = other_parent.Files.FirstOrDefault(f => f.FileInfo.File == SelectedParentFile.FileInfo.File);
+
+					if (other_file != null)
+					{
+						rev = SelectedParentFile.ParentFilesDiff.Desc.SHA1;
+						Logger.WriteLine("Found a file in both parents: {0}", SelectedParentFile.FileInfo.File);
+					}
+				}
+			}
 
 			var wnd = new AnnotateWindow();
 			wnd.WorkingDir = WorkingDir;
-			wnd.Rev = SelectedParentFile.ParentFilesDiff.Desc.SHA1;
-			wnd.FileName = file_info.File;
+			wnd.Rev = rev;
+			wnd.FileName = SelectedParentFile.FileInfo.File;
+
 			wnd.Owner = Window.GetWindow(this);
 
 			wnd.UpdateContext.Cache = BuildUpdateContextCache();
