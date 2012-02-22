@@ -289,7 +289,7 @@ namespace HgSccHelper.CommandServer
 						mem_out.Write(buffer, offset, count);
 						mem_out.Seek(0, SeekOrigin.Begin);
 
-						reader_err.DiscardBufferedData();
+						reader_out.DiscardBufferedData();
 
 						while (true)
 						{
