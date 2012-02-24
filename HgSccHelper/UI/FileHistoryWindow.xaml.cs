@@ -163,30 +163,45 @@ namespace HgSccHelper
 				FileName = file_info.CopiedFrom;
 			}
 
-			string full_rev_range = "";
-			if (!String.IsNullOrEmpty(Rev))
-			{
-				full_rev_range = String.Format("reverse(::{0})", Rev);
-			}
-
 			var tt = Stopwatch.StartNew();
-			var rename_parts = TrackRenames(HgClient, FileName, full_rev_range);
+			var rename_parts = TrackRenames(HgClient, FileName, Rev ?? "");
 
 			sb.AppendFormat("Custom, time = {0} ms\n", tt.ElapsedMilliseconds);
 			OnAsyncChangeDescFull(rename_parts);
 		}
 
 		//-----------------------------------------------------------------------------
-		internal static List<RenameParts> TrackRenames(HgClient hg_client, string filename, string rev_range)
+		internal static List<RenameParts> TrackRenames(HgClient hg_client, string filename, string starting_revision)
 		{
-			// Revs with follow
-			var follow_revs = hg_client.RevLogPath(filename, rev_range, 0, true);
+			// FIXME: In mercurial up to 2.1 there is no way to get a history of the file
+			// with following copies/renames starting from arbitrary revision.
+			// The follow only works from working directory parent.
 
-			// Map for filenames -> sha1 revlist without follow
-			var file_to_revs = new Dictionary<string, HashSet<string>>();
+			// So, use a version without rename tracking if the starting revision is not empty
+
+			string rev_range = "";
+			bool follow = true;
+			if (!String.IsNullOrEmpty(starting_revision))
+			{
+				rev_range = String.Format("reverse(::{0})", starting_revision);
+				follow = false;
+			}
+
+			var follow_revs = hg_client.RevLogPath(filename, rev_range, 0, follow);
 
 			var parts = new List<RenameParts>();
 			filename = filename.Replace('/', '\\');
+
+			if (!follow)
+			{
+				if (follow_revs.Count > 0)
+					parts.Add(new RenameParts { FileName = filename, Revs = follow_revs });
+
+				return parts;
+			}
+
+			// Map for filenames -> sha1 revlist without follow
+			var file_to_revs = new Dictionary<string, HashSet<string>>();
 
 			while (follow_revs.Count > 0)
 			{

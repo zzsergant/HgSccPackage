@@ -339,13 +339,7 @@ namespace HgSccHelper
 			SetLines();
 			SetSyntaxHighlighting();
 
-			var rev_range = "";
-			if (!string.IsNullOrEmpty(Rev))
-			{
-				rev_range = String.Format("reverse(::{0})", Rev);
-			}
-
-			var rename_parts = FileHistoryWindow.TrackRenames(HgClient, FileName, rev_range);
+			var rename_parts = FileHistoryWindow.TrackRenames(HgClient, FileName, Rev ?? "");
 			OnAsyncChangeDescFull(rename_parts);
 		}
 
