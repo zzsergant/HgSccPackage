@@ -297,7 +297,7 @@
                  VerticalContentAlignment="Stretch"
                  VerticalScrollBarVisibility="Visible"
                  HorizontalScrollBarVisibility="Visible"
-                 FontFamily="Courier New"
+                 FontFamily="Consolas, Courier New"
                  Margin="5,0,5,5"
                  IsReadOnly="True">
         </TextBox>

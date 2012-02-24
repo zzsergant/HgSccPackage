@@ -170,7 +170,7 @@
                  Margin="5"
                  IsTabStop="False"
                  MinHeight="150"
-                 FontFamily="Courier New"
+                 FontFamily="Consolas, Courier New"
                  IsReadOnly="True">
         </TextBox>
         <StackPanel Grid.Row="3"
