@@ -140,8 +140,6 @@ namespace HgSccHelper
 		{
 			listChangesGrid.LoadCfg(FileHistoryWindow.CfgPath, "ListChangesGrid");
 			
-			Title = string.Format("File History: '{0}'", FileName);
-
 			int diff_width;
 			Cfg.Get(CfgPath, DiffColorizerControl.DiffWidth, out diff_width, DiffColorizerControl.DefaultWidth);
 			diffColorizer.Width = diff_width;
@@ -162,6 +160,8 @@ namespace HgSccHelper
 				var file_info = files[0];
 				FileName = file_info.CopiedFrom;
 			}
+
+			Title = string.Format("File History: '{0}'", FileName);
 
 			var tt = Stopwatch.StartNew();
 			var rename_parts = TrackRenames(HgClient, FileName, Rev ?? "");

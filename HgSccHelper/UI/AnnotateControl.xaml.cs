@@ -292,6 +292,8 @@ namespace HgSccHelper
 			{
 				var file_info = files[0];
 				FileName = file_info.CopiedFrom;
+
+				// FIXME: Need to update a filename in the window title
 			}
 
 			RunningOperations |= AsyncOperations.Annotate;
