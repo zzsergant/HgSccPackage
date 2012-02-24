@@ -285,7 +285,7 @@ namespace HgSccHelper
 			Branches = new Dictionary<string, BranchInfo>();
 			Bookmarks = new Dictionary<string, BookmarkInfo>();
 
-			var files = HgClient.Status(FileName, Rev ?? "");
+			var files = HgClient.StatusChange(FileName, Rev ?? "");
 			if (files.Count == 1
 				&& files[0].Status == HgFileStatus.Added
 				&& files[0].CopiedFrom != null)

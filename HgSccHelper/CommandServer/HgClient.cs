@@ -656,21 +656,37 @@ namespace HgSccHelper.CommandServer
 		//-----------------------------------------------------------------------------
 		public List<HgFileInfo> Status(string path)
 		{
-			return Status(path, "");
+			var options = HgStatusOptions.Added | HgStatusOptions.Clean
+				| HgStatusOptions.Deleted | HgStatusOptions.Modified
+				| HgStatusOptions.Copies | HgStatusOptions.Removed;
+			return Status(options, path, "", "");
 		}
 
 		//-----------------------------------------------------------------------------
-		public List<HgFileInfo> Status(string path, string rev)
+		/// <summary>
+		/// Returns status change for a path for specified revision and its parent
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="rev"></param>
+		/// <returns></returns>
+		public List<HgFileInfo> StatusChange(string path, string rev)
 		{
 			var options = HgStatusOptions.Added | HgStatusOptions.Clean
 				| HgStatusOptions.Deleted | HgStatusOptions.Modified
 				| HgStatusOptions.Copies | HgStatusOptions.Removed;
 
-			return Status(options, path, rev, "");
+			var args = BuildStatusParams(options, path);
+			if (rev.Length > 0)
+			{
+				args.Append("--change");
+				args.Append(rev);
+			}
+
+			return StatusWithArgs(args);
 		}
 
 		//-----------------------------------------------------------------------------
-		public static HgArgsBuilderZero BuildStatusParams(HgStatusOptions options, string path, string rev1, string rev2)
+		public static HgArgsBuilderZero BuildStatusParams(HgStatusOptions options, string path)
 		{
 			var args = new HgArgsBuilderZero();
 			args.Append("status");
@@ -704,20 +720,12 @@ namespace HgSccHelper.CommandServer
 			if (path.Length > 0)
 				args.AppendPath(path);
 
-			if (rev1.Length > 0)
-				args.AppendRevision(rev1);
-
-			if (rev2.Length > 0)
-				args.AppendRevision(rev2);
-
 			return args;
 		}
 
 		//-----------------------------------------------------------------------------
-		public List<HgFileInfo> Status(HgStatusOptions options, string path, string rev1, string rev2)
+		public List<HgFileInfo> StatusWithArgs(HgArgsBuilderZero args)
 		{
-			var args = BuildStatusParams(options, path, rev1, rev2);
-
 			using (var mem_stream = new MemoryStream())
 			{
 				int res = RawCommandStream(args, mem_stream);
@@ -732,6 +740,19 @@ namespace HgSccHelper.CommandServer
 					return files_info;
 				}
 			}
+		}
+
+		//-----------------------------------------------------------------------------
+		public List<HgFileInfo> Status(HgStatusOptions options, string path, string rev1, string rev2)
+		{
+			var args = BuildStatusParams(options, path);
+			if (rev1.Length > 0)
+				args.AppendRevision(rev1);
+
+			if (rev2.Length > 0)
+				args.AppendRevision(rev2);
+
+			return StatusWithArgs(args);
 		}
 
 		//-----------------------------------------------------------------------------
