@@ -1,12 +1,15 @@
 ﻿<UserControl x:Class="HgSccPackage.UI.OptionsPageAbout"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             IsVisibleChanged="UserControl_IsVisibleChanged">
     <Grid Margin="0,5,5,5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -48,5 +51,17 @@
         <TextBox Text="HgSccPackage v1.8.5"
                  IsReadOnly="True"
                  Grid.Column="1" Grid.Row="3"></TextBox>
+        <Label Content="Mercurial Path:"
+               HorizontalAlignment="Right"
+               Grid.Column="0" Grid.Row="4"></Label>
+        <TextBox x:Name="textMercurialPath"
+                 IsReadOnly="True"
+                 Grid.Column="1" Grid.Row="4"></TextBox>
+        <Label Content="Mercurial Version:"
+               HorizontalAlignment="Right"
+               Grid.Column="0" Grid.Row="5"></Label>
+        <TextBox x:Name="textMercurialVersion"
+                 IsReadOnly="True"
+                 Grid.Column="1" Grid.Row="5"></TextBox>
     </Grid>
 </UserControl>

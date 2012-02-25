@@ -21,6 +21,8 @@ namespace HgSccPackage.UI
 	/// </summary>
 	public partial class OptionsPageAbout : UserControl, IOptionsPage
 	{
+		private bool initialized;
+
 		//-----------------------------------------------------------------------------
 		public OptionsPageAbout()
 		{
@@ -54,6 +56,32 @@ namespace HgSccPackage.UI
 		public ContentControl PageContent
 		{
 			get { return this; }
+		}
+
+		//-----------------------------------------------------------------------------
+		private void UserControl_IsVisibleChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
+		{
+			if ((bool)e.NewValue)
+			{
+				// Get mercurial version only once
+				if (!initialized)
+				{
+					initialized = true;
+
+					Logger.WriteLine("Retreiving mercurial version");
+
+					textMercurialPath.Text = Hg.DefaultClient;
+					HgVersionInfo ver = new HgVersion().VersionInfo("");
+					if (ver == null)
+					{
+						textMercurialVersion.Text = "(Unknown)";
+					}
+					else
+					{
+						textMercurialVersion.Text = ver.Source;
+					}
+				}
+			}
 		}
 	}
 }
