@@ -55,6 +55,10 @@ namespace HgSccHelper
 				new[] { new KeyGesture(Key.F5) }));
 
 		//-----------------------------------------------------------------------------
+		public static RoutedUICommand FilterByRevsetCommand = new RoutedUICommand("Filter by Revset",
+			"FilterByRevset", typeof(RevLogControl));
+
+		//-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
 
 		//------------------------------------------------------------------
@@ -548,7 +552,7 @@ namespace HgSccHelper
 		private void ReadNext_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 		{
 			e.CanExecute = false;
-			if (WorkingDir != null && revs != null && revs.Count > 0)
+			if (WorkingDir != null && revs != null && revs.Count > 0 && String.IsNullOrEmpty(textRevSet.Text))
 			{
 				if (worker != null && !worker.IsBusy)
 					if (revs[revs.Count - 1].Rev != 0)
@@ -567,6 +571,54 @@ namespace HgSccHelper
 			var rev = string.Format("{0}:{1}", start_rev, stop_rev);
 
 			RunRevLogThread(WorkingDir, rev, 0);
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void FilterByRevset_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = false;
+			if (WorkingDir != null)
+			{
+				if (worker != null && !worker.IsBusy)
+				{
+					e.CanExecute = true;
+				}
+			}
+			e.Handled = true;
+		}
+
+		//------------------------------------------------------------------
+		private void FilterByRevset_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			sha1_to_scroll_on_reload = null;
+			if (SelectedChangeset != null)
+				sha1_to_scroll_on_reload = SelectedChangeset.Current.ChangeDesc.SHA1;
+
+			rev_log_iterator = new RevLogIteratorParser();
+			rev_log_lines_parser = new RevLogLinesPairParser();
+
+			revs.Clear();
+			rev_lines.Clear();
+			rev_log_hash_map.Clear();
+
+			first_batch = true;
+
+			if (!String.IsNullOrEmpty(textRevSet.Text))
+			{
+				// FIXME: Skip drawing a graph, because revisions
+				// are mostly unrelated
+				rev_log_iterator.Passthrough = true;
+
+				// Reverse revision from max to min
+				var rev = String.Format("reverse({0})", textRevSet.Text);
+				RunRevLogThread(WorkingDir, rev, 0);
+			}
+			else
+			{
+				RunRevLogThread(WorkingDir, "", BatchSize);
+			}
+
 			e.Handled = true;
 		}
 

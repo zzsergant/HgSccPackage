@@ -90,6 +90,9 @@ namespace HgSccHelper
 	{
 		List<string> revisions;
 
+		//-----------------------------------------------------------------------------
+		public bool Passthrough { get; set; }
+
 		//------------------------------------------------------------------
 		public RevLogIteratorParser()
 		{
@@ -99,6 +102,14 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		public RevLogLines ParseChangeDesc(RevLogChangeDesc rev)
 		{
+			if (Passthrough)
+			{
+				var line = new RevLogLines();
+				line.ChangeDesc = rev;
+				line.Lines = new List<LinePos>();
+				return line;
+			}
+
 			if (!revisions.Contains(rev.SHA1))
 			{
 				// new head

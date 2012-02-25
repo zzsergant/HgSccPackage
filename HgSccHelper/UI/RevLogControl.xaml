@@ -71,6 +71,10 @@
                         CanExecute="ReadAll_CanExecute"
                         Executed="ReadAll_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:RevLogControl.FilterByRevsetCommand}"
+                        CanExecute="FilterByRevset_CanExecute"
+                        Executed="FilterByRevset_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static ui:Commands.StopCommand}"
                         CanExecute="Stop_CanExecute"
                         Executed="Stop_Executed">
@@ -213,6 +217,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
@@ -257,7 +262,28 @@
                         MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
-        <Grid Grid.Row="1" KeyboardNavigation.TabNavigation="Cycle"
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Filter by revset:" Margin="5,0"></Label>
+            <TextBox Grid.Column="1" x:Name="textRevSet" VerticalAlignment="Center"
+                     Margin="0,5,5,0"
+                     MaxLines="1">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{x:Static local:RevLogControl.FilterByRevsetCommand}" />
+                </TextBox.InputBindings>
+            </TextBox>
+            <Button Grid.Column="2" Content="Apply"
+                    MinWidth="75"
+                    MinHeight="25"
+                    Margin="0,5,5,0"
+                    VerticalAlignment="Center"
+                    Command="{x:Static local:RevLogControl.FilterByRevsetCommand}"></Button>
+        </Grid>
+        <Grid Grid.Row="2" KeyboardNavigation.TabNavigation="Cycle"
               Margin="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
