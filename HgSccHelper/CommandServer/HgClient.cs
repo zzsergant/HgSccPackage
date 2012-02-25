@@ -75,6 +75,22 @@ namespace HgSccHelper.CommandServer
 		}
 
 		//-----------------------------------------------------------------------------
+		public bool Restart()
+		{
+			lock(critical)
+			{
+				if (!IsStarted)
+					return false;
+
+				string work_dir = WorkDir;
+
+				Logger.WriteLine("Restarting command server: {0}", WorkDir);
+				Close();
+				return Open(work_dir);
+			}
+		}
+
+		//-----------------------------------------------------------------------------
 		public bool IsStarted
 		{
 			get { return server != null && server.IsBusy; }
