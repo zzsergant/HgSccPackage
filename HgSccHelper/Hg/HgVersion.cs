@@ -35,7 +35,13 @@ namespace HgSccHelper
 			if (idx == -1)
 				return null;
 
-			str = str.Substring(idx + version_prefix.Length);
+			idx = idx + version_prefix.Length;
+
+			int end_idx = str.IndexOf(')', idx);
+			if (end_idx == -1)
+				return null;
+
+			str = str.Substring(idx, end_idx - idx);
 
 			var version = new HgVersionInfo();
 			var fields = str.Split(new[] {'.', '+', '-', ')'});
@@ -62,6 +68,7 @@ namespace HgSccHelper
 					version.Minor = minor;
 			}
 
+			version.Source = str;
 			return version;
 		}
 
@@ -94,6 +101,11 @@ namespace HgSccHelper
 		public int Release { get; set; }
 		public int Major { get; set; }
 		public int Minor { get; set; }
+
+		/// <summary>
+		/// Source version string, for example: 1.7.5+126-d100702326d5
+		/// </summary>
+		public string Source { get; set; }
 		
 		//-----------------------------------------------------------------------------
 		public int CompareTo(HgVersionInfo other)
