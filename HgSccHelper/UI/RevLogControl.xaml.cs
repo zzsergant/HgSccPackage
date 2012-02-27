@@ -591,6 +591,13 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void FilterByRevset_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
+			FilterByRevsetOrReload();
+			e.Handled = true;
+		}
+
+		//-----------------------------------------------------------------------------
+		void FilterByRevsetOrReload()
+		{
 			sha1_to_scroll_on_reload = null;
 			if (SelectedChangeset != null)
 				sha1_to_scroll_on_reload = SelectedChangeset.Current.ChangeDesc.SHA1;
@@ -618,8 +625,6 @@ namespace HgSccHelper
 			{
 				RunRevLogThread(WorkingDir, "", BatchSize);
 			}
-
-			e.Handled = true;
 		}
 
 		//------------------------------------------------------------------
@@ -721,7 +726,7 @@ namespace HgSccHelper
 			if (wnd.UpdateContext.IsTagsChanged && wnd.UpdateContext.IsParentChanged)
 			{
 				// There was non-local tag, need to reload graph
-				ReloadChangeLog();
+				FilterByRevsetOrReload();
 			}
 			else
 			{
@@ -789,7 +794,7 @@ namespace HgSccHelper
 			if (wnd.UpdateContext.IsTagsChanged && wnd.UpdateContext.IsParentChanged)
 			{
 				// There was non-local tag, need to reload graph
-				ReloadChangeLog();
+				FilterByRevsetOrReload();
 			}
 			else
 			{
@@ -1136,7 +1141,7 @@ namespace HgSccHelper
 			if (wnd.UpdateContext.IsTagsChanged && wnd.UpdateContext.IsParentChanged)
 			{
 				// There was non-local tag, need to reload graph
-				ReloadChangeLog();
+				FilterByRevsetOrReload();
 			}
 			else
 			{
@@ -1347,7 +1352,7 @@ namespace HgSccHelper
 				UpdateContext.IsBranchChanged = true;
 				UpdateContext.IsCommited = true;
 
-				ReloadChangeLog();
+				FilterByRevsetOrReload();
 			}
 		}
 
@@ -1501,27 +1506,8 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Reload_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			ReloadChangeLog();
+			FilterByRevsetOrReload();
 			e.Handled = true;
-		}
-
-		//-----------------------------------------------------------------------------
-		private void ReloadChangeLog()
-		{
-			// TODO: Remember current revision and scroll to it after reload
-			sha1_to_scroll_on_reload = null;
-			if (SelectedChangeset != null)
-				sha1_to_scroll_on_reload = SelectedChangeset.Current.ChangeDesc.SHA1;
-
-			rev_log_iterator = new RevLogIteratorParser();
-			rev_log_lines_parser = new RevLogLinesPairParser();
-
-			revs.Clear();
-			rev_lines.Clear();
-			rev_log_hash_map.Clear();
-
-			first_batch = true;
-			RunRevLogThread(WorkingDir, "", BatchSize);
 		}
 	}
 
