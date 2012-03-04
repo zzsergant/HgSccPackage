@@ -58,7 +58,11 @@ namespace HgSccHelper
 		public static RoutedUICommand FilterByRevsetCommand = new RoutedUICommand("Filter by Revset",
 			"FilterByRevset", typeof(RevLogControl));
 
-		//-----------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------
+        public static RoutedUICommand ShowFilterCommand = new RoutedUICommand("Show Revset Filter",
+            "ShowRevsetFilter", typeof(RevLogControl));
+
+        //-----------------------------------------------------------------------------
 		public string WorkingDir { get; set; }
 
 		//------------------------------------------------------------------
@@ -1509,7 +1513,15 @@ namespace HgSccHelper
 			FilterByRevsetOrReload();
 			e.Handled = true;
 		}
-	}
+
+        //------------------------------------------------------------------
+        private void ShowFilter_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            gridFilterByRevset.Visibility = Visibility.Visible;
+            textRevSet.SelectAll();
+            textRevSet.Focus();
+        }
+    }
 
 	//==================================================================
 	class ParentFilesDiff : DependencyObject

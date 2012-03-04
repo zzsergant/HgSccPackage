@@ -75,6 +75,9 @@
                         CanExecute="FilterByRevset_CanExecute"
                         Executed="FilterByRevset_Executed">
         </CommandBinding>
+        <CommandBinding Command="{x:Static local:RevLogControl.ShowFilterCommand}"
+                        Executed="ShowFilter_Executed">
+        </CommandBinding>
         <CommandBinding Command="{x:Static ui:Commands.StopCommand}"
                         CanExecute="Stop_CanExecute"
                         Executed="Stop_Executed">
@@ -214,6 +217,12 @@
             </Setter>
         </Style>
     </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding Command="{x:Static local:RevLogControl.ShowFilterCommand}"
+                    Key="F"
+                    Modifiers="Control">            
+        </KeyBinding>
+    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -260,9 +269,14 @@
                 <Button Content="Bundle"
                         Command="{x:Static ui:Commands.BundleCommand}"
                         MinWidth="75" />
+                <Separator />
+                <Button Content="Show Filter"
+                        Command="{x:Static local:RevLogControl.ShowFilterCommand}"
+                        MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" x:Name="gridFilterByRevset"
+              Visibility="Collapsed">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -277,11 +291,12 @@
                 </TextBox.InputBindings>
             </TextBox>
             <Button Grid.Column="2" Content="Apply"
-                    MinWidth="75"
-                    MinHeight="25"
+                    Padding="8,0"
+                    MinHeight="23"
                     Margin="0,5,5,0"
                     VerticalAlignment="Center"
-                    Command="{x:Static local:RevLogControl.FilterByRevsetCommand}"></Button>
+                    Command="{x:Static local:RevLogControl.FilterByRevsetCommand}">                
+            </Button>
         </Grid>
         <Grid Grid.Row="2" KeyboardNavigation.TabNavigation="Cycle"
               Margin="5">
