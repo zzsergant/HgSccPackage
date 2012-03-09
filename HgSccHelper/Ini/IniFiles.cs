@@ -225,6 +225,11 @@ namespace Gajatko.IniFiles
 		public IniFileWriter(string str, bool append) : base(str, append)
 		{
 		}
+		/// <summary>Initializes a new instance of IniFileReader from specified path and encoding.</summary>
+		public IniFileWriter(string str, bool append, Encoding encoding)
+			: base(str, append, encoding)
+		{
+		}
 		/// <summary>Writes INI file element to the file.</summary>
 		/// <param name="element">Element to write.</param>
 		public void WriteElement(IniFileElement element)
@@ -318,11 +323,17 @@ namespace Gajatko.IniFiles
 		/// <summary>Reads a INI file from a file or creates one.</summary>
 		public static IniFile FromFile(string path)
 		{
+			return FromFile(path, Encoding.Default);
+		}
+
+		/// <summary>Reads a INI file from a file or creates one.</summary>
+		public static IniFile FromFile(string path, Encoding encoding)
+		{
 			if (!System.IO.File.Exists(path)) {
 				System.IO.File.Create(path).Close();
 				return new IniFile();
 			}
-			IniFileReader reader = new IniFileReader(path);
+			IniFileReader reader = new IniFileReader(path, encoding);
 			IniFile ret = FromStream(reader);
 			reader.Close();
 			return ret;
@@ -366,7 +377,12 @@ namespace Gajatko.IniFiles
 		/// <summary>Writes a INI file to a disc, using options in IniFileSettings class</summary>
 		public void Save(string path)
 		{
-			IniFileWriter writer = new IniFileWriter(path);
+			Save(path, Encoding.Default);
+		}
+		/// <summary>Writes a INI file to a disc, using options in IniFileSettings class</summary>
+		public void Save(string path, Encoding encoding)
+		{
+			IniFileWriter writer = new IniFileWriter(path, false, encoding);
 			Save(writer);
 			writer.Close();
 		}
