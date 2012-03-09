@@ -309,7 +309,7 @@ namespace HgSccPackage
 			Logger.WriteLine("Provider set active");
 			Logger.WriteLine("sln = '{0}'", _sccProvider.GetSolutionFileName());
 
-			var required_version = new HgVersionInfo {Release = 1, Major = 9};
+			var required_version = new HgVersionInfo {Release = 2, Major = 1, Minor = 1};
 			if (!HgVersionChecker.CheckVersion(required_version))
 				return VSConstants.E_FAIL;
 
