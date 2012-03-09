@@ -172,7 +172,6 @@
                     </Grid.ColumnDefinitions>
                     <TextBox x:Name="textUsername"
                              Grid.Column="0"
-                             Text="{Binding ElementName=root, Path=Username, Mode=OneWay}"
                              MaxLines="1"
                              Margin="5">
                     </TextBox>

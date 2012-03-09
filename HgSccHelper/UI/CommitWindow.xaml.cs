@@ -279,6 +279,7 @@ namespace HgSccHelper
 			}
 
 			Username = username;
+			textUsername.Text = Username ?? "";
 
 			if (String.IsNullOrEmpty(username))
 			{
@@ -1321,12 +1322,15 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		private void ChangeUsername_Click(object sender, RoutedEventArgs e)
 		{
-			var username = textUsername.Text.Trim();
+			var username = textUsername.Text ?? "";
+			username = username.Trim();
+
 			if (String.IsNullOrEmpty(username))
 			{
 				MessageBox.Show("Username must not be empty", "Warning", MessageBoxButton.OK, MessageBoxImage.Exclamation);
 				return;
 			}
+
 
 			var mercurial_ini = Util.GetUserMercurialIni();
 			if (mercurial_ini == null)
@@ -1336,7 +1340,7 @@ namespace HgSccHelper
 			}
 
 			var ini = IniFile.FromFile(mercurial_ini);
-			ini["ui"]["username"] = textUsername.Text;
+			ini["ui"]["username"] = username;
 			ini.Save(mercurial_ini);
 
 			HgClient.Restart();
