@@ -2934,10 +2934,9 @@ namespace HgSccPackage
 		public void RefreshStatus()
 		{
 			foreach (var storage in storage_list)
-			{
 				storage.ReloadCache();
-				RefreshGlyphsForControlledProjects();
-			}
+
+			RefreshGlyphsForControlledProjects();
 
 /*
 			var solution = _sccProvider.GetService<IVsSolution>();
