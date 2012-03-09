@@ -127,12 +127,17 @@
                 <Button Content="Close Named Branch"
                         Command="{x:Static local:CommitWindow.CloseNamedBranchCommand}"
                         MinWidth="75" />
+                <Separator />
+                <Button Content="Show Username"
+                        Click="ShowUsername_Click"
+                        MinWidth="75" />
             </ToolBar>
         </ToolBarTray>
         <Grid Grid.Row="1" KeyboardNavigation.TabNavigation="Cycle">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Name="commitMessageRow" Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
@@ -153,8 +158,41 @@
                           ResizeBehavior="CurrentAndNext"
                           VerticalAlignment="Bottom"
                           DragDelta="GridSplitter_DragDelta" />
-            <StackPanel Grid.Row="2"
-                    Margin="5">
+            <StackPanel Grid.Row="2" x:Name="rowUsername" Visibility="Collapsed">
+                <Label Margin="5,5,5,0"
+                       x:Name="labelUsername"
+                       Content="Username:"
+                       VerticalAlignment="Stretch">
+                </Label>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="textUsername"
+                             Grid.Column="0"
+                             Text="{Binding ElementName=root, Path=Username, Mode=OneWay}"
+                             MaxLines="1"
+                             Margin="5">
+                    </TextBox>
+                    <Button MinWidth="75"
+                            MinHeight="23"
+                            Grid.Column="1"
+                            Margin="0,5,0,5"
+                            Click="ChangeUsername_Click"
+                            Content="Change">                        
+                    </Button>
+                    <Button MinWidth="75"
+                            MinHeight="23"
+                            Grid.Column="2"
+                            Click="HideUsername_Click"
+                            Margin="5"
+                            Content="Hide">
+                    </Button>
+                </Grid>
+            </StackPanel>
+            <StackPanel Grid.Row="3" Margin="5">
                 <Label Content="Parent:"></Label>
                 <Grid Name="parentsGrid">
                     <Grid.ColumnDefinitions>
@@ -179,7 +217,7 @@
                     </TextBox>
                 </Grid>
             </StackPanel>
-            <Grid Grid.Row="3">
+            <Grid Grid.Row="4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -290,7 +328,7 @@
                     </Expander>
                 </Grid>
             </Grid>
-            <Grid Grid.Row="4">
+            <Grid Grid.Row="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto" />

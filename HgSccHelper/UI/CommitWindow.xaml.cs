@@ -27,6 +27,7 @@ using System.Collections.ObjectModel;
 using HgSccHelper.CommandServer;
 using HgSccHelper.UI;
 using HgSccHelper.UI.RevLog;
+using Gajatko.IniFiles;
 
 namespace HgSccHelper
 {
@@ -143,6 +144,18 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public static readonly DependencyProperty UsernameProperty =
+			DependencyProperty.Register("Username", typeof(string),
+			typeof(CommitWindow));
+
+		//-----------------------------------------------------------------------------
+		private string Username
+		{
+			get { return (string)this.GetValue(UsernameProperty); }
+			set { this.SetValue(UsernameProperty, value); }
+		}
+		
+		//-----------------------------------------------------------------------------
 		public IEnumerable<string> FilesToCommit { set; get; }
 
 		//------------------------------------------------------------------
@@ -225,16 +238,23 @@ namespace HgSccHelper
 			Cfg.Get(CfgPath, DiffColorizerControl.DiffVisible, out diff_visible, 1);
 			expanderDiff.IsExpanded = (diff_visible != 0);
 
+			UpdateUsername();
+
+			int show_username;
+			Cfg.Get(CfgPath, "ShowUsername", out show_username, 0);
+			if (show_username != 0)
+				rowUsername.Visibility = Visibility.Visible;
+
 			dirty_sub_repos = new List<string>();
 
 			pending_status_tasks = new Queue<StatusTask>();
 			foreach (var sub_repo_dir in SubRepoDirs)
 			{
 				pending_status_tasks.Enqueue(new StatusTask
-				                             	{
-				                             		Path = System.IO.Path.Combine(WorkingDir, sub_repo_dir),
+												{
+													Path = System.IO.Path.Combine(WorkingDir, sub_repo_dir),
 													SubRepoDir = sub_repo_dir
-				                             	});
+												});
 			}
 
 			pending_status_tasks.Enqueue(new StatusTask { Path = WorkingDir });
@@ -244,6 +264,35 @@ namespace HgSccHelper
 			async_status.Run(async_status_task.Path, StatusOptions);
 
 			textCommitMessage.Focus();
+		}
+
+		//-----------------------------------------------------------------------------
+		private void UpdateUsername()
+		{
+			var config = HgClient.ShowConfig();
+			var username = config.FirstOrDefault(str => str.StartsWith("ui.username"));
+			if (username != null)
+			{
+				int idx = username.IndexOf('=');
+				if (idx != -1)
+					username = username.Substring(idx + 1).Trim();
+			}
+
+			Username = username;
+
+			if (String.IsNullOrEmpty(username))
+			{
+				rowUsername.Visibility = Visibility.Visible;
+				labelUsername.Foreground = Brushes.Red;
+			}
+			else
+			{
+				if (labelUsername.Foreground == Brushes.Red)
+				{
+					// Restore brush if the username changed to valid value
+					labelUsername.Foreground = SystemColors.ControlTextBrush;
+				}
+			}
 		}
 
 		//-----------------------------------------------------------------------------
@@ -670,7 +719,8 @@ namespace HgSccHelper
 		{
 			if (commit_items != null)
 			{
-				e.CanExecute = (commit_items.Count != 0) && (RunningOperations == AsyncOperations.None);
+				e.CanExecute = (commit_items.Count != 0) && (RunningOperations == AsyncOperations.None)
+					&& !String.IsNullOrEmpty(Username);
 			}
 			e.Handled = true;
 		}
@@ -1266,6 +1316,48 @@ namespace HgSccHelper
 		private void listFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			ShowFileDiff();
+		}
+
+		//-----------------------------------------------------------------------------
+		private void ChangeUsername_Click(object sender, RoutedEventArgs e)
+		{
+			var username = textUsername.Text.Trim();
+			if (String.IsNullOrEmpty(username))
+			{
+				MessageBox.Show("Username must not be empty", "Warning", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+				return;
+			}
+
+			var mercurial_ini = Util.GetUserMercurialIni();
+			if (mercurial_ini == null)
+			{
+				MessageBox.Show("Unable to change username", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+				return;
+			}
+
+			var ini = IniFile.FromFile(mercurial_ini);
+			ini["ui"]["username"] = textUsername.Text;
+			ini.Save(mercurial_ini);
+
+			HgClient.Restart();
+			UpdateUsername();
+		}
+
+		//-----------------------------------------------------------------------------
+		private void HideUsername_Click(object sender, RoutedEventArgs e)
+		{
+			if (String.IsNullOrEmpty(Username))
+				return;
+
+			rowUsername.Visibility = Visibility.Collapsed;
+			Cfg.Set(CfgPath, "ShowUsername", 0);
+		}
+
+		//-----------------------------------------------------------------------------
+		private void ShowUsername_Click(object sender, RoutedEventArgs e)
+		{
+			rowUsername.Visibility = Visibility.Visible;
+			Cfg.Set(CfgPath, "ShowUsername", 1);
 		}
 	}
 
