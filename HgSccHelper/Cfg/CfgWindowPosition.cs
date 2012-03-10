@@ -48,15 +48,29 @@ namespace HgSccHelper
 		void wnd_Closing(object sender, EventArgs e)
 		{
 			var bounds = wnd.RestoreBounds;
-			Cfg.Set(cfg_path, "X", (int)bounds.Left);
-			Cfg.Set(cfg_path, "Y", (int)bounds.Top);
+			if (	Double.IsInfinity(bounds.Left)
+				||	Double.IsInfinity(bounds.Top)
+				)
+			{
+				return;
+			}
 
 			if (options == CfgWindowPositionOptions.PositionAndSize)
 			{
+				if (	Double.IsInfinity(bounds.Width)
+					||	Double.IsInfinity(bounds.Height)
+					)
+				{
+					return;
+				}
+
 				Cfg.Set(cfg_path, "Width", (int)bounds.Width);
 				Cfg.Set(cfg_path, "Height", (int)bounds.Height);
 				Cfg.Set(cfg_path, "IsMaximized", wnd.WindowState == WindowState.Maximized ? 1 : 0);
 			}
+
+			Cfg.Set(cfg_path, "X", (int)bounds.Left);
+			Cfg.Set(cfg_path, "Y", (int)bounds.Top);
 		}
 
 		//------------------------------------------------------------------
@@ -73,9 +87,14 @@ namespace HgSccHelper
 							&&	Cfg.Get(cfg_path, "Y", out y, (int)wnd.Top)
 							)
 						{
-							wnd.Left = x;
-							wnd.Top = y;
-							wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+							if (	x != int.MinValue
+								&&	y != int.MinValue
+								)
+							{
+								wnd.Left = x;
+								wnd.Top = y;
+								wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+							}
 						}
 						break;
 					}
@@ -86,17 +105,23 @@ namespace HgSccHelper
 						int width;
 						int height;
 
-						if (Cfg.Get(cfg_path, "Width", out width, (int)wnd.Width)
-							&& Cfg.Get(cfg_path, "Height", out height, (int)wnd.Height)
-							&& Cfg.Get(cfg_path, "X", out x, (int)wnd.Left)
-							&& Cfg.Get(cfg_path, "Y", out y, (int)wnd.Top)
+						if (	Cfg.Get(cfg_path, "Width", out width, (int)wnd.Width)
+							&&	Cfg.Get(cfg_path, "Height", out height, (int)wnd.Height)
+							&&	Cfg.Get(cfg_path, "X", out x, (int)wnd.Left)
+							&&	Cfg.Get(cfg_path, "Y", out y, (int)wnd.Top)
 							)
 						{
-							wnd.Left = x;
-							wnd.Top = y;
-							wnd.Width = width;
-							wnd.Height = height;
-							wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+							if (	x != int.MinValue
+								&&	y != int.MinValue
+								&&	width != int.MinValue
+								&&	height != int.MinValue)
+							{
+								wnd.Left = x;
+								wnd.Top = y;
+								wnd.Width = width;
+								wnd.Height = height;
+								wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+							}
 						}
 						break;
 					}
