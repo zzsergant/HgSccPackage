@@ -61,17 +61,24 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public SccErrors OpenProject(string local_proj_path, SccOpenProjectFlags flags)
 		{
+			Logger.WriteLine("OpenProject: {0}, flags {1}", local_proj_path, flags);
+
 			var hg = new Hg();
 			string root = hg.Root(local_proj_path);
 			bool is_root_exist = !String.IsNullOrEmpty(root);
 
 			if (!is_root_exist)
 			{
+				Logger.WriteLine("Root not exists");
+
 				if ((flags & SccOpenProjectFlags.CreateIfNew) == SccOpenProjectFlags.CreateIfNew)
 				{
+					Logger.WriteLine("Creating a repository: {0}", local_proj_path);
+
 					if (!hg.CreateRepository(local_proj_path))
 						return SccErrors.CouldNotCreateProject;
 
+					Logger.WriteLine("Repository created");
 					root = local_proj_path;
 				}
 				else
@@ -87,6 +94,7 @@ namespace HgSccHelper
 			string hgsubPath = Path.Combine(root, ".hgsub");
 			if (File.Exists(hgsubPath))
 			{
+				Logger.WriteLine("Found .hgsub");
 				using (StreamReader reader = new StreamReader(hgsubPath))
 				{
 					while (!reader.EndOfStream)
@@ -103,12 +111,22 @@ namespace HgSccHelper
 				}
 			}
 
-			if (!hg_client.Open(WorkingDir))
+			try
 			{
-				Logger.WriteLine("Unable to connect to command server: {0}", WorkingDir);
-				hg_client.Dispose();
+				Logger.WriteLine("Opening a command server client: {0}", local_proj_path);
+				if (!hg_client.Open(WorkingDir))
+				{
+					Logger.WriteLine("Unable to connect to command server: {0}", WorkingDir);
+					hg_client.Dispose();
 
-				return SccErrors.NonSpecificError;
+					return SccErrors.NonSpecificError;
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.WriteLine("Exception : {0}", ex.Message);
+				Logger.WriteLine("StackTrace: {0}", ex.StackTrace);
+				throw;
 			}
 
 			return SccErrors.Ok;

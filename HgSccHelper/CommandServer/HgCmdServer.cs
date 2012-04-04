@@ -164,6 +164,11 @@ namespace HgSccHelper.CommandServer
 			info.CreateSuspended = true;
 			info.EnvironmentVariables["HGPLAIN"] = "1";
 
+			Logger.WriteLine("Creating new process:");
+			Logger.WriteLine("- Filename         = {0}", info.FileName);
+			Logger.WriteLine("- WorkingDirectory = {0}", work_dir);
+			Logger.WriteLine("- Arguments        = {0}", info.Arguments);
+
 			if (Hg.UseUtf8)
 				info.EnvironmentVariables["HGENCODING"] = "utf8";
 

@@ -118,6 +118,8 @@ namespace HgSccHelper.CommandServer
 		//-----------------------------------------------------------------------------
 		private bool ReadHello()
 		{
+			Logger.WriteLine("Reading hello message");
+
 			var msg = new Message();
 			server.ReadChannel(ref msg);
 
@@ -136,7 +138,8 @@ namespace HgSccHelper.CommandServer
 			capabilities = new List<string>(caps_list);
 			if (!capabilities.Contains("runcommand"))
 				return false;
-			
+
+			Logger.WriteLine("Hello message is ok");
 			return true;
 		}
 
