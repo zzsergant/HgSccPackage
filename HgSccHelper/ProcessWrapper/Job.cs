@@ -11,7 +11,9 @@
 //=========================================================================
 
 using System;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
+using HgSccHelper;
 
 namespace ProcessWrapper
 {
@@ -21,7 +23,7 @@ namespace ProcessWrapper
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
 		public static extern IntPtr CreateJobObject(IntPtr lpJobAttributes, string lpName);
 
-		[DllImport("kernel32.dll")]
+		[DllImport("kernel32.dll", SetLastError = true)]
 		public static extern bool AssignProcessToJobObject(IntPtr hJob, IntPtr hProcess);
 
 		[DllImport("kernel32.dll", EntryPoint = "SetInformationJobObject")]
@@ -32,6 +34,9 @@ namespace ProcessWrapper
 
 		[DllImport("kernel32.dll")]
 		public static extern void CloseHandle(IntPtr handle);
+
+		[DllImport("kernel32.dll")]
+		public static extern bool IsProcessInJob(IntPtr Process, IntPtr Job, out bool Result);
 
 		IntPtr job;
 
@@ -53,6 +58,15 @@ namespace ProcessWrapper
 		//-----------------------------------------------------------------------------
 		public bool AssignProcessToJob(Process proc)
 		{
+			bool is_process_in_job;
+			if (IsProcessInJob(proc.Handle, IntPtr.Zero, out is_process_in_job))
+			{
+				if (is_process_in_job)
+				{
+					Logger.WriteLine("Process is allready in job");
+				}
+			}
+
 			return AssignProcessToJobObject(job, proc.Handle);
 		}
 
