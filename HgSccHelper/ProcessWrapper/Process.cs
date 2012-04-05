@@ -560,6 +560,9 @@ namespace ProcessWrapper
 
 				if (info.CreateSuspended)
 					creation_flags |= NativeMethods.CREATE_SUSPENDED;
+				
+				if (info.CreateBreakAwayFromJob)
+					creation_flags |= NativeMethods.CREATE_BREAKAWAY_FROM_JOB;
 
 				bool result = NativeMethods.CreateProcess(
 							null,

@@ -26,6 +26,7 @@ namespace ProcessWrapper
 
 		public bool CreateNoWindow { get; set; }
 		public bool CreateSuspended { get; set; }
+		public bool CreateBreakAwayFromJob { get; set; }
 
 		public bool RedirectStandardInput { get; set; }
 		public bool RedirectStandardOutput { get; set; }

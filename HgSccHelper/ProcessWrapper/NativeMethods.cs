@@ -242,6 +242,7 @@ namespace ProcessWrapper
 		public const int CREATE_NO_WINDOW = 0x08000000;
 		public const int CREATE_SUSPENDED = 0x00000004;
 		public const int CREATE_UNICODE_ENVIRONMENT = 0x00000400;
+		public const int CREATE_BREAKAWAY_FROM_JOB = 0x01000000;
 
 		[StructLayout(LayoutKind.Sequential)]
 		internal struct MEMORY_BASIC_INFORMATION
