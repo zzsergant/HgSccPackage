@@ -139,6 +139,7 @@ namespace HgSccHelper
 
 			// Create suspended and then attach to Job !!
 			info.CreateSuspended = true;
+			info.CreateBreakAwayFromJob = true;
 
 			info.EnvironmentVariables["HGPLAIN"] = "1";
 
