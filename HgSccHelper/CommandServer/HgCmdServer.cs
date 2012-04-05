@@ -158,7 +158,7 @@ namespace HgSccHelper.CommandServer
 
 			info.RedirectStandardOutput = true;
 			info.RedirectStandardInput = true;
-			info.RedirectStandardError = false;
+			info.RedirectStandardError = true;
 
 			// Create suspended and then attach to Job !!
 			info.CreateSuspended = true;
