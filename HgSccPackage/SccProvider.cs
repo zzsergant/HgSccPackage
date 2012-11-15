@@ -1969,11 +1969,14 @@ namespace HgSccPackage
 					DebugWalkingNode(pHier, childnode);
 
 					if (
-						(pHier.GetProperty(childnode, (int) __VSHPROPID.VSHPROPID_Expandable,
-										   out property) == VSConstants.S_OK &&
-						 (int) property != 0) ||
-						(pHier.GetProperty(childnode, (int) __VSHPROPID2.VSHPROPID_Container,
-										   out property) == VSConstants.S_OK && (bool) property))
+						    (   pHier.GetProperty(childnode, (int) __VSHPROPID.VSHPROPID_Expandable, out property) == VSConstants.S_OK
+                            &&  Convert.ToBoolean(property)
+                            )
+                         ||
+                            (  pHier.GetProperty(childnode, (int) __VSHPROPID2.VSHPROPID_Container, out property) == VSConstants.S_OK
+                            && Convert.ToBoolean(property)
+                            )
+                        )
 					{
 						nodesToWalk.Enqueue(childnode);
 					}
@@ -1994,12 +1997,13 @@ namespace HgSccPackage
 
 						DebugWalkingNode(pHier, childnode);
 
-						if (
-							(pHier.GetProperty(childnode, (int) __VSHPROPID.VSHPROPID_Expandable,
-											   out property) == VSConstants.S_OK &&
-							 (int) property != 0) ||
-							(pHier.GetProperty(childnode, (int) __VSHPROPID2.VSHPROPID_Container,
-											   out property) == VSConstants.S_OK && (bool) property))
+						if (    (   pHier.GetProperty(childnode, (int) __VSHPROPID.VSHPROPID_Expandable, out property) == VSConstants.S_OK
+                                &&  Convert.ToBoolean(property)
+                                )
+                            ||  (   pHier.GetProperty(childnode, (int) __VSHPROPID2.VSHPROPID_Container, out property) == VSConstants.S_OK
+                                &&  Convert.ToBoolean(property)
+                                )
+                            )
 						{
 							nodesToWalk.Enqueue(childnode);
 						}
