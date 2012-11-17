@@ -34,8 +34,8 @@
 			<Menu guid="guidSccProviderCmdSet" id="itbrSccToolbar" type="Toolbar">
 				<CommandFlag>DefaultDocked</CommandFlag>
 				<Strings>
-					<ButtonText>Mercurial Source Control Toolbar</ButtonText>
-					<CommandName>MercurialSourceControlToolbar</CommandName>
+					<ButtonText>Mercurial</ButtonText>
+					<CommandName>Mercurial</CommandName>
 				</Strings>
 			</Menu>
 		</Menus>
