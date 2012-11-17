@@ -207,6 +207,8 @@ namespace HgSccHelper
 			builder.AppendVerbose();
 			builder.Append("clone");
 
+			builder.AppendInteractive(false);
+
 			if (CloneToRevision)
 			{
 				builder.AppendRevision(textRevision.Text);

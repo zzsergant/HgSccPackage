@@ -331,6 +331,8 @@ namespace HgSccHelper
 			builder.AppendVerbose();
 			builder.Append("incoming");
 
+			builder.AppendInteractive(false);
+
 			if (ShowPatch)
 				builder.Append("--patch");
 
@@ -391,6 +393,8 @@ namespace HgSccHelper
 			builder.AppendVerbose();
 			builder.Append("outgoing");
 
+			builder.AppendInteractive(false);
+
 			if (ShowPatch)
 				builder.Append("--patch");
 
@@ -450,6 +454,8 @@ namespace HgSccHelper
 			builder.AppendVerbose();
 			builder.Append("pull");
 
+			builder.AppendInteractive(false);
+			
 			switch (comboAfterPull.Text)
 			{
 				case "Nothing":
@@ -522,6 +528,8 @@ namespace HgSccHelper
 			builder.AppendVerbose();
 			builder.Append("push");
 
+			builder.AppendInteractive(false);
+			
 			if (AllowNewBranch)
 				builder.Append("--new-branch");
 
