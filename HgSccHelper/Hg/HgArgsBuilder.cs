@@ -63,6 +63,12 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public void AppendInteractive(bool is_interactive)
+		{
+			Append(String.Format("--config ui.interactive={0}", is_interactive ? "True" : "False"));
+		}
+
+		//-----------------------------------------------------------------------------
 		public void AppendStyle(string style_filename)
 		{
 			Append("--style");
