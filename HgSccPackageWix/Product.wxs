@@ -36,9 +36,11 @@
 		<PropertyRef Id="VS2008_DEVENV" />
 		<PropertyRef Id="VS2010_DEVENV" />
 		<PropertyRef Id="VS11_DEVENV" />
+    <PropertyRef Id="VS12_DEVENV" />
+    <PropertyRef Id="VS14_DEVENV" />
 
-		<Condition Message="You must have one of MS Visual Studio 2008/2010/11 installed, standard edition or higher">
-			<![CDATA[Installed OR VS2008_DEVENV OR VS2010_DEVENV OR VS11_DEVENV]]>
+    <Condition Message="You must have one of MS Visual Studio 2008/2010/2012/2013/2015 installed, standard edition or higher">
+			<![CDATA[Installed OR VS2008_DEVENV OR VS2010_DEVENV OR VS11_DEVENV OR VS12_DEVENV OR VS14_DEVENV]]>
 		</Condition>
 
 		<Directory Id="TARGETDIR" Name="SourceDir">
@@ -89,8 +91,26 @@
 			</Condition>
 		</Feature>
 
-		<CustomActionRef Id="VS2008_SETUP" />
+    <Feature Id="Feature_VS12" Title="VS12" Level="1">
+      <ComponentRef Id="VS12_REG" />
+
+      <Condition Level="0">
+        <![CDATA[NOT VS12_DEVENV]]>
+      </Condition>
+    </Feature>
+
+    <Feature Id="Feature_VS14" Title="VS14" Level="1">
+      <ComponentRef Id="VS14_REG" />
+
+      <Condition Level="0">
+        <![CDATA[NOT VS14_DEVENV]]>
+      </Condition>
+    </Feature>
+
+    <CustomActionRef Id="VS2008_SETUP" />
 		<CustomActionRef Id="VS2010_SETUP" />
 		<CustomActionRef Id="VS11_SETUP" />
-	</Product>
+    <CustomActionRef Id="VS12_SETUP" />
+    <CustomActionRef Id="VS14_SETUP" />
+  </Product>
 </Wix>

@@ -39,6 +39,8 @@
   <ItemGroup>
     <Compile Include="Product.wxs" />
     <Compile Include="VS11.wxs" />
+    <Compile Include="VS12.wxs" />
+    <Compile Include="VS14.wxs" />
     <Compile Include="VS2008.wxs" />
     <Compile Include="VS2010.wxs" />
   </ItemGroup>

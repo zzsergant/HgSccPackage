@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?include Constants.wxi?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Fragment>
+		<Property Id="VS12_DEVENV">
+			<RegistrySearch Id="VS12_DEVENV_SEARCH"
+							Root="HKLM"
+							Key="SOFTWARE\Microsoft\VisualStudio\12.0\Setup\VS"
+							Name="EnvironmentPath"
+							Type="file">
+				<FileSearch Id="VS12_DEVENV_FILE" Name="[VS12_DEVENV]"/>
+			</RegistrySearch>
+		</Property>
+	</Fragment>
+	<Fragment>
+		<DirectoryRef Id="INSTALLLOCATION">
+			<Component Id="VS12_REG">
+				<!-- SOFTWARE\Microsoft\VisualStudio\12.0 -->
+				<RegistryKey Id="Reg_VS12_SolutionPersistence"
+							 Root="HKLM"
+							 Action="createAndRemoveOnUninstall"
+							 Key="SOFTWARE\Microsoft\VisualStudio\12.0\SolutionPersistence\MercurialSourceControlSolutionProperties">
+					<RegistryValue Type="string" Value="{a7f26ca1-2000-4729-896e-0bbe9e380635}" />
+				</RegistryKey>
+				<RegistryKey Id="Reg_VS12_SourceControlProviders"
+							 Root="HKLM"
+							 Action="createAndRemoveOnUninstall"
+							 Key="SOFTWARE\Microsoft\VisualStudio\12.0\SourceControlProviders\{a7f26ca1-0000-4729-896e-0bbe9e380635}">
+					<RegistryValue Type="string" Value="Mercurial Source Control Package" />
+					<RegistryValue Name="Service" Type="string" Value="{a7f26ca1-1000-4729-896e-0bbe9e380635}" />
+					<RegistryKey Key="Name">
+						<RegistryValue Type="string" Value="#100"></RegistryValue>
+						<RegistryValue Name="Package" Type="string" Value="{a7f26ca1-2000-4729-896e-0bbe9e380635}"></RegistryValue>
+					</RegistryKey>
+				</RegistryKey>
+				<RegistryKey Id="Reg_VS12_Services"
+							 Root="HKLM"
+							 Action="createAndRemoveOnUninstall"
+							 Key="SOFTWARE\Microsoft\VisualStudio\12.0\Services\{a7f26ca1-1000-4729-896e-0bbe9e380635}">
+					<RegistryValue Type="string" Value="{a7f26ca1-2000-4729-896e-0bbe9e380635}"></RegistryValue>
+					<RegistryValue Name="Name" Type="string" Value="Mercurial Source Control Package Service"></RegistryValue>
+				</RegistryKey>
+				<RegistryKey Root="HKLM"
+							 Key="SOFTWARE\Microsoft\VisualStudio\12.0\Menus">
+					<RegistryValue Type="string" Name="{a7f26ca1-2000-4729-896e-0bbe9e380635}" Value=", 1000, 1"></RegistryValue>
+				</RegistryKey>
+				<RegistryKey Id="Reg_VS12_AutoLoadPackages"
+							 Root="HKLM"
+							 Action="createAndRemoveOnUninstall"
+							 Key="SOFTWARE\Microsoft\VisualStudio\12.0\AutoLoadPackages\{a7f26ca1-0000-4729-896e-0bbe9e380635}">
+					<RegistryValue Name="{a7f26ca1-2000-4729-896e-0bbe9e380635}" Type="integer" Value="0"></RegistryValue>
+				</RegistryKey>
+				<RegistryKey Id="Reg_VS12_HgSccPackage"
+							 Root="HKLM"
+							 Action="createAndRemoveOnUninstall"
+							 Key="SOFTWARE\Microsoft\VisualStudio\12.0\InstalledProducts\HgSccPackage">
+					<RegistryValue Type="string" Value="#100"></RegistryValue>
+					<RegistryValue Name="Package" Type="string" Value="{a7f26ca1-2000-4729-896e-0bbe9e380635}"></RegistryValue>
+					<RegistryValue Name="ProductDetails" Type="string" Value="#101"></RegistryValue>
+					<RegistryValue Name="PID" Type="string" Value="$(var.ZZ_VERSION)"></RegistryValue>
+					<RegistryValue Name="LogoID" Type="string" Value="#400"></RegistryValue>
+				</RegistryKey>
+				<RegistryKey Id="Reg_VS12_Packages"
+							 Root="HKLM"
+							 Action="createAndRemoveOnUninstall"
+							 Key="SOFTWARE\Microsoft\VisualStudio\12.0\Packages\{a7f26ca1-2000-4729-896e-0bbe9e380635}">
+					<RegistryValue Type="string" Value="HgSccPackage.SccProvider, HgSccPackage, Version=$(var.ZZ_VERSION), Culture=neutral, PublicKeyToken=null"></RegistryValue>
+					<RegistryValue Name="Class" Type="string" Value="HgSccPackage.SccProvider"></RegistryValue>
+					<RegistryValue Name='CodeBase' Type='string' Value='[INSTALLLOCATION]HgSccPackage.dll'/>
+					<RegistryValue Name="ID" Type="integer" Value="104"></RegistryValue>
+					<RegistryValue Name="InprocServer32" Type="string" Value="[SystemFolder]mscoree.dll"></RegistryValue>
+					<RegistryValue Name="CompanyName" Type="string" Value="$(var.ZZ_AUTHOR)"></RegistryValue>
+					<RegistryValue Name="MinEdition" Type="string" Value="Standard"></RegistryValue>
+					<RegistryValue Name="ProductName" Type="string" Value="Mercurial Source Control Package"></RegistryValue>
+					<RegistryValue Name="ProductVersion" Type="string" Value="1.0"></RegistryValue>
+				</RegistryKey>
+			</Component>
+		</DirectoryRef>
+	</Fragment>
+	<Fragment>
+		<CustomAction Id="VS12_SETUP"
+					  Property="VS12_DEVENV"
+					  ExeCommand="/setup /nosetupvstemplates"
+					  Execute="deferred"
+					  Return="asyncWait"
+					  Impersonate="no" />
+		
+		<PropertyRef Id="VS12_DEVENV" />
+		
+		<InstallExecuteSequence>
+			<Custom Action="VS12_SETUP"
+					Before="InstallFinalize"
+					Overridable="yes">
+				<![CDATA[&Feature_VS12=3]]>
+			</Custom>
+		</InstallExecuteSequence>
+	</Fragment>
+</Wix>
