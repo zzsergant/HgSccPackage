@@ -134,7 +134,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public static readonly DependencyProperty CommitMessageProperty =
 			DependencyProperty.Register("CommitMessage", typeof(string),
-			typeof(CommitWindow));
+			typeof(CommitWindow), new UIPropertyMetadata(String.Empty));
 
 		//-----------------------------------------------------------------------------
 		private string CommitMessage
@@ -262,6 +262,13 @@ namespace HgSccHelper
 			RunningOperations |= AsyncOperations.Status;
 			async_status_task = pending_status_tasks.Dequeue();
 			async_status.Run(async_status_task.Path, StatusOptions);
+
+			// FIXME: This is a workaround for .net 4.0+ to honor MinLines = 2 for textbox
+
+			var t = CommitMessage ?? String.Empty;
+			CommitMessage = ".net4 textbox layout fix";
+			textCommitMessage.UpdateLayout();
+			CommitMessage = t;
 
 			textCommitMessage.Focus();
 		}
