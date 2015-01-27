@@ -440,7 +440,11 @@ namespace HgSccHelper.CommandServer
 
 			args.AppendDebug();
 			args.AppendVerbose();
-			args.Append("--follow");
+
+			// FIXME: bug in mercurial (in version > 2.3? and < v3.3)
+			// Mercurial log command with --follow switch outputs nothing for 'null' revision
+			if (rev != "null")
+				args.Append("--follow");
 
 			if (max_count != 0)
 			{
