@@ -275,8 +275,11 @@ namespace HgSccPackage
 				Rdt = null;
 			}
 
-			rdt_timer.Tick -= rdt_timer_Tick;
-			rdt_timer.Dispose();
+			if (rdt_timer != null)
+			{
+				rdt_timer.Tick -= rdt_timer_Tick;
+				rdt_timer.Dispose();
+			}
 
 			lock (storage_removal_lock)
 			{
@@ -288,10 +291,16 @@ namespace HgSccPackage
 			}
 
 			storage_list.Clear();
-			pending_delete.Clear();
-			pending_remove.Clear();
+			if (pending_delete != null)
+				pending_delete.Clear();
+
+			if (pending_remove != null)
+				pending_remove.Clear();
+
+			if (pending_status != null)
+				pending_status.Clear();
+
 			outside_projects.Clear();
-			pending_status.Clear();
 			pending_save_all_dirty = false;
 		}
 
