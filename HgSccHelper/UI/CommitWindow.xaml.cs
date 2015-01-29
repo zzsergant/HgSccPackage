@@ -292,6 +292,7 @@ namespace HgSccHelper
 			{
 				rowUsername.Visibility = Visibility.Visible;
 				labelUsername.Foreground = Brushes.Red;
+				labelUsername.Content = "Set your username to use with mercurial. Example: John Doe <johndoe@example.com>";
 			}
 			else
 			{
@@ -299,6 +300,7 @@ namespace HgSccHelper
 				{
 					// Restore brush if the username changed to valid value
 					labelUsername.Foreground = SystemColors.ControlTextBrush;
+					labelUsername.Content = "Username:";
 				}
 			}
 		}
