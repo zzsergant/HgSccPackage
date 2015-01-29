@@ -34,14 +34,11 @@ namespace HgSccPackage
 				if (ver == null)
 				{
 					var msg = "HgSccPackage is unable to check a mercurial client version.\n" +
-					"Are you sure that you have Hg v" + required_version + " or higher installed ?";
+					"You must have a mercurial client (hg.exe) v" + required_version + " or higher installed.\n" + 
+					"You can get it from mercurial.selenic.com.";
 
-					var result = MessageBox.Show(msg, "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-					if (result != DialogResult.Yes)
-						return false;
-
-					KnownHgVersion.Set(required_version);
-					return true;
+					MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					return false;
 				}
 				else
 				{
