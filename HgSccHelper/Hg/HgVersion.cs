@@ -79,18 +79,26 @@ namespace HgSccHelper
 			args.Append("version");
 
 			var hg = new Hg();
-			using (Process proc = Process.Start(hg.PrepareProcess(work_dir, args.ToString())))
+			try
 			{
-				var stream = proc.StandardOutput;
-				var str = stream.ReadLine();
+				using (Process proc = Process.Start(hg.PrepareProcess(work_dir, args.ToString())))
+				{
+					var stream = proc.StandardOutput;
+					var str = stream.ReadLine();
 
-				var version = ParseVersion(str);
+					var version = ParseVersion(str);
 
-				proc.WaitForExit();
-				if (proc.ExitCode != 0)
-					return null;
+					proc.WaitForExit();
+					if (proc.ExitCode != 0)
+						return null;
 
-				return version;
+					return version;
+				}
+			}
+			catch (System.ComponentModel.Win32Exception ex)
+			{
+				Logger.WriteLine("Unable to run hg: {0}", ex.Message);
+				return null;
 			}
 		}
 	}

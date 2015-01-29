@@ -109,8 +109,13 @@ namespace HgSccPackage
 			};
 
 
-			// Update a cache for enabled mercurial extensions
-			HgExtensionsCache.Instance.GetExtensions();
+			// Check for mercurial client befor updating extensions cache
+			HgVersionInfo ver = new HgVersion().VersionInfo("");
+			if (ver != null)
+			{
+				// Update a cache for enabled mercurial extensions
+				HgExtensionsCache.Instance.GetExtensions();
+			}
 
 			// The provider implements the IVsPersistSolutionProps interface which is derived from IVsPersistSolutionOpts,
 			// The base class MsVsShell.Package also implements IVsPersistSolutionOpts, so we're overriding its functionality
