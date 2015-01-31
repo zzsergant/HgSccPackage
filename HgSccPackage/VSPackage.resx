@@ -117,44 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="100" xml:space="preserve">
+    <value>Mercurial Source Control Package</value>
+  </data>
+  <data name="101" xml:space="preserve">
+    <value>This package implements the functionalities of a source control provider package.</value>
+  </data>
+  <data name="104" xml:space="preserve">
+    <value>DJQIHJRAEHPZE2IPI0EADHCJRZE1PDJ3CQM2PHEZKDIHJMCIR9ZCMMA8PJJRJDIEH8ARIPHHIKC8EPI2ATDIC9JQQPZMMPI9CTI3J0KRCMJHHTA3I2QEKRE0EPMTJMR0</value>
+  </data>
+  <data name="110" xml:space="preserve">
+    <value>HgSccPackage</value>
+  </data>
+  <data name="112" xml:space="preserve">
+    <value>Mercurial source code control package</value>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="400" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\Product.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="500" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\Images_32bit.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="501" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\Images_24bit.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="ApplyProviderOptions" xml:space="preserve">
-    <value>Press Cancel to cancel this OnApply.  OK to continue.</value>
-  </data>
-  <data name="ProviderName" xml:space="preserve">
-    <value>Mercurial Source Code Control Package</value>
-  </data>
-  <data name="QEQS_EditUncontrolledReadOnly" xml:space="preserve">
-    <value>The file {0} you are trying to edit is read only on disk. Do you want do make the file writable so you can continue editing it?</value>
-  </data>
-  <data name="Status_CheckedIn" xml:space="preserve">
-    <value>Checked in</value>
-  </data>
-  <data name="Status_CheckedOut" xml:space="preserve">
-    <value>Checked out by you</value>
-  </data>
-  <data name="Status_PendingAdd" xml:space="preserve">
-    <value>Pending add</value>
-  </data>
-  <data name="ToolWindowCaption" xml:space="preserve">
-    <value>Mercurial Source Control Package ToolWindow</value>
-  </data>
-  <data name="TPD_DeleteControlledFile" xml:space="preserve">
-    <value>The file {0} you are going to delete is a source controlled file. Are you sure you want to continue and delete this file?</value>
-  </data>
-  <data name="Status_Uncontrolled" xml:space="preserve">
-    <value>Uncontrolled</value>
-  </data>
-  <data name="CustomGlyphs" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\CustomGlyphs.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\Package.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

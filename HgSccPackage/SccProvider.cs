@@ -35,14 +35,6 @@ namespace HgSccPackage
 {
 	/////////////////////////////////////////////////////////////////////////////
 	// SccProvider
-#if RELEASE_DEPLOY
-	[MsVsShell.DefaultRegistryRoot("Software\\Microsoft\\VisualStudio\\9.0")]
-#else
-	[MsVsShell.DefaultRegistryRoot("Software\\Microsoft\\VisualStudio\\9.0Exp")]
-#endif
-	// Register the package to have information displayed in Help/About dialog box
-	[MsVsShell.InstalledProductRegistration(false, "#100", "#101", "1.9.3.0",
-		IconResourceID = CommandId.iiconProductIcon)]
 	// Declare that resources for the package are to be found in the managed assembly
 	// resources, and not in a satellite dll
 	[MsVsShell.PackageRegistration(UseManagedResourcesOnly = true)]
@@ -57,6 +49,7 @@ namespace HgSccPackage
 	// Register the source control provider's service (implementing IVsScciProvider interface)
 	[MsVsShell.ProvideService(typeof (SccProviderService),
 		ServiceName = "Mercurial Source Control Provider Service")]
+	[MsVsShell.InstalledProductRegistration("#110", "#112", "1.9.2", IconResourceID = 400)]
 	// Register the source control provider to be visible in Tools/Options/SourceControl/Plugin
 	// dropdown selector
 	[ProvideSourceControlProvider("Mercurial Source Control Package", "#100")]
@@ -64,7 +57,7 @@ namespace HgSccPackage
 	[MsVsShell.ProvideAutoLoad("A7F26CA1-0000-4729-896E-0BBE9E380635")]
 	// Register the key used for persisting solution properties, so the IDE will know to load the source control package when opening a controlled solution containing properties written by this package
 	[ProvideSolutionProps(_strSolutionPersistanceKey)]
-	[MsVsShell.ProvideLoadKey("Standard", "1.0", "Mercurial Source Control Package", "Sergey Antonov", 104)]
+	//[MsVsShell.ProvideLoadKey("Standard", "1.0", "Mercurial Source Control Package", "Sergey Antonov", 104)]
 	// Declare the package guid
 	[Guid("A7F26CA1-2000-4729-896E-0BBE9E380635")]
 	public sealed class SccProvider : MsVsShell.Package,
