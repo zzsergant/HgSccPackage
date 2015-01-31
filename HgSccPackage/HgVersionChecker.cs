@@ -21,6 +21,18 @@ namespace HgSccPackage
 		//-----------------------------------------------------------------------------
 		public static bool CheckVersion(HgVersionInfo required_version)
 		{
+			HgVersionInfo found_version = new HgVersion().VersionInfo("");
+
+			if (found_version == null)
+			{
+				var msg = "HgSccPackage is unable to check a mercurial client version.\n" +
+				"You must have a mercurial client (hg.exe) v" + required_version + " or higher installed.\n" + 
+				"You can get it from mercurial.selenic.com.";
+
+				MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return false;
+			}
+
 			// Read last known hg version from HgSccPackage config
 
 			HgVersionInfo last_known_version = KnownHgVersion.Get();
@@ -29,36 +41,23 @@ namespace HgSccPackage
 				||	last_known_version.CompareTo(required_version) < 0
 				)
 			{
-				HgVersionInfo ver = new HgVersion().VersionInfo("");
+				var ver = found_version;
+				Logger.WriteLine("Hg version is: {0}", ver);
 
-				if (ver == null)
+				if (ver.CompareTo(required_version) < 0)
 				{
-					var msg = "HgSccPackage is unable to check a mercurial client version.\n" +
-					"You must have a mercurial client (hg.exe) v" + required_version + " or higher installed.\n" + 
-					"You can get it from mercurial.selenic.com.";
+					var msg = "You have mercurial v" + ver
+							  + " installed, but HgSccPackage requires mercurial v"
+							  + required_version + " or higher installed.\n"
+							  + "Do you want to use this mercurial client anyway (not recommended) ?";
 
-					MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					return false;
+					var result = MessageBox.Show(msg, "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+					if (result != DialogResult.Yes)
+						return false;
 				}
-				else
-				{
-					Logger.WriteLine("Hg version is: {0}", ver);
 
-					if (ver.CompareTo(required_version) < 0)
-					{
-						var msg = "You have mercurial v" + ver
-								  + " installed, but HgSccPackage requires mercurial v"
-								  + required_version + " or higher installed.\n"
-								  + "Do you want to use this mercurial client anyway (not recommended) ?";
-
-						var result = MessageBox.Show(msg, "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
-						if (result != DialogResult.Yes)
-							return false;
-					}
-
-					KnownHgVersion.Set(required_version);
-					return true;
-				}
+				KnownHgVersion.Set(required_version);
+				return true;
 			}
 
 			return true;
