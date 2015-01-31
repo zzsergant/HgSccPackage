@@ -91,8 +91,8 @@
 			<Custom Action="VS2010_SETUP"
 					Before="InstallFinalize"
 					Overridable="yes">
-				<![CDATA[&Feature_VS2010=3]]>
-			</Custom>
+        <![CDATA[(&Feature_VS2010=3) OR ((&Feature_VS2010=2) AND (!Feature_VS2010=3))]]>
+      </Custom>
 		</InstallExecuteSequence>
 	</Fragment>
 </Wix>
