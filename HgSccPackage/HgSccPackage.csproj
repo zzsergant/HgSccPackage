@@ -210,4 +210,7 @@
   -->
   <PropertyGroup>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(TargetPath)" $(ConfigurationName)</PostBuildEvent>
+  </PropertyGroup>
 </Project>
