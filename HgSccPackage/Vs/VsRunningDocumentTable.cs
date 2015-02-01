@@ -99,7 +99,8 @@ namespace HgSccPackage.Vs
 			while (VSConstants.S_OK == rdt_enum.Next(1, doc_cookie_array, out elements_fetched))
 			{
 				var doc_info = GetDocumentInfo(doc_cookie_array[0]);
-				yield return doc_info;
+				if (doc_info != null)
+					yield return doc_info;
 			}
 		}
 
