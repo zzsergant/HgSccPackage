@@ -6,6 +6,7 @@
         Loaded="Window_Loaded"        
         WindowStartupLocation="CenterScreen"
         SizeToContent="Height"
+        TextOptions.TextFormattingMode="Display"
         Width="400">
     <Grid>
         <Grid.RowDefinitions>

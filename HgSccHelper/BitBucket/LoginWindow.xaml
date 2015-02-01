@@ -5,6 +5,7 @@
     Title="Login to BitBucket"
     Height="Auto"
     Width="400"
+    TextOptions.TextFormattingMode="Display"
     Loaded="Window_Loaded"
     WindowStartupLocation="CenterScreen"
     SizeToContent="Height">

@@ -4,6 +4,7 @@
     xmlns:local="clr-namespace:HgSccHelper"
     xmlns:ui="clr-namespace:HgSccHelper.UI"
     Height="600"
+    TextOptions.TextFormattingMode="Display"
     Width="1026"
     x:Name="root"
     Loaded="Window_Loaded"

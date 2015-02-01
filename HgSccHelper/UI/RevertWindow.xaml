@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="clr-namespace:HgSccHelper.UI"
     Title="RevertWindow"
+    TextOptions.TextFormattingMode="Display"
     Height="600"
     Width="1026"
     xmlns:local="clr-namespace:HgSccHelper" xmlns:converters="clr-namespace:HgSccHelper.UI.Converters" x:Name="root"

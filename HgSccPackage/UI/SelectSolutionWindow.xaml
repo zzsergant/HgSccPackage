@@ -4,6 +4,7 @@
         Title="SelectSolutionWindow"
         Loaded="Window_Loaded"
         WindowStartupLocation="CenterScreen"
+        TextOptions.TextFormattingMode="Display"
         Width="600"
         Height="300">
     <Grid>

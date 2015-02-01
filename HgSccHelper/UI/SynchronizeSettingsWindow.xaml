@@ -4,6 +4,7 @@
         xmlns:local="clr-namespace:HgSccHelper"
         Name="root"
         WindowStartupLocation="CenterScreen"
+        TextOptions.TextFormattingMode="Display"
         Loaded="root_Loaded"
         Closing="root_Closing"
         Title="SynchronizeSettingsWindow" Height="348" Width="785">

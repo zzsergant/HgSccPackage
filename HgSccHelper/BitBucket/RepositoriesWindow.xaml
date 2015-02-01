@@ -4,6 +4,7 @@
         xmlns:BitBucket="clr-namespace:HgSccHelper.BitBucket"
         Title="BitBucket repositories"
         WindowStartupLocation="CenterScreen"
+        TextOptions.TextFormattingMode="Display"
         Loaded="Window_Loaded"
         Height="400"
         Width="700">

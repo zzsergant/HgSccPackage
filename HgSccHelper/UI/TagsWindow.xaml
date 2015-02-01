@@ -4,6 +4,7 @@
     xmlns:local="clr-namespace:HgSccHelper"
     x:Name="root"
     Title="TagsWindow"
+    TextOptions.TextFormattingMode="Display"
     Height="Auto"
     Width="Auto"
     MinWidth="400"

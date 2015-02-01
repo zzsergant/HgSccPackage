@@ -5,6 +5,7 @@
         Title="OptionsWindow"
         WindowStartupLocation="CenterScreen"
         Loaded="root_Loaded"
+        TextOptions.TextFormattingMode="Display"
         Height="400"    
         Width="700">
     <Window.Resources>

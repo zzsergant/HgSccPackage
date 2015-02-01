@@ -5,6 +5,7 @@
     Title="CommitWindow"
     Height="600"
     Width="1026"
+    TextOptions.TextFormattingMode="Display"
     xmlns:local="clr-namespace:HgSccHelper" xmlns:converters="clr-namespace:HgSccHelper.UI.Converters" x:Name="root"
     Loaded="Window_Loaded"
     Closed="Window_Closed"

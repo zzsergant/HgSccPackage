@@ -4,6 +4,7 @@
         Title="Create project on Kiln"        
         Loaded="Window_Loaded"        
         WindowStartupLocation="CenterScreen"
+        TextOptions.TextFormattingMode="Display"
         Width="557"
         Height="160">
     <Grid>

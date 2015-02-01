@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Name="root"
         SizeToContent="Height"
+        TextOptions.TextFormattingMode="Display"
         Loaded="Window_Loaded"
         WindowStartupLocation="CenterScreen"
         Title="PathEditWindow" Height="Auto" Width="700">

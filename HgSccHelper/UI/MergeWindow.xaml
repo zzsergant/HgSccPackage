@@ -5,6 +5,7 @@
     Title="MergeWindow"
     Height="600"
     Width="1026"
+    TextOptions.TextFormattingMode="Display"
     xmlns:local="clr-namespace:HgSccHelper"
     Loaded="Window_Loaded"
     Closed="Window_Closed"

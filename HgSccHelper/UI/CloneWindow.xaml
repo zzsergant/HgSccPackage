@@ -4,6 +4,7 @@
     Title="CloneWindow"
     xmlns:local="clr-namespace:HgSccHelper"
     xmlns:ui="clr-namespace:HgSccHelper.UI"
+    TextOptions.TextFormattingMode="Display"
     x:Name="root"
     Height="600"
     Width="1026"

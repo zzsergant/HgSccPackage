@@ -4,6 +4,7 @@
     Title="AnnotateWindow"
     Height="600"
     Width="1026"
+    TextOptions.TextFormattingMode="Display"
     xmlns:my="clr-namespace:HgSccHelper"
     Loaded="Window_Loaded"
     Closed="Window_Closed"

@@ -5,6 +5,7 @@
         xmlns:ui="clr-namespace:HgSccHelper.UI"
         xmlns:converters="clr-namespace:HgSccHelper.UI.Converters"
         xmlns:TabControlTest="clr-namespace:TabControlTest"
+        TextOptions.TextFormattingMode="Display"
         x:Name="root"
         Height="600"
         Width="1026"

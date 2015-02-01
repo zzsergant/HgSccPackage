@@ -4,6 +4,7 @@
     xmlns:local="clr-namespace:HgSccHelper"
     x:Name="root"
     Title="BookmarksWindow"
+    TextOptions.TextFormattingMode="Display"
     Height="Auto"
     Width="Auto"
     MinWidth="400"
