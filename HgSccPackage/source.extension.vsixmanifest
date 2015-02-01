@@ -4,8 +4,12 @@
     <Identity Id="A7F26CA1-2000-4729-896E-0BBE9E380635" Version="2.0" Language="en-US" Publisher="SergeyAntonov" />
     <DisplayName>HgSccPackage</DisplayName>
     <Description>Mercurial source code control package</Description>
+    <MoreInfo>https://bitbucket.org/zzsergant/hgsccpackage/wiki/Home</MoreInfo>
     <License>COPYING.txt</License>
+    <GettingStartedGuide>https://bitbucket.org/zzsergant/hgsccpackage/wiki/configVS</GettingStartedGuide>
+    <ReleaseNotes>ReleaseNotes.rtf</ReleaseNotes>
     <Icon>Resources\Package.ico</Icon>
+    <Tags>Source Control;Mercurial</Tags>
   </Metadata>
   <Installation InstalledByMsi="false">
     <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[11.0,)" />
