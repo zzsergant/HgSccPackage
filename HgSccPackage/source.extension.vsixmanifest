@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="A7F26CA1-2000-4729-896E-0BBE9E380635" Version="1.0" Language="en-US" Publisher="SergeyAntonov" />
+    <Identity Id="A7F26CA1-2000-4729-896E-0BBE9E380635" Version="2.0" Language="en-US" Publisher="SergeyAntonov" />
     <DisplayName>HgSccPackage</DisplayName>
     <Description>Mercurial source code control package</Description>
     <License>COPYING.txt</License>
