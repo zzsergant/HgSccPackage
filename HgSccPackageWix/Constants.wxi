@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Include>
-	<?define ZZ_VERSION = "1.9.3" ?>
-	<?define ZZ_AUTHOR = "Sergey Antonov" ?>
-  <?define ZZ_DESC = "Mercurial Source Control Package for MS Visual Studio" ?>
-	<?define ZZ_URL = "https://bitbucket.org/zzsergant/hgsccpackage/wiki/Home" ?>
-</Include>
