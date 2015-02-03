@@ -407,7 +407,7 @@
                   Grid.Column="0"
                   Grid.ColumnSpan="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*" MinWidth="75"></ColumnDefinition>
                     <ColumnDefinition x:Name="diffColumn"  Width="Auto"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <TabControlTest:TabControlEx Grid.Column="0"

@@ -258,7 +258,7 @@
                       Collapsed="viewFilesExpander_Collapsed">
                 <Grid x:Name="gridFiles">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*" MinWidth="75"></ColumnDefinition>
                         <ColumnDefinition x:Name="diffColumn"  Width="Auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <ListView Name="listViewFiles"
