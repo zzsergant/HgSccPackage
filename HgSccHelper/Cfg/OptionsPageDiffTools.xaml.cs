@@ -92,6 +92,12 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public bool UseVsDiffTool
+		{
+			get { return checkUseVsDiffTool.IsChecked == true; }
+		}
+
+		//-----------------------------------------------------------------------------
 		private void comboTool_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			var item = comboTool.SelectedItem as DiffComboItem;
@@ -125,8 +131,11 @@ namespace HgSccHelper
 
 			if (comboTool.SelectedIndex == -1 && comboTool.Items.Count > 0)
 				comboTool.SelectedIndex = 0;
+
+			checkUseVsDiffTool.IsChecked = DiffTools.Instance.UseVsDiffTool;
 		}
 
+		//-----------------------------------------------------------------------------
 		public bool Save()
 		{
 			var diff_tool = DiffToolPath;
@@ -142,10 +151,12 @@ namespace HgSccHelper
 
 			if (	DiffTools.Instance.DiffTool != DiffToolPath
 				||  DiffTools.Instance.DiffArgs != DiffToolArgs
+				||	DiffTools.Instance.UseVsDiffTool != UseVsDiffTool
 				)
 			{
 				DiffTools.Instance.DiffTool = DiffToolPath;
 				DiffTools.Instance.DiffArgs = DiffToolArgs;
+				DiffTools.Instance.UseVsDiffTool = UseVsDiffTool;
 				DiffTools.Save();
 			}
 

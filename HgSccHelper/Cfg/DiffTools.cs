@@ -23,6 +23,7 @@ namespace HgSccHelper
 	{
 		public string DiffTool { get; set; }
 		public string DiffArgs { get; set; }
+		public bool UseVsDiffTool { get; set; }
 
 		static readonly DiffTools instance = new DiffTools();
 
@@ -37,6 +38,7 @@ namespace HgSccHelper
 		{
 			DiffTool = "";
 			DiffArgs = "";
+			UseVsDiffTool = true;
 
 			Load();
 		}
@@ -58,6 +60,8 @@ namespace HgSccHelper
 
 			if (!String.IsNullOrEmpty(Instance.DiffArgs))
 				Cfg.Set("", "DiffArgs", Instance.DiffArgs);
+
+			Cfg.Set("", "UseVsDiffTool", Instance.UseVsDiffTool ? 1 : 0);
 		}
 
 		//-----------------------------------------------------------------------------
@@ -65,12 +69,16 @@ namespace HgSccHelper
 		{
 			string diff_tool;
 			string diff_args;
+			int use_vs_diff_tool;
 
 			if (Cfg.Get("", "DiffTool", out diff_tool, ""))
 				DiffTool = diff_tool;
 
 			if (Cfg.Get("", "DiffArgs", out diff_args, ""))
 				DiffArgs = diff_args;
+
+			if (Cfg.Get("", "UseVsDiffTool", out use_vs_diff_tool, 1))
+				UseVsDiffTool = (use_vs_diff_tool != 0);
 		}
 	}
 }

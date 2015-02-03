@@ -353,6 +353,12 @@ namespace HgSccHelper
 		}
 
 		//-----------------------------------------------------------------------------
+		public bool Checkout(string file, string rev, string temp_file)
+		{
+			return hg_client.CheckoutFile(file, "", temp_file);
+		}
+
+		//-----------------------------------------------------------------------------
 		public SccErrors Diff(IntPtr hwnd, string filename, SccDiffFlags flags)
 		{
 			string local_f;

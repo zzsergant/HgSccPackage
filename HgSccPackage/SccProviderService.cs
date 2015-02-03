@@ -9,6 +9,7 @@
 // http://www.gnu.org/licenses/gpl-2.0.txt
 // 
 //=========================================================================
+extern alias vs11;
 
 using System;
 using System.ComponentModel;
@@ -30,6 +31,10 @@ using System.Drawing;
 using HgSccPackage.UI;
 using System.Linq;
 using Timer = System.Windows.Forms.Timer;
+
+using __VSDIFFSERVICEOPTIONS = vs11::Microsoft.VisualStudio.Shell.Interop.__VSDIFFSERVICEOPTIONS;
+using IVsDifferenceService = vs11::Microsoft.VisualStudio.Shell.Interop.IVsDifferenceService;
+using SVsDifferenceService = vs11::Microsoft.VisualStudio.Shell.Interop.SVsDifferenceService;
 
 namespace HgSccPackage
 {
@@ -2324,7 +2329,7 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
-		public void Compare(string file)
+		private void CompareUsingVsDiff(string file)
 		{
 			var storage = GetStorageForFile(file);
 			if (storage != null)
@@ -2332,6 +2337,45 @@ namespace HgSccPackage
 				SourceControlStatus status = storage.GetFileStatus(file);
 				if (status != SourceControlStatus.scsUncontrolled)
 				{
+					string temp = Util.GetTempFileNameForFile(file);
+					try
+					{
+						if (!storage.CheckoutFile(file, "", temp))
+						{
+							// error
+							return;
+						}
+
+						using (var stream = new FileStream(temp, FileMode.Open, FileAccess.ReadWrite,
+							FileShare.Read, 4096, FileOptions.DeleteOnClose))
+						{
+							var diff_service = _sccProvider.GetService(typeof(SVsDifferenceService)) as IVsDifferenceService;
+							if (diff_service == null)
+								return;
+
+							diff_service.OpenComparisonWindow(temp, file);
+						}
+					}
+					catch (Exception ex)
+					{
+						Logger.WriteLine("Error, unable to compare file: {0}", ex.Message);
+					}
+
+					return;
+				}
+			}
+		}
+
+		//------------------------------------------------------------------
+		private void CompareUsingHgDiff(string file)
+		{
+			var storage = GetStorageForFile(file);
+			if (storage != null)
+			{
+				SourceControlStatus status = storage.GetFileStatus(file);
+				if (status != SourceControlStatus.scsUncontrolled)
+				{
+
 					// Since we can not call WPF windows directly from the package
 					// we need to reset a diff tool exception handler and
 					// show WPF window through WinForms proxy
@@ -2342,7 +2386,7 @@ namespace HgSccPackage
 						Util.DiffExceptionHandler = null;
 						storage.Compare(file);
 					}
-					catch(HgDiffException)
+					catch (HgDiffException)
 					{
 						using (var proxy = new WpfToWinFormsProxy<DiffOptionsWindow>())
 						{
@@ -2359,6 +2403,18 @@ namespace HgSccPackage
 					return;
 				}
 			}
+		}
+
+		//------------------------------------------------------------------
+		public void Compare(string file)
+		{
+			if (DiffTools.Instance.UseVsDiffTool)
+			{
+				CompareUsingVsDiff(file);
+				return;
+			}
+
+			CompareUsingHgDiff(file);
 		}
 
 		//------------------------------------------------------------------

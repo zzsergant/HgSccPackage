@@ -665,6 +665,15 @@ namespace HgSccPackage
 		}
 
 		//------------------------------------------------------------------
+		public bool CheckoutFile(string file, string rev, string temp_file)
+		{
+			if (!IsValid)
+				return false;
+
+			return hgscc.Checkout(file, rev, temp_file);
+		}
+
+		//------------------------------------------------------------------
 		public void ViewChangeLog()
 		{
 			if (!IsValid)
