@@ -56,7 +56,9 @@ namespace HgSccHelper.UI
 				{
 					Source = new Uri("/FirstFloor.ModernUI;component/Assets/ModernUI.Light.xaml", UriKind.Relative)
 				},
-				AccentColor = Color.FromRgb(27, 191, 235)
+				AccentColor = Color.FromRgb(27, 191, 235),
+				RevLogLineColor = Colors.Black,
+				RevLogNodeColor = Colors.Blue
 			});
 
 			themes.Add(new Theme
@@ -66,7 +68,9 @@ namespace HgSccHelper.UI
 				{
 					Source = new Uri("/FirstFloor.ModernUI;component/Assets/ModernUI.Dark.xaml", UriKind.Relative)
 				},
-				AccentColor = Color.FromRgb(27, 121, 175)
+				AccentColor = Color.FromRgb(27, 121, 175),
+				RevLogLineColor = Colors.White,
+				RevLogNodeColor = Colors.LightBlue
 			});
 
 			Current = themes[0];
@@ -207,6 +211,53 @@ namespace HgSccHelper.UI
 	{
 		public string Name { get; set; }
 		public ResourceDictionary ResourceDictionary { get; set; }
-		public Color AccentColor { get; set; } 
+		public Color AccentColor { get; set; }
+
+		private Color rev_log_line_color;
+
+		//-----------------------------------------------------------------------------
+		public Color RevLogLineColor
+		{
+			get
+			{
+				return rev_log_line_color;
+			}
+			set
+			{
+				if (rev_log_line_color != value)
+				{
+					rev_log_line_color = value;
+					var pen = new Pen(new SolidColorBrush(value), 1);
+					pen.Freeze();
+					
+					RevLogLinePen = pen;
+				}
+			}
+		}
+
+		private Color rev_log_node_color;
+
+		//-----------------------------------------------------------------------------
+		public Color RevLogNodeColor
+		{
+			get
+			{
+				return rev_log_node_color;
+			}
+			set
+			{
+				if (rev_log_node_color != value)
+				{
+					rev_log_node_color = value;
+					var pen = new Pen(new SolidColorBrush(value), 1);
+					pen.Freeze();
+
+					RevLogNodePen = pen;
+				}
+			}
+		}
+
+		public Pen RevLogLinePen { get; private set; }
+		public Pen RevLogNodePen { get; private set; }
 	}
 }

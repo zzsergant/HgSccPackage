@@ -14,6 +14,7 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using HgSccHelper.UI;
 
 //==================================================================
 namespace HgSccHelper
@@ -23,19 +24,17 @@ namespace HgSccHelper
 	{
 		DrawingVisual visual;
 		RevLogLinesPair lines;
-		WriteableBitmap bmp;
-
-		static private Pen BlackPen { get; set; }
-		static private Pen BluePen { get; set; }
 
 		//------------------------------------------------------------------
-		static RevLogLinesVisual()
+		private Pen BlackPen
 		{
-			BlackPen = new Pen(SystemColors.ControlTextBrush, 1.0);
-			BluePen = new Pen(Brushes.Blue, 1.0);
+			get { return ThemeManager.Instance.Current.RevLogLinePen; }
+		}
 
-			BlackPen.Freeze();
-			BluePen.Freeze();
+		//------------------------------------------------------------------
+		private Pen BluePen
+		{
+			get { return ThemeManager.Instance.Current.RevLogNodePen; }
 		}
 
 		//------------------------------------------------------------------
@@ -89,7 +88,7 @@ namespace HgSccHelper
 						context.DrawLine(BlackPen, p1, p2);
 					}
 
-					context.DrawEllipse(Brushes.Blue, null, center, 4, 4);
+					context.DrawEllipse(BluePen.Brush, null, center, 4, 4);
 					context.Pop();
 					context.Close();
 				}
@@ -106,93 +105,7 @@ namespace HgSccHelper
 		//------------------------------------------------------------------
 		private void Render(double width, double height)
 		{
-			// Here we can choose how to render graph
-
-			// 1. Using WriteableBitmap & GDI+ (fast & ugly)
-			// RenderOnBmp(width, height);
-
-			// 2. Using WPF DrawingContext (a little bit slowly, but looks nice)
 			RenderWpf(width, height);
-		}
-
-		//------------------------------------------------------------------
-		private void RenderOnBmp(double width, double height)
-		{
-			if (lines == null)
-				return;
-
-			if (Double.IsNaN(height) || width == 0)
-				return;
-
-			// FIXME: Get proper DPI
-			// System.Windows.Media.Matrix m = PresentationSource.FromVisual(this).CompositionTarget.TransformToDevice;
-			// double dpi_x = m.M11 * 96.0;
-			// double dpi_y = m.M22 * 96.0;
-
-			double dpi_x = 96.0;
-			double dpi_y = 96.0;
-
-			int w = (int)Math.Ceiling(width);
-			int h = (int)Math.Ceiling(height);
-
-			if (bmp == null
-				|| (bmp.Width != w || bmp.Height != h)
-				)
-			{
-				bmp = new WriteableBitmap(w, h, dpi_x, dpi_y, PixelFormats.Pbgra32, null);
-			}
-
-			bmp.Lock();
-
-			System.Drawing.Bitmap b = new System.Drawing.Bitmap(w, h, w * 4, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, bmp.BackBuffer);
-
-			using (var graph = System.Drawing.Graphics.FromImage(b))
-			{
-				graph.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-				graph.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-
-				graph.Clear(System.Drawing.Color.White);
-
-				var step = (int)height;
-				var offset_x = step / 2;
-
-				var center = new System.Drawing.Point(offset_x + lines.Current.Pos * step, step / 2);
-
-				if (lines.Prev != null)
-				{
-					foreach (var line in lines.Prev.Lines)
-					{
-						var p1 = new System.Drawing.Point(offset_x + step * line.X1,
-							step / 2 - step);
-
-						var p2 = new System.Drawing.Point(offset_x + step * line.X2,
-							step + step / 2 - step);
-
-						graph.DrawLine(System.Drawing.Pens.Black, p1, p2);
-					}
-				}
-				foreach (var line in lines.Current.Lines)
-				{
-					var p1 = new System.Drawing.Point(offset_x + step * line.X1,
-						step / 2);
-
-					var p2 = new System.Drawing.Point(offset_x + step * line.X2,
-						step + step / 2);
-
-					graph.DrawLine(System.Drawing.Pens.Black, p1, p2);
-				}
-
-				graph.FillEllipse(System.Drawing.Brushes.Blue, center.X - 4, center.Y - 4, 9, 9);
-			}
-
-			bmp.AddDirtyRect(new Int32Rect(0, 0, w, h));
-			bmp.Unlock();
-
-			using (var dc = visual.RenderOpen())
-			{
-				dc.DrawImage(bmp, new Rect(0, 0, bmp.Width, bmp.Height));
-				dc.Close();
-			}
 		}
 
 		//------------------------------------------------------------------
