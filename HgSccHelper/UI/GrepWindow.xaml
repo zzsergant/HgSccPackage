@@ -70,40 +70,47 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-            <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-                <Button Content="Diff Previous"
-                        Command="{x:Static ui:Commands.DiffPreviousCommand}"
-                        MinWidth="75" />
-                <Separator />
-                <Button Content="File History"
-                        Command="{x:Static ui:Commands.FileHistoryCommand}"
-                        MinWidth="75" />
-                <Button Content="Annotate"
-                        Command="{x:Static ui:Commands.AnnotateCommand}"
-                        MinWidth="75" />
-                <Button Content="View File"
-                        Command="{x:Static ui:Commands.ViewFileCommand}"
-                        MinWidth="75" />
-                <Separator />
-                <Button Content="Archive Revision"
-                        Command="{x:Static ui:Commands.ArchiveCommand}"
-                        MinWidth="75" />
-                <Separator />
-                <Button Content="Stop"
-                        Command="{x:Static ui:Commands.StopCommand}"
-                        MinWidth="75" />
-                <Separator />
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="Encoding:" Margin="5,0"></Label>
-                    <ComboBox MinWidth="150"
-                              Name="comboEncodings"
-                              SelectionChanged="comboEncodings_SelectionChanged"
-                              DisplayMemberPath="Name"
-                              IsTextSearchEnabled="False"></ComboBox>
-                </StackPanel>
-            </ToolBar>
-        </ToolBarTray>
+        <StackPanel Orientation="Horizontal">
+            <Button Content="Diff Previous"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                    MinWidth="75" />
+            <Separator />
+            <Button Content="File History"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.FileHistoryCommand}"
+                    MinWidth="75" />
+            <Button Content="Annotate"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.AnnotateCommand}"
+                    MinWidth="75" />
+            <Button Content="View File"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.ViewFileCommand}"
+                    MinWidth="75" />
+            <Separator />
+            <Button Content="Archive Revision"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.ArchiveCommand}"
+                    MinWidth="75" />
+            <Separator />
+            <Button Content="Stop"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.StopCommand}"
+                    MinWidth="75" />
+            <Separator />
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Encoding:"
+                        VerticalAlignment="Center"
+                        Margin="5,0"></Label>
+                <ComboBox MinWidth="150"
+                          Name="comboEncodings"
+                          Margin="5,2,0,2"                          
+                          SelectionChanged="comboEncodings_SelectionChanged"
+                          DisplayMemberPath="Name"
+                          IsTextSearchEnabled="False"></ComboBox>
+            </StackPanel>
+        </StackPanel>
         <Grid KeyboardNavigation.TabNavigation="Cycle" Grid.Row="1"
               Margin="5,0,5,5">
             <Grid.RowDefinitions>

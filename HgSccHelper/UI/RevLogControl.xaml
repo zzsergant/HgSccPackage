@@ -115,52 +115,63 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-            <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-                <Button Content="Diff Previous"
-                        Command="{x:Static ui:Commands.DiffPreviousCommand}"
-                        MinWidth="75" />
-                <Button Content="File History"
-                        Command="{x:Static ui:Commands.FileHistoryCommand}"
-                        MinWidth="75" />
-                <Button Content="Annotate"
-                        Command="{x:Static ui:Commands.AnnotateCommand}"
-                        MinWidth="75" />
-                <Button Content="Grep"
-                        Command="{x:Static ui:Commands.GrepCommand}"
-                        MinWidth="75" />
-                <Button Content="View File"
-                        Command="{x:Static ui:Commands.ViewFileCommand}"
-                        MinWidth="75" />
-                <Separator />
-                <Button Content="Update to Revision"
-                        Command="{x:Static ui:Commands.UpdateCommand}"
-                        MinWidth="75" />
-                <Button Content="Add/Remove Tag"
-                        Command="{x:Static ui:Commands.TagsCommand}"
-                        MinWidth="75" />
-                <Button Content="Bookmarks"
-                        Command="{x:Static ui:Commands.BookmarksCommand}"
-                        MinWidth="75" />
-                <Separator />
-                <Button Content="Merge"
-                        Command="{x:Static ui:Commands.MergeCommand}"
-                        MinWidth="75" />
-                <Button Content="Rebase"
-                        Command="{x:Static ui:Commands.RebaseCommand}"
-                        MinWidth="75" />
-                <Button Content="Archive"
-                        Command="{x:Static ui:Commands.ArchiveCommand}"
-                        MinWidth="75" />
-                <Button Content="Bundle"
-                        Command="{x:Static ui:Commands.BundleCommand}"
-                        MinWidth="75" />
-                <Separator />
-                <Button Content="Show Filter"
-                        Command="{x:Static local:RevLogControl.ShowFilterCommand}"
-                        MinWidth="75" />
-            </ToolBar>
-        </ToolBarTray>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button Content="Diff Previous"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                    MinWidth="75" />
+            <Button Content="File History"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.FileHistoryCommand}"
+                    MinWidth="75" />
+            <Button Content="Annotate"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.AnnotateCommand}"
+                    MinWidth="75" />
+            <Button Content="Grep"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.GrepCommand}"
+                    MinWidth="75" />
+            <Button Content="View File"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.ViewFileCommand}"
+                    MinWidth="75" />
+            <Separator />
+            <Button Content="Update to Revision"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.UpdateCommand}"
+                    MinWidth="75" />
+            <Button Content="Add/Remove Tag"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.TagsCommand}"
+                    MinWidth="75" />
+            <Button Content="Bookmarks"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.BookmarksCommand}"
+                    MinWidth="75" />
+            <Separator />
+            <Button Content="Merge"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.MergeCommand}"
+                    MinWidth="75" />
+            <Button Content="Rebase"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.RebaseCommand}"
+                    MinWidth="75" />
+            <Button Content="Archive"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.ArchiveCommand}"
+                    MinWidth="75" />
+            <Button Content="Bundle"
+                    Margin="5,2,0,2"
+                    Command="{x:Static ui:Commands.BundleCommand}"
+                    MinWidth="75" />
+            <Separator />
+            <Button Content="Show Filter"
+                    Margin="5,2,0,2"
+                    Command="{x:Static local:RevLogControl.ShowFilterCommand}"
+                    MinWidth="75" />
+        </StackPanel>
         <Grid Grid.Row="1" x:Name="gridFilterByRevset"
               Visibility="Collapsed">
             <Grid.ColumnDefinitions>
@@ -168,7 +179,9 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="Filter by revset:" Margin="5,0"></Label>
+            <Label Grid.Column="0" Content="Filter by revset:"
+                   VerticalAlignment="Center"
+                   Margin="5,0"></Label>
             <TextBox Grid.Column="1" x:Name="textRevSet" VerticalAlignment="Center"
                      Margin="0,5,5,0"
                      MaxLines="1">

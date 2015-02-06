@@ -38,25 +38,27 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <ToolBarTray Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-            <ToolBar Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-                <Button Content="Add"
-                        Command="{x:Static local:SynchronizeSettingsWindow.AddCommand}"
-                        MinWidth="75" />
-                <Button Content="Edit"
-                        Command="{x:Static local:SynchronizeSettingsWindow.EditCommand}"
-                        MinWidth="75" />
-                <Separator />
-                <Button Content="Remove"
-                        Command="{x:Static local:SynchronizeSettingsWindow.RemoveCommand}"
-                        MinWidth="75" />
-                <Separator />
-                <Button Content="Set as default"
-                        Padding="10,2"
-                        Command="{x:Static local:SynchronizeSettingsWindow.SetAsDefaultCommand}"
-                        MinWidth="75" />
-            </ToolBar>
-        </ToolBarTray>
+        <StackPanel Orientation="Horizontal">
+            <Button Content="Add"
+                    Margin="5,2,0,2"
+                    Command="{x:Static local:SynchronizeSettingsWindow.AddCommand}"
+                    MinWidth="75" />
+            <Button Content="Edit"
+                    Margin="5,2,0,2"
+                    Command="{x:Static local:SynchronizeSettingsWindow.EditCommand}"
+                    MinWidth="75" />
+            <Separator />
+            <Button Content="Remove"
+                    Margin="5,2,0,2"
+                    Command="{x:Static local:SynchronizeSettingsWindow.RemoveCommand}"
+                    MinWidth="75" />
+            <Separator />
+            <Button Content="Set as default"
+                    Margin="5,2,0,2"
+                    Padding="10,2"
+                    Command="{x:Static local:SynchronizeSettingsWindow.SetAsDefaultCommand}"
+                    MinWidth="75" />
+        </StackPanel>
         <Grid Grid.Row="1" KeyboardNavigation.TabNavigation="Cycle">
             <Grid.RowDefinitions>
                 <RowDefinition />
