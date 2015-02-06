@@ -31,12 +31,26 @@ namespace HgSccHelper.UI.Converters
 			// TODO: Read colors from configuration
 
 			status_colors = new Dictionary<HgFileStatus, Color>();
-			status_colors[HgFileStatus.Added] = Colors.Blue;
-			status_colors[HgFileStatus.Removed] = Colors.Red;
-			status_colors[HgFileStatus.Modified] = Colors.Green;
-			status_colors[HgFileStatus.Deleted] = Colors.Maroon;
-			status_colors[HgFileStatus.Ignored] = Colors.Gray;
-			status_colors[HgFileStatus.Clean] = Colors.Black;
+
+			var theme = HgSccHelper.UI.ThemeManager.Instance.Current;
+			if (theme.Name == "Dark")
+			{
+				status_colors[HgFileStatus.Added] = Colors.LightBlue;
+				status_colors[HgFileStatus.Removed] = Colors.LightSalmon;
+				status_colors[HgFileStatus.Modified] = Colors.LightGreen;
+				status_colors[HgFileStatus.Deleted] = Colors.Salmon;
+				status_colors[HgFileStatus.Ignored] = Colors.LightGray;
+				status_colors[HgFileStatus.Clean] = Colors.White;
+			}
+			else
+			{
+				status_colors[HgFileStatus.Added] = Colors.Blue;
+				status_colors[HgFileStatus.Removed] = Colors.Red;
+				status_colors[HgFileStatus.Modified] = Colors.Green;
+				status_colors[HgFileStatus.Deleted] = Colors.Maroon;
+				status_colors[HgFileStatus.Ignored] = Colors.Gray;
+				status_colors[HgFileStatus.Clean] = Colors.Black;
+			}
 
 			status_brush = new Dictionary<HgFileStatus, Brush>();
 			foreach (var pair in status_colors)
