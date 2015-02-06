@@ -229,7 +229,7 @@
         <GroupStyle.HeaderTemplate>
             <DataTemplate>
                 <Grid>
-                    <TextBlock Text="{Binding Name}" Margin="5" FontWeight="Bold" />
+                    <TextBlock Text="{Binding Name}" Margin="5" FontWeight="Bold" Foreground="{DynamicResource ItemText}" />
                     <Rectangle Stroke="#bbb" VerticalAlignment="Bottom" Height="2" />
                 </Grid>
             </DataTemplate>
