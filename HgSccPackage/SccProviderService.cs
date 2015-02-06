@@ -2964,6 +2964,7 @@ namespace HgSccPackage
 				var wnd = proxy.Wnd;
 				wnd.Title = "HgSccPackage options";
 				wnd.AddPage(new OptionsPageMain());
+				wnd.AddPage(new OptionsPageTheme());
 				wnd.AddPage(new OptionsPageDiffTools());
 				wnd.AddPage(new HgSccHelper.BitBucket.OptionsPageBitBucket());
 				wnd.AddPage(new HgSccHelper.Kiln.OptionsPageKiln());

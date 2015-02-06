@@ -9,6 +9,11 @@
         Height="400"    
         Width="700">
     <Window.Resources>
+        <DataTemplate x:Key="ItemTemplate">
+            <TextBlock Text="{Binding Path=PageName}"
+                       Margin="5">                
+            </TextBlock>
+        </DataTemplate>
         <DataTemplate x:Key="DetailTemplate">
             <Border Margin="5" BorderThickness="1" BorderBrush="Black">
                 <ContentPresenter Content="{Binding Path=PageContent}"
@@ -30,7 +35,7 @@
         <ListView Grid.Column="0"
                   x:Name="listPages"
                   ItemsSource="{Binding}"
-                  DisplayMemberPath="PageName"
+                  ItemTemplate="{StaticResource ItemTemplate}"
                   IsSynchronizedWithCurrentItem="True"
                   Margin="5,5,0,5"
                   MinWidth="100">            

@@ -12,6 +12,7 @@
 
 using System.Collections.ObjectModel;
 using System.Windows;
+using HgSccHelper.UI;
 
 namespace HgSccHelper
 {
@@ -29,6 +30,8 @@ namespace HgSccHelper
 		public OptionsWindow()
 		{
 			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
+			ThemeManager.Instance.Subscribe(this);
 
 			InitializeComponent();
 			pages = new ObservableCollection<IOptionsPage>();

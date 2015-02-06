@@ -61,6 +61,9 @@
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FirstFloor.ModernUI">
+      <HintPath>..\packages\ModernUI.WPF.1.0.6\lib\net45\FirstFloor.ModernUI.dll</HintPath>
+    </Reference>
     <Reference Include="ICSharpCode.AvalonEdit, Version=5.0.1.0, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\AvalonEdit.5.0.2\lib\Net40\ICSharpCode.AvalonEdit.dll</HintPath>
@@ -120,6 +123,9 @@
     </Compile>
     <Compile Include="Cfg\OptionsPageHttpProxy.xaml.cs">
       <DependentUpon>OptionsPageHttpProxy.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Cfg\OptionsPageTheme.xaml.cs">
+      <DependentUpon>OptionsPageTheme.xaml</DependentUpon>
     </Compile>
     <Compile Include="Cfg\OptionsWindow.xaml.cs">
       <DependentUpon>OptionsWindow.xaml</DependentUpon>
@@ -276,6 +282,7 @@
       <DependentUpon>TagsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Misc\UpdateContext.cs" />
+    <Compile Include="UI\ThemeManager.cs" />
     <Compile Include="UI\UpdateWindow.xaml.cs">
       <DependentUpon>UpdateWindow.xaml</DependentUpon>
     </Compile>
@@ -285,6 +292,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Cfg\OptionsPageTheme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\RevLogControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
