@@ -197,11 +197,12 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <ListView x:Name="graphView"
-                  Grid.Row="0"
-                  Grid.Column="0"
-                  Margin="0, 0, 0, 5"
-                  ItemContainerStyle="{DynamicResource ListViewItemStyle1}"
-                  SelectionChanged="graphView_SelectionChanged">
+                      Grid.Row="0"
+                      Grid.Column="0"
+                      Margin="0, 0, 0, 5"
+                      Foreground="{DynamicResource ItemText}"
+                      ItemContainerStyle="{DynamicResource ListViewItemStyle1}"
+                      SelectionChanged="graphView_SelectionChanged">
                 <ListView.InputBindings>
                     <KeyBinding Command="{x:Static ui:Commands.UpdateCommand}"
                             Modifiers="Control" Key="U" />
