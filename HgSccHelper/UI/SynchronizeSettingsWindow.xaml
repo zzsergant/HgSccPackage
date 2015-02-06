@@ -26,6 +26,13 @@
                         Executed="SetAsDefault_Executed">
         </CommandBinding>
     </Window.CommandBindings>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="CustomDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -89,8 +96,7 @@
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.Resources>
-                    <Style TargetType="ListViewItem">
-                        <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                    <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemModernStyle}">
                         <EventSetter Event="MouseDoubleClick"
                                  Handler="ListPaths_MouseDoubleClick" />
                     </Style>

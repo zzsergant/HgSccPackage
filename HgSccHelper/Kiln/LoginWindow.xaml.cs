@@ -31,6 +31,8 @@ namespace HgSccHelper.Kiln
 			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
 
 			InitializeComponent();
+
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
 		}
 
 		//-----------------------------------------------------------------------------

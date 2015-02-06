@@ -48,6 +48,8 @@ namespace HgSccHelper.BitBucket
 
 			InitializeComponent();
 
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
+
 			repositories = new ObservableCollection<BitBucketRepo>();
 			this.DataContext = repositories;
 		}

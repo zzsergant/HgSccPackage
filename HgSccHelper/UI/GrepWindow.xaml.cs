@@ -101,6 +101,8 @@ namespace HgSccHelper.UI
 
 			InitializeComponent();
 
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
+
 			UpdateContext = new UpdateContext();
 
 			grep_lines = new ObservableCollection<GrepLineInfo>();

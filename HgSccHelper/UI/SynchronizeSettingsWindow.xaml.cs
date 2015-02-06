@@ -67,6 +67,8 @@ namespace HgSccHelper
 
 			InitializeComponent();
 
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
+
 			paths = new ObservableCollection<PathItem>();
 
 			listPaths.ItemsSource = paths;

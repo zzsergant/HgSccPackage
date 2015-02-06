@@ -94,6 +94,8 @@ namespace HgSccHelper
 
 			InitializeComponent();
 
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
+
 			UpdateContext = new UpdateContext();
 			file_history_map = new Dictionary<string, FileHistoryInfo2>();
 

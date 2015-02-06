@@ -31,7 +31,9 @@ namespace HgSccHelper
 		{
 			wnd_cfg = new CfgWindowPosition(CfgPath, this);
 
-			ThemeManager.Instance.Subscribe(this);
+			InitializeComponent();
+
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
 
 			InitializeComponent();
 			pages = new ObservableCollection<IOptionsPage>();

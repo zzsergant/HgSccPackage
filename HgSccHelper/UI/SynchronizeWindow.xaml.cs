@@ -141,6 +141,8 @@ namespace HgSccHelper
 
 			InitializeComponent();
 
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
+
 			worker = new HgThread();
 			UpdateContext = new UpdateContext();
 

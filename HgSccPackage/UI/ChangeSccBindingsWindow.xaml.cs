@@ -56,6 +56,8 @@ namespace HgSccPackage.UI
 
 			InitializeComponent();
 
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
+
 			SccBindItems = new List<SccBindItem>();
 		}
 

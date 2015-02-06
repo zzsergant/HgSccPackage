@@ -54,6 +54,8 @@ namespace HgSccHelper.BitBucket
 
 			InitializeComponent();
 
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
+
 			this.DataContext = this;
 
 			bool is_private;

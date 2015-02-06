@@ -30,6 +30,7 @@ namespace HgSccHelper
 
 			InitializeComponent();
 
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
 
 			// FIXME: This hack inform wpf to render DateTime using local culture info
 /*

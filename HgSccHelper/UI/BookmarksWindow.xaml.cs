@@ -56,7 +56,10 @@ namespace HgSccHelper.UI
 		public BookmarksWindow()
 		{
 			wnd_cfg = new CfgWindowPosition(CfgPath, this, CfgWindowPositionOptions.PositionOnly);
+
 			InitializeComponent();
+
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
 
 			// Since WPF combo box does not provide TextChanged event
 			// register it from edit text box through combo box template

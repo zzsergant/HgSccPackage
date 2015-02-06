@@ -84,138 +84,24 @@
         </CommandBinding>
     </UserControl.CommandBindings>
     <UserControl.Resources>
-        <converters:RemoveLastNewLineConverter x:Key="RemoveLastNewLineConverter" />
-        <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
-        <DataTemplate x:Key="statusCellTemplate">
-            <TextBlock Text="{Binding FileInfo.Status}"
-                       Foreground="{Binding Path=FileInfo.Status, Converter={StaticResource HgStatusToColor}}">
-            </TextBlock>
-        </DataTemplate>
-        <DataTemplate x:Key="myCellTemplateDesc">
-        	<StackPanel Orientation="Horizontal">
-        		<local:RevLogLinesVisual Height="22"
-										 RevLogLines="{Binding}" />
-                <Border BorderThickness="1"
-                        Margin="0,1,5,1"
-                        VerticalAlignment="Center"
-                        SnapsToDevicePixels="True"
-                        BorderBrush="Green">
-                    <TextBlock Text="{Binding BranchInfo.Name}" VerticalAlignment="Center"
-                           Background="GreenYellow"
-                           Foreground="Black"
-                           Padding="5,1">
-                    </TextBlock>
-                    <Border.Style>
-                        <Style TargetType="{x:Type Border}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding BranchInfo}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Collapsed"></Setter>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                </Border>
-                <ItemsControl ItemsSource="{Binding Path=Current.ChangeDesc.Bookmarks}"
-                              Focusable="False">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"></StackPanel>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderThickness="1"
-                                    Margin="0,1,5,1"
-                                    VerticalAlignment="Center"
-                                    SnapsToDevicePixels="True"
-                                    BorderBrush="Indigo">
-                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
-                                       Padding="5,1">
-                                    <TextBlock.Style>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="Background" Value="LightSkyBlue"></Setter>
-                                            <Setter Property="Foreground" Value="Black"></Setter>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
-                                                    <Setter Property="Background" Value="Cyan"></Setter>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <ItemsControl ItemsSource="{Binding Path=Current.ChangeDesc.Tags}"
-                              Focusable="False">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"></StackPanel>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderThickness="1"
-                                    Margin="0,1,5,1"
-                                    VerticalAlignment="Center"
-                                    SnapsToDevicePixels="True"
-                                    BorderBrush="Goldenrod">
-                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
-                                       Background="Yellow"
-                                       Foreground="Black"
-                                       Padding="5,1">
-                                </TextBlock>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <TextBlock Text="{Binding Current.ChangeDesc.OneLineDesc}" VerticalAlignment="Center">
-                    <TextBlock.Style>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
-                                    <Setter Property="FontWeight" Value="Bold"></Setter>
-                                    <Setter Property="TextDecorations" Value="Underline"></Setter>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </StackPanel>
-		</DataTemplate>
-        <Style x:Key="ListViewItemStyle1" TargetType="{x:Type ListViewItem}">
-			<Setter Property="Padding" Value="0" />
-			<Setter Property="Margin" Value="0" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ListViewItem}">
-                        <StackPanel x:Name="Bd" SnapsToDevicePixels="True"
-                                    Background="{TemplateBinding Background}">
-                            <GridViewRowPresenter Content="{TemplateBinding Content}"
-                                          Columns="{TemplateBinding GridView.ColumnCollection}"/>
-                        </StackPanel>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
-                            </Trigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsSelected" Value="True"/>
-                                    <Condition Property="Selector.IsSelectionActive" Value="False"/>
-                                </MultiTrigger.Conditions>
-                                <Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-                            </MultiTrigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="CustomDictionary.xaml" />
+                <ResourceDictionary>
+                    <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
+                    <DataTemplate x:Key="statusCellTemplate">
+                        <TextBlock Text="{Binding FileInfo.Status}"
+                                   Foreground="{Binding Path=FileInfo.Status, Converter={StaticResource HgStatusToColor}}">
+                        </TextBlock>
+                    </DataTemplate>
+                    <Style x:Key="ListViewItemStyle1" TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewItemModernStyle}">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="Padding" Value="0"/>
+                    </Style>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.InputBindings>
         <KeyBinding Command="{x:Static local:RevLogControl.ShowFilterCommand}"
@@ -344,7 +230,7 @@
                 <ListView.View>
                     <GridView x:Name="graphViewGrid">
                         <GridViewColumn Header="Rev" Width="70" DisplayMemberBinding="{Binding Current.ChangeDesc.Rev}" />
-                        <GridViewColumn Header="Desc" Width="450" CellTemplate="{StaticResource myCellTemplateDesc}"/>
+                        <GridViewColumn Header="Desc" Width="450" CellTemplate="{StaticResource RevLogCellTemplateDesc}"/>
                         <!--<GridViewColumn Header="Desc" Width="250" DisplayMemberBinding="{Binding Current.ChangeDesc.OneLineDesc}" />-->
                         <GridViewColumn Header="Author" Width="250" DisplayMemberBinding="{Binding Current.ChangeDesc.Author}" />
                         <GridViewColumn Header="Date" Width="150" DisplayMemberBinding="{Binding Current.ChangeDesc.Date}" />
@@ -462,8 +348,7 @@
                                     </GridView>
                                 </ListView.View>
                                 <ListView.Resources>
-                                    <Style TargetType="ListViewItem">
-                                        <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                                    <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemModernStyle}">
                                         <EventSetter Event="MouseDoubleClick" Handler="ListViewFiles_MouseDoubleClick" />
                                         <Setter Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
                                     </Style>

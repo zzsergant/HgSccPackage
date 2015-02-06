@@ -64,7 +64,10 @@ namespace HgSccHelper.Kiln
 		public NewProjectWindow()
 		{
 			wnd_cfg = new CfgWindowPosition(CfgPath, this);
+
 			InitializeComponent();
+
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
 
 			this.DataContext = this;
 		}

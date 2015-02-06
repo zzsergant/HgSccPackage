@@ -74,15 +74,22 @@
                     Modifiers="Control" Key="Return" />
     </Window.InputBindings>
     <Window.Resources>
-        <DataTemplate x:Key="CheckBoxCell">
-            <CheckBox IsChecked="{Binding Path=IsChecked}" Focusable="False"></CheckBox>
-        </DataTemplate>
-        <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
-        <DataTemplate x:Key="statusCellTemplate">
-            <TextBlock Text="{Binding FileInfo.Status}"
-                       Foreground="{Binding Path=FileInfo.Status, Converter={StaticResource HgStatusToColor}}">
-            </TextBlock>
-        </DataTemplate>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="CustomDictionary.xaml" />
+                <ResourceDictionary>
+                    <DataTemplate x:Key="CheckBoxCell">
+                        <CheckBox IsChecked="{Binding Path=IsChecked}" Focusable="False"></CheckBox>
+                    </DataTemplate>
+                    <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
+                    <DataTemplate x:Key="statusCellTemplate">
+                        <TextBlock Text="{Binding FileInfo.Status}"
+                                   Foreground="{Binding Path=FileInfo.Status, Converter={StaticResource HgStatusToColor}}">                            
+                        </TextBlock>
+                    </DataTemplate>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -295,10 +302,9 @@
                             </ContextMenu>
                         </ListView.ContextMenu>
                         <ListView.Resources>
-                            <Style TargetType="ListViewItem">
-                                <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                            <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemModernStyle}">
                                 <EventSetter Event="MouseDoubleClick"
-                                 Handler="ListFiles_MouseDoubleClick" />
+                                             Handler="ListFiles_MouseDoubleClick" />
                             </Style>
                         </ListView.Resources>
                     </ListView>

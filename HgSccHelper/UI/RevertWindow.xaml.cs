@@ -42,6 +42,8 @@ namespace HgSccHelper
 
 			InitializeComponent();
 
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
+
 			revert_items = new ObservableCollection<RevertItem>();
 
 			VirtualizingStackPanel.SetIsVirtualizing(listFiles, true);

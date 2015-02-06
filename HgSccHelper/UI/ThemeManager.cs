@@ -139,13 +139,13 @@ namespace HgSccHelper.UI
 				return;
 
 			r["AccentColor"] = c;
-			r["Accent"] = new SolidColorBrush(c);
 		}
 
 		//-----------------------------------------------------------------------------
 		private void ApplyTheme(FrameworkElement control, Theme theme)
 		{
 			var r = GetCurrentThemeDictionary(control);
+
 			if (r != null)
 				control.Resources.MergedDictionaries.Remove(r);
 

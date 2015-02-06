@@ -14,20 +14,26 @@
     PreviewKeyDown="Window_PreviewKeyDown"
     WindowStartupLocation="CenterScreen">
     <Window.Resources>
-        <converters:RemoveLastNewLineConverter x:Key="RemoveLastNewLineConverter" />
-        <DataTemplate x:Key="MatchTemplate">
-            <TextBlock Text="{Binding Path=Match}"
-                       HorizontalAlignment="Stretch"
-                       MaxHeight="50"
-                       FontFamily="Courier New" TextTrimming="CharacterEllipsis">
-            </TextBlock>
-        </DataTemplate>
-        <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
-        <DataTemplate x:Key="statusCellTemplate">
-            <TextBlock Text="{Binding Status}"
-                       Foreground="{Binding Path=Status, Converter={StaticResource HgStatusToColor}, ConverterParameter=FileStatus}">
-            </TextBlock>
-        </DataTemplate>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="CustomDictionary.xaml" />
+                <ResourceDictionary>
+                    <DataTemplate x:Key="MatchTemplate">
+                        <TextBlock Text="{Binding Path=Match}"
+                                   HorizontalAlignment="Stretch"
+                                   MaxHeight="50"
+                                   FontFamily="Courier New" TextTrimming="CharacterEllipsis">
+                        </TextBlock>
+                    </DataTemplate>
+                    <converters:HgStatusToColorConverter x:Key="HgStatusToColor" />
+                    <DataTemplate x:Key="statusCellTemplate">
+                        <TextBlock Text="{Binding Status}"
+                                   Foreground="{Binding Path=Status, Converter={StaticResource HgStatusToColor}, ConverterParameter=FileStatus}">
+                        </TextBlock>
+                    </DataTemplate>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static ui:Commands.ArchiveCommand}"
@@ -222,8 +228,7 @@
                         </ContextMenu>
                     </ListView.ContextMenu>
                     <ListView.Resources>
-                        <Style TargetType="ListViewItem">
-                            <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                        <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemModernStyle}">
                             <EventSetter Event="MouseDoubleClick"
                                          Handler="ListChanges_MouseDoubleClick" />
                         </Style>
@@ -291,8 +296,7 @@
                             </GridView>
                         </ListView.View>
                         <ListView.Resources>
-                            <Style TargetType="ListViewItem">
-                                <!--<Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">-->
+                            <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemModernStyle}">
                                 <EventSetter Event="MouseDoubleClick"
                                      Handler="ListViewFiles_MouseDoubleClick" />
                             </Style>

@@ -64,6 +64,8 @@ namespace HgSccHelper.Kiln
 
 			InitializeComponent();
 
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
+
 			repositories = new ObservableCollection<KilnRepoListItem>();
 			this.DataContext = repositories;
 

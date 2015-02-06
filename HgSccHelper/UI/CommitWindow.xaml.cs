@@ -94,6 +94,8 @@ namespace HgSccHelper
 
 			InitializeComponent();
 
+			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
+
 			commit_items = new ObservableCollection<CommitItem>();
 			parents = new ObservableCollection<RevLogChangeDesc>();
 
