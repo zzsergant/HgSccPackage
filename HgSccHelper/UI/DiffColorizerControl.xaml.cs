@@ -69,8 +69,10 @@ namespace HgSccHelper.UI
 		public const int DefaultWidth = 550;
 
 		//-----------------------------------------------------------------------------
-		static DiffColorizerControl()
+		public DiffColorizerControl()
 		{
+			InitializeComponent();
+
 			var rule_set = HighlightingManager.Instance.GetDefinition("Patch");
 
 			// Redefining colors
@@ -81,14 +83,8 @@ namespace HgSccHelper.UI
 			rule_set.GetNamedColor("Position").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.Patch));
 			rule_set.GetNamedColor("Header").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.Header));
 			rule_set.GetNamedColor("FileName").Foreground = new SimpleHighlightingBrush(DiffTypeColor(DiffType.DiffHeader));
-		}
 
-		//-----------------------------------------------------------------------------
-		public DiffColorizerControl()
-		{
-			InitializeComponent();
-
-			richTextBox.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("Patch");
+			richTextBox.SyntaxHighlighting = rule_set;
 			richTextBox.IsReadOnly = true;
 
 			encodings = new ObservableCollection<EncodingItem>();
@@ -122,26 +118,38 @@ namespace HgSccHelper.UI
 		//-----------------------------------------------------------------------------
 		private static Color DiffTypeColor(DiffType type)
 		{
-			switch (type)
+			// FIXME: Move the colors to the theme
+			if (ThemeManager.Instance.Current.Name == "Dark")
 			{
-				case DiffType.None:
-					return Colors.Black;
-				case DiffType.DiffHeader:
-					return Colors.Maroon;
-				case DiffType.Header:
-					return Colors.DarkKhaki;
-				case DiffType.Added:
-					return Colors.Blue;
-				case DiffType.Removed:
-					return Colors.Red;
-				case DiffType.Changed:
-					return Colors.Violet;
-				case DiffType.Patch:
-					return Colors.Green;
-				case DiffType.Info:
-					return Colors.LightGreen;
-				default:
-					throw new ArgumentOutOfRangeException("type");
+				switch (type)
+				{
+					case DiffType.None: return Colors.White;
+					case DiffType.DiffHeader: return Colors.Salmon;
+					case DiffType.Header: return Colors.Khaki;
+					case DiffType.Added: return Colors.LightBlue;
+					case DiffType.Removed: return Colors.LightSalmon;
+					case DiffType.Changed: return Colors.Orchid;
+					case DiffType.Patch: return Colors.LightGreen;
+					case DiffType.Info: return Colors.LightSeaGreen;
+					default:
+						throw new ArgumentOutOfRangeException("type");
+				}
+			}
+			else
+			{
+				switch (type)
+				{
+					case DiffType.None: return Colors.Black;
+					case DiffType.DiffHeader: return Colors.Maroon;
+					case DiffType.Header: return Colors.DarkKhaki;
+					case DiffType.Added: return Colors.Blue;
+					case DiffType.Removed: return Colors.Red;
+					case DiffType.Changed: return Colors.Violet;
+					case DiffType.Patch: return Colors.Green;
+					case DiffType.Info: return Colors.LightGreen;
+					default:
+						throw new ArgumentOutOfRangeException("type");
+				}
 			}
 		}
 
