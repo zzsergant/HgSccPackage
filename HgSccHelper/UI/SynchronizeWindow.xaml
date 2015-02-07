@@ -38,52 +38,59 @@
         </CommandBinding>
     </Window.CommandBindings>
     <Window.Resources>
-        <BitmapImage x:Key="BitBucketLogoImage" UriSource="../Resources/BitBucketLogo.png"></BitmapImage>
-        <BitmapImage x:Key="KilnLogoImage" UriSource="../Resources/KilnLogo.png"></BitmapImage>
-        <ItemsPanelTemplate x:Key="PathItemsPanelTemplate">
-            <StackPanel Orientation="Vertical"
-                        Grid.IsSharedSizeScope="True"
-                        HorizontalAlignment="Stretch">
-            </StackPanel>
-        </ItemsPanelTemplate>
-        <DataTemplate x:Key="PathComboItemTemplate">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition SharedSizeGroup="Alias" Width="Auto" />
-                    <ColumnDefinition SharedSizeGroup="Path" Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding Path=Alias}"
-                           Grid.Column="0"
-                           Margin="0, 0, 20, 0"
-                           FontWeight="Bold"/>
-                <TextBlock Grid.Column="1"
-                            Text="{Binding Path=Path}" />
-            </Grid>
-        </DataTemplate>
-        <ItemsPanelTemplate x:Key="RevisionPanelTemplate">
-            <StackPanel Orientation="Vertical"
-                        Grid.IsSharedSizeScope="True"
-                        HorizontalAlignment="Stretch">
-            </StackPanel>
-        </ItemsPanelTemplate>
-        <DataTemplate x:Key="RevisionComboItemTemplate">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition SharedSizeGroup="Name" Width="Auto" />
-                    <ColumnDefinition SharedSizeGroup="GroupText" Width="Auto" />
-                    <ColumnDefinition SharedSizeGroup="Misc" Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding Path=Name}"
-                           Grid.Column="0"
-                           Margin="0, 0, 20, 0"
-                           FontWeight="Bold"/>
-                <TextBlock Grid.Column="1"
-                           Margin="0, 0, 10, 0"
-                           Text="{Binding Path=GroupText}" />
-                <TextBlock Grid.Column="2"
-                           Text="{Binding Path=Misc}" />
-            </Grid>
-        </DataTemplate>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="CustomDictionary.xaml" />
+                <ResourceDictionary>
+                    <BitmapImage x:Key="BitBucketLogoImage" UriSource="../Resources/BitBucketLogo.png"></BitmapImage>
+                    <BitmapImage x:Key="KilnLogoImage" UriSource="../Resources/KilnLogo.png"></BitmapImage>
+                    <ItemsPanelTemplate x:Key="PathItemsPanelTemplate">
+                        <StackPanel Orientation="Vertical"
+                                    Grid.IsSharedSizeScope="True"
+                                    HorizontalAlignment="Stretch">
+                        </StackPanel>
+                    </ItemsPanelTemplate>
+                    <DataTemplate x:Key="PathComboItemTemplate">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="Alias" Width="Auto" />
+                                <ColumnDefinition SharedSizeGroup="Path" Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Path=Alias}"
+                                       Grid.Column="0"
+                                       Margin="0, 0, 20, 0"
+                                       FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1"
+                                        Text="{Binding Path=Path}" />
+                        </Grid>
+                    </DataTemplate>
+                    <ItemsPanelTemplate x:Key="RevisionPanelTemplate">
+                        <StackPanel Orientation="Vertical"
+                                    Grid.IsSharedSizeScope="True"
+                                    HorizontalAlignment="Stretch">
+                        </StackPanel>
+                    </ItemsPanelTemplate>
+                    <DataTemplate x:Key="RevisionComboItemTemplate">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="Name" Width="Auto" />
+                                <ColumnDefinition SharedSizeGroup="GroupText" Width="Auto" />
+                                <ColumnDefinition SharedSizeGroup="Misc" Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Path=Name}"
+                                       Grid.Column="0"
+                                       Margin="0, 0, 20, 0"
+                                       FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1"
+                                       Margin="0, 0, 10, 0"
+                                       Text="{Binding Path=GroupText}" />
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding Path=Misc}" />
+                        </Grid>
+                    </DataTemplate>                    
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -205,7 +212,6 @@
             </Grid>
             <StackPanel Orientation="Horizontal">
                 <GroupBox Header="Incoming/Outgoing options:"
-                          Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
                           Margin="5,5,0,5"
                           Padding="5">
                     <StackPanel>
@@ -224,7 +230,6 @@
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Header="Pull/Push options:"
-                          Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}"
                           Margin="5,5,0,5"
                           Padding="5">
                     <StackPanel>

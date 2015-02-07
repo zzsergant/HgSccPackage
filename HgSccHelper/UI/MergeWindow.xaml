@@ -24,6 +24,11 @@
         </CommandBinding>
     </Window.CommandBindings>
     <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="CustomDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -55,8 +60,7 @@
                 </StackPanel>
             </Grid>
             <GroupBox Header="Merge options"
-                      Margin="5,0,5,5"
-                      Foreground="{DynamicResource {x:Static SystemColors.ControlTextColor}}">
+                      Margin="5,0,5,5">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>

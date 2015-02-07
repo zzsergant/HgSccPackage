@@ -8,8 +8,15 @@
         WindowStartupLocation="CenterScreen"
         Title="PathEditWindow" Height="Auto" Width="700">
     <Window.Resources>
-        <BitmapImage x:Key="BitBucketLogoImage" UriSource="../Resources/BitBucketLogo.png"></BitmapImage>
-        <BitmapImage x:Key="KilnLogoImage" UriSource="../Resources/KilnLogo.png"></BitmapImage>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="CustomDictionary.xaml" />
+                <ResourceDictionary>
+                    <BitmapImage x:Key="BitBucketLogoImage" UriSource="../Resources/BitBucketLogo.png"></BitmapImage>
+                    <BitmapImage x:Key="KilnLogoImage" UriSource="../Resources/KilnLogo.png"></BitmapImage>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
