@@ -188,6 +188,7 @@
                         ></Button>
                 </StackPanel>
                 <Expander Header="Authorization Options"
+                          Foreground="{DynamicResource ItemText}"
                           Grid.Row="1" Grid.Column="1">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -248,6 +249,7 @@
                     </StackPanel>
                 </GroupBox>
                 <Expander Header="Target revision:"
+                          Foreground="{DynamicResource ItemText}"
                           IsExpanded="False"
                           Expanded="TargetRevision_Expanded"
                           Margin="5">

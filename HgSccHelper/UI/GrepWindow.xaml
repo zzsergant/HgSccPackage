@@ -143,6 +143,7 @@
                             Command="{x:Static ui:GrepWindow.SearchCommand}"
                             Content="Search"></Button>
                     <Expander Header="Advanced options" Grid.Row="1" Grid.Column="0"
+                              Foreground="{DynamicResource ItemText}"
                               Margin="0,5,0,5"
                               Grid.ColumnSpan="3">
                         <Grid>
@@ -266,6 +267,7 @@
                           Cursor="SizeNS" HorizontalAlignment="Stretch"
                           VerticalAlignment="Top" />
             <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files"
+                      Foreground="{DynamicResource ItemText}"
                       Margin="0,5,0,0"
                       Collapsed="viewFilesExpander_Collapsed">
                 <Grid x:Name="gridFiles">

@@ -97,7 +97,9 @@
                         Click="BrowseForBundle_Click"
                         ></Button>
             </StackPanel>
-            <Expander Header="Authorization Options" Grid.Row="1" Grid.Column="1">
+            <Expander Header="Authorization Options"
+                      Foreground="{DynamicResource ItemText}"
+                      Grid.Row="1" Grid.Column="1">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />

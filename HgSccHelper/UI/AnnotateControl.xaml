@@ -210,6 +210,7 @@
                           Cursor="SizeNS" HorizontalAlignment="Stretch"
                           VerticalAlignment="Top" />
             <Expander Grid.Row="2" Name="viewFilesExpander" Header="View Files"
+                      Foreground="{DynamicResource ItemText}"
                       Margin="0,5,0,0"
                       Collapsed="viewFilesExpander_Collapsed">
                 <Grid x:Name="gridFiles">
