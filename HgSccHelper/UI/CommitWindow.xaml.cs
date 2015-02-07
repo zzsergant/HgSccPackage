@@ -293,15 +293,16 @@ namespace HgSccHelper
 			if (String.IsNullOrEmpty(username))
 			{
 				rowUsername.Visibility = Visibility.Visible;
-				labelUsername.Foreground = Brushes.Red;
+
+				labelUsername.Foreground = new SolidColorBrush(ThemeManager.Instance.Current.ErrorColor);
 				labelUsername.Content = "Set your username to use with mercurial. Example: John Doe <johndoe@example.com>";
 			}
 			else
 			{
-				if (labelUsername.Foreground == Brushes.Red)
+				if (labelUsername.Foreground != labelCommit.Foreground)
 				{
 					// Restore brush if the username changed to valid value
-					labelUsername.Foreground = SystemColors.ControlTextBrush;
+					labelUsername.Foreground = labelCommit.Foreground;
 					labelUsername.Content = "Username:";
 				}
 			}

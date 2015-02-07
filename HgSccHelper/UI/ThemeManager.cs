@@ -57,6 +57,7 @@ namespace HgSccHelper.UI
 					Source = new Uri("/FirstFloor.ModernUI;component/Assets/ModernUI.Light.xaml", UriKind.Relative)
 				},
 				AccentColor = Color.FromRgb(27, 191, 235),
+				ErrorColor = Colors.Red,
 				RevLogLineColor = Colors.Black,
 				RevLogNodeColor = Colors.Blue
 			});
@@ -69,6 +70,7 @@ namespace HgSccHelper.UI
 					Source = new Uri("/FirstFloor.ModernUI;component/Assets/ModernUI.Dark.xaml", UriKind.Relative)
 				},
 				AccentColor = Color.FromRgb(27, 121, 175),
+				ErrorColor = Colors.LightSalmon,
 				RevLogLineColor = Colors.White,
 				RevLogNodeColor = Colors.LightBlue
 			});
@@ -212,6 +214,7 @@ namespace HgSccHelper.UI
 		public string Name { get; set; }
 		public ResourceDictionary ResourceDictionary { get; set; }
 		public Color AccentColor { get; set; }
+		public Color ErrorColor { get; set; }
 
 		private Color rev_log_line_color;
 

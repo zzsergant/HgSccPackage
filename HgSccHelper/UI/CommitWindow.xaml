@@ -160,7 +160,9 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Label Grid.Row="0" Margin="5"  Content="Commit Message:" VerticalAlignment="Stretch"></Label>
+            <Label Grid.Row="0" Margin="5"
+                   x:Name="labelCommit"
+                   Content="Commit Message:" VerticalAlignment="Stretch"></Label>
             <TextBox Grid.Row="1" Name="textCommitMessage"
                      Text="{Binding Path=CommitMessage, ElementName=root, UpdateSourceTrigger=PropertyChanged}"
                      MinLines="2" MaxLines="10"
