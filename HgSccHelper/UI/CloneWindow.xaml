@@ -64,6 +64,7 @@
                         Width="23"
                         Height="23"
                         ToolTip="Kiln"
+                        Padding="0"
                         Margin="0,5,5,5"
                         Click="Kiln_Click">
                     <Image Source="{StaticResource KilnLogoImage}"></Image>
@@ -71,6 +72,7 @@
                 <Button Grid.Column="2"
                         Width="23"
                         Height="23"
+                        Padding="0"
                         ToolTip="BitBucket"
                         Margin="0,5,5,5"
                         Click="BitBucket_Click">

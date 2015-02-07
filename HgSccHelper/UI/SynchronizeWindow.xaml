@@ -153,12 +153,14 @@
                             Height="23"
                             ToolTip="Kiln"
                             Margin="5,5,0,5"
+                            Padding="0"
                             Click="Kiln_Click">
                         <Image Source="{StaticResource KilnLogoImage}"></Image>
                     </Button>
                     <Button Grid.Column="2"
                             Width="23"
                             Height="23"
+                            Padding="0"
                             ToolTip="BitBucket"
                             Margin="5"
                             Click="BitBucket_Click">
