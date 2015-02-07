@@ -75,7 +75,29 @@ namespace HgSccHelper.UI
 				RevLogNodeColor = Colors.LightBlue
 			});
 
-			Current = themes[0];
+			if (!Load())
+				Current = themes[0];
+		}
+
+		//-----------------------------------------------------------------------------
+		private bool Load()
+		{
+			string theme_name;
+			if (!Cfg.Get("Themes", "Current", out theme_name, ""))
+				return false;
+
+			var theme = themes.Where(t => t.Name == theme_name).FirstOrDefault();
+			if (theme == null)
+				return false;
+
+			Current = theme;
+			return true;
+		}
+
+		//-----------------------------------------------------------------------------
+		public static void Save()
+		{
+			Cfg.Set("Themes", "Current", Instance.Current.Name);
 		}
 
 		//-----------------------------------------------------------------------------

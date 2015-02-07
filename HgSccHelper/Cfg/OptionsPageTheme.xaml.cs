@@ -53,7 +53,7 @@ namespace HgSccHelper
 		//-----------------------------------------------------------------------------
 		public bool Save()
 		{
-			// TODO:
+			ThemeManager.Save();
 			return true;
 		}
 
