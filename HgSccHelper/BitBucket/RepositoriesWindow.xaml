@@ -18,6 +18,13 @@
                         Executed="DeleteRepository_Executed">
         </CommandBinding>
     </Window.CommandBindings>
+    <Window.Resources>
+        <DataTemplate x:Key="RepoItemTemplate">
+            <TextBlock Text="{Binding Path=Name}"
+                       Margin="5,2">
+            </TextBlock>
+        </DataTemplate>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
@@ -28,7 +35,7 @@
         <ListView Grid.Row="0"
                   x:Name="listRepos"
                   ItemsSource="{Binding}"
-                  DisplayMemberPath="Name"
+                  ItemTemplate="{StaticResource RepoItemTemplate}"
                   SelectionChanged="listRepos_SelectionChanged"
                   Margin="5">            
         </ListView>
