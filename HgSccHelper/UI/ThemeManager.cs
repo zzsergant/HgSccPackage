@@ -25,6 +25,7 @@ namespace HgSccHelper.UI
 	//-----------------------------------------------------------------------------
 	public sealed class ThemeManager
 	{
+		FirstFloor.ModernUI.Windows.Controls.TabLayout tab_layout;
 		List<Theme> themes;
 		ResourceDictionary base_dict;
 		Theme current;
@@ -41,8 +42,7 @@ namespace HgSccHelper.UI
 		private ThemeManager()
 		{
 			// FIXME: implicit load of assembly
-			var tab_layout = FirstFloor.ModernUI.Windows.Controls.TabLayout.List;
-			Logger.WriteLine(tab_layout.ToString());
+			tab_layout = FirstFloor.ModernUI.Windows.Controls.TabLayout.List;
 
 			base_dict = new ResourceDictionary { Source = new Uri("/FirstFloor.ModernUI;component/Assets/ModernUI.xaml", UriKind.Relative) };
 
