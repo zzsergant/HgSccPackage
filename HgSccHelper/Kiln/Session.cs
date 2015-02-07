@@ -187,6 +187,7 @@ namespace HgSccHelper.Kiln
 			request.AddParameter("ixRepoGroup", repo_group);
 			request.AddParameter("sName", name);
 			request.AddParameter("token", Token);
+			request.AddParameter("vcs", "Hg");
 
 			var response = client.Execute<KilnRepo>(request);
 			if (response.ResponseStatus != ResponseStatus.Completed)
