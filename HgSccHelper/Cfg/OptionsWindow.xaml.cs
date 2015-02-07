@@ -35,7 +35,6 @@ namespace HgSccHelper
 
 			HgSccHelper.UI.ThemeManager.Instance.Subscribe(this);
 
-			InitializeComponent();
 			pages = new ObservableCollection<IOptionsPage>();
 
 			this.DataContext = pages;
