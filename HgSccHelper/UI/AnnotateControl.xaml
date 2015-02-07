@@ -218,9 +218,10 @@
                         <ColumnDefinition x:Name="diffColumn"  Width="Auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <TabControlTest:TabControlEx Grid.Column="0"
+                                                 Style="{StaticResource MetroTabControl}"
                                                  Margin="0,5,0,0"
-                                             SelectionChanged="tabParentsDiff_SelectionChanged"
-                                             x:Name="tabParentsDiff">
+                                                 SelectionChanged="tabParentsDiff_SelectionChanged"
+                                                 x:Name="tabParentsDiff">
                         <TabControl.Template>
                             <ControlTemplate TargetType="TabControl">
                                 <DockPanel>
@@ -231,13 +232,14 @@
                             </ControlTemplate>
                         </TabControl.Template>
                         <TabControl.ItemContainerStyle>
-                            <Style TargetType="{x:Type TabItem}">
+                            <Style TargetType="{x:Type TabItem}" BasedOn="{StaticResource MetroTabItem}">
                                 <Setter Property="Header" Value="{Binding Path=HeaderString, Mode=OneWay}" />
                                 <Setter Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
                                 <Setter Property="Margin" Value="0" />
                             </Style>
                         </TabControl.ItemContainerStyle>
-                        <TabItem x:Name="tab1" Visibility="Collapsed">
+                        <TabItem x:Name="tab1"
+                                 Visibility="Collapsed">
                             <!-- FIXME: Remove code duplication for listview definition on both tab pages-->
                             <ListView ItemsSource="{Binding Path=Files}"
                                   x:Name="tabList1"
@@ -289,7 +291,8 @@
                                 </ListView.Resources>
                             </ListView>
                         </TabItem>
-                        <TabItem x:Name="tab2" Visibility="Collapsed">
+                        <TabItem x:Name="tab2"
+                                 Visibility="Collapsed">
                             <ListView ItemsSource="{Binding Path=Files}"
                                   x:Name="tabList2"
                                   VirtualizingStackPanel.IsVirtualizing="True"
