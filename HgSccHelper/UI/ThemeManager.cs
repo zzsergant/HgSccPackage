@@ -28,7 +28,7 @@ namespace HgSccHelper.UI
 		FirstFloor.ModernUI.Windows.Controls.TabLayout tab_layout;
 		List<Theme> themes;
 		ResourceDictionary base_dict;
-		ResourceDictionary theme_fix_dict;
+
 		Theme current;
 		HashSet<FrameworkElement> controls;
 
@@ -45,9 +45,7 @@ namespace HgSccHelper.UI
 			// FIXME: implicit load of assembly
 			tab_layout = FirstFloor.ModernUI.Windows.Controls.TabLayout.List;
 
-			base_dict = new ResourceDictionary { Source = new Uri("/FirstFloor.ModernUI;component/Assets/ModernUI.xaml", UriKind.Relative) };
-
-			theme_fix_dict = new ResourceDictionary { Source = new Uri("/HgSccHelper;component/UI/ThemeFixDictionary.xaml", UriKind.Relative) };
+			base_dict = new ResourceDictionary { Source = new Uri("/HgSccHelper;component/UI/BaseTheme.xaml", UriKind.Relative) };
 
 			controls = new HashSet<FrameworkElement>();
 
@@ -57,7 +55,7 @@ namespace HgSccHelper.UI
 				Name = "Light",
 				ResourceDictionary = new ResourceDictionary
 				{
-					Source = new Uri("/FirstFloor.ModernUI;component/Assets/ModernUI.Light.xaml", UriKind.Relative)
+					Source = new Uri("/HgSccHelper;component/UI/LightTheme.xaml", UriKind.Relative)
 				},
 				AccentColor = Color.FromRgb(27, 191, 235),
 				ErrorColor = Colors.Red,
@@ -70,7 +68,7 @@ namespace HgSccHelper.UI
 				Name = "Dark",
 				ResourceDictionary = new ResourceDictionary
 				{
-					Source = new Uri("/FirstFloor.ModernUI;component/Assets/ModernUI.Dark.xaml", UriKind.Relative)
+					Source = new Uri("/HgSccHelper;component/UI/DarkTheme.xaml", UriKind.Relative)
 				},
 				AccentColor = Color.FromRgb(27, 121, 175),
 				ErrorColor = Colors.LightSalmon,
@@ -209,10 +207,7 @@ namespace HgSccHelper.UI
 		public void Subscribe(FrameworkElement control)
 		{
 			if (!HaveModernUIBase(control))
-			{
 				control.Resources.MergedDictionaries.Add(BaseDictionary);
-				control.Resources.MergedDictionaries.Add(theme_fix_dict);
-			}
 
 			ApplyTheme(control, Current);
 

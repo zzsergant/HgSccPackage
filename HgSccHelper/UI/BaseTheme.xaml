@@ -1,0 +1,7 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/FirstFloor.ModernUI;component/Assets/ModernUI.xaml"></ResourceDictionary>
+        <ResourceDictionary Source="/HgSccHelper;component/UI/ThemeFixDictionary.xaml"></ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>
