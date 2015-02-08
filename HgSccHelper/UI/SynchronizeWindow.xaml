@@ -98,35 +98,37 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition />
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <Button Content="Incoming"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:SynchronizeWindow.IncomingCommand}"
-                    MinWidth="75" />
-            <Button Content="Pull"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:SynchronizeWindow.PullCommand}"
-                    MinWidth="75" />
-            <Separator />
-            <Button Content="Outgoing"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:SynchronizeWindow.OutgoingCommand}"
-                    MinWidth="75" />
-            <Button Content="Push"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:SynchronizeWindow.PushCommand}"
-                    MinWidth="75" />
-            <Separator />
-            <Button Content="Stop"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.StopCommand}"
-                    MinWidth="75" />
-            <Separator />
-            <Button Content="Settings"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:SynchronizeWindow.SynchronizeSettingsCommand}"
-                    MinWidth="75" />
-        </StackPanel>
+        <ToolBarTray Grid.Row="0">
+            <ToolBar>
+                <Button Content="Incoming"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:SynchronizeWindow.IncomingCommand}"
+                        MinWidth="75" />
+                <Button Content="Pull"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:SynchronizeWindow.PullCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Outgoing"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:SynchronizeWindow.OutgoingCommand}"
+                        MinWidth="75" />
+                <Button Content="Push"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:SynchronizeWindow.PushCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Stop"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.StopCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Settings"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:SynchronizeWindow.SynchronizeSettingsCommand}"
+                        MinWidth="75" />
+            </ToolBar>
+        </ToolBarTray>
         <StackPanel Grid.Row="1">
             <Grid>
                 <Grid.RowDefinitions>

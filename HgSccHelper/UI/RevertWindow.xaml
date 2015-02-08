@@ -56,30 +56,31 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <Button Content="Diff Previous"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.DiffPreviousCommand}"
-                    MinWidth="75" />
-            <Separator />
-            <Button Content="File History"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.FileHistoryCommand}"
-                    MinWidth="75" />
-            <Button Content="Annotate"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.AnnotateCommand}"
-                    MinWidth="75" />
-            <Button Content="Grep"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.GrepCommand}"
-                    MinWidth="75" />
-            <Button Content="ViewFile"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.ViewFileCommand}"
-                    MinWidth="75" />
-            <Separator />
-        </StackPanel>
+        <ToolBarTray Grid.Row="0">
+            <ToolBar>
+                <Button Content="Diff Previous"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="File History"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.FileHistoryCommand}"
+                        MinWidth="75" />
+                <Button Content="Annotate"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.AnnotateCommand}"
+                        MinWidth="75" />
+                <Button Content="Grep"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.GrepCommand}"
+                        MinWidth="75" />
+                <Button Content="ViewFile"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.ViewFileCommand}"
+                        MinWidth="75" />
+            </ToolBar>
+        </ToolBarTray>
         <Grid Grid.Row="1" KeyboardNavigation.TabNavigation="Cycle">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />

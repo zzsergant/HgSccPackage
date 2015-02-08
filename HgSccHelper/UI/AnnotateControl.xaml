@@ -42,68 +42,70 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <Button Content="Diff Previous"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.DiffPreviousCommand}"
-                    MinWidth="75" />
-            <Separator />
-            <Button Content="File History"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.FileHistoryCommand}"
-                    MinWidth="75" />
-            <Button Content="View File"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.ViewFileCommand}"
-                    MinWidth="75" />
-            <Separator />
-            <Label Content="Line:"
-                   VerticalAlignment="Center"
-                   Margin="5,0"></Label>
-            <Border BorderThickness="1" Margin="5,0"
-                    SnapsToDevicePixels="True">
-                <TextBox Name="textLine"
-                         Margin="5,2,0,2"
-                         Width="90" MaxLines="1" PreviewKeyDown="textLine_PreviewKeyDown"></TextBox>
-            </Border>
-            <Button Content="Goto"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:AnnotateControl.GotoLineCommand}"
-                    ></Button>
-            <Separator />
-            <Button Content="Next"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:AnnotateControl.NextChangeCommand}"
-                    MinWidth="50" />
-            <Button Content="Prev"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:AnnotateControl.PrevChangeCommand}"
-                    MinWidth="50" />
-            <Separator />
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Encoding:"
+        <ToolBarTray Grid.Row="0">
+            <ToolBar>
+                <Button Content="Diff Previous"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="File History"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.FileHistoryCommand}"
+                        MinWidth="75" />
+                <Button Content="View File"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.ViewFileCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Label Content="Line:"
                        VerticalAlignment="Center"
                        Margin="5,0"></Label>
-                <ComboBox MinWidth="60"
-                          Margin="5,2,0,2"
-                          Name="comboEncodings"
-                          SelectionChanged="comboEncodings_SelectionChanged"
-                          DisplayMemberPath="Name"
-                          IsTextSearchEnabled="False"></ComboBox>
-            </StackPanel>
-            <Separator />
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Highlighting:"
-                       VerticalAlignment="Center"
-                       Margin="5,0"></Label>
-                <ComboBox MinWidth="60"
-                          Margin="5,2,0,2"                          
-                          Name="comboHighlighting"
-                          SelectionChanged="comboHighlightings_SelectionChanged"
-                          DisplayMemberPath="Name"
-                          IsTextSearchEnabled="False"></ComboBox>
-            </StackPanel>
-        </StackPanel>
+                <Border BorderThickness="1" Margin="5,0"
+                        SnapsToDevicePixels="True">
+                    <TextBox Name="textLine"
+                             Margin="5,2,0,2"
+                             Width="90" MaxLines="1" PreviewKeyDown="textLine_PreviewKeyDown"></TextBox>
+                </Border>
+                <Button Content="Goto"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:AnnotateControl.GotoLineCommand}"
+                        ></Button>
+                <Separator />
+                <Button Content="Next"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:AnnotateControl.NextChangeCommand}"
+                        MinWidth="50" />
+                <Button Content="Prev"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:AnnotateControl.PrevChangeCommand}"
+                        MinWidth="50" />
+                <Separator />
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Encoding:"
+                           VerticalAlignment="Center"
+                           Margin="5,0"></Label>
+                    <ComboBox MinWidth="60"
+                              Margin="5,2,0,2"
+                              Name="comboEncodings"
+                              SelectionChanged="comboEncodings_SelectionChanged"
+                              DisplayMemberPath="Name"
+                              IsTextSearchEnabled="False"></ComboBox>
+                </StackPanel>
+                <Separator />
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Highlighting:"
+                           VerticalAlignment="Center"
+                           Margin="5,0"></Label>
+                    <ComboBox MinWidth="60"
+                              Margin="5,2,0,2"                          
+                              Name="comboHighlighting"
+                              SelectionChanged="comboHighlightings_SelectionChanged"
+                              DisplayMemberPath="Name"
+                              IsTextSearchEnabled="False"></ComboBox>
+                </StackPanel>
+            </ToolBar>
+        </ToolBarTray>
         <Grid KeyboardNavigation.TabNavigation="Cycle" Grid.Row="1"
               Margin="5">
             <Grid.RowDefinitions>

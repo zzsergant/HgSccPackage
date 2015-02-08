@@ -97,61 +97,63 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <Button Content="Diff Previous"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.DiffPreviousCommand}"
-                    MinWidth="75" />
-            <Separator />
-            <Button Content="File History"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.FileHistoryCommand}"
-                    MinWidth="75" />
-            <Button Content="Annotate"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.AnnotateCommand}"
-                    MinWidth="75" />
-            <Button Content="View File"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.ViewFileCommand}"
-                    MinWidth="75" />
-            <Separator />
-            <Button Content="Diff Parent 1"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.DiffParent1Command}"
-                    MinWidth="75" />
-            <Button Content="Diff Parent 2"
-                    Margin="5,2,0,2"
-                    Command="{x:Static ui:Commands.DiffParent2Command}"
-                    MinWidth="75" />
-            <Separator />
-            <Button Content="Mark Resolved"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:CommitWindow.MarkResolvedCommand}"
-                    MinWidth="75" />
-            <Button Content="Mark Unresolved"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:CommitWindow.MarkUnresolvedCommand}"
-                    MinWidth="75" />
-            <Button Content="Restart Merge"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:CommitWindow.RestartMergeCommand}"
-                    MinWidth="75" />
-            <Separator />
-            <Button Content="Set Branch Name"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:CommitWindow.SetBranchNameCommand}"
-                    MinWidth="75" />
-            <Button Content="Close Named Branch"
-                    Margin="5,2,0,2"
-                    Command="{x:Static local:CommitWindow.CloseNamedBranchCommand}"
-                    MinWidth="75" />
-            <Separator />
-            <Button Content="Show Username"
-                    Margin="5,2,0,2"
-                    Click="ShowUsername_Click"
-                    MinWidth="75" />
-        </StackPanel>
+        <ToolBarTray Grid.Row="0">
+            <ToolBar>
+                <Button Content="Diff Previous"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.DiffPreviousCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="File History"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.FileHistoryCommand}"
+                        MinWidth="75" />
+                <Button Content="Annotate"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.AnnotateCommand}"
+                        MinWidth="75" />
+                <Button Content="View File"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.ViewFileCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Diff Parent 1"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.DiffParent1Command}"
+                        MinWidth="75" />
+                <Button Content="Diff Parent 2"
+                        Margin="5,2,0,2"
+                        Command="{x:Static ui:Commands.DiffParent2Command}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Mark Resolved"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:CommitWindow.MarkResolvedCommand}"
+                        MinWidth="75" />
+                <Button Content="Mark Unresolved"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:CommitWindow.MarkUnresolvedCommand}"
+                        MinWidth="75" />
+                <Button Content="Restart Merge"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:CommitWindow.RestartMergeCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Set Branch Name"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:CommitWindow.SetBranchNameCommand}"
+                        MinWidth="75" />
+                <Button Content="Close Named Branch"
+                        Margin="5,2,0,2"
+                        Command="{x:Static local:CommitWindow.CloseNamedBranchCommand}"
+                        MinWidth="75" />
+                <Separator />
+                <Button Content="Show Username"
+                        Margin="5,2,0,2"
+                        Click="ShowUsername_Click"
+                        MinWidth="75" />
+            </ToolBar>
+        </ToolBarTray>
         <Grid Grid.Row="1" KeyboardNavigation.TabNavigation="Cycle">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
