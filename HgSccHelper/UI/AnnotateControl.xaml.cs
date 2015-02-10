@@ -116,6 +116,8 @@ namespace HgSccHelper
 		private ObservableCollection<EncodingItem> encodings;
 		private ObservableCollection<IHighlightingDefinition> highlightings;
 
+		static bool highlighting_colors_equalized;
+
 		static AnnotateControl()
 		{
 			try
@@ -130,6 +132,83 @@ namespace HgSccHelper
 			catch(Exception e)
 			{
 				Logger.WriteLine("AnnotateControl Error: {0}", e.Message);
+			}
+		}
+
+		//------------------------------------------------------------------
+		public static void ColorToHSV(Color color, out double hue, out double saturation, out double value)
+		{
+			int max = Math.Max(color.R, Math.Max(color.G, color.B));
+			int min = Math.Min(color.R, Math.Min(color.G, color.B));
+
+			var c = System.Drawing.Color.FromArgb(color.R, color.G, color.B);
+			hue = c.GetHue();
+			saturation = (max == 0) ? 0 : 1d - (1d * min / max);
+			value = max / 255d;
+		}
+
+		//------------------------------------------------------------------
+		public static Color ColorFromHSV(double hue, double saturation, double value)
+		{
+			int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+			double f = hue / 60 - Math.Floor(hue / 60);
+
+			value = value * 255;
+			byte v = (byte)value;
+			byte p = (byte)(value * (1 - saturation));
+			byte q = (byte)(value * (1 - f * saturation));
+			byte t = (byte)(value * (1 - (1 - f) * saturation));
+
+			if (hi == 0)
+				return Color.FromArgb(255, v, t, p);
+			else if (hi == 1)
+				return Color.FromArgb(255, q, v, p);
+			else if (hi == 2)
+				return Color.FromArgb(255, p, v, t);
+			else if (hi == 3)
+				return Color.FromArgb(255, p, q, v);
+			else if (hi == 4)
+				return Color.FromArgb(255, t, p, v);
+			else
+				return Color.FromArgb(255, v, p, q);
+		}
+
+		//------------------------------------------------------------------
+		void EqualizeHighlightingColors(IEnumerable<IHighlightingDefinition> highlightings)
+		{
+			// TODO: Find a way to clone highlightings
+			foreach (var h in highlightings)
+			{
+				// Patch highlighting allready changed by diff colorizer
+				if (h.Name == "Patch")
+					continue;
+
+				foreach (var c in h.NamedHighlightingColors)
+				{
+					var brush = c.Foreground;
+					if (brush == null)
+						continue;
+
+					var color = brush.GetColor(null);
+					if (!color.HasValue)
+						continue;
+
+					double hue;
+					double saturation;
+					double v;
+
+					ColorToHSV(color.Value, out hue, out saturation, out v);
+					//var new_v = Math.Min(1.0, v * 1.75);
+					var new_color = ColorFromHSV(hue, 0.5, 0.75);
+
+					if (color.Value.R == 0 && color.Value.G == 0 && color.Value.B == 0)
+						new_color = Colors.White;
+					else
+						if (color.Value.R == 255 && color.Value.G == 255 && color.Value.B == 255)
+							new_color = Colors.Black;
+
+					c.Foreground = new HgSccHelper.UI.SimpleHighlightingBrush(new_color);
+				}
 			}
 		}
 
@@ -162,6 +241,18 @@ namespace HgSccHelper
 			var defs = HighlightingManager.Instance.HighlightingDefinitions;
 			highlightings = new ObservableCollection<IHighlightingDefinition>(
 				defs.OrderBy(h => h.Name));
+
+			if (ThemeManager.Instance.Current.Name == "Dark")
+			{
+				// Check if colors are allready equalized
+				if (!highlighting_colors_equalized)
+				{
+					EqualizeHighlightingColors(highlightings);
+					highlighting_colors_equalized  = true;
+				}
+
+				textEditor.Foreground = Brushes.LightGray;
+			}
 
 			comboHighlighting.ItemsSource = highlightings;
 
@@ -1436,15 +1527,15 @@ namespace HgSccHelper
 		public ColorizeChanges(List<AnnotateLineView> lines)
 		{
 			this.lines = lines;
-			
-			var selected_color = Colors.Blue;
+
+			var selected_color = ThemeManager.Instance.Current.AnnotateColor;
 			selected_color.A = 25;
 
 			selected_brush = new SolidColorBrush(selected_color);
 			selected_brush.Freeze();
 
-			var current_color = Colors.Red;
-			current_color.A = 50;
+			var current_color = ThemeManager.Instance.Current.AnnotateColor;
+			current_color.A = 45;
 
 			current_brush = new SolidColorBrush(current_color);
 			current_brush.Freeze();

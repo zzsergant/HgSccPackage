@@ -60,7 +60,8 @@ namespace HgSccHelper.UI
 				AccentColor = Color.FromRgb(27, 191, 235),
 				ErrorColor = Colors.Red,
 				RevLogLineColor = Colors.Black,
-				RevLogNodeColor = Colors.Blue
+				RevLogNodeColor = Colors.Blue,
+				AnnotateColor = Colors.Blue
 			});
 
 			themes.Add(new Theme
@@ -73,7 +74,8 @@ namespace HgSccHelper.UI
 				AccentColor = Color.FromRgb(27, 121, 175),
 				ErrorColor = Colors.LightSalmon,
 				RevLogLineColor = Colors.White,
-				RevLogNodeColor = Colors.LightBlue
+				RevLogNodeColor = Colors.LightBlue,
+				AnnotateColor = Colors.LightBlue
 			});
 
 			if (!Load())
@@ -238,6 +240,7 @@ namespace HgSccHelper.UI
 		public ResourceDictionary ResourceDictionary { get; set; }
 		public Color AccentColor { get; set; }
 		public Color ErrorColor { get; set; }
+		public Color AnnotateColor { get; set; }
 
 		private Color rev_log_line_color;
 
