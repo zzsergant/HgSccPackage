@@ -53,7 +53,7 @@
                Margin="5"
                HorizontalAlignment="Right"
                Grid.Column="0" Grid.Row="3"></Label>
-        <TextBox Text="HgSccPackage v2.0.0"
+        <TextBox Text="HgSccPackage v2.0.1"
                Margin="5"
                  IsReadOnly="True"
                  Grid.Column="1" Grid.Row="3"></TextBox>
