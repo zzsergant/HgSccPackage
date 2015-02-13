@@ -58,13 +58,15 @@ namespace HgSccHelper.BitBucket
 			var client = CreateRestClient();
 			client.Authenticator = new HttpBasicAuthenticator(username, password);
 
-			var request = new RestRequest("emails");
+			var request = new RestRequest("user");
 
-			var response = client.Execute<List<BitBucketEmail>>(request);
+			var response = client.Execute<BitBucketUserResponse>(request);
 			if (response.ResponseStatus != ResponseStatus.Completed)
 				return false;
+			if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+				return false;
 
-			return response.Data.Count > 0;
+			return response.Data != null;
 		}
 
 		//-----------------------------------------------------------------------------
@@ -185,5 +187,11 @@ namespace HgSccHelper.BitBucket
 		public string Avatar { get; set; }
 		public List<string> Email { get; set; }
 		public string ResourceUri { get; set; }
+	}
+
+	public class BitBucketUserResponse
+	{
+		public List<BitBucketRepo> Repositories { get; set; }
+		public BitBucketUser User { get; set; }
 	}
 }
