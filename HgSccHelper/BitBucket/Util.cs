@@ -80,10 +80,10 @@ namespace HgSccHelper.BitBucket
 			var client = CreateRestClient();
 			client.Authenticator = new HttpBasicAuthenticator(username, password);
 
-			var request = new RestRequest("users/{username}");
-			request.AddParameter("username", username, ParameterType.UrlSegment);
+			var request = new RestRequest("user/repositories");
+			//request.AddParameter("username", username, ParameterType.UrlSegment);
 
-			var response = client.Execute<BitBucketUser>(request);
+			var response = client.Execute<List<BitBucketRepo>>(request);
 
 			if (response.ResponseStatus != ResponseStatus.Completed)
 				return repositories;
@@ -94,7 +94,7 @@ namespace HgSccHelper.BitBucket
 			// Bitbucket supports Hg and Git repositories, but we need only Hg
 
 			var hg_repos =
-				response.Data.Repositories.Where(
+				response.Data.Where(
 					repo => StringComparer.InvariantCultureIgnoreCase.Compare(repo.Scm, "hg") == 0);
 
 			return hg_repos.ToList();
