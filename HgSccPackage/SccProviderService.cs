@@ -1075,6 +1075,14 @@ namespace HgSccPackage
 					_sccProvider.RefreshNodesGlyphs(nodes);
 				}
 			}
+			else
+			{
+				var prj = pHierarchy as IVsSccProject2;
+				if (prj != null && !IsProjectControlled(pHierarchy))
+				{
+					RegisterSccProject(prj, "", "", "", _sccProvider.ProviderName);
+				}
+			}
 
 			all_projects.Add(pHierarchy);
 
