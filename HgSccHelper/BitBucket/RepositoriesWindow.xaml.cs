@@ -62,7 +62,7 @@ namespace HgSccHelper.BitBucket
 
 			btnSelect.IsEnabled = false;
 
-			foreach (var repo in repo_list.OrderBy(r => r.Name))
+			foreach (var repo in repo_list.OrderBy(r => r.Owner).ThenBy(r => r.Name))
 				repositories.Add(repo);
 		}
 
