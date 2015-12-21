@@ -202,7 +202,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Grep</ButtonText>
-					<MenuText>&amp;Search With RegExp</MenuText>
+					<MenuText>Search With RegE&amp;xp</MenuText>
 					<ToolTipText>Search With RegExp</ToolTipText>
 				</Strings>
 			</Button>
