@@ -11,7 +11,7 @@
 				<Parent guid="guidSHLMainMenu" id="IDG_VS_MM_PROJECT" />
 				<Strings>
 					<ButtonText>Mercurial</ButtonText>
-					<CommandName>Mercurial</CommandName>
+					<CommandName>Mercuri&amp;al</CommandName>
 				</Strings>
 			</Menu>
 			<Menu guid="guidSccProviderCmdSet" id="imnuHgSccSlnMenu" priority="0x100" type="Menu">
@@ -19,17 +19,17 @@
 				<Strings>
 					<MenuText>Mercurial</MenuText>
 					<ButtonText>Mercurial</ButtonText>
-					<CommandName>Mercurial</CommandName>
+					<CommandName>Mercuri&amp;al</CommandName>
 				</Strings>
 			</Menu>
-			<!--  Menu for commands in toolwindow's toolbar 
-	  <Menu guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu" priority="0x0000" type="ToolWindowToolbar">
+			<!--  Menu for commands in toolwindow's toolbar
+		<Menu guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu" priority="0x0000" type="ToolWindowToolbar">
 		<Parent guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu"/>
 		<Strings>
-		  <ButtonText>WindowBar</ButtonText>
-		  <CommandName>Window Bar</CommandName>
+			<ButtonText>WindowBar</ButtonText>
+			<CommandName>Window Bar</CommandName>
 		</Strings>
-	  </Menu>-->
+		</Menu>-->
 			<!--  Create a top-level toolbar for source control commands -->
 			<Menu guid="guidSccProviderCmdSet" id="itbrSccToolbar" type="Toolbar">
 				<CommandFlag>DefaultDocked</CommandFlag>
@@ -55,35 +55,35 @@
 				<Parent guid="guidSccProviderCmdSet" id="itbrSccToolbar" />
 			</Group>
 
-			<!-- 	Group for commands under View main menu 
-	  <Group guid="guidSccProviderCmdSet" id="igrpViewToolWindowGroup" priority="0x0100">
+			<!-- 	Group for commands under View main menu
+		<Group guid="guidSccProviderCmdSet" id="igrpViewToolWindowGroup" priority="0x0100">
 		<Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_VIEW"/>
-	  </Group>-->
+		</Group>-->
 			<!-- 	Group for buttons in toolwindow's toolbar
-	  <Group guid="guidSccProviderCmdSet" id="igrpToolWindowToolbarGroup" priority="0x0100">
+		<Group guid="guidSccProviderCmdSet" id="igrpToolWindowToolbarGroup" priority="0x0100">
 		<Parent guid="guidSccProviderCmdSet" id="imnuToolWindowToolbarMenu"/>
-	  </Group> -->
+		</Group> -->
 		</Groups>
 		<Buttons>
-			<!-- 	View/ToolWindow command defined 
-	  <Button guid="guidSccProviderCmdSet" id="icmdViewToolWindow" priority="0x0100" type="Button">
+			<!-- 	View/ToolWindow command defined
+		<Button guid="guidSccProviderCmdSet" id="icmdViewToolWindow" priority="0x0100" type="Button">
 		<Parent guid="guidSccProviderCmdSet" id="igrpViewToolWindowGroup"/>
 		<CommandFlag>DynamicVisibility</CommandFlag>
 		<CommandFlag>DefaultInvisible</CommandFlag>
 		<Strings>
-		  <ButtonText>Mercurial Tool Window</ButtonText>
+			<ButtonText>Mercurial Tool Window</ButtonText>
 		</Strings>
-	  </Button>
-	  -->
+		</Button>
+		-->
 			<!-- 	Buttons in the toolwindow's toolbar
-	  <Button guid="guidSccProviderCmdSet" id="icmdToolWindowToolbarCommand" priority="0x0100" type="Button">
+		<Button guid="guidSccProviderCmdSet" id="icmdToolWindowToolbarCommand" priority="0x0100" type="Button">
 		<Parent guid="guidSccProviderCmdSet" id="igrpToolWindowToolbarGroup"/>
 		<CommandFlag>DynamicVisibility</CommandFlag>
 		<CommandFlag>DefaultInvisible</CommandFlag>
 		<Strings>
-		  <ButtonText>ToolButton</ButtonText>
+			<ButtonText>ToolButton</ButtonText>
 		</Strings>
-	  </Button> -->
+		</Button> -->
 			<Button guid="guidSccProviderCmdSet" id="icmdChangeSccBindings" priority="0x0000" type="Button">
 				<Parent guid="guidSccProviderCmdSet" id="igrpHgTopLevelMenu" />
 				<Icon guid="guidSccProviderImages" id="iconChangeSccBindings" />
@@ -103,7 +103,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Options</ButtonText>
-					<MenuText>Options</MenuText>
+					<MenuText>O&amp;ptions</MenuText>
 					<ToolTipText>Options</ToolTipText>
 				</Strings>
 			</Button>
@@ -114,7 +114,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>AddToSourceControl</ButtonText>
-					<MenuText>Add To Source Control</MenuText>
+					<MenuText>A&amp;dd To Source Control</MenuText>
 					<ToolTipText>Add To Source Control</ToolTipText>
 				</Strings>
 			</Button>
@@ -125,7 +125,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Clone</ButtonText>
-					<MenuText>Clone...</MenuText>
+					<MenuText>Cl&amp;one...</MenuText>
 					<ToolTipText>Clone...</ToolTipText>
 				</Strings>
 			</Button>
@@ -136,7 +136,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Synchronize</ButtonText>
-					<MenuText>Synchronize...</MenuText>
+					<MenuText>&amp;Synchronize...</MenuText>
 					<ToolTipText>Synchronize...</ToolTipText>
 				</Strings>
 			</Button>
@@ -147,7 +147,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Commit</ButtonText>
-					<MenuText>Commit...</MenuText>
+					<MenuText>Comm&amp;it...</MenuText>
 					<ToolTipText>Commit...</ToolTipText>
 				</Strings>
 			</Button>
@@ -158,7 +158,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Revert</ButtonText>
-					<MenuText>Revert...</MenuText>
+					<MenuText>Re&amp;vert...</MenuText>
 					<ToolTipText>Revert...</ToolTipText>
 				</Strings>
 			</Button>
@@ -169,7 +169,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Compare</ButtonText>
-					<MenuText>Compare</MenuText>
+					<MenuText>&amp;Compare</MenuText>
 					<ToolTipText>Compare</ToolTipText>
 				</Strings>
 			</Button>
@@ -180,7 +180,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>FileHistory</ButtonText>
-					<MenuText>File History</MenuText>
+					<MenuText>File &amp;History</MenuText>
 					<ToolTipText>File History</ToolTipText>
 				</Strings>
 			</Button>
@@ -191,7 +191,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Annotate</ButtonText>
-					<MenuText>Annotate File</MenuText>
+					<MenuText>&amp;Annotate File</MenuText>
 					<ToolTipText>Annotate File</ToolTipText>
 				</Strings>
 			</Button>
@@ -202,7 +202,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Grep</ButtonText>
-					<MenuText>Search With RegExp</MenuText>
+					<MenuText>&amp;Search With RegExp</MenuText>
 					<ToolTipText>Search With RegExp</ToolTipText>
 				</Strings>
 			</Button>
@@ -213,7 +213,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>ViewChangeLog</ButtonText>
-					<MenuText>View Change Log</MenuText>
+					<MenuText>View Change &amp;Log</MenuText>
 					<ToolTipText>View Change Log</ToolTipText>
 				</Strings>
 			</Button>
@@ -224,7 +224,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Update</ButtonText>
-					<MenuText>Update...</MenuText>
+					<MenuText>&amp;Update...</MenuText>
 					<ToolTipText>Update...</ToolTipText>
 				</Strings>
 			</Button>
@@ -235,7 +235,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Tags</ButtonText>
-					<MenuText>Tags...</MenuText>
+					<MenuText>&amp;Tags...</MenuText>
 					<ToolTipText>Tags...</ToolTipText>
 				</Strings>
 			</Button>
@@ -246,7 +246,7 @@
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>RefreshStatus</ButtonText>
-					<MenuText>Refresh Status</MenuText>
+					<MenuText>&amp;Refresh Status</MenuText>
 					<ToolTipText>Refresh Status</ToolTipText>
 				</Strings>
 			</Button>
