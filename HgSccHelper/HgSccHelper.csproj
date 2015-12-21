@@ -208,6 +208,7 @@
     <Compile Include="Misc\DeferredCommandExecutor.cs" />
     <Compile Include="UI\Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="UI\Converters\HgStatusToColorConverter.cs" />
+    <Compile Include="UI\Converters\OneLineConverter.cs" />
     <Compile Include="UI\Converters\RemoveLastNewLineConverter.cs" />
     <Compile Include="UI\CreateRepositoryWindow.xaml.cs">
       <DependentUpon>CreateRepositoryWindow.xaml</DependentUpon>
