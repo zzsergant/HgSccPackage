@@ -181,7 +181,9 @@ namespace HgSccPackage
 			var lst = new List<SccAddFile>();
 			for (int i = 0; i < files_list.Count; ++i)
 			{
-				if (status_list[i] == SourceControlStatus.scsUncontrolled)
+				if (status_list[i] == SourceControlStatus.scsUncontrolled
+					|| status_list[i] == SourceControlStatus.scsDeleted
+					|| status_list[i] == SourceControlStatus.scsRemoved)
 				{
 					var f = files_list[i];
 					lst.Add(new SccAddFile { File = f, Flags = SccAddFlags.FileTypeAuto });
