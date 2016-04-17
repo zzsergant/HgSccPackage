@@ -7,6 +7,7 @@
         WindowStartupLocation="CenterScreen"
         TextOptions.TextFormattingMode="Display"
         Loaded="Window_Loaded"
+        Unloaded="Window_Unloaded"
         Height="400"
         Width="750">
     <Window.CommandBindings>
@@ -36,9 +37,9 @@
                   Margin="5">
             <ListView.View>
                 <GridView x:Name="listReposGrid">
-                    <GridViewColumn Header="Name" Width="250" DisplayMemberBinding="{Binding Name}" />
-                    <GridViewColumn Header="Owner" Width="200" DisplayMemberBinding="{Binding Owner}" />
-                    <GridViewColumn Header="Desc" Width="300" DisplayMemberBinding="{Binding Description, Converter={StaticResource OneLineConverter}}" />
+                    <GridViewColumn Header="Name" Width="170" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Header="Owner" Width="150" DisplayMemberBinding="{Binding Owner}" />
+                    <GridViewColumn Header="Desc" Width="700" DisplayMemberBinding="{Binding Description, Converter={StaticResource OneLineConverter}}" />
                 </GridView>
             </ListView.View>
         </ListView>

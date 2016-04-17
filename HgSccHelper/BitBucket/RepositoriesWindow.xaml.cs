@@ -57,6 +57,8 @@ namespace HgSccHelper.BitBucket
 		//-----------------------------------------------------------------------------
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
+			listReposGrid.LoadCfg(FileHistoryWindow.CfgPath, "ListReposGrid");
+
 			var repo_list = Util.GetRepositories(Credentials.Instance.Username,
 			                                     Credentials.Instance.Password);
 
@@ -160,6 +162,12 @@ namespace HgSccHelper.BitBucket
 					}
 				}
 			}
+		}
+
+		//--	----------------------------------------------------------------
+		private void Window_Unloaded(object sender, RoutedEventArgs e)
+		{
+			listReposGrid.SaveCfg(FileHistoryWindow.CfgPath, "ListReposGrid");
 		}
 	}
 }
