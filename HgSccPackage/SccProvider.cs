@@ -49,7 +49,7 @@ namespace HgSccPackage
 	// Register the source control provider's service (implementing IVsScciProvider interface)
 	[MsVsShell.ProvideService(typeof (SccProviderService),
 		ServiceName = "Mercurial Source Control Provider Service")]
-	[MsVsShell.InstalledProductRegistration("#110", "#112", "2.0.2", IconResourceID = 400)]
+	[MsVsShell.InstalledProductRegistration("#110", "#112", "2.0.3", IconResourceID = 400)]
 	// Register the source control provider to be visible in Tools/Options/SourceControl/Plugin
 	// dropdown selector
 	[ProvideSourceControlProvider("Mercurial Source Control Package", "#100")]
