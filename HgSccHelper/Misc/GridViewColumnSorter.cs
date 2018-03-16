@@ -88,8 +88,8 @@ namespace HgSccHelper
 		private void Sort(string property_name, ListSortDirection direction)
 		{
 			var dataView = CollectionViewSource.GetDefaultView(list_view.ItemsSource);
-            if (dataView == null)
-                return;
+			if (dataView == null)
+				return;
 
 			dataView.SortDescriptions.Clear();
 			SortDescription sd = new SortDescription(property_name, direction);
