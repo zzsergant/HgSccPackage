@@ -78,7 +78,7 @@ namespace HgSccHelper
 			{
 				var builder = new StringBuilder();
 				builder.Append(@"==:\n");
-				builder.Append(@"date: {date|isodate}\n");
+				builder.Append(@"date: {date|isodatesec}\n");
 				builder.Append(@"author: {author}\n");
 				builder.Append(@"desc: {desc|strip|tabindent}\n");
 				builder.Append(@"rev: {rev}\n");
