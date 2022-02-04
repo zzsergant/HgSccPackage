@@ -35,10 +35,6 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HgSccPackage</RootNamespace>
     <AssemblyName>HgSccPackage</AssemblyName>
-    <SccProjectName>&lt;Project Location In Database&gt;</SccProjectName>
-    <SccLocalPath>&lt;Local Binding Root of Project&gt;</SccLocalPath>
-    <SccAuxPath>&lt;Source Control Database&gt;</SccAuxPath>
-    <SccProvider>Mercurial Source Control Package</SccProvider>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
